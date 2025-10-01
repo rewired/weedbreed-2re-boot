@@ -1,0 +1,123 @@
+{
+  "separator": "-",
+  "minScore": 0.6,
+  "count": 1,
+  "blacklist": [],
+  "lexicon": {
+    "color": [
+      ["white", 1.0],
+      ["purple", 1.0],
+      ["blue", 1.0],
+      ["gold", 1.0],
+      ["green", 1.0],
+      ["red", 1.0],
+      ["orange", 1.0],
+      ["pink", 1.0],
+      ["silver", 0.8],
+      ["platinum", 0.8]
+    ],
+    "strain": [
+      ["kush", 1.0],
+      ["haze", 1.0],
+      ["skunk", 1.0],
+      ["diesel", 1.0],
+      ["og", 1.0],
+      ["glue", 1.0],
+      ["widow", 1.0],
+      ["northern", 1.0],
+      ["sour", 1.0],
+      ["gorilla", 1.0],
+      ["jack", 1.0],
+      ["chem", 1.0],
+      ["dawg", 1.0],
+      ["train", 1.0],
+      ["ghost", 1.0],
+      ["bruce", 1.0],
+      ["banner", 1.0]
+    ],
+    "fruit": [
+      ["cherry", 1.0],
+      ["lemon", 1.0],
+      ["mango", 1.0],
+      ["grape", 1.0],
+      ["banana", 1.0],
+      ["pineapple", 1.0],
+      ["apple", 1.0],
+      ["berry", 1.0],
+      ["strawberry", 1.0],
+      ["orange", 1.0],
+      ["tangie", 1.0]
+    ],
+    "dessert": [
+      ["gelato", 1.0],
+      ["cookie", 1.0],
+      ["cake", 1.0],
+      ["cream", 1.0],
+      ["sundae", 1.0],
+      ["punch", 1.0],
+      ["ice", 1.0],
+      ["gum", 1.0],
+      ["bubble", 1.0],
+      ["sherbet", 1.0],
+      ["runtz", 1.0],
+      ["wedding", 1.0],
+      ["cheese", 1.0],
+      ["zkittlez", 1.0]
+    ],
+    "suffix": [
+      ["gold", 1.0],
+      ["fuel", 1.0],
+      ["punch", 1.0],
+      ["rush", 1.0],
+      ["prime", 1.0],
+      ["ultra", 1.0],
+      ["nova", 1.0],
+      ["max", 1.0],
+      ["pro", 1.0],
+      ["king", 1.0],
+      ["queen", 1.0]
+    ]
+  },
+  "templates": [
+    {
+      "parts": ["color", "strain"],
+      "weight": 0.3,
+      "options": {
+        "preferAlliteration": false,
+        "maxLen": 20
+      }
+    },
+    {
+      "parts": ["fruit", "strain"],
+      "weight": 0.25,
+      "options": {
+        "preferAlliteration": false,
+        "maxLen": 22
+      }
+    },
+    {
+      "parts": ["dessert", "suffix"],
+      "weight": 0.2,
+      "options": {
+        "preferAlliteration": true,
+        "maxLen": 18
+      }
+    },
+    {
+      "parts": ["color", "fruit", "suffix"],
+      "weight": 0.15,
+      "options": {
+        "preferAlliteration": false,
+        "maxLen": 25
+      }
+    },
+    {
+      "parts": ["strain", "suffix"],
+      "weight": 0.1,
+      "options": {
+        "preferAlliteration": true,
+        "maxLen": 20
+      }
+    }
+  ]
+}

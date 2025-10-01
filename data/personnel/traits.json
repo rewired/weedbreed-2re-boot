@@ -1,0 +1,80 @@
+[
+  {
+    "id": "trait_green_thumb",
+    "name": "Green Thumb",
+    "description": "Naturally gifted with plants, providing a slight bonus to all gardening tasks.",
+    "type": "positive"
+  },
+  {
+    "id": "trait_night_owl",
+    "name": "Night Owl",
+    "description": "More energetic and efficient during night shifts.",
+    "type": "positive"
+  },
+  {
+    "id": "trait_quick_learner",
+    "name": "Quick Learner",
+    "description": "Gains skill experience from working and training 15% faster.",
+    "type": "positive"
+  },
+  {
+    "id": "trait_optimist",
+    "name": "Optimist",
+    "description": "Slightly raises the morale of all other employees in the same structure.",
+    "type": "positive"
+  },
+  {
+    "id": "trait_gearhead",
+    "name": "Gearhead",
+    "description": "Has a knack for mechanics, causing devices they maintain to degrade slower.",
+    "type": "positive"
+  },
+  {
+    "id": "trait_frugal",
+    "name": "Frugal",
+    "description": "Accepts a slightly lower salary than their skills would normally demand.",
+    "type": "positive"
+  },
+  {
+    "id": "trait_meticulous",
+    "name": "Meticulous",
+    "description": "Excels at keeping things clean, reducing the chance of random pest or disease outbreaks.",
+    "type": "positive"
+  },
+  {
+    "id": "trait_clumsy",
+    "name": "Clumsy",
+    "description": "Slightly increases the chance of minor errors during maintenance tasks.",
+    "type": "negative"
+  },
+  {
+    "id": "trait_slacker",
+    "name": "Slacker",
+    "description": "Works 10% slower and loses energy more quickly.",
+    "type": "negative"
+  },
+  {
+    "id": "trait_pessimist",
+    "name": "Pessimist",
+    "description": "Slightly lowers the morale of all other employees in the same structure.",
+    "type": "negative"
+  },
+  {
+    "id": "trait_forgetful",
+    "name": "Forgetful",
+    "description": "Takes longer to complete complex tasks and is less efficient at planning.",
+    "type": "negative"
+  },
+  {
+    "id": "trait_demanding",
+    "name": "Demanding",
+    "description": "Expects a higher salary than their skills would normally demand.",
+    "type": "negative"
+  },
+  {
+    "id": "trait_slow_learner",
+    "name": "Slow Learner",
+    "description": "Gains skill experience from working and training 15% slower.",
+    "type": "negative"
+  }
+]

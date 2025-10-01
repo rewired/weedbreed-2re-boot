@@ -1,0 +1,11 @@
+{
+  "id": "d96dd659-4678-4d5d-a97c-a590ab52c2f2",
+  "name": "Shed",
+  "footprint": {
+    "length_m": 6,
+    "width_m": 5,
+    "height_m": 3
+  },
+  "rentalCostPerSqmPerMonth": 1,
+  "upfrontFee": 50
+}

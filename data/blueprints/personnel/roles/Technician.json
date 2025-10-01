@@ -1,0 +1,33 @@
+{
+  "id": "Technician",
+  "name": "Technician",
+  "salary": {
+    "basePerTick": 28,
+    "skillFactor": { "base": 0.85, "perPoint": 0.04, "min": 0.85, "max": 1.45 },
+    "randomRange": { "min": 0.9, "max": 1.12 },
+    "skillWeights": { "primary": 1.25, "secondary": 0.65, "tertiary": 0.4 }
+  },
+  "maxMinutesPerTick": 120,
+  "roleWeight": 0.2,
+  "skillProfile": {
+    "primary": {
+      "skill": "Maintenance",
+      "startingLevel": 4,
+      "roll": { "min": 3, "max": 5 }
+    },
+    "secondary": {
+      "skill": "Logistics",
+      "startingLevel": 2,
+      "roll": { "min": 1, "max": 4 }
+    },
+    "tertiary": {
+      "chance": 0.25,
+      "roll": { "min": 1, "max": 3 },
+      "candidates": [
+        { "skill": "Gardening", "startingLevel": 1 },
+        { "skill": "Administration", "startingLevel": 1 },
+        { "skill": "Cleanliness", "startingLevel": 1 }
+      ]
+    }
+  }
+}

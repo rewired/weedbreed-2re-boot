@@ -1,0 +1,48 @@
+{
+  "id": "e0f5c4d3-9f6g-6e1c-d7g8-5h0c1e3f4g6h",
+  "slug": "top-feed-pump-timer",
+  "name": "Top-Feed Pump (Timer)",
+  "kind": "TopFeed",
+  "description": "Timer-controlled top-feed system with batch nutrient mixing. Automated delivery with moderate uniformity.",
+  "mixing": "batch",
+  "couplesFertilizer": true,
+  "flow_L_per_min": 3.5,
+  "uniformity": 0.82,
+  "labor": {
+    "basis": "perZone",
+    "minutes": 6.0
+  },
+  "runoff": {
+    "defaultFraction": 0.12,
+    "capturesRunoff": false
+  },
+  "requirements": {
+    "power_kW": 0.1,
+    "minPressure_bar": 0.8
+  },
+  "compatibility": {
+    "substrates": ["soil", "coco", "perlite"],
+    "methods": ["sog", "scrog", "basic_soil_pot"]
+  },
+  "maintenance": {
+    "inspectionEveryDays": 7,
+    "cleaningEveryDays": 45,
+    "clogsRisk": 0.12
+  },
+  "meta": {
+    "description": "Simple top-feed system with timer control. Nutrients are mixed in a reservoir and pumped to plants on schedule.",
+    "advantages": [
+      "Low setup cost",
+      "Automated delivery",
+      "Works with most substrates",
+      "Easy to install"
+    ],
+    "disadvantages": [
+      "Moderate uniformity",
+      "Timer calibration needed",
+      "No runoff capture",
+      "Clog risk"
+    ],
+    "notes": "Good entry-level automation. Requires regular timer adjustments based on plant growth stage."
+  }
+}

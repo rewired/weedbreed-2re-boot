@@ -1,0 +1,48 @@
+{
+  "id": "d9e4b3c2-8e5f-5d0b-c6f7-4g9b0d2e3f5g",
+  "slug": "ebb-flow-table-small",
+  "name": "Ebb & Flow Table (Small)",
+  "kind": "EbbFlow",
+  "description": "Flood-and-drain table system with batch nutrient mixing. High uniformity, moderate labor.",
+  "mixing": "batch",
+  "couplesFertilizer": true,
+  "flow_L_per_min": 15.0,
+  "uniformity": 0.92,
+  "labor": {
+    "basis": "perZone",
+    "minutes": 8.0
+  },
+  "runoff": {
+    "defaultFraction": 0.05,
+    "capturesRunoff": true
+  },
+  "requirements": {
+    "power_kW": 0.25,
+    "minPressure_bar": 0.5
+  },
+  "compatibility": {
+    "substrates": ["coco", "rockwool", "perlite"],
+    "methods": ["sog", "scrog"]
+  },
+  "maintenance": {
+    "inspectionEveryDays": 10,
+    "cleaningEveryDays": 21,
+    "clogsRisk": 0.08
+  },
+  "meta": {
+    "description": "Table-based flood-and-drain system. Nutrients are mixed in a reservoir and pumped to flood the table periodically.",
+    "advantages": [
+      "Excellent uniformity",
+      "Runoff capture and reuse",
+      "Efficient water use",
+      "Good for dense plantings"
+    ],
+    "disadvantages": [
+      "Higher setup cost",
+      "Requires reservoir management",
+      "Power dependency",
+      "Not suitable for soil"
+    ],
+    "notes": "Ideal for SOG/SCROG methods with coco or rockwool. Captured runoff reduces water costs."
+  }
+}

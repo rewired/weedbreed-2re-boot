@@ -1,0 +1,37 @@
+{
+  "id": "c701efa6-1e90-4f28-8934-ea9c584596e4",
+  "kind": "CO2Injector",
+  "name": "CO2 Pulse",
+  "quality": 0.85,
+  "complexity": 0.15,
+  "lifetime_h": 8760,
+  "roomPurposes": ["growroom"],
+  "coverage": {
+    "maxVolume_m3": 30.0,
+    "distributionPattern": "point-source"
+  },
+  "limits": {
+    "power_W": 50,
+    "co2Rate_ppm_min": 200,
+    "maxCO2_ppm": 1500,
+    "minCO2_ppm": 350
+  },
+  "efficiencyDegeneration": 0.8,
+  "maintenance": {
+    "intervalDays": 60,
+    "costPerService_eur": 25.0,
+    "hoursPerService": 0.75
+  },
+  "settings": {
+    "power": 0.05,
+    "targetCO2": 1100,
+    "targetCO2Range": [400, 1500],
+    "hysteresis": 60,
+    "pulsePpmPerTick": 150
+  },
+  "meta": {
+    "description": "Automated CO2 injector for controlled enrichment.",
+    "advantages": ["Precise dosing", "Energy efficient"],
+    "disadvantages": ["Requires CO2 supply", "Overuse can harm plants"]
+  }
+}

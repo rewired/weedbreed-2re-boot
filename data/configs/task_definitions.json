@@ -1,0 +1,90 @@
+{
+  "repair_device": {
+    "costModel": { "basis": "perAction", "laborMinutes": 90 },
+    "priority": 100,
+    "requiredRole": "Technician",
+    "requiredSkill": "Maintenance",
+    "minSkillLevel": 2,
+    "description": "Repair {deviceName} in {zoneName}"
+  },
+  "maintain_device": {
+    "costModel": { "basis": "perAction", "laborMinutes": 30 },
+    "priority": 30,
+    "requiredRole": "Technician",
+    "requiredSkill": "Maintenance",
+    "minSkillLevel": 4,
+    "description": "Maintain {deviceName} in {zoneName}"
+  },
+  "harvest_plants": {
+    "costModel": { "basis": "perPlant", "laborMinutes": 5 },
+    "priority": 90,
+    "requiredRole": "Gardener",
+    "requiredSkill": "Gardening",
+    "minSkillLevel": 0,
+    "description": "Harvest {plantCount} plants in {zoneName}"
+  },
+  "refill_supplies_water": {
+    "costModel": { "basis": "perAction", "laborMinutes": 15 },
+    "priority": 80,
+    "requiredRole": "Gardener",
+    "requiredSkill": "Gardening",
+    "minSkillLevel": 0,
+    "description": "Refill water in {zoneName}"
+  },
+  "refill_supplies_nutrients": {
+    "costModel": { "basis": "perAction", "laborMinutes": 15 },
+    "priority": 80,
+    "requiredRole": "Gardener",
+    "requiredSkill": "Gardening",
+    "minSkillLevel": 0,
+    "description": "Refill nutrients in {zoneName}"
+  },
+  "clean_zone": {
+    "costModel": { "basis": "perSquareMeter", "laborMinutes": 1 },
+    "priority": 60,
+    "requiredRole": "Janitor",
+    "requiredSkill": "Cleanliness",
+    "minSkillLevel": 0,
+    "description": "Clean {zoneName} ({area}m²)"
+  },
+  "overhaul_zone_substrate": {
+    "costModel": { "basis": "perSquareMeter", "laborMinutes": 5 },
+    "priority": 70,
+    "requiredRole": "Janitor",
+    "requiredSkill": "Cleanliness",
+    "minSkillLevel": 2,
+    "description": "Overhaul substrate in {zoneName} ({area}m²)"
+  },
+  "reset_light_cycle": {
+    "costModel": { "basis": "perAction", "laborMinutes": 5 },
+    "priority": 50,
+    "requiredRole": "Gardener",
+    "requiredSkill": "Gardening",
+    "minSkillLevel": 0,
+    "description": "Reset light cycle in {zoneName}"
+  },
+  "execute_planting_plan": {
+    "costModel": { "basis": "perPlant", "laborMinutes": 2 },
+    "priority": 40,
+    "requiredRole": "Gardener",
+    "requiredSkill": "Gardening",
+    "minSkillLevel": 0,
+    "description": "Plant {plantCount} seedlings in {zoneName}"
+  },
+  "adjust_light_cycle": {
+    "costModel": { "basis": "perAction", "laborMinutes": 5 },
+    "priority": 80,
+    "requiredRole": "Gardener",
+    "requiredSkill": "Gardening",
+    "minSkillLevel": 3,
+    "description": "Adjust light cycle in {zoneName} for flowering"
+  },
+  "apply_treatment": {
+    "costModel": { "basis": "perPlant", "laborMinutes": 4 },
+    "priority": 90,
+    "requiredRole": "Gardener",
+    "requiredSkill": "Gardening",
+    "minSkillLevel": 2,
+    "description": "Apply {treatmentName} to affected plants in {zoneName}"
+  }
+}

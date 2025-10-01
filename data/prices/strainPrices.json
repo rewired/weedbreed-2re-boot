@@ -1,0 +1,24 @@
+{
+  "strainPrices": {
+    "550e8400-e29b-41d4-a716-446655440000": {
+      "seedPrice": 0.5,
+      "harvestPricePerGram": 4.2
+    },
+    "550e8400-e29b-41d4-a716-446655440001": {
+      "seedPrice": 0.6,
+      "harvestPricePerGram": 4.0
+    },
+    "3f0f15f4-1b75-4196-b3f3-5f6b6b7cf7a7": {
+      "seedPrice": 0.7,
+      "harvestPricePerGram": 4.5
+    },
+    "5a6e9e57-0b3a-4f9f-8f19-12f3f8ec3a0e": {
+      "seedPrice": 0.55,
+      "harvestPricePerGram": 4.3
+    },
+    "8b9a0b6c-2d6c-4f58-9c37-7a6c9d4aa5c2": {
+      "seedPrice": 0.8,
+      "harvestPricePerGram": 5.0
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "43ee4095-627d-4a0c-860b-b10affbcf603",
+  "name": "Small Warehouse",
+  "footprint": {
+    "length_m": 20,
+    "width_m": 20,
+    "height_m": 3
+  },
+  "rentalCostPerSqmPerMonth": 10,
+  "upfrontFee": 500
+}

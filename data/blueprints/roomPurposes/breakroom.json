@@ -1,0 +1,14 @@
+{
+  "id": "5ab7d9ac-f14a-45d9-b5f9-908182ca4a02",
+  "kind": "breakroom",
+  "name": "Break Room",
+  "description": "A space for employees to rest and recover energy.",
+  "flags": {
+    "supportsRest": true,
+    "staffOnly": true
+  },
+  "economy": {
+    "areaCost": 280,
+    "baseRentPerTick": 1.5
+  }
+}

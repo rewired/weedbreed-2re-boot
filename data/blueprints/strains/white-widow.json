@@ -1,0 +1,186 @@
+{
+  "id": "550e8400-e29b-41d4-a716-446655440001",
+  "slug": "white_widow",
+  "name": "White Widow",
+  "lineage": {
+    "parents": []
+  },
+  "genotype": {
+    "sativa": 0.5,
+    "indica": 0.5,
+    "ruderalis": 0.0
+  },
+  "generalResilience": 0.75,
+  "germinationRate": 0.97,
+  "chemotype": {
+    "thcContent": 0.18,
+    "cbdContent": 0.02
+  },
+  "morphology": {
+    "growthRate": 0.95,
+    "yieldFactor": 1.1,
+    "leafAreaIndex": 3.0
+  },
+  "envBands": {
+    "default": {
+      "temp_C": { "green": [21, 26], "yellowLow": 19, "yellowHigh": 28 },
+      "rh_frac": { "green": [0.5, 0.65], "yellowLow": 0.4, "yellowHigh": 0.7 },
+      "co2_ppm": { "green": [800, 1150], "yellowLow": 650, "yellowHigh": 1350 },
+      "ppfd_umol_m2s": { "green": [450, 700], "yellowLow": 350, "yellowHigh": 850 },
+      "vpd_kPa": { "green": [0.9, 1.3], "yellowLow": 0.7, "yellowHigh": 1.5 }
+    },
+    "veg": {
+      "temp_C": { "green": [20, 25], "yellowLow": 18, "yellowHigh": 27 },
+      "rh_frac": { "green": [0.55, 0.68], "yellowLow": 0.45, "yellowHigh": 0.75 }
+    },
+    "flower": {
+      "temp_C": { "green": [21, 26], "yellowLow": 19, "yellowHigh": 28 },
+      "rh_frac": { "green": [0.42, 0.58], "yellowLow": 0.35, "yellowHigh": 0.65 },
+      "co2_ppm": { "green": [850, 1200], "yellowLow": 700, "yellowHigh": 1400 }
+    }
+  },
+  "stressTolerance": {
+    "temp_C": 1.8,
+    "rh_frac": 0.07,
+    "co2_ppm": 130,
+    "ppfd_umol_m2s": 60,
+    "vpd_kPa": 0.18
+  },
+  "methodAffinity": {
+    "85cc0916-0e8a-495e-af8f-50291abe6855": 0.9,
+    "659ba4d7-a5fc-482e-98d4-b614341883ac": 0.7,
+    "41229377-ef2d-4723-931f-72eea87d7a62": 0.8
+  },
+  "phaseDurations": {
+    "seedlingDays": 10,
+    "vegDays": 28,
+    "flowerDays": 56,
+    "ripeningDays": 8
+  },
+  "yieldModel": {
+    "baseGmPerPlant": 42,
+    "qualityFactors": {
+      "temp": 0.3,
+      "rh": 0.25,
+      "ppfd": 0.3,
+      "vpd": 0.15
+    },
+    "co2Response": {
+      "halfMax_ppm": 850,
+      "saturation_ppm": 1200
+    }
+  },
+  "growthModel": {
+    "maxBiomassDry": 0.18,
+    "baseLightUseEfficiency": 0.0009,
+    "maintenanceFracPerDay": 0.01,
+    "dryMatterFraction": {
+      "vegetation": 0.25,
+      "flowering": 0.2
+    },
+    "harvestIndex": {
+      "targetFlowering": 0.73
+    },
+    "phaseCapMultiplier": {
+      "vegetation": 0.5,
+      "flowering": 1.0
+    },
+    "temperature": {
+      "Q10": 2.02,
+      "T_ref_C": 25,
+      "min_C": 21,
+      "max_C": 26
+    }
+  },
+  "noise": {
+    "enabled": true,
+    "pct": 0.02
+  },
+  "environmentalPreferences": {
+    "lightSpectrum": {
+      "vegetation": [400, 700],
+      "flowering": [300, 650]
+    },
+    "lightIntensity": {
+      "vegetation": [350, 550],
+      "flowering": [550, 950]
+    },
+    "lightCycle": {
+      "vegetation": [18, 6],
+      "flowering": [12, 12]
+    },
+    "idealTemperature": {
+      "vegetation": [21, 27],
+      "flowering": [20, 26]
+    },
+    "idealHumidity": {
+      "vegetation": [0.55, 0.65],
+      "flowering": [0.45, 0.55]
+    },
+    "phRange": [5.8, 6.2]
+  },
+  "nutrientDemand": {
+    "dailyNutrientDemand": {
+      "seedling": {
+        "nitrogen": 0.03,
+        "phosphorus": 0.02,
+        "potassium": 0.03
+      },
+      "vegetation": {
+        "nitrogen": 0.11,
+        "phosphorus": 0.07,
+        "potassium": 0.11
+      },
+      "flowering": {
+        "nitrogen": 0.06,
+        "phosphorus": 0.15,
+        "potassium": 0.15
+      }
+    },
+    "npkTolerance": 0.2,
+    "npkStressIncrement": 0.035
+  },
+  "waterDemand": {
+    "dailyWaterUsagePerSquareMeter": {
+      "seedling": 0.14,
+      "vegetation": 0.34,
+      "flowering": 0.51
+    },
+    "minimumFractionRequired": 0.15
+  },
+  "diseaseResistance": {
+    "dailyInfectionIncrement": 0.025,
+    "infectionThreshold": 0.45,
+    "recoveryRate": 0.012,
+    "degenerationRate": 0.01,
+    "regenerationRate": 0.006,
+    "fatalityThreshold": 0.95
+  },
+  "photoperiod": {
+    "vegetationTime": 2419200,
+    "floweringTime": 5184000,
+    "transitionTrigger": 43200
+  },
+  "stageChangeThresholds": {
+    "vegetative": {
+      "minLightHours": 320,
+      "maxStressForStageChange": 0.35
+    },
+    "flowering": {
+      "minLightHours": 620,
+      "maxStressForStageChange": 0.25
+    }
+  },
+  "harvestWindow": [5011200, 6048000],
+  "harvestProperties": {
+    "ripeningTime": 172800,
+    "maxStorageTime": 432000,
+    "qualityDecayRate": 5.555555555555556e-6
+  },
+  "meta": {
+    "description": "White Widow is a balanced hybrid strain, a cross between a Brazilian sativa landrace and a resin-heavy South Indian indica. It is known for its resin production and relatively easy growth.",
+    "advantages": ["High resin production", "Balanced effects", "Good for beginners"],
+    "disadvantages": ["Can be sensitive to nutrients", "Prefers stable temperatures"],
+    "notes": "A classic Dutch coffee-shop strain that remains popular worldwide."
+  }
+}

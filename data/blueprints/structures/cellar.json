@@ -1,0 +1,11 @@
+{
+  "id": "d96dd659-4678-4d5d-a97c-a590ab52c2f3",
+  "name": "Cellar",
+  "footprint": {
+    "length_m": 3,
+    "width_m": 4,
+    "height_m": 2.5
+  },
+  "rentalCostPerSqmPerMonth": 0.5,
+  "upfrontFee": 5
+}

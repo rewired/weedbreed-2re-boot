@@ -1,0 +1,48 @@
+{
+  "id": "c8f3a2b1-7d4e-4c9a-b5e6-3f8a9c1d2e4f",
+  "slug": "drip-inline-fertigation-basic",
+  "name": "Drip Inline Fertigation (Basic)",
+  "kind": "DripSystem",
+  "description": "Automated drip irrigation with inline nutrient injection. Balanced labor and uniformity.",
+  "mixing": "inline",
+  "couplesFertilizer": true,
+  "flow_L_per_min": 2.5,
+  "uniformity": 0.88,
+  "labor": {
+    "basis": "perZone",
+    "minutes": 5.0
+  },
+  "runoff": {
+    "defaultFraction": 0.1,
+    "capturesRunoff": false
+  },
+  "requirements": {
+    "power_kW": 0.15,
+    "minPressure_bar": 1.5
+  },
+  "compatibility": {
+    "substrates": ["soil", "coco", "rockwool"],
+    "methods": ["sog", "scrog", "basic_soil_pot"]
+  },
+  "maintenance": {
+    "inspectionEveryDays": 7,
+    "cleaningEveryDays": 30,
+    "clogsRisk": 0.15
+  },
+  "meta": {
+    "description": "Basic drip system with inline nutrient dosing. Requires water pressure and power for pump and injector.",
+    "advantages": [
+      "Good uniformity",
+      "Automated delivery",
+      "Reduced labor",
+      "Precise nutrient control"
+    ],
+    "disadvantages": [
+      "Requires maintenance",
+      "Clog risk",
+      "Initial setup cost",
+      "Pressure dependency"
+    ],
+    "notes": "Suitable for medium to large zones. Inspect emitters weekly to prevent clogs."
+  }
+}

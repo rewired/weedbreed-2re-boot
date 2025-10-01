@@ -1,0 +1,47 @@
+{
+  "id": "b7a5d5fa-6561-4a1c-93c8-2d3f9a11c201",
+  "slug": "manual-watering-can",
+  "name": "Watering Can",
+  "kind": "ManualCan",
+  "description": "Hand watering with premixed nutrients; highest labor, lowest capex.",
+  "mixing": "batch",
+  "couplesFertilizer": true,
+  "flow_L_per_min": 4,
+  "uniformity": 0.75,
+  "labor": {
+    "basis": "perPlant",
+    "minutes": 1.0
+  },
+  "runoff": {
+    "defaultFraction": 0.15,
+    "capturesRunoff": false
+  },
+  "requirements": {
+    "power_kW": 0,
+    "minPressure_bar": 0
+  },
+  "compatibility": {
+    "substrates": ["soil", "coco"],
+    "methods": ["sog", "scrog", "basic_soil_pot"]
+  },
+  "maintenance": {
+    "inspectionEveryDays": 14,
+    "cleaningEveryDays": 90,
+    "clogsRisk": 0.0
+  },
+  "meta": {
+    "description": "Simple hand watering with a can. Mix nutrients in batches before application. No automation, maximum flexibility.",
+    "advantages": [
+      "Zero capex",
+      "No power required",
+      "Works everywhere",
+      "Easy to adjust per plant"
+    ],
+    "disadvantages": [
+      "High labor cost",
+      "Inconsistent uniformity",
+      "Time-consuming for large zones"
+    ],
+    "notes": "Default fallback method for all zones. Ideal for small-scale or experimental setups."
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "easy": {
+    "name": "Easy",
+    "description": "A relaxed experience with more resilient plants, reliable equipment, and favorable economic conditions.",
+    "modifiers": {
+      "plantStress": {
+        "optimalRangeMultiplier": 1.2,
+        "stressAccumulationMultiplier": 0.8
+      },
+      "deviceFailure": {
+        "mtbfMultiplier": 1.5
+      },
+      "economics": {
+        "initialCapital": 100000000,
+        "itemPriceMultiplier": 0.9,
+        "harvestPriceMultiplier": 1.1,
+        "rentPerSqmStructurePerTick": 0.1,
+        "rentPerSqmRoomPerTick": 0.2
+      }
+    }
+  },
+  "normal": {
+    "name": "Normal",
+    "description": "A balanced simulation reflecting standard conditions.",
+    "modifiers": {
+      "plantStress": {
+        "optimalRangeMultiplier": 1.0,
+        "stressAccumulationMultiplier": 1.0
+      },
+      "deviceFailure": {
+        "mtbfMultiplier": 1.0
+      },
+      "economics": {
+        "initialCapital": 1500000,
+        "itemPriceMultiplier": 1.0,
+        "harvestPriceMultiplier": 1.0,
+        "rentPerSqmStructurePerTick": 0.15,
+        "rentPerSqmRoomPerTick": 0.3
+      }
+    }
+  },
+  "hard": {
+    "name": "Hard",
+    "description": "A challenging simulation with sensitive plants, less reliable equipment, and tighter economic constraints.",
+    "modifiers": {
+      "plantStress": {
+        "optimalRangeMultiplier": 0.8,
+        "stressAccumulationMultiplier": 1.2
+      },
+      "deviceFailure": {
+        "mtbfMultiplier": 0.75
+      },
+      "economics": {
+        "initialCapital": 500000,
+        "itemPriceMultiplier": 1.1,
+        "harvestPriceMultiplier": 0.9,
+        "rentPerSqmStructurePerTick": 0.2,
+        "rentPerSqmRoomPerTick": 0.4
+      }
+    }
+  }
+}

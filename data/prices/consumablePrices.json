@@ -1,0 +1,25 @@
+{
+  "version": "2024-09-01",
+  "substrates": {
+    "soil-single-cycle": {
+      "costPerLiter": 0.025
+    },
+    "soil-multi-cycle": {
+      "costPerLiter": 0.035
+    },
+    "coco-coir": {
+      "costPerLiter": 0.55
+    }
+  },
+  "containers": {
+    "pot-10l": {
+      "costPerUnit": 1.5
+    },
+    "pot-11l": {
+      "costPerUnit": 2
+    },
+    "pot-25l": {
+      "costPerUnit": 4
+    }
+  }
+}

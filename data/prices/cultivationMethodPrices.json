@@ -1,0 +1,14 @@
+{
+  "version": "2024-09-01",
+  "cultivationMethodPrices": {
+    "85cc0916-0e8a-495e-af8f-50291abe6855": {
+      "setupCost": 2
+    },
+    "41229377-ef2d-4723-931f-72eea87d7a62": {
+      "setupCost": 15
+    },
+    "659ba4d7-a5fc-482e-98d4-b614341883ac": {
+      "setupCost": 10
+    }
+  }
+}
