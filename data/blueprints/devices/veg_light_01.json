@@ -5,7 +5,6 @@
   "quality": 0.95,
   "complexity": 0.2,
   "lifetime_h": 52560,
-  "roomPurposes": ["growroom"],
   "coverage": {
     "maxArea_m2": 1.2,
     "effectivePPFD_at_m": 0.6,
@@ -26,13 +25,29 @@
     "power": 0.6,
     "ppfd": 800,
     "coverageArea": 1.2,
-    "spectralRange": [400, 700],
+    "spectralRange": [
+      400,
+      700
+    ],
     "heatFraction": 0.3
   },
   "meta": {
     "description": "Full-spectrum LED grow light optimized for the vegetative phase of cannabis plants. Balanced light distribution with low heat generation.",
-    "advantages": ["High energy efficiency", "Low heat output", "Ideal for early growth stages"],
-    "disadvantages": ["Limited effectiveness for flowering", "Higher upfront cost compared to HPS"],
+    "advantages": [
+      "High energy efficiency",
+      "Low heat output",
+      "Ideal for early growth stages"
+    ],
+    "disadvantages": [
+      "Limited effectiveness for flowering",
+      "Higher upfront cost compared to HPS"
+    ],
     "notes": "Best used in enclosed environments with adequate canopy management."
-  }
+  },
+  "allowedRoomPurposes": [
+    "growroom"
+  ],
+  "placementScope": [
+    "zone"
+  ]
 }
