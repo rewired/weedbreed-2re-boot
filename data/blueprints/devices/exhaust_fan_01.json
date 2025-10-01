@@ -5,7 +5,6 @@
   "quality": 0.7,
   "complexity": 0.1,
   "lifetime_h": 17520,
-  "roomPurposes": ["growroom"],
   "coverage": {
     "maxVolume_m3": 15.0,
     "ventilationPattern": "exhaust"
@@ -27,7 +26,7 @@
     "airflow": 170
   },
   "meta": {
-    "description": "A simple and affordable exhaust fan with an airflow of 170 m³/h, perfect for small tents and grow areas. Effectively removes heat, humidity, and stale air by exchanging it with the ambient environment.",
+    "description": "A simple and affordable exhaust fan with an airflow of 170 m\u00b3/h, perfect for small tents and grow areas. Effectively removes heat, humidity, and stale air by exchanging it with the ambient environment.",
     "advantages": [
       "Low cost",
       "Low power consumption",
@@ -38,5 +37,11 @@
       "Relies on ambient temperature for cooling"
     ],
     "notes": "Essential for any small grow setup to prevent heat and humidity buildup without the cost of a full climate unit."
-  }
+  },
+  "allowedRoomPurposes": [
+    "growroom"
+  ],
+  "placementScope": [
+    "zone"
+  ]
 }

@@ -6,3 +6,4 @@ All notable changes to this repository will be documented in this file.
 - Logged device blueprint schema gaps (placement scope + room eligibility) in ISSUE-0001 for SEC alignment.
 - Captured cultivation method blueprint compliance gaps with SEC §7.5 in ISSUE-0002.
 - Recorded pricing data violations (per-tick rates, tariff fields) in ISSUE-0003.
+- Replaced legacy `roomPurposes` with `allowedRoomPurposes` and added `placementScope=["zone"]` across device blueprints to satisfy SEC placement metadata requirements.
