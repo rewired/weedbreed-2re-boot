@@ -78,6 +78,8 @@
   `initializeFacade` so invalid payloads are rejected deterministically.
 - Expanded façade Vitest coverage with schema unit tests covering invalid zone
   payloads and placement scope enforcement.
+- Introduced the `wb-sim/no-math-random` ESLint rule to block `Math.random`
+  usage and keep all randomness routed through deterministic RNG utilities.
 
 ### #12 Tooling - facade Vitest alias parity
 - Added the `@/backend` path alias to the façade Vitest config so shared engine
