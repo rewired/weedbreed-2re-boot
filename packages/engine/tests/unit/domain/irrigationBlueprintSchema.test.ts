@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
@@ -6,9 +7,9 @@ import dripInline from '../../../../../data/blueprints/irrigation/drip/inline-fe
 import ebbFlow from '../../../../../data/blueprints/irrigation/ebb-flow/table/ebb-flow-table-small.json' assert { type: 'json' };
 import manualCan from '../../../../../data/blueprints/irrigation/manual/can/manual-watering-can.json' assert { type: 'json' };
 import topFeed from '../../../../../data/blueprints/irrigation/top-feed/timer/top-feed-pump-timer.json' assert { type: 'json' };
-import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco_coir.json' assert { type: 'json' };
-import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil_multi_cycle.json' assert { type: 'json' };
-import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil_single_cycle.json' assert { type: 'json' };
+import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco-coir.json' assert { type: 'json' };
+import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil-multi-cycle.json' assert { type: 'json' };
+import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil-single-cycle.json' assert { type: 'json' };
 
 import { parseIrrigationBlueprint } from '@/backend/src/domain/world.js';
 
@@ -19,16 +20,16 @@ describe('parseIrrigationBlueprint', () => {
     soilSingle.slug as string
   ]);
 
-  const fixtures = [
-    {
-      data: dripInline,
-      path: fileURLToPath(
-        new URL(
-          '../../../../../data/blueprints/irrigation/drip/inline-fertigation/drip-inline-fertigation-basic.json',
-          import.meta.url
-        )
+const fixtures = [
+  {
+    data: dripInline,
+    path: fileURLToPath(
+      new URL(
+        '../../../../../data/blueprints/irrigation/drip/inline-fertigation/drip-inline-fertigation-basic.json',
+        import.meta.url
       )
-    },
+    )
+  },
     {
       data: ebbFlow,
       path: fileURLToPath(
@@ -55,15 +56,20 @@ describe('parseIrrigationBlueprint', () => {
           import.meta.url
         )
       )
-    }
-  ] as const;
+  }
+] as const;
+
+const blueprintsRoot = path.resolve(
+  fileURLToPath(new URL('../../../../../data/blueprints/', import.meta.url))
+);
 
   it('parses repository irrigation blueprints without modification', () => {
     fixtures.forEach((fixture) => {
       expect(() =>
         parseIrrigationBlueprint(fixture.data, {
           knownSubstrateSlugs: substrateSlugs,
-          filePath: fixture.path
+          filePath: fixture.path,
+          blueprintsRoot
         })
       ).not.toThrow();
     });
@@ -74,7 +80,11 @@ describe('parseIrrigationBlueprint', () => {
     invalid.compatibility.substrates = [...invalid.compatibility.substrates, 'unknown-substrate'];
 
     expect(() =>
-      parseIrrigationBlueprint(invalid, { knownSubstrateSlugs: substrateSlugs, filePath: fixtures[2].path })
+      parseIrrigationBlueprint(invalid, {
+        knownSubstrateSlugs: substrateSlugs,
+        filePath: fixtures[2].path,
+        blueprintsRoot
+      })
     ).toThrow(/unknown substrate slug/);
   });
 });

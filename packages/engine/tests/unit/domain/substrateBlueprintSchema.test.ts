@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
@@ -9,18 +10,22 @@ import {
   substrateBlueprintSchema
 } from '@/backend/src/domain/world.js';
 
-import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco_coir.json' assert { type: 'json' };
-import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil_multi_cycle.json' assert { type: 'json' };
-import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil_single_cycle.json' assert { type: 'json' };
+import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco-coir.json' assert { type: 'json' };
+import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil-multi-cycle.json' assert { type: 'json' };
+import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil-single-cycle.json' assert { type: 'json' };
 
 const cocoCoirPath = fileURLToPath(
-  new URL('../../../../../data/blueprints/substrate/coco/coir/coco_coir.json', import.meta.url)
+  new URL('../../../../../data/blueprints/substrate/coco/coir/coco-coir.json', import.meta.url)
 );
 const soilMultiPath = fileURLToPath(
-  new URL('../../../../../data/blueprints/substrate/soil/multi-cycle/soil_multi_cycle.json', import.meta.url)
+  new URL('../../../../../data/blueprints/substrate/soil/multi-cycle/soil-multi-cycle.json', import.meta.url)
 );
 const soilSinglePath = fileURLToPath(
-  new URL('../../../../../data/blueprints/substrate/soil/single-cycle/soil_single_cycle.json', import.meta.url)
+  new URL('../../../../../data/blueprints/substrate/soil/single-cycle/soil-single-cycle.json', import.meta.url)
+);
+
+const blueprintsRoot = path.resolve(
+  fileURLToPath(new URL('../../../../../data/blueprints/', import.meta.url))
 );
 
 const substrateFixtures = [
@@ -32,7 +37,9 @@ const substrateFixtures = [
 describe('substrateBlueprintSchema', () => {
   it('parses repository substrate blueprints without modification', () => {
     for (const fixture of substrateFixtures) {
-      expect(() => parseSubstrateBlueprint(fixture.data, { filePath: fixture.path })).not.toThrow();
+      expect(() =>
+        parseSubstrateBlueprint(fixture.data, { filePath: fixture.path, blueprintsRoot })
+      ).not.toThrow();
     }
   });
 
@@ -78,7 +85,7 @@ describe('substrateBlueprintSchema', () => {
   });
 
   it('converts mass and volume using the declared density factor', () => {
-    const parsed = parseSubstrateBlueprint(cocoCoir, { filePath: cocoCoirPath });
+    const parsed = parseSubstrateBlueprint(cocoCoir, { filePath: cocoCoirPath, blueprintsRoot });
 
     const massKg = convertSubstrateVolumeLToMassKg(parsed, 85);
     expect(massKg).toBeCloseTo(10, 5);

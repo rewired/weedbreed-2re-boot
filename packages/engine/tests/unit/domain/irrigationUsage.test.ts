@@ -15,11 +15,11 @@ describe('estimateIrrigationCharge', () => {
       runoffFraction01: 0.1
     });
 
-    expect(result.absorbedVolume_L).toBeCloseTo(87.4285, 4);
+    expect(result.absorbedVolume_L).toBeCloseTo(87.42857, 4);
     expect(result.deliveredVolume_L).toBeCloseTo(result.absorbedVolume_L / 0.9, 4);
     expect(result.runoffVolume_L).toBeCloseTo(result.deliveredVolume_L - result.absorbedVolume_L, 4);
     expect(result.absorbedWaterMass_kg).toBeCloseTo(result.absorbedVolume_L, 5);
-    expect(result.substrateMass_kg).toBeCloseTo(145.7142, 4);
+    expect(result.substrateMass_kg).toBeCloseTo(145.71429, 4);
   });
 
   it('handles zero runoff and zero plants gracefully', () => {

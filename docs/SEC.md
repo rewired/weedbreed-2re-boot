@@ -443,7 +443,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 ### 7.5 **Cultivation Methods (Zone Requirement) (STRICT)**
 
-- **Zone Requirement (SHALL):** Every **Zone** **SHALL** reference exactly one **`cultivationMethod`** (blueprint id), selected from `/data/cultivationMethods/*.json`.
+- **Zone Requirement (SHALL):** Every **Zone** **SHALL** reference exactly one **`cultivationMethod`** (blueprint id), selected from `/data/blueprints/cultivation-method/**`.
     
 - **Method Contents (SHALL):** A cultivation method blueprint **SHALL** specify at minimum:
     
