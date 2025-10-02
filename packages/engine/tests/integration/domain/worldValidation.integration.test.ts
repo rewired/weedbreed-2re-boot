@@ -8,6 +8,7 @@ import {
   type Company,
   type PhotoperiodPhase,
   type PlantLifecycleStage,
+  type Room,
   type RoomDeviceInstance,
   type StructureDeviceInstance,
   type Uuid,
@@ -43,6 +44,10 @@ describe('validateCompanyWorld (integration)', () => {
         }),
         expect.objectContaining({
           message: 'plant lifecycle stage is invalid'
+        }),
+        expect.objectContaining({
+          message:
+            'room purpose must be one of: growroom, breakroom, laboratory, storageroom, salesroom, workshop'
         })
       ])
     );
@@ -168,6 +173,16 @@ function buildInvalidCompany(): Company {
                 plants: []
               }
             ]
+          },
+          {
+            id: uuid('10000000-0000-0000-0000-000000000040'),
+            slug: 'mystery-room',
+            name: 'Mystery Room',
+            purpose: 'hangar' as unknown as Room['purpose'],
+            floorArea_m2: AREA_QUANTUM_M2,
+            height_m: ROOM_DEFAULT_HEIGHT_M,
+            devices: [],
+            zones: []
           }
         ]
       }
