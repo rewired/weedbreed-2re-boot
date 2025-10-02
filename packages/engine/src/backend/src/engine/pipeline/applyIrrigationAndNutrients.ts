@@ -7,5 +7,7 @@ export function applyIrrigationAndNutrients(
 ): SimulationWorld {
   void ctx;
 
-  return world;
+  const nextWorld = { ...world } satisfies SimulationWorld;
+
+  return nextWorld;
 }

@@ -4,5 +4,7 @@ import type { EngineRunContext } from '../Engine.js';
 export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
   void ctx;
 
-  return world;
+  const nextWorld = { ...world } satisfies SimulationWorld;
+
+  return nextWorld;
 }
