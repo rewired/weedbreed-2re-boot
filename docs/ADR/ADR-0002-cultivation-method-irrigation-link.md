@@ -1,7 +1,7 @@
 # ADR-0002: Cultivation method irrigation compatibility via substrates
 
 ## Status
-Accepted
+Superseded by [ADR-0003](ADR-0003-irrigation-compatibility-source-of-truth.md)
 
 ## Context
 Simulation Engine Contract (SEC) §7.5 previously required cultivation methods to list compatible irrigation methods directly. ISSUE-0002 remediation work revealed that blueprints also need richer substrate metadata. To reduce duplication and keep irrigation compatibility tied to physical media behavior, we want substrates to declare which irrigation methods they support. Cultivation methods should therefore inherit irrigation compatibility through the substrates they offer rather than duplicating lists.
