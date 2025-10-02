@@ -2,20 +2,25 @@ import { describe, expect, it } from 'vitest';
 import {
   companySchema,
   parseCompanyWorld,
+  type DevicePlacementScope,
   type ParsedCompanyWorld
 } from '@wb/engine';
 
 type DeepMutable<T> = T extends (...args: unknown[]) => unknown
   ? T
-  : T extends ReadonlyArray<infer U>
+  : T extends readonly (infer U)[]
     ? DeepMutableArray<U>
     : T extends object
       ? { -readonly [K in keyof T]: DeepMutable<T[K]> }
       : T;
 
-interface DeepMutableArray<T> extends Array<DeepMutable<T>> {}
+type DeepMutableArray<T> = DeepMutable<T>[];
 
 type MutableCompanyWorld = DeepMutable<ParsedCompanyWorld>;
+
+type MutableZoneDeviceInstance = MutableCompanyWorld['structures'][number]['rooms'][number]['zones'][number]['devices'][number] & {
+  placementScope: DevicePlacementScope;
+};
 
 const BASE_WORLD = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -122,10 +127,7 @@ describe('companySchema', () => {
 
   it('rejects zones missing a cultivation method identifier', () => {
     const invalidWorld = cloneWorld();
-    const targetZone = invalidWorld.structures[0]?.rooms[0]?.zones[0];
-    if (!targetZone) {
-      throw new Error('Expected a zone in the base world fixture.');
-    }
+    const targetZone = invalidWorld.structures[0].rooms[0].zones[0];
     Reflect.deleteProperty(targetZone, 'cultivationMethodId');
 
     const result = companySchema.safeParse(invalidWorld);
@@ -144,11 +146,9 @@ describe('companySchema', () => {
 
   it('rejects devices that declare an incorrect placement scope for the zone level', () => {
     const invalidWorld = cloneWorld();
-    const targetDevice = invalidWorld.structures[0]?.rooms[0]?.zones[0]?.devices[0];
-    if (!targetDevice) {
-      throw new Error('Expected a zone-level device in the base world fixture.');
-    }
-    (targetDevice as any).placementScope = 'room';
+    const targetDevice =
+      invalidWorld.structures[0].rooms[0].zones[0].devices[0] as MutableZoneDeviceInstance;
+    targetDevice.placementScope = 'room';
 
     const result = companySchema.safeParse(invalidWorld);
 
@@ -168,10 +168,8 @@ describe('companySchema', () => {
 
   it('accepts light schedules that sum to 24 hours', () => {
     const validWorld = cloneWorld();
-    const targetSchedule = validWorld.structures[0]?.rooms[0]?.zones[0]?.lightSchedule;
-    if (!targetSchedule) {
-      throw new Error('Expected a light schedule in the base world fixture.');
-    }
+    const targetSchedule =
+      validWorld.structures[0].rooms[0].zones[0].lightSchedule;
     targetSchedule.onHours = 12;
     targetSchedule.offHours = 12;
 
@@ -182,10 +180,8 @@ describe('companySchema', () => {
 
   it('rejects light schedules that do not cover a full 24-hour cycle', () => {
     const invalidWorld = cloneWorld();
-    const targetSchedule = invalidWorld.structures[0]?.rooms[0]?.zones[0]?.lightSchedule;
-    if (!targetSchedule) {
-      throw new Error('Expected a light schedule in the base world fixture.');
-    }
+    const targetSchedule =
+      invalidWorld.structures[0].rooms[0].zones[0].lightSchedule;
     targetSchedule.onHours = 20;
     targetSchedule.offHours = 3;
 
@@ -205,10 +201,7 @@ describe('companySchema', () => {
 
   it('rejects growrooms that omit zones', () => {
     const invalidWorld = cloneWorld();
-    const targetRoom = invalidWorld.structures[0]?.rooms[0];
-    if (!targetRoom) {
-      throw new Error('Expected a room in the base world fixture.');
-    }
+    const targetRoom = invalidWorld.structures[0].rooms[0];
     targetRoom.zones = [];
 
     const result = companySchema.safeParse(invalidWorld);
@@ -225,10 +218,7 @@ describe('companySchema', () => {
 
   it('rejects non-growroom purposes that still contain zones', () => {
     const invalidWorld = cloneWorld();
-    const targetRoom = invalidWorld.structures[0]?.rooms[0];
-    if (!targetRoom) {
-      throw new Error('Expected a room in the base world fixture.');
-    }
+    const targetRoom = invalidWorld.structures[0].rooms[0];
     targetRoom.purpose = 'laboratory';
 
     const result = companySchema.safeParse(invalidWorld);
@@ -248,6 +238,6 @@ describe('parseCompanyWorld', () => {
   it('returns typed data when provided with a valid payload', () => {
     const parsed = parseCompanyWorld(cloneWorld());
 
-    expect(parsed.structures[0]?.rooms[0]?.zones[0]?.photoperiodPhase).toBe('vegetative');
+    expect(parsed.structures[0].rooms[0].zones[0].photoperiodPhase).toBe('vegetative');
   });
 });
