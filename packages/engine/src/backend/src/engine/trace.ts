@@ -39,6 +39,7 @@ export function createTickTraceCollector(): TraceCollector {
   const steps: TraceStep[] = [];
   let tickEndTime = tickStartTime;
   let maxHeapUsedBytes = tickStartHeap;
+  let lastStageHeapUsedAfterBytes = tickStartHeap;
 
   return {
     measureStage(name, fn) {
@@ -53,6 +54,7 @@ export function createTickTraceCollector(): TraceCollector {
       }
 
       tickEndTime = sample.startedAtNs + sample.durationNs;
+      lastStageHeapUsedAfterBytes = sample.heapUsedAfterBytes;
 
       steps.push({
         name,
@@ -67,7 +69,6 @@ export function createTickTraceCollector(): TraceCollector {
       return result;
     },
     finalize() {
-      const tickEndHeap = process.memoryUsage().heapUsed;
       const durationNs = Number(tickEndTime - tickStartTime);
 
       return {
@@ -75,8 +76,8 @@ export function createTickTraceCollector(): TraceCollector {
         endedAtNs: durationNs,
         durationNs,
         steps: steps.slice(),
-        totalHeapUsedDeltaBytes: tickEndHeap - tickStartHeap,
-        maxHeapUsedBytes: Math.max(maxHeapUsedBytes, tickEndHeap)
+        totalHeapUsedDeltaBytes: lastStageHeapUsedAfterBytes - tickStartHeap,
+        maxHeapUsedBytes
       } satisfies TickTrace;
     }
   } satisfies TraceCollector;
