@@ -230,7 +230,7 @@ The world is a tree with typed nodes and bounded geometry.
 
 ## 3. Data Contracts (from DD + /data/**)
 
-Validation occurs at load time; on failure, the engine must not start.
+Validation occurs at load time; on failure, the engine must not start. Validation schemas live with the engine domain types so the engine remains the single source of truth; see [ADR-0005](ADR/ADR-0005-validation-schema-centralization.md) for implementation details.
 
 ### 3.1 Device Placement & Eligibility (STRICT)
 
