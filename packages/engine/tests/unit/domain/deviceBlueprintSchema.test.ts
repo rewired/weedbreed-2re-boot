@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -6,12 +8,43 @@ import {
   toDeviceInstanceCapacity
 } from '@/backend/src/domain/world.js';
 
-import climateUnit from '../../../../../data/blueprints/devices/climate_unit_01.json' assert { type: 'json' };
-import co2Injector from '../../../../../data/blueprints/devices/co2injector-01.json' assert { type: 'json' };
-import dehumidifier from '../../../../../data/blueprints/devices/dehumidifier-01.json' assert { type: 'json' };
-import exhaustFan from '../../../../../data/blueprints/devices/exhaust_fan_01.json' assert { type: 'json' };
-import humidityControl from '../../../../../data/blueprints/devices/humidity_control_unit_01.json' assert { type: 'json' };
-import vegLight from '../../../../../data/blueprints/devices/veg_light_01.json' assert { type: 'json' };
+import climateUnit from '../../../../../data/blueprints/device/climate/cooling/climate_unit_01.json' assert { type: 'json' };
+import co2Injector from '../../../../../data/blueprints/device/climate/co2/co2injector-01.json' assert { type: 'json' };
+import dehumidifier from '../../../../../data/blueprints/device/climate/dehumidifier/dehumidifier-01.json' assert { type: 'json' };
+import exhaustFan from '../../../../../data/blueprints/device/airflow/exhaust/exhaust_fan_01.json' assert { type: 'json' };
+import humidityControl from '../../../../../data/blueprints/device/climate/humidity-controller/humidity_control_unit_01.json' assert { type: 'json' };
+import vegLight from '../../../../../data/blueprints/device/lighting/vegetative/veg_light_01.json' assert { type: 'json' };
+
+const climateUnitPath = fileURLToPath(
+  new URL('../../../../../data/blueprints/device/climate/cooling/climate_unit_01.json', import.meta.url)
+);
+const co2InjectorPath = fileURLToPath(
+  new URL('../../../../../data/blueprints/device/climate/co2/co2injector-01.json', import.meta.url)
+);
+const dehumidifierPath = fileURLToPath(
+  new URL('../../../../../data/blueprints/device/climate/dehumidifier/dehumidifier-01.json', import.meta.url)
+);
+const exhaustFanPath = fileURLToPath(
+  new URL('../../../../../data/blueprints/device/airflow/exhaust/exhaust_fan_01.json', import.meta.url)
+);
+const humidityControlPath = fileURLToPath(
+  new URL(
+    '../../../../../data/blueprints/device/climate/humidity-controller/humidity_control_unit_01.json',
+    import.meta.url
+  )
+);
+const vegLightPath = fileURLToPath(
+  new URL('../../../../../data/blueprints/device/lighting/vegetative/veg_light_01.json', import.meta.url)
+);
+
+const deviceFixtures = [
+  { data: climateUnit, path: climateUnitPath },
+  { data: co2Injector, path: co2InjectorPath },
+  { data: dehumidifier, path: dehumidifierPath },
+  { data: exhaustFan, path: exhaustFanPath },
+  { data: humidityControl, path: humidityControlPath },
+  { data: vegLight, path: vegLightPath }
+] as const;
 
 describe('deviceBlueprintSchema', () => {
   it('accepts canonical blueprint payloads', () => {
@@ -82,10 +115,8 @@ describe('deviceBlueprintSchema', () => {
   });
 
   it('parses repository device blueprints without modification', () => {
-    const fixtures = [climateUnit, co2Injector, dehumidifier, exhaustFan, humidityControl, vegLight];
-
-    for (const fixture of fixtures) {
-      expect(() => parseDeviceBlueprint(fixture)).not.toThrow();
+    for (const fixture of deviceFixtures) {
+      expect(() => parseDeviceBlueprint(fixture.data, { filePath: fixture.path })).not.toThrow();
     }
   });
 
@@ -108,14 +139,12 @@ describe('deviceBlueprintSchema', () => {
   });
 
   it('enforces slug uniqueness per class across fixtures', () => {
-    const fixtures = [climateUnit, co2Injector, dehumidifier, exhaustFan, humidityControl, vegLight];
-    const seen = new Map<string, string>();
+    const registry = new Map<string, string>();
 
-    for (const fixture of fixtures) {
-      const parsed = parseDeviceBlueprint(fixture);
-      const key = `${parsed.class}:${parsed.slug}`;
-      expect(seen.has(key)).toBe(false);
-      seen.set(key, parsed.id);
+    for (const fixture of deviceFixtures) {
+      expect(() =>
+        parseDeviceBlueprint(fixture.data, { filePath: fixture.path, slugRegistry: registry })
+      ).not.toThrow();
     }
   });
 
@@ -137,29 +166,32 @@ describe('deviceBlueprintSchema', () => {
   });
 
   it('maps blueprint capacity fields onto device instance props', () => {
-    const parsed = parseDeviceBlueprint({
-      id: '00000000-0000-4000-8000-000000000003',
-      class: 'device.climate.cooling',
-      name: 'Mapper Device',
-      slug: 'mapper-device',
-      placementScope: 'zone',
-      allowedRoomPurposes: ['growroom'],
-      power_W: 420,
-      efficiency01: 0.6,
-      coverage_m2: 8,
-      airflow_m3_per_h: 120,
-      coverage: {
-        maxArea_m2: 8
+    const parsed = parseDeviceBlueprint(
+      {
+        id: '00000000-0000-4000-8000-000000000003',
+        class: 'device.climate.cooling',
+        name: 'Mapper Device',
+        slug: 'mapper-device',
+        placementScope: 'zone',
+        allowedRoomPurposes: ['growroom'],
+        power_W: 420,
+        efficiency01: 0.6,
+        coverage_m2: 8,
+        airflow_m3_per_h: 120,
+        coverage: {
+          maxArea_m2: 8
+        },
+        limits: {
+          coolingCapacity_kW: 2
+        },
+        settings: {
+          coolingCapacity: 1,
+          targetTemperature: 22,
+          targetTemperatureRange: [18, 26]
+        }
       },
-      limits: {
-        coolingCapacity_kW: 2
-      },
-      settings: {
-        coolingCapacity: 1,
-        targetTemperature: 22,
-        targetTemperatureRange: [18, 26]
-      }
-    });
+      { filePath: climateUnitPath }
+    );
 
     expect(toDeviceInstanceCapacity(parsed)).toEqual({
       powerDraw_W: 420,

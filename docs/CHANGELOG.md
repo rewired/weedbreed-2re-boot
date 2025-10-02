@@ -1,8 +1,21 @@
 # Changelog
 
+### #42 WB-035 blueprint taxonomy guardrails align filesystem & class strings
+- Reorganised device, irrigation, and substrate blueprints under taxonomy-aligned
+  folders (e.g. `/data/blueprints/device/climate/cooling/**`) so directory
+  segments encode `<domain>.<effect>[.<variant>]`.
+- Extended the device, irrigation, and substrate schema parsers to accept the
+  blueprint file path, derive the expected taxonomy, and raise descriptive
+  errors when JSON `class` declarations drift from their folders.
+- Replaced the hard-coded device class enum with taxonomy validation while
+  keeping slug uniqueness per class via an opt-in registry for loaders.
+- Updated unit tests to load repository fixtures using absolute paths and
+  documented the guard in the tests, ensuring regressions trip immediately when
+  files land in the wrong folder.
+
 ### #41 WB-034 irrigation compatibility slug validation
 - Normalised every irrigation blueprint `compatibility.substrates` entry to the real substrate
-  slugs shipped under `/data/blueprints/substrates`, removing phantom media names and keeping
+  slugs shipped under `/data/blueprints/substrate`, removing phantom media names and keeping
   scenario metadata aligned with available inventory.
 - Added an irrigation blueprint parser that validates compatibility entries against the
   known substrate slug set and fails fast when unknown media sneak in, with unit coverage

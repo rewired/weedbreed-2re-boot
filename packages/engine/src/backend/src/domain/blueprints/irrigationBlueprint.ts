@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+import {
+  BlueprintClassMismatchError,
+  type BlueprintPathOptions,
+  deriveBlueprintClassFromPath
+} from './taxonomy.js';
+
 const slugString = z
   .string({ required_error: 'slug is required.' })
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case (lowercase, digits, hyphen).');
@@ -9,11 +15,12 @@ const nonEmptyString = z
   .trim()
   .min(1, 'String fields must not be empty.');
 
+const TAXONOMY_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*';
 const classSchema = z
   .string({ required_error: 'class is required.' })
   .regex(
-    /^irrigation\.[a-z0-9]+(?:[.-][a-z0-9]+)*$/,
-    'class must begin with "irrigation." and use lowercase dot/kebab segments.'
+    new RegExp(`^irrigation\.${TAXONOMY_SEGMENT}(?:\.${TAXONOMY_SEGMENT})*$`),
+    'class must begin with "irrigation." and use lowercase dot-separated taxonomy segments.'
   );
 
 const compatibilitySchema = z.object({
@@ -64,8 +71,9 @@ export function createIrrigationBlueprintSchema(
   });
 }
 
-export interface ParseIrrigationBlueprintOptions {
+export interface ParseIrrigationBlueprintOptions extends BlueprintPathOptions {
   readonly knownSubstrateSlugs: Iterable<string>;
+  readonly filePath?: string;
 }
 
 export function parseIrrigationBlueprint(
@@ -81,5 +89,15 @@ export function parseIrrigationBlueprint(
       ? (options.knownSubstrateSlugs as ReadonlySet<string>)
       : new Set(options.knownSubstrateSlugs);
 
-  return createIrrigationBlueprintSchema(slugSet).parse(input);
+  const blueprint = createIrrigationBlueprintSchema(slugSet).parse(input);
+
+  if (options.filePath) {
+    const derived = deriveBlueprintClassFromPath(options.filePath, options);
+
+    if (derived.className !== blueprint.class) {
+      throw new BlueprintClassMismatchError(derived.relativePath, derived.className, blueprint.class);
+    }
+  }
+
+  return blueprint;
 }

@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+import {
+  BlueprintClassMismatchError,
+  type BlueprintPathOptions,
+  deriveBlueprintClassFromPath
+} from './taxonomy.js';
+
 const nonEmptyString = z.string().trim().min(1, 'String fields must not be empty.');
 const finiteNumber = z.number().finite('Value must be a finite number.');
 const positiveNumber = finiteNumber.gt(0, 'Value must be greater than zero.');
@@ -35,11 +41,12 @@ const reusePolicySchema = z
     }
   });
 
+const TAXONOMY_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*';
 const classSchema = z
   .string({ required_error: 'class is required.' })
   .regex(
-    /^substrate\.[a-z0-9]+(?:[.-][a-z0-9]+)*$/,
-    'class must begin with "substrate." and use lowercase dot/kebab segments.'
+    new RegExp(`^substrate\.${TAXONOMY_SEGMENT}(?:\.${TAXONOMY_SEGMENT})*$`),
+    'class must begin with "substrate." and use lowercase dot-separated taxonomy segments.'
   );
 
 export const substrateBlueprintSchema = z
@@ -105,8 +112,25 @@ export const substrateBlueprintSchema = z
 
 export type SubstrateBlueprint = z.infer<typeof substrateBlueprintSchema>;
 
-export function parseSubstrateBlueprint(input: unknown): SubstrateBlueprint {
-  return substrateBlueprintSchema.parse(input);
+export interface ParseSubstrateBlueprintOptions extends BlueprintPathOptions {
+  readonly filePath?: string;
+}
+
+export function parseSubstrateBlueprint(
+  input: unknown,
+  options: ParseSubstrateBlueprintOptions = {}
+): SubstrateBlueprint {
+  const blueprint = substrateBlueprintSchema.parse(input);
+
+  if (options.filePath) {
+    const derived = deriveBlueprintClassFromPath(options.filePath, options);
+
+    if (derived.className !== blueprint.class) {
+      throw new BlueprintClassMismatchError(derived.relativePath, derived.className, blueprint.class);
+    }
+  }
+
+  return blueprint;
 }
 
 function assertNonNegativeFinite(value: number, name: string): void {
