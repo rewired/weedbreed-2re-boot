@@ -1,5 +1,13 @@
 # Changelog
 
+### #17 WB-012 light schedule 24-hour enforcement
+- Enforced the light schedule schema to reject photoperiods that do not sum to
+  a full 24-hour cycle, aligning validation with the SEC light-cycle contract.
+- Added regression coverage ensuring valid 24-hour schedules parse successfully
+  while mismatched totals surface a `lightSchedule` path issue for integrators.
+- Documented the requirement so external integrations can normalise light
+  schedules before submitting company world payloads.
+
 ### #16 WB-011 growroom zone cardinality validation
 - Enforced the room schema to reject growrooms that do not declare at least one
   zone, maintaining SEC hierarchy invariants.
