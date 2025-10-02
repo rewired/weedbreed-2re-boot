@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { companySchema, parseCompanyWorld } from '../../../src/schemas/world.js';
+import { companySchema, parseCompanyWorld, type ParsedCompanyWorld } from '../../../src/schemas/world.js';
+
+type DeepMutable<T> = T extends (...args: unknown[]) => unknown
+  ? T
+  : T extends ReadonlyArray<infer U>
+    ? DeepMutableArray<U>
+    : T extends object
+      ? { -readonly [K in keyof T]: DeepMutable<T[K]> }
+      : T;
+
+interface DeepMutableArray<T> extends Array<DeepMutable<T>> {}
+
+type MutableCompanyWorld = DeepMutable<ParsedCompanyWorld>;
 
 const BASE_WORLD = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -93,9 +105,9 @@ const BASE_WORLD = {
       ]
     }
   ]
-} as const;
+} as const satisfies ParsedCompanyWorld;
 
-const cloneWorld = () => JSON.parse(JSON.stringify(BASE_WORLD));
+const cloneWorld = (): MutableCompanyWorld => structuredClone(BASE_WORLD) as MutableCompanyWorld;
 
 describe('companySchema', () => {
   it('accepts a valid company world payload', () => {
@@ -105,8 +117,12 @@ describe('companySchema', () => {
   });
 
   it('rejects zones missing a cultivation method identifier', () => {
-    const invalidWorld: any = cloneWorld();
-    delete invalidWorld.structures[0].rooms[0].zones[0].cultivationMethodId;
+    const invalidWorld = cloneWorld();
+    const targetZone = invalidWorld.structures[0]?.rooms[0]?.zones[0];
+    if (!targetZone) {
+      throw new Error('Expected a zone in the base world fixture.');
+    }
+    Reflect.deleteProperty(targetZone, 'cultivationMethodId');
 
     const result = companySchema.safeParse(invalidWorld);
 
@@ -123,8 +139,12 @@ describe('companySchema', () => {
   });
 
   it('rejects devices that declare an incorrect placement scope for the zone level', () => {
-    const invalidWorld: any = cloneWorld();
-    invalidWorld.structures[0].rooms[0].zones[0].devices[0].placementScope = 'room';
+    const invalidWorld = cloneWorld();
+    const targetDevice = invalidWorld.structures[0]?.rooms[0]?.zones[0]?.devices[0];
+    if (!targetDevice) {
+      throw new Error('Expected a zone-level device in the base world fixture.');
+    }
+    Reflect.set(targetDevice as Record<string, unknown>, 'placementScope', 'room');
 
     const result = companySchema.safeParse(invalidWorld);
 
@@ -143,8 +163,12 @@ describe('companySchema', () => {
   });
 
   it('rejects non-growroom purposes that still contain zones', () => {
-    const invalidWorld: any = cloneWorld();
-    invalidWorld.structures[0].rooms[0].purpose = 'laboratory';
+    const invalidWorld = cloneWorld();
+    const targetRoom = invalidWorld.structures[0]?.rooms[0];
+    if (!targetRoom) {
+      throw new Error('Expected a room in the base world fixture.');
+    }
+    targetRoom.purpose = 'laboratory';
 
     const result = companySchema.safeParse(invalidWorld);
 
