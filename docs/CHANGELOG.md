@@ -1,5 +1,13 @@
 # Changelog
 
+### #28 WB-022 tick commit advances simulation time
+- Implemented the `commitAndTelemetry` pipeline stage so each tick increments
+  `SimulationWorld.simTimeHours` by the SEC-mandated `HOURS_PER_TICK`, ensuring
+  downstream systems observe deterministic world time progression.
+- Added integration coverage in `packages/engine/tests/integration/pipeline/timeProgression.spec.ts`
+  that exercises repeated `runTick` invocations against the demo world and
+  asserts the cumulative hour count advances by one per stage cycle.
+
 ### #26 WB-009 tick orchestrator & perf harness
 - Implemented the SEC-ordered `runTick` pipeline in `packages/engine/src/backend/src/engine/Engine.ts`, wiring the seven phase modules through the shared `PIPELINE_ORDER` map so instrumentation hooks observe deterministic sequencing.
 - Added `createTickTraceCollector` and the `withPerfStage` sampling utility in `packages/engine/src/backend/src/engine/trace.ts` and `packages/engine/src/backend/src/util/perf.ts` to record per-stage timing and heap usage without leaking wall-clock state.
