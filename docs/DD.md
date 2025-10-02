@@ -55,15 +55,16 @@ Weed Breed is a deterministic, tick‑driven cultivation & economy simulator. 
 Hierarchy and constraints:
 
 - **Company** → **Structure** (max usable area/volume; may represent outdoor fields).
-    
 - **Room** with mandatory `roomPurpose` ∈ {growroom, breakroom, laboratory, storageroom, salesroom, workshop}.
-    
 - **Zone** only inside **growrooms**; **must** declare `cultivationMethodId`.
-    
 - **Plant** belongs to a zone; physiology depends on schedule & environment.
-    
 - **Device** attaches by `placementScope: 'zone'|'room'|'structure'` with `allowedRoomPurposes` eligible set.
-    
+
+Implementation note: Engine code codifies the hierarchy in
+`packages/engine/src/backend/src/domain/world.ts`. The helper
+`validateCompanyWorld` executes SEC guardrails (room purposes, cultivation
+methods, photoperiod schedule, device placement, geometry bounds) before the
+tick pipeline consumes a scenario payload.
 
 ---
 

@@ -1,0 +1,409 @@
+import {
+  AREA_QUANTUM_M2,
+  HOURS_PER_DAY
+} from '@/backend/src/constants/simConstants.js';
+
+import {
+  type Company,
+  type DeviceInstance,
+  type DevicePlacementScope,
+  type LightSchedule,
+  PLANT_LIFECYCLE_STAGES
+} from './entities.js';
+
+/**
+ * Acceptable floating point tolerance when comparing values that should be
+ * exact within the simulation.
+ */
+const FLOAT_TOLERANCE = 1e-6;
+
+/**
+ * Validation issue emitted when the world tree violates SEC guardrails.
+ */
+export interface WorldValidationIssue {
+  /** JSON pointer-esque path locating the problematic node. */
+  readonly path: string;
+  /** Human-readable explanation of the violation. */
+  readonly message: string;
+}
+
+/**
+ * Result of validating a company world tree.
+ */
+export interface WorldValidationResult {
+  /** Whether the world tree satisfies all invariants. */
+  readonly ok: boolean;
+  /** Collection of issues describing each violation. */
+  readonly issues: readonly WorldValidationIssue[];
+}
+
+/**
+ * Determines whether the provided value lies within the canonical unit interval.
+ *
+ * @param value - Value to evaluate.
+ * @returns True when {@link value} ∈ [0,1].
+ */
+function isWithinUnitInterval(value: number): boolean {
+  return value >= 0 - FLOAT_TOLERANCE && value <= 1 + FLOAT_TOLERANCE;
+}
+
+/**
+ * Determines whether an area aligns with the canonical area quantum.
+ *
+ * @param area - Area value expressed in square metres.
+ * @returns True when the area is a non-negative multiple of {@link AREA_QUANTUM_M2}.
+ */
+function isValidArea(area: number): boolean {
+  if (area < 0) {
+    return false;
+  }
+  const units = area / AREA_QUANTUM_M2;
+  return Math.abs(units - Math.round(units)) <= FLOAT_TOLERANCE;
+}
+
+/**
+ * Validates that a light schedule adheres to SEC §8 constraints.
+ *
+ * @param schedule - Light schedule to evaluate.
+ * @returns Optional validation issue when a constraint is violated.
+ */
+/**
+ * Light schedule grid resolution expressed in hours (15 minutes per step).
+ */
+const FIFTEEN_MINUTE_GRID_HOURS = 0.25 as const;
+
+function validateLightSchedule(
+  schedule: LightSchedule
+): WorldValidationIssue | undefined {
+  const path = 'lightSchedule';
+
+  if (!Number.isFinite(schedule.onHours)) {
+    return {
+      path,
+      message: 'onHours must be a finite number'
+    } satisfies WorldValidationIssue;
+  }
+
+  if (!Number.isFinite(schedule.offHours)) {
+    return {
+      path,
+      message: 'offHours must be a finite number'
+    } satisfies WorldValidationIssue;
+  }
+
+  if (!Number.isFinite(schedule.startHour)) {
+    return {
+      path,
+      message: 'startHour must be a finite number'
+    } satisfies WorldValidationIssue;
+  }
+
+  if (schedule.onHours < 0 || schedule.onHours > HOURS_PER_DAY) {
+    return {
+      path,
+      message: 'onHours must lie within [0,24]'
+    } satisfies WorldValidationIssue;
+  }
+
+  if (schedule.offHours < 0 || schedule.offHours > HOURS_PER_DAY) {
+    return {
+      path,
+      message: 'offHours must lie within [0,24]'
+    } satisfies WorldValidationIssue;
+  }
+
+  const sum = schedule.onHours + schedule.offHours;
+  if (Math.abs(sum - HOURS_PER_DAY) > FLOAT_TOLERANCE) {
+    return {
+      path,
+      message: 'onHours + offHours must equal 24 hours'
+    } satisfies WorldValidationIssue;
+  }
+
+  if (schedule.startHour < 0 || schedule.startHour >= HOURS_PER_DAY) {
+    return {
+      path,
+      message: 'startHour must lie within [0,24)'
+    } satisfies WorldValidationIssue;
+  }
+
+  const onMod = Math.abs(
+    schedule.onHours / FIFTEEN_MINUTE_GRID_HOURS -
+      Math.round(schedule.onHours / FIFTEEN_MINUTE_GRID_HOURS)
+  );
+  const offMod = Math.abs(
+    schedule.offHours / FIFTEEN_MINUTE_GRID_HOURS -
+      Math.round(schedule.offHours / FIFTEEN_MINUTE_GRID_HOURS)
+  );
+
+  if (onMod > FLOAT_TOLERANCE || offMod > FLOAT_TOLERANCE) {
+    return {
+      path,
+      message: 'onHours and offHours must align to the 15 minute grid'
+    } satisfies WorldValidationIssue;
+  }
+
+  return undefined;
+}
+
+/**
+ * Validates a device instance against canonical invariants and placement scope.
+ *
+ * @param device - Device instance to evaluate.
+ * @param expectedScope - Placement scope enforced by the containing node.
+ * @param path - Path to the device within the world tree.
+ * @param issues - Mutable issue collection.
+ */
+function validateDevice(
+  device: DeviceInstance,
+  expectedScope: DevicePlacementScope,
+  path: string,
+  issues: WorldValidationIssue[]
+): void {
+  if (device.placementScope !== expectedScope) {
+    issues.push({
+      path: `${path}.placementScope`,
+      message: `device placement scope must be "${expectedScope}"`
+    });
+  }
+
+  if (!isWithinUnitInterval(device.quality01)) {
+    issues.push({
+      path: `${path}.quality01`,
+      message: 'device quality01 must lie within [0,1]'
+    });
+  }
+
+  if (!isWithinUnitInterval(device.condition01)) {
+    issues.push({
+      path: `${path}.condition01`,
+      message: 'device condition01 must lie within [0,1]'
+    });
+  }
+
+  if (device.powerDraw_W < 0) {
+    issues.push({
+      path: `${path}.powerDraw_W`,
+      message: 'device power draw must be non-negative'
+    });
+  }
+}
+
+/**
+ * Validates a company world tree against canonical SEC guardrails.
+ *
+ * @param company - Company world tree to validate.
+ * @returns Result describing whether the world is valid and the list of issues.
+ */
+export function validateCompanyWorld(
+  company: Company
+): WorldValidationResult {
+  const issues: WorldValidationIssue[] = [];
+
+  company.structures.forEach((structure, structureIndex) => {
+    const structurePath = `company.structures[${String(structureIndex)}]`;
+
+    if (!isValidArea(structure.floorArea_m2)) {
+      issues.push({
+        path: `${structurePath}.floorArea_m2`,
+        message: `structure floor area must be a multiple of ${String(AREA_QUANTUM_M2)}`
+      });
+    }
+
+    if (structure.height_m <= 0) {
+      issues.push({
+        path: `${structurePath}.height_m`,
+        message: 'structure height must be positive'
+      });
+    }
+
+    structure.devices.forEach((device, deviceIndex) => {
+      validateDevice(
+        device,
+        'structure',
+        `${structurePath}.devices[${String(deviceIndex)}]`,
+        issues
+      );
+    });
+
+    const totalRoomArea = structure.rooms.reduce(
+      (sum, room) => sum + room.floorArea_m2,
+      0
+    );
+
+    if (totalRoomArea - structure.floorArea_m2 > FLOAT_TOLERANCE) {
+      issues.push({
+        path: `${structurePath}.rooms`,
+        message: 'total room area exceeds structure capacity'
+      });
+    }
+
+    structure.rooms.forEach((room, roomIndex) => {
+      const roomPath = `${structurePath}.rooms[${String(roomIndex)}]`;
+
+      if (!isValidArea(room.floorArea_m2)) {
+        issues.push({
+          path: `${roomPath}.floorArea_m2`,
+          message: `room floor area must be a multiple of ${String(AREA_QUANTUM_M2)}`
+        });
+      }
+
+      if (room.height_m <= 0) {
+        issues.push({
+          path: `${roomPath}.height_m`,
+          message: 'room height must be positive'
+        });
+      }
+
+      room.devices.forEach((device, deviceIndex) => {
+        validateDevice(
+          device,
+          'room',
+          `${roomPath}.devices[${String(deviceIndex)}]`,
+          issues
+        );
+      });
+
+      if (room.purpose !== 'growroom' && room.zones.length > 0) {
+        issues.push({
+          path: `${roomPath}.zones`,
+          message: 'only growrooms may contain zones'
+        });
+      }
+
+      const totalZoneArea = room.zones.reduce(
+        (sum, zone) => sum + zone.floorArea_m2,
+        0
+      );
+
+      if (totalZoneArea - room.floorArea_m2 > FLOAT_TOLERANCE) {
+        issues.push({
+          path: `${roomPath}.zones`,
+          message: 'total zone area exceeds room capacity'
+        });
+      }
+
+      room.zones.forEach((zone, zoneIndex) => {
+        const zonePath = `${roomPath}.zones[${String(zoneIndex)}]`;
+
+        if (!isValidArea(zone.floorArea_m2)) {
+          issues.push({
+            path: `${zonePath}.floorArea_m2`,
+            message: `zone floor area must be a multiple of ${String(AREA_QUANTUM_M2)}`
+          });
+        }
+
+        if (zone.height_m <= 0) {
+          issues.push({
+            path: `${zonePath}.height_m`,
+            message: 'zone height must be positive'
+          });
+        }
+
+        if (!zone.cultivationMethodId) {
+          issues.push({
+            path: `${zonePath}.cultivationMethodId`,
+            message: 'zones must declare a cultivation method id'
+          });
+        }
+
+        if (!zone.irrigationMethodId) {
+          issues.push({
+            path: `${zonePath}.irrigationMethodId`,
+            message: 'zones must declare an irrigation method id'
+          });
+        }
+
+        if (!zone.containerId) {
+          issues.push({
+            path: `${zonePath}.containerId`,
+            message: 'zones must declare a container id'
+          });
+        }
+
+        if (!zone.substrateId) {
+          issues.push({
+            path: `${zonePath}.substrateId`,
+            message: 'zones must declare a substrate id'
+          });
+        }
+
+        const scheduleIssue = validateLightSchedule(zone.lightSchedule);
+        if (scheduleIssue) {
+          issues.push({
+            path: `${zonePath}.${scheduleIssue.path}`,
+            message: scheduleIssue.message
+          });
+        }
+
+        const phase = zone.photoperiodPhase as string;
+        if (phase !== 'vegetative' && phase !== 'flowering') {
+          issues.push({
+            path: `${zonePath}.photoperiodPhase`,
+            message: 'photoperiod phase must be either "vegetative" or "flowering"'
+          });
+        }
+
+        zone.devices.forEach((device, deviceIndex) => {
+          validateDevice(
+            device,
+            'zone',
+            `${zonePath}.devices[${String(deviceIndex)}]`,
+            issues
+          );
+        });
+
+        zone.plants.forEach((plant, plantIndex) => {
+          const plantPath = `${zonePath}.plants[${String(plantIndex)}]`;
+
+          if (!PLANT_LIFECYCLE_STAGES.includes(plant.lifecycleStage)) {
+            issues.push({
+              path: `${plantPath}.lifecycleStage`,
+              message: 'plant lifecycle stage is invalid'
+            });
+          }
+
+          if (plant.ageHours < 0) {
+            issues.push({
+              path: `${plantPath}.ageHours`,
+              message: 'plant age must be non-negative'
+            });
+          }
+
+          if (!isWithinUnitInterval(plant.health01)) {
+            issues.push({
+              path: `${plantPath}.health01`,
+              message: 'plant health01 must lie within [0,1]'
+            });
+          }
+
+          if (plant.biomass_g < 0) {
+            issues.push({
+              path: `${plantPath}.biomass_g`,
+              message: 'plant biomass must be non-negative'
+            });
+          }
+
+          if (!plant.containerId) {
+            issues.push({
+              path: `${plantPath}.containerId`,
+              message: 'plants must reference a container id'
+            });
+          }
+
+          if (!plant.substrateId) {
+            issues.push({
+              path: `${plantPath}.substrateId`,
+              message: 'plants must reference a substrate id'
+            });
+          }
+        });
+      });
+    });
+  });
+
+  return {
+    ok: issues.length === 0,
+    issues
+  } satisfies WorldValidationResult;
+}
