@@ -4,7 +4,8 @@ import type { EngineRunContext } from '../Engine.js';
 export function applyIrrigationAndNutrients(
   world: SimulationWorld,
   ctx: EngineRunContext
-): void {
-  void world;
+): SimulationWorld {
   void ctx;
+
+  return world;
 }

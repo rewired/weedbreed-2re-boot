@@ -95,13 +95,14 @@ export interface RunOneTickResult {
 export function runOneTickWithTrace(options: RunOneTickOptions = {}): RunOneTickResult {
   const world = options.world ?? createDemoWorld();
   const context = options.context ?? {};
-  const trace = runTick(world, context, { trace: true, ...options.runTickOptions });
+  const tickResult = runTick(world, context, { trace: true, ...options.runTickOptions });
+  const { trace, world: nextWorld } = tickResult;
 
   if (!trace) {
     throw new Error('Tick trace collection is mandatory for runOneTickWithTrace');
   }
 
-  return { world, context, trace } satisfies RunOneTickResult;
+  return { world: nextWorld, context, trace } satisfies RunOneTickResult;
 }
 
 export interface PerfHarnessOptions {
@@ -128,7 +129,7 @@ export function withPerfHarness(options: PerfHarnessOptions): PerfHarnessResult 
   for (let i = 0; i < warmupTicks; i += 1) {
     const world = worldFactory();
     const context = contextFactory();
-    runTick(world, context, { ...options.runTickOptions, trace: false });
+    void runTick(world, context, { ...options.runTickOptions, trace: false });
   }
 
   const traces: TickTrace[] = [];
@@ -136,7 +137,7 @@ export function withPerfHarness(options: PerfHarnessOptions): PerfHarnessResult 
   for (let i = 0; i < tickCount; i += 1) {
     const world = worldFactory();
     const context = contextFactory();
-    const trace = runTick(world, context, { trace: true, ...options.runTickOptions });
+    const { trace } = runTick(world, context, { trace: true, ...options.runTickOptions });
 
     if (!trace) {
       throw new Error('Perf harness requires trace data for every tick');

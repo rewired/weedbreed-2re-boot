@@ -21,7 +21,15 @@ export interface RunTickOptions {
   readonly trace?: boolean;
 }
 
-export type PipelineStage = (world: SimulationWorld, ctx: EngineRunContext) => void;
+export interface RunTickResult {
+  readonly world: SimulationWorld;
+  readonly trace?: TickTrace;
+}
+
+export type PipelineStage = (
+  world: SimulationWorld,
+  ctx: EngineRunContext
+) => SimulationWorld;
 
 const PIPELINE_DEFINITION: ReadonlyArray<readonly [StepName, PipelineStage]> = [
   ['applyDeviceEffects', applyDeviceEffects],
@@ -39,18 +47,21 @@ export function runTick(
   world: SimulationWorld,
   ctx: EngineRunContext,
   opts: RunTickOptions = {}
-): TickTrace | undefined {
+): RunTickResult {
   const collector = opts.trace ? createTickTraceCollector() : undefined;
+  let nextWorld = world;
 
   for (const [stepName, stageFn] of PIPELINE_DEFINITION) {
     if (collector) {
-      collector.measureStage(stepName, () => stageFn(world, ctx));
+      nextWorld = collector.measureStage(stepName, () => stageFn(nextWorld, ctx));
     } else {
-      stageFn(world, ctx);
+      nextWorld = stageFn(nextWorld, ctx);
     }
 
-    ctx.instrumentation?.onStageComplete?.(stepName, world);
+    ctx.instrumentation?.onStageComplete?.(stepName, nextWorld);
   }
 
-  return collector?.finalize();
+  const trace = collector?.finalize();
+
+  return { world: nextWorld, trace } satisfies RunTickResult;
 }

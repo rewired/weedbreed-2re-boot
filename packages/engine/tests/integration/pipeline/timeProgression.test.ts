@@ -6,13 +6,13 @@ import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
 
 describe('Tick pipeline — simulation time progression', () => {
   it('advances simulation time by one tick per run', () => {
-    const world = createDemoWorld();
+    let world = createDemoWorld();
     const ctx = {};
 
-    runTick(world, ctx);
+    world = runTick(world, ctx).world;
     expect(world.simTimeHours).toBe(HOURS_PER_TICK);
 
-    runTick(world, ctx);
+    world = runTick(world, ctx).world;
     expect(world.simTimeHours).toBe(2 * HOURS_PER_TICK);
   });
 });
