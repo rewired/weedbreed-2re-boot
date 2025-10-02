@@ -1,5 +1,15 @@
 # Changelog
 
+### #24 WB-019 company location validation consolidation
+- Updated the shared `nonEmptyString` schema to trim incoming values before
+  enforcing non-empty constraints so world tree strings remain normalised at
+  parse time.
+- Removed duplicate company location bounds and emptiness checks from
+  `validateCompanyWorld`, delegating structural enforcement to the Zod schema
+  layer to avoid divergent error reporting.
+- Recorded the consolidation here to highlight that business validation now
+  focuses on SEC-specific guardrails beyond baseline schema requirements.
+
 ### #23 WB-018 company headquarters location metadata
 - Added Hamburg-backed default company location constants to `simConstants` and
   documented them in the canonical constants reference for interim UI coverage.
