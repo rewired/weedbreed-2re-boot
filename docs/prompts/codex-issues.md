@@ -1,6 +1,3 @@
-Kurz: **Ja.**
-Bevor du Codex loslässt, mach einen 2-Min-Preflight und gib ihm dann den Start-Prompt unten.
-
 ## Preflight (einmalig)
 
 1. **Repo-Zugriff:** Codex hat *Write* auf `rewired/weedbreed-2re-boot`.
