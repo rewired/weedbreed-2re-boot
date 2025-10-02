@@ -1,5 +1,15 @@
 # Changelog
 
+### #21 WB-016 uuid schema branding alignment
+- Branded the shared `uuidSchema` in the engine domain schemas with Zod's
+  `.brand<'Uuid'>()` helper so parsed entities infer the branded `Uuid` type
+  expected by the domain model.
+- Unblocked strict TypeScript builds that previously reported `string` vs.
+  `Uuid` incompatibilities when the schemas were annotated with explicit
+  domain entity types.
+- Confirmed the runtime validation behaviour remains unchanged, keeping
+  existing schema unit coverage relevant without modification.
+
 ### #20 Tooling - engine lint guard compliance
 - Normalised template string usage in `@wb/engine` validation helpers so numeric
   segments are explicitly stringified, satisfying the strict `restrict-template-expressions`
