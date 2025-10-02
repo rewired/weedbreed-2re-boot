@@ -1,7 +1,9 @@
-import { CP_AIR_J_PER_KG_K, HOURS_PER_TICK } from '../../constants/simConstants.js';
+import {
+  CP_AIR_J_PER_KG_K,
+  HOURS_PER_TICK,
+  SECONDS_PER_HOUR
+} from '../../constants/simConstants.js';
 import type { Zone, ZoneDeviceInstance } from '../../domain/world.js';
-
-const SECONDS_PER_HOUR = 3_600;
 
 function clamp01(value: number): number {
   if (!Number.isFinite(value)) {

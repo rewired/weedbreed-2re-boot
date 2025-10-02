@@ -1,6 +1,15 @@
 import { z } from 'zod';
 
-import { AIR_DENSITY_KG_PER_M3, ROOM_DEFAULT_HEIGHT_M } from '../constants/simConstants.js';
+import {
+  AIR_DENSITY_KG_PER_M3,
+  FLOAT_TOLERANCE,
+  HOURS_PER_DAY,
+  LATITUDE_MAX_DEG,
+  LATITUDE_MIN_DEG,
+  LONGITUDE_MAX_DEG,
+  LONGITUDE_MIN_DEG,
+  ROOM_DEFAULT_HEIGHT_M
+} from '../constants/simConstants.js';
 import {
   DEVICE_PLACEMENT_SCOPES,
   PLANT_LIFECYCLE_STAGES,
@@ -43,26 +52,34 @@ const spatialEntitySchema = z.object({
 
 export const companyLocationSchema: z.ZodType<CompanyLocation> = z.object({
   lon: finiteNumber
-    .min(-180, 'Longitude must be >= -180.')
-    .max(180, 'Longitude must be <= 180.'),
+    .min(LONGITUDE_MIN_DEG, `Longitude must be >= ${String(LONGITUDE_MIN_DEG)}.`)
+    .max(LONGITUDE_MAX_DEG, `Longitude must be <= ${String(LONGITUDE_MAX_DEG)}.`),
   lat: finiteNumber
-    .min(-90, 'Latitude must be >= -90.')
-    .max(90, 'Latitude must be <= 90.'),
+    .min(LATITUDE_MIN_DEG, `Latitude must be >= ${String(LATITUDE_MIN_DEG)}.`)
+    .max(LATITUDE_MAX_DEG, `Latitude must be <= ${String(LATITUDE_MAX_DEG)}.`),
   cityName: nonEmptyString,
   countryName: nonEmptyString
 });
 
 export const lightScheduleSchema: z.ZodType<LightSchedule> = z
   .object({
-    onHours: finiteNumber.min(0, 'onHours cannot be negative.'),
-    offHours: finiteNumber.min(0, 'offHours cannot be negative.'),
-    startHour: finiteNumber.min(0, 'startHour cannot be negative.')
+    onHours: finiteNumber
+      .min(0, 'onHours cannot be negative.')
+      .max(HOURS_PER_DAY, `onHours must be <= ${String(HOURS_PER_DAY)}.`),
+    offHours: finiteNumber
+      .min(0, 'offHours cannot be negative.')
+      .max(HOURS_PER_DAY, `offHours must be <= ${String(HOURS_PER_DAY)}.`),
+    startHour: finiteNumber
+      .min(0, 'startHour cannot be negative.')
+      .max(HOURS_PER_DAY, `startHour must be <= ${String(HOURS_PER_DAY)}.`)
   })
   .superRefine((schedule, ctx) => {
-    if (schedule.onHours + schedule.offHours !== 24) {
+    if (
+      Math.abs(schedule.onHours + schedule.offHours - HOURS_PER_DAY) > FLOAT_TOLERANCE
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Light schedules must allocate exactly 24 hours across on/off periods.',
+        message: `Light schedules must allocate exactly ${String(HOURS_PER_DAY)} hours across on/off periods.`,
         path: []
       });
     }

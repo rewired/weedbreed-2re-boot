@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { CP_AIR_J_PER_KG_K, HOURS_PER_TICK } from '@/backend/src/constants/simConstants.js';
+import {
+  CP_AIR_J_PER_KG_K,
+  HOURS_PER_TICK,
+  SECONDS_PER_HOUR
+} from '@/backend/src/constants/simConstants.js';
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
 import { runTick } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
 import type { Uuid, ZoneDeviceInstance } from '@/backend/src/domain/world.js';
-
-const SECONDS_PER_HOUR = 3_600;
 
 function uuid(value: string): Uuid {
   return value as Uuid;
