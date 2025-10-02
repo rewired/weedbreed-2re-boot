@@ -34,11 +34,21 @@ const spatialEntitySchema = z.object({
   height_m: finiteNumber.positive('height_m must be positive.')
 });
 
-export const lightScheduleSchema: z.ZodType<LightSchedule> = z.object({
-  onHours: finiteNumber.min(0, 'onHours cannot be negative.'),
-  offHours: finiteNumber.min(0, 'offHours cannot be negative.'),
-  startHour: finiteNumber.min(0, 'startHour cannot be negative.')
-});
+export const lightScheduleSchema: z.ZodType<LightSchedule> = z
+  .object({
+    onHours: finiteNumber.min(0, 'onHours cannot be negative.'),
+    offHours: finiteNumber.min(0, 'offHours cannot be negative.'),
+    startHour: finiteNumber.min(0, 'startHour cannot be negative.')
+  })
+  .superRefine((schedule, ctx) => {
+    if (schedule.onHours + schedule.offHours !== 24) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Light schedules must allocate exactly 24 hours across on/off periods.',
+        path: []
+      });
+    }
+  });
 
 const baseDeviceSchema = domainEntitySchema
   .merge(sluggedEntitySchema)

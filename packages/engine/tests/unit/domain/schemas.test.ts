@@ -166,6 +166,43 @@ describe('companySchema', () => {
     ]);
   });
 
+  it('accepts light schedules that sum to 24 hours', () => {
+    const validWorld = cloneWorld();
+    const targetSchedule = validWorld.structures[0]?.rooms[0]?.zones[0]?.lightSchedule;
+    if (!targetSchedule) {
+      throw new Error('Expected a light schedule in the base world fixture.');
+    }
+    targetSchedule.onHours = 12;
+    targetSchedule.offHours = 12;
+
+    const result = companySchema.safeParse(validWorld);
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects light schedules that do not cover a full 24-hour cycle', () => {
+    const invalidWorld = cloneWorld();
+    const targetSchedule = invalidWorld.structures[0]?.rooms[0]?.zones[0]?.lightSchedule;
+    if (!targetSchedule) {
+      throw new Error('Expected a light schedule in the base world fixture.');
+    }
+    targetSchedule.onHours = 20;
+    targetSchedule.offHours = 3;
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'structures',
+      0,
+      'rooms',
+      0,
+      'zones',
+      0,
+      'lightSchedule'
+    ]);
+  });
+
   it('rejects growrooms that omit zones', () => {
     const invalidWorld = cloneWorld();
     const targetRoom = invalidWorld.structures[0]?.rooms[0];
