@@ -1,0 +1,27 @@
+{
+  "id": "285041f1-9586-4b43-b55c-0cb76f343037",
+  "slug": "coco-coir",
+  "class": "substrate.coco.coir",
+  "name": "Coco Coir",
+  "maxCycles": 4,
+  "purchaseUnit": "liter",
+  "unitPrice_per_L": 0.55,
+  "densityFactor_L_per_kg": 8.5,
+  "reusePolicy": {
+    "maxCycles": 4,
+    "sterilizationTaskCode": "overhaul_zone_substrate",
+    "sterilizationInterval_cycles": 1
+  },
+  "meta": {
+    "description": "Buffered coco coir blend optimized for drain-to-waste or recirculating fertigation systems with multiple reuse cycles.",
+    "advantages": [
+      "Excellent aeration drives rapid root development",
+      "Handles high-frequency fertigation without compaction",
+      "Reusable across four cycles with proper flushing"
+    ],
+    "disadvantages": [
+      "Demands precise nutrient and EC management",
+      "Dries quickly without automated irrigation"
+    ]
+  }
+}

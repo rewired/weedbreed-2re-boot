@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -7,16 +9,30 @@ import {
   substrateBlueprintSchema
 } from '@/backend/src/domain/world.js';
 
-import cocoCoir from '../../../../../data/blueprints/substrates/coco_coir.json' assert { type: 'json' };
-import soilMulti from '../../../../../data/blueprints/substrates/soil_multi_cycle.json' assert { type: 'json' };
-import soilSingle from '../../../../../data/blueprints/substrates/soil_single_cycle.json' assert { type: 'json' };
+import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco_coir.json' assert { type: 'json' };
+import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil_multi_cycle.json' assert { type: 'json' };
+import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil_single_cycle.json' assert { type: 'json' };
+
+const cocoCoirPath = fileURLToPath(
+  new URL('../../../../../data/blueprints/substrate/coco/coir/coco_coir.json', import.meta.url)
+);
+const soilMultiPath = fileURLToPath(
+  new URL('../../../../../data/blueprints/substrate/soil/multi-cycle/soil_multi_cycle.json', import.meta.url)
+);
+const soilSinglePath = fileURLToPath(
+  new URL('../../../../../data/blueprints/substrate/soil/single-cycle/soil_single_cycle.json', import.meta.url)
+);
+
+const substrateFixtures = [
+  { data: cocoCoir, path: cocoCoirPath },
+  { data: soilMulti, path: soilMultiPath },
+  { data: soilSingle, path: soilSinglePath }
+] as const;
 
 describe('substrateBlueprintSchema', () => {
   it('parses repository substrate blueprints without modification', () => {
-    const fixtures = [cocoCoir, soilMulti, soilSingle];
-
-    for (const fixture of fixtures) {
-      expect(() => parseSubstrateBlueprint(fixture)).not.toThrow();
+    for (const fixture of substrateFixtures) {
+      expect(() => parseSubstrateBlueprint(fixture.data, { filePath: fixture.path })).not.toThrow();
     }
   });
 
@@ -62,7 +78,7 @@ describe('substrateBlueprintSchema', () => {
   });
 
   it('converts mass and volume using the declared density factor', () => {
-    const parsed = parseSubstrateBlueprint(cocoCoir);
+    const parsed = parseSubstrateBlueprint(cocoCoir, { filePath: cocoCoirPath });
 
     const massKg = convertSubstrateVolumeLToMassKg(parsed, 85);
     expect(massKg).toBeCloseTo(10, 5);

@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
 import { DEVICE_PLACEMENT_SCOPES, ROOM_PURPOSES } from '../entities.js';
+import {
+  BlueprintClassMismatchError,
+  type BlueprintPathOptions,
+  deriveBlueprintClassFromPath
+} from './taxonomy.js';
 
 const nonEmptyString = z.string().trim().min(1, 'String fields must not be empty.');
 const finiteNumber = z.number().finite('Value must be a finite number.');
@@ -10,16 +15,13 @@ const slugString = z
 
 const placementScopeSchema = z.enum([...DEVICE_PLACEMENT_SCOPES]);
 const roomPurposeSchema = z.enum([...ROOM_PURPOSES]);
-const deviceClassSchema = z.enum([
-  'device.climate.cooling',
-  'device.climate.co2',
-  'device.climate.dehumidifier',
-  'device.climate.humidity-controller',
-  'device.airflow.exhaust',
-  'device.lighting.vegetative'
-]);
-
-type DeviceClass = z.infer<typeof deviceClassSchema>;
+const TAXONOMY_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*';
+const deviceClassSchema = z
+  .string({ required_error: 'class is required.' })
+  .regex(
+    new RegExp(`^device\.${TAXONOMY_SEGMENT}(?:\.${TAXONOMY_SEGMENT})+$`),
+    'class must follow the device taxonomy (<domain>.<effect>[.<variant>]).'
+  );
 
 /**
  * Canonical device blueprint contract enforced for JSON payloads.
@@ -140,7 +142,9 @@ function ensureNestedField(
   }
 }
 
-const classSpecificValidators: Record<DeviceClass, (blueprint: Record<string, unknown>, ctx: z.RefinementCtx) => void> = {
+const classSpecificValidators: Partial<
+  Record<string, (blueprint: Record<string, unknown>, ctx: z.RefinementCtx) => void>
+> = {
   'device.climate.cooling': (blueprint, ctx) => {
     ensureNestedField(blueprint, ['coverage', 'maxArea_m2'], ctx, 'Cooling units require coverage.maxArea_m2.');
     ensureNestedField(blueprint, ['limits', 'coolingCapacity_kW'], ctx, 'Cooling units require limits.coolingCapacity_kW.');
@@ -208,7 +212,8 @@ export const deviceBlueprintSchema = deviceBlueprintObjectSchema.superRefine((bl
     });
   }
 
-  const validator = classSpecificValidators[blueprint.class as DeviceClass];
+  const validator =
+    classSpecificValidators[blueprint.class as keyof typeof classSpecificValidators];
   if (validator) {
     validator(blueprint, ctx);
   }
@@ -216,8 +221,44 @@ export const deviceBlueprintSchema = deviceBlueprintObjectSchema.superRefine((bl
 
 export type DeviceBlueprint = z.infer<typeof deviceBlueprintSchema>;
 
-export function parseDeviceBlueprint(input: unknown): DeviceBlueprint {
-  return deviceBlueprintSchema.parse(input);
+export interface ParseDeviceBlueprintOptions extends BlueprintPathOptions {
+  readonly filePath?: string;
+  readonly slugRegistry?: Map<string, string>;
+}
+
+export function parseDeviceBlueprint(
+  input: unknown,
+  options: ParseDeviceBlueprintOptions = {}
+): DeviceBlueprint {
+  const blueprint = deviceBlueprintSchema.parse(input);
+
+  let relativePath: string | undefined;
+
+  if (options.filePath) {
+    const derived = deriveBlueprintClassFromPath(options.filePath, options);
+    relativePath = derived.relativePath;
+
+    if (derived.className !== blueprint.class) {
+      throw new BlueprintClassMismatchError(derived.relativePath, derived.className, blueprint.class);
+    }
+  }
+
+  if (options.slugRegistry) {
+    const registry = options.slugRegistry;
+    const key = `${blueprint.class}:${blueprint.slug}`;
+    const conflict = registry.get(key);
+
+    if (conflict) {
+      const location = relativePath ?? options.filePath ?? blueprint.id;
+      throw new Error(
+        `Duplicate device slug "${blueprint.slug}" for class "${blueprint.class}" found in ${location}; first defined in ${conflict}.`
+      );
+    }
+
+    registry.set(key, relativePath ?? options.filePath ?? blueprint.id);
+  }
+
+  return blueprint;
 }
 
 export interface DeviceInstanceCapacity {
