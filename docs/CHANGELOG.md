@@ -1,6 +1,12 @@
 # Changelog
 
-### #26 WB-021 tick pipeline instrumentation harness
+### #26 WB-009 tick orchestrator & perf harness
+- Implemented the SEC-ordered `runTick` pipeline in `packages/engine/src/backend/src/engine/Engine.ts`, wiring the seven phase modules through the shared `PIPELINE_ORDER` map so instrumentation hooks observe deterministic sequencing.
+- Added `createTickTraceCollector` and the `withPerfStage` sampling utility in `packages/engine/src/backend/src/engine/trace.ts` and `packages/engine/src/backend/src/util/perf.ts` to record per-stage timing and heap usage without leaking wall-clock state.
+- Published the `runOneTickWithTrace`, `withPerfHarness`, and `createRecordingContext` helpers in `packages/engine/src/backend/src/engine/testHarness.ts` to simplify trace capture, perf baselines, and stage recording for integration scenarios.
+- Expanded Vitest coverage across `packages/engine/tests/integration/pipeline/order.spec.ts`, `packages/engine/tests/unit/engine/trace.spec.ts`, and `packages/engine/tests/integration/perf/baseline.spec.ts` to lock down pipeline order, trace schema invariants, and throughput guardrails for WB-009.
+
+### #27 WB-021 tick pipeline instrumentation harness
 - Introduced the SEC-ordered `runTick` orchestrator that stages the seven
   deterministic phases and optionally collects `TickTrace` telemetry without
   leaking wall-clock data into simulation logic.
