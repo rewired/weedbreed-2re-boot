@@ -1,5 +1,14 @@
 # Changelog
 
+### #40 WB-033 substrate density enforcement
+- Enriched every substrate blueprint with `purchaseUnit`, `unitPrice_per_*`, `densityFactor_L_per_kg`,
+  and explicit `reusePolicy` metadata aligned with SEC §7.5 so cultivation tooling can convert
+  container volumes into substrate mass deterministically.
+- Added a dedicated substrate blueprint schema plus cultivation and irrigation helpers that
+  require the density factor, expose L↔kg conversions, and surface deterministic irrigation charge
+  calculations with fresh unit tests.
+- Updated SEC/DD/TDD guidance to call out the new required fields and documented the change here.
+
 ### #39 WB-032 blueprint taxonomy alignment
 - Added a canonical `<domain>.<effect>[.<variant>]` `class` discriminator and kebab-case
   slugs across every blueprint JSON under `/data/blueprints/**`, removing legacy

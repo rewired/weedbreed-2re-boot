@@ -108,11 +108,29 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
   "slug": "scrog",
   "name": "Screen of Green",
   "areaPerPlant_m2": 0.20,
-  "containers": [ { "id": "uuid", "slug": "pot-10l", "capex_per_unit": 2.0, "serviceLife_cycles": 8 } ],
-  "substrates": [ { "id": "uuid", "slug": "soil-basic", "unitPrice_per_L": 0.15, "densityFactor_L_per_kg": 0.7, "reusePolicy": { "maxCycles": 1, "sterilizationTaskCode": "sterilize_substrate" } } ],
+  "containers": [
+    { "id": "uuid", "slug": "pot-10l", "capex_per_unit": 2.0, "serviceLife_cycles": 8 }
+  ],
+  "substrates": [
+    {
+      "id": "uuid",
+      "slug": "soil-basic",
+      "purchaseUnit": "liter",
+      "unitPrice_per_L": 0.15,
+      "densityFactor_L_per_kg": 0.7,
+      "reusePolicy": {
+        "maxCycles": 1,
+        "sterilizationTaskCode": "sterilize_substrate"
+      }
+    }
+  ],
   "notes": "SEC §7.5 compliant"
 }
 ```
+
+The `densityFactor_L_per_kg` drives container fill and irrigation calculations — cultivation tooling
+uses it to convert container volumes into substrate mass, while irrigation modelling derives moisture
+targets from the same factor to keep unit conversions deterministic.
 
 > **Irrigation compatibility note:** Cultivation methods no longer list irrigation method IDs directly. Instead, irrigation method blueprints enumerate the substrates they support via `compatibility.substrates`, and methods inherit compatibility from whichever substrate option a zone selects.
 

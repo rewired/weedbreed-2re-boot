@@ -214,8 +214,9 @@ it('hourly cost derives from power draw (W) and tariff (kWh)', () => {
 
 ## 9) Cultivation Methods on Zones (SEC §7.5)
 
-- Zone **must** reference a `cultivationMethod` defining **containers**, **substrates** (incl. `densityFactor_L_per_kg`), **irrigation** compatibility, and **planting density**.
+- Zone **must** reference a `cultivationMethod` defining **containers**, **substrates** (incl. `densityFactor_L_per_kg` and `purchaseUnit`), **irrigation** compatibility, and **planting density**.
   - Irrigation compatibility is derived from irrigation method blueprints that list the substrate slug under `compatibility.substrates`; zones selecting a substrate without matching irrigation support should fail validation.
+- Substrate blueprints SHALL include `reusePolicy.maxCycles` (matching the top-level `maxCycles`), `densityFactor_L_per_kg`, and unit price metadata bound to `purchaseUnit`. Validation rejects reuse profiles missing sterilisation tasks when `maxCycles > 1`.
     
 
 ```ts
