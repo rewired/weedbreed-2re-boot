@@ -1,5 +1,13 @@
 # Changelog
 
+### #16 WB-011 growroom zone cardinality validation
+- Enforced the room schema to reject growrooms that do not declare at least one
+  zone, maintaining SEC hierarchy invariants.
+- Added regression coverage ensuring `companySchema.safeParse` reports a zones
+  path issue when a growroom omits its zone list.
+- Documented the tightened validation to alert integrators that empty
+  growrooms now fail schema checks.
+
 ### #15 Tooling - align engine runtime dependencies
 - Declared `zod@^3.23.8` as an explicit runtime dependency for `@wb/engine`
   so schema validation helpers resolve consistently during builds and tests.
