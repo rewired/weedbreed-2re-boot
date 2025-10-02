@@ -1,5 +1,15 @@
 # Changelog
 
+### #35 WB-028 canonical constant consolidation
+- Added `SECONDS_PER_HOUR`, `FLOAT_TOLERANCE`, and geospatial boundary constants
+  to `simConstants`, eliminating duplicate physics values across the engine
+  pipeline and validation layers.
+- Updated world validation, schema guards, and thermal pipeline stages to import
+  the shared constants, unifying tolerance/error messaging and dropping
+  hard-coded ranges.
+- Normalised related test fixtures to declare descriptive constants for their
+  magic numbers and refreshed the canonical constant reference documentation.
+
 ### #34 WB-027 device capacity diagnostics & blueprint schema hardening
 - Introduced a Zod-backed device blueprint schema enforcing `power_W`, `efficiency01`, and at least one of `coverage_m2`/`airflow_m3_per_h`, exporting the validator for downstream loaders and adding unit coverage (including live JSON fixtures).
 - Normalised device instances with `coverage_m2`/`airflow_m3_per_h` fields, updated validation, demo fixtures, and pipeline logic to aggregate coverage & airflow totals, clamp effectiveness by coverage ratio, and emit `zone.capacity.coverage.warn` / `zone.capacity.airflow.warn` diagnostics when undersized.

@@ -1,7 +1,12 @@
 import {
   AREA_QUANTUM_M2,
+  FLOAT_TOLERANCE,
   HOURS_PER_DAY,
-  LIGHT_SCHEDULE_GRID_HOURS
+  LATITUDE_MAX_DEG,
+  LATITUDE_MIN_DEG,
+  LIGHT_SCHEDULE_GRID_HOURS,
+  LONGITUDE_MAX_DEG,
+  LONGITUDE_MIN_DEG
 } from '@/backend/src/constants/simConstants.js';
 
 import {
@@ -14,12 +19,6 @@ import {
   PLANT_LIFECYCLE_STAGES,
   ROOM_PURPOSES
 } from './entities.js';
-
-/**
- * Acceptable floating point tolerance when comparing values that should be
- * exact within the simulation.
- */
-const FLOAT_TOLERANCE = 1e-6;
 
 const VALID_ROOM_PURPOSES = new Set(ROOM_PURPOSES);
 const VALID_PHOTOPERIOD_PHASES = new Set<PhotoperiodPhase>([
@@ -106,14 +105,14 @@ function validateLightSchedule(
   if (schedule.onHours < 0 || schedule.onHours > HOURS_PER_DAY) {
     return {
       path,
-      message: 'onHours must lie within [0,24]'
+      message: `onHours must lie within [0,${String(HOURS_PER_DAY)}]`
     } satisfies WorldValidationIssue;
   }
 
   if (schedule.offHours < 0 || schedule.offHours > HOURS_PER_DAY) {
     return {
       path,
-      message: 'offHours must lie within [0,24]'
+      message: `offHours must lie within [0,${String(HOURS_PER_DAY)}]`
     } satisfies WorldValidationIssue;
   }
 
@@ -121,14 +120,14 @@ function validateLightSchedule(
   if (Math.abs(sum - HOURS_PER_DAY) > FLOAT_TOLERANCE) {
     return {
       path,
-      message: 'onHours + offHours must equal 24 hours'
+      message: `onHours + offHours must equal ${String(HOURS_PER_DAY)} hours`
     } satisfies WorldValidationIssue;
   }
 
   if (schedule.startHour < 0 || schedule.startHour >= HOURS_PER_DAY) {
     return {
       path,
-      message: 'startHour must lie within [0,24)'
+      message: `startHour must lie within [0,${String(HOURS_PER_DAY)})`
     } satisfies WorldValidationIssue;
   }
 
@@ -439,10 +438,10 @@ export function validateCompanyWorld(
         path: 'company.location.lon',
         message: 'longitude must be a finite number'
       });
-    } else if (lon < -180 || lon > 180) {
+    } else if (lon < LONGITUDE_MIN_DEG || lon > LONGITUDE_MAX_DEG) {
       issues.push({
         path: 'company.location.lon',
-        message: 'longitude must lie within [-180, 180]'
+        message: `longitude must lie within [${String(LONGITUDE_MIN_DEG)}, ${String(LONGITUDE_MAX_DEG)}]`
       });
     }
 
@@ -451,10 +450,10 @@ export function validateCompanyWorld(
         path: 'company.location.lat',
         message: 'latitude must be a finite number'
       });
-    } else if (lat < -90 || lat > 90) {
+    } else if (lat < LATITUDE_MIN_DEG || lat > LATITUDE_MAX_DEG) {
       issues.push({
         path: 'company.location.lat',
-        message: 'latitude must lie within [-90, 90]'
+        message: `latitude must lie within [${String(LATITUDE_MIN_DEG)}, ${String(LATITUDE_MAX_DEG)}]`
       });
     }
 

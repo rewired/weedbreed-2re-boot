@@ -17,6 +17,10 @@ export interface SimulationConstants {
    */
   readonly LIGHT_SCHEDULE_GRID_HOURS: number;
   /**
+   * Number of seconds contained within a single in-game hour.
+   */
+  readonly SECONDS_PER_HOUR: number;
+  /**
    * Default room interior height in metres whenever a blueprint does not
    * provide an explicit override.
    */
@@ -58,6 +62,11 @@ export interface SimulationConstants {
    */
   readonly HOURS_PER_YEAR: number;
   /**
+   * Acceptable floating point tolerance when comparing values that should be
+   * exact within the simulation.
+   */
+  readonly FLOAT_TOLERANCE: number;
+  /**
    * Default longitude (decimal degrees) for company headquarters metadata
    * until the UI allows customisation.
    */
@@ -67,6 +76,22 @@ export interface SimulationConstants {
    * until the UI allows customisation.
    */
   readonly DEFAULT_COMPANY_LOCATION_LAT: number;
+  /**
+   * Minimal canonical longitude expressed in decimal degrees.
+   */
+  readonly LONGITUDE_MIN_DEG: number;
+  /**
+   * Maximal canonical longitude expressed in decimal degrees.
+   */
+  readonly LONGITUDE_MAX_DEG: number;
+  /**
+   * Minimal canonical latitude expressed in decimal degrees.
+   */
+  readonly LATITUDE_MIN_DEG: number;
+  /**
+   * Maximal canonical latitude expressed in decimal degrees.
+   */
+  readonly LATITUDE_MAX_DEG: number;
   /**
    * Default city name used for company headquarters metadata.
    */
@@ -88,6 +113,12 @@ export const AREA_QUANTUM_M2 = 0.25 as const;
  * in in-game hours (15 minutes per step).
  */
 export const LIGHT_SCHEDULE_GRID_HOURS = 0.25 as const;
+
+/**
+ * Canonical constant describing the number of seconds contained in an
+ * in-game hour.
+ */
+export const SECONDS_PER_HOUR = 3_600 as const;
 
 /**
  * Canonical constant describing the default height of a room interior,
@@ -144,6 +175,11 @@ export const HOURS_PER_MONTH = HOURS_PER_DAY * DAYS_PER_MONTH;
 export const HOURS_PER_YEAR = HOURS_PER_MONTH * MONTHS_PER_YEAR;
 
 /**
+ * Canonical floating point comparison tolerance used across the simulation.
+ */
+export const FLOAT_TOLERANCE = 1e-6 as const;
+
+/**
  * Temporary default longitude for company headquarters metadata. Anchored to
  * Hamburg (Germany) until SEC-compliant UI capture is available.
  */
@@ -154,6 +190,26 @@ export const DEFAULT_COMPANY_LOCATION_LON = 9.9937 as const;
  * Hamburg (Germany) until SEC-compliant UI capture is available.
  */
 export const DEFAULT_COMPANY_LOCATION_LAT = 53.5511 as const;
+
+/**
+ * Canonical minimal longitude boundary expressed in decimal degrees.
+ */
+export const LONGITUDE_MIN_DEG = -180 as const;
+
+/**
+ * Canonical maximal longitude boundary expressed in decimal degrees.
+ */
+export const LONGITUDE_MAX_DEG = 180 as const;
+
+/**
+ * Canonical minimal latitude boundary expressed in decimal degrees.
+ */
+export const LATITUDE_MIN_DEG = -90 as const;
+
+/**
+ * Canonical maximal latitude boundary expressed in decimal degrees.
+ */
+export const LATITUDE_MAX_DEG = 90 as const;
 
 /**
  * Temporary default city name for company headquarters metadata.
@@ -172,6 +228,7 @@ export const DEFAULT_COMPANY_LOCATION_COUNTRY = 'Deutschland' as const;
 export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
   AREA_QUANTUM_M2,
   LIGHT_SCHEDULE_GRID_HOURS,
+  SECONDS_PER_HOUR,
   ROOM_DEFAULT_HEIGHT_M,
   CP_AIR_J_PER_KG_K,
   AIR_DENSITY_KG_PER_M3,
@@ -181,8 +238,13 @@ export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
   MONTHS_PER_YEAR,
   HOURS_PER_MONTH,
   HOURS_PER_YEAR,
+  FLOAT_TOLERANCE,
   DEFAULT_COMPANY_LOCATION_LON,
   DEFAULT_COMPANY_LOCATION_LAT,
+  LONGITUDE_MIN_DEG,
+  LONGITUDE_MAX_DEG,
+  LATITUDE_MIN_DEG,
+  LATITUDE_MAX_DEG,
   DEFAULT_COMPANY_LOCATION_CITY,
   DEFAULT_COMPANY_LOCATION_COUNTRY
 });

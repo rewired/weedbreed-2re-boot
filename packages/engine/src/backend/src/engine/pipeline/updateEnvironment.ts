@@ -1,7 +1,9 @@
 import {
   AIR_DENSITY_KG_PER_M3,
   CP_AIR_J_PER_KG_K,
-  ROOM_DEFAULT_HEIGHT_M
+  FLOAT_TOLERANCE,
+  ROOM_DEFAULT_HEIGHT_M,
+  SECONDS_PER_HOUR
 } from '../../constants/simConstants.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
 import type { EngineRunContext } from '../Engine.js';
@@ -10,8 +12,6 @@ import {
   getDeviceEffectsRuntime,
   resolveTickHours
 } from './applyDeviceEffects.js';
-
-const SECONDS_PER_HOUR = 3_600;
 
 function clamp01(value: number): number {
   if (!Number.isFinite(value)) {
@@ -73,7 +73,7 @@ function computeRemovalDeltaC(zone: Zone, tickHours: number): number {
 }
 
 function updateZoneTemperature(zone: Zone, netDeltaC: number): Zone {
-  if (Math.abs(netDeltaC) < Number.EPSILON) {
+  if (Math.abs(netDeltaC) < FLOAT_TOLERANCE) {
     return zone;
   }
 

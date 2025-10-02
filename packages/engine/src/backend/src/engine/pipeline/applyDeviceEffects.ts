@@ -1,4 +1,8 @@
-import { HOURS_PER_TICK, ROOM_DEFAULT_HEIGHT_M } from '../../constants/simConstants.js';
+import {
+  FLOAT_TOLERANCE,
+  HOURS_PER_TICK,
+  ROOM_DEFAULT_HEIGHT_M
+} from '../../constants/simConstants.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
 import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
 import { applyDeviceHeat } from '../thermo/heat.js';
@@ -76,7 +80,6 @@ function accumulateTemperatureDelta(
   runtime.zoneTemperatureDeltaC.set(zoneId, current + deltaC);
 }
 
-const FLOAT_TOLERANCE = 1e-6;
 const MIN_AIR_CHANGES_PER_HOUR = 1;
 
 function resolveZoneHeight(zone: Zone): number {

@@ -12,6 +12,7 @@ normalisation mandated by the SEC.
 | --- | --- | --- | --- |
 | `AREA_QUANTUM_M2` | `0.25` | m² | Minimal calculable floor area for placement, zoning, and area rounding. |
 | `LIGHT_SCHEDULE_GRID_HOURS` | `0.25` | h | Photoperiod grid resolution enforcing 15 minute scheduling steps. |
+| `SECONDS_PER_HOUR` | `3 600` | s | Seconds per in-game hour for power ↔ energy conversions. |
 | `ROOM_DEFAULT_HEIGHT_M` | `3` | m | Default room interior height when blueprints omit overrides. |
 | `CP_AIR_J_PER_KG_K` | `1 005` | J/(kg·K) | Specific heat capacity of dry air at constant pressure. |
 | `AIR_DENSITY_KG_PER_M3` | `1.2041` | kg/m³ | Density of dry air at standard conditions (20 °C, 1 atm). |
@@ -21,8 +22,13 @@ normalisation mandated by the SEC.
 | `MONTHS_PER_YEAR` | `12` | months | Months per in-game year. |
 | `HOURS_PER_MONTH` | `720` | h | Derived: `HOURS_PER_DAY × DAYS_PER_MONTH`. |
 | `HOURS_PER_YEAR` | `8 640` | h | Derived: `HOURS_PER_MONTH × MONTHS_PER_YEAR`. |
+| `FLOAT_TOLERANCE` | `1e-6` | — | Canonical tolerance for floating-point comparisons. |
 | `DEFAULT_COMPANY_LOCATION_LON` | `9.9937` | ° | Default headquarters longitude (Hamburg) until UI capture lands. |
 | `DEFAULT_COMPANY_LOCATION_LAT` | `53.5511` | ° | Default headquarters latitude (Hamburg) until UI capture lands. |
+| `LONGITUDE_MIN_DEG` | `-180` | ° | Minimal permissible longitude for world metadata. |
+| `LONGITUDE_MAX_DEG` | `180` | ° | Maximal permissible longitude for world metadata. |
+| `LATITUDE_MIN_DEG` | `-90` | ° | Minimal permissible latitude for world metadata. |
+| `LATITUDE_MAX_DEG` | `90` | ° | Maximal permissible latitude for world metadata. |
 | `DEFAULT_COMPANY_LOCATION_CITY` | `"Hamburg"` | — | Default headquarters city placeholder. |
 | `DEFAULT_COMPANY_LOCATION_COUNTRY` | `"Deutschland"` | — | Default headquarters country placeholder. |
 
