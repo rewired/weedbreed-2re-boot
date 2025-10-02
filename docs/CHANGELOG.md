@@ -1,5 +1,22 @@
 # Changelog
 
+## [2025-10-11] WB-004 validation guard fixes
+- Hardened light schedule validation to reject non-finite values before range
+  checks, preventing NaN/Infinity leakage into tick logic.
+- Adopted readonly array typing across world entities and rewrote tests to use
+  typed UUID helpers, resolving lint violations in @wb/engine.
+- Added regression coverage ensuring non-finite light schedules report a
+  validation issue.
+
+## [2025-10-10] WB-004 domain model scaffolding
+- Added strongly typed world tree entities and validation helpers under
+  `packages/engine/src/backend/src/domain/world.ts` to encode SEC hierarchy and
+  guardrails.
+- Introduced unit and integration coverage exercising zone cultivation method
+  enforcement, room purpose restrictions, and aggregate validation reporting.
+- Documented the new module usage within the design document to steer
+  implementation alignment.
+
 ## [2025-10-09] WB-002 canonical constants module
 - Added the canonical `simConstants.ts` module under `src/backend/src/constants` with SEC-aligned values and helper accessors.
 - Documented the constants in `docs/constants/simConstants.md` and enforced single-source usage through a bespoke ESLint rule.
