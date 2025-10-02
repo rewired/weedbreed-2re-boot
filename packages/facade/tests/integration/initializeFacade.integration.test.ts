@@ -7,6 +7,12 @@ describe('initializeFacade', () => {
       id: '30bd7f5e-1c8d-4f5f-9a5b-8b9e5821fd52',
       slug: 'integration-company',
       name: 'Integration Company',
+      location: {
+        lon: 9.9937,
+        lat: 53.5511,
+        cityName: 'Hamburg',
+        countryName: 'Deutschland'
+      },
       structures: []
     } as const;
 

@@ -4,6 +4,7 @@ import {
   PLANT_LIFECYCLE_STAGES,
   ROOM_PURPOSES,
   type Company,
+  type CompanyLocation,
   type LightSchedule,
   type Plant,
   type Room,
@@ -32,6 +33,17 @@ const sluggedEntitySchema = z.object({
 const spatialEntitySchema = z.object({
   floorArea_m2: finiteNumber.positive('floorArea_m2 must be positive.'),
   height_m: finiteNumber.positive('height_m must be positive.')
+});
+
+export const companyLocationSchema: z.ZodType<CompanyLocation> = z.object({
+  lon: finiteNumber
+    .min(-180, 'lon must be >= -180')
+    .max(180, 'lon must be <= 180'),
+  lat: finiteNumber
+    .min(-90, 'lat must be >= -90')
+    .max(90, 'lat must be <= 90'),
+  cityName: nonEmptyString,
+  countryName: nonEmptyString
 });
 
 export const lightScheduleSchema: z.ZodType<LightSchedule> = z
@@ -134,6 +146,7 @@ export const structureSchema: z.ZodType<Structure> = domainEntitySchema
 export const companySchema: z.ZodType<Company> = domainEntitySchema
   .merge(sluggedEntitySchema)
   .extend({
+    location: companyLocationSchema,
     structures: z.array(structureSchema).readonly()
   });
 

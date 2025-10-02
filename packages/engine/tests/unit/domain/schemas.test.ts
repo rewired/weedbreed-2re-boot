@@ -26,6 +26,12 @@ const BASE_WORLD = {
   id: '00000000-0000-0000-0000-000000000001',
   slug: 'acme-cultivation',
   name: 'ACME Cultivation',
+  location: {
+    lon: 9.9937,
+    lat: 53.5511,
+    cityName: 'Hamburg',
+    countryName: 'Deutschland'
+  },
   structures: [
     {
       id: '00000000-0000-0000-0000-000000000010',
@@ -231,6 +237,85 @@ describe('companySchema', () => {
       0,
       'zones'
     ]);
+  });
+
+  it('rejects companies missing location metadata', () => {
+    const invalidWorld = cloneWorld();
+    Reflect.deleteProperty(invalidWorld, 'location');
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'location'
+    ]);
+  });
+
+  it('rejects longitude coordinates outside the valid range', () => {
+    const invalidWorld = cloneWorld();
+    invalidWorld.location.lon = 200;
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'location',
+      'lon'
+    ]);
+  });
+
+  it('rejects latitude coordinates outside the valid range', () => {
+    const invalidWorld = cloneWorld();
+    invalidWorld.location.lat = -100;
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'location',
+      'lat'
+    ]);
+  });
+
+  it('rejects empty location city names', () => {
+    const invalidWorld = cloneWorld();
+    invalidWorld.location.cityName = '';
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'location',
+      'cityName'
+    ]);
+  });
+
+  it('rejects empty location country names', () => {
+    const invalidWorld = cloneWorld();
+    invalidWorld.location.countryName = '';
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'location',
+      'countryName'
+    ]);
+  });
+
+  it('accepts coordinates located on the boundary values', () => {
+    const boundaryWorld = cloneWorld();
+    boundaryWorld.location.lon = -180;
+    boundaryWorld.location.lat = -90;
+
+    let result = companySchema.safeParse(boundaryWorld);
+    expect(result.success).toBe(true);
+
+    boundaryWorld.location.lon = 180;
+    boundaryWorld.location.lat = 90;
+
+    result = companySchema.safeParse(boundaryWorld);
+    expect(result.success).toBe(true);
   });
 });
 

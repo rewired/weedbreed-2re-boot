@@ -19,6 +19,10 @@ normalisation mandated by the SEC.
 | `MONTHS_PER_YEAR` | `12` | months | Months per in-game year. |
 | `HOURS_PER_MONTH` | `720` | h | Derived: `HOURS_PER_DAY × DAYS_PER_MONTH`. |
 | `HOURS_PER_YEAR` | `8 640` | h | Derived: `HOURS_PER_MONTH × MONTHS_PER_YEAR`. |
+| `DEFAULT_COMPANY_LOCATION_LON` | `9.9937` | ° | Default headquarters longitude (Hamburg) until UI capture lands. |
+| `DEFAULT_COMPANY_LOCATION_LAT` | `53.5511` | ° | Default headquarters latitude (Hamburg) until UI capture lands. |
+| `DEFAULT_COMPANY_LOCATION_CITY` | `"Hamburg"` | — | Default headquarters city placeholder. |
+| `DEFAULT_COMPANY_LOCATION_COUNTRY` | `"Deutschland"` | — | Default headquarters country placeholder. |
 
 ## Usage guidelines
 
