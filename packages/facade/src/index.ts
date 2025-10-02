@@ -1,4 +1,4 @@
-import { createEngineBootstrapConfig } from '@wb/engine';
+import { createEngineBootstrapConfig, type EngineBootstrapConfig } from '@wb/engine';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.
@@ -22,7 +22,7 @@ export interface FacadeInitResult {
   /**
    * The deterministic engine bootstrap configuration derived from façade inputs.
    */
-  readonly engineConfig: ReturnType<typeof createEngineBootstrapConfig>;
+  readonly engineConfig: EngineBootstrapConfig;
 }
 
 /**

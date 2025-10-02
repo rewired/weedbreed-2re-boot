@@ -3,8 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "composite": true,
-    "tsBuildInfoFile": "dist/.tsbuildinfo",
-    "paths": {}
+    "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
   "include": [
     "src/**/*.ts"
