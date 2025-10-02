@@ -16,7 +16,7 @@ import {
 
 const [STRUCTURE_SCOPE, ROOM_SCOPE, ZONE_SCOPE] = DEVICE_PLACEMENT_SCOPES;
 
-const uuidSchema = z.string().uuid('Expected a UUID v4 identifier.');
+const uuidSchema = z.string().uuid('Expected a UUID v4 identifier.').brand<'Uuid'>();
 const nonEmptyString = z.string().min(1, 'String fields must not be empty.');
 const finiteNumber = z.number().finite('Value must be a finite number.');
 
