@@ -61,6 +61,9 @@ const DEMO_WORLD: SimulationWorld = {
                   startHour: 0
                 },
                 photoperiodPhase: 'vegetative',
+                environment: {
+                  airTemperatureC: 22
+                },
                 plants: [],
                 devices: []
               }

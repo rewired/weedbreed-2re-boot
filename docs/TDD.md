@@ -237,14 +237,19 @@ it('zone without cultivationMethod fails validation', async () => {
     
 
 ```ts
-// tests/module/thermo/powerToHeat.spec.ts
+// packages/engine/tests/unit/thermo/heat.spec.ts
 import { expect, it } from 'vitest';
 import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat';
 
 it('adds sensible heat proportional to power draw and duty', () => {
-  const z = { airMass_kg: 75, tempC: 22 } as any;
-  applyDeviceHeat(z, { powerW: 600, duty01: 0.5, efficiency01: 0.9 });
-  expect(z.tempC).toBeGreaterThan(22);
+  const zone = { floorArea_m2: 60, height_m: 3 } as const;
+  const delta = applyDeviceHeat(zone, {
+    powerDraw_W: 600,
+    dutyCycle01: 0.5,
+    efficiency01: 0.9
+  });
+
+  expect(delta).toBeGreaterThan(0);
 });
 ```
 

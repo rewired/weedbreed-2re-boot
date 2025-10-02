@@ -356,11 +356,13 @@ export function validateLightSchedule(onHours: number, offHours: number, startHo
 }
 
 // powerToHeat.ts (simplified)
-export function applyDeviceHeat(zone: Zone, d: { powerW: number; duty01: number; efficiency01: number }) {
-  const wasteW = d.powerW * (1 - d.efficiency01) * d.duty01;
+export function applyDeviceHeat(zone: Zone, d: { powerDraw_W: number; dutyCycle01: number; efficiency01: number }) {
+  const wasteW = d.powerDraw_W * (1 - d.efficiency01) * d.dutyCycle01;
   const joules = wasteW * 3600; // 1h
-  const dT = joules / (zone.airMass_kg * 1005); // Cp_air ≈ 1005 J/(kg·K)
-  zone.tempC += dT;
+  const volume = zone.floorArea_m2 * zone.height_m;
+  const airMassKg = volume * 1.2041; // 20°C baseline density
+  const dT = joules / (airMassKg * 1005); // Cp_air ≈ 1005 J/(kg·K)
+  return dT;
 }
 ```
 
