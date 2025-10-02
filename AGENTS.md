@@ -83,6 +83,8 @@ Steer implementation so the codebase **conforms to SEC v0.2.1** while remaining 
 
 - **Blueprints** live under `/data/blueprints/**` (strains, devices, cultivationMethods, substrates, containers, …). **Never embed prices** in device blueprints.
     
+- **Contributors guardrail:** Blueprint JSON is the source of truth. Keep each file inside the taxonomy folder that mirrors its `class` (`device/climate/cooling/**`, etc.). The loader fails fast (`BlueprintTaxonomyMismatchError`) whenever the directory and JSON diverge.
+
 - **Price maps** live under `/data/prices/**`.
     
 - **Recurring monetary rates use per‑hour units** (SEC §3.6). **`*_per_tick` is forbidden.** Derive tick costs via tick hours.

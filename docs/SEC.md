@@ -238,6 +238,16 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
   `<domain>.<effect>[.<variant>]` format plus a kebab-case `slug` that remains unique per
   class. The taxonomy binds fixtures, runtime loaders, and documentation to the same
   capability vocabulary.
+- Directory segments under `/data/blueprints/**` **SHALL** mirror the declared `class`
+  segments (`device/climate/cooling/foo.json` ⇒ `class = "device.climate.cooling"`).
+  Contributors **MUST NOT** invent bespoke folder names; taxonomy folders are the only
+  acceptable location for blueprints.
+- JSON remains the **single source of truth** for blueprint metadata. Loaders **SHALL**
+  trust the JSON payload first, using the filesystem only to derive expectations and to
+  surface mismatches when contributors misplace files.
+- Loaders **MUST** raise a hard failure (e.g. `BlueprintTaxonomyMismatchError`) when the
+  path-derived taxonomy and the JSON `class` diverge, preventing silent drift between
+  fixtures and runtime logic.
 - Legacy `kind`/`type` identifiers are **removed**; integrations **MUST** read the new
   `class` discriminator.
 - Device blueprint classes **drive validation**: cooling units declare cooling capacity

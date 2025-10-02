@@ -19,6 +19,10 @@ behaviour and downstream content.
   pattern so files can be grouped deterministically by capability, and
   mirror the taxonomy in the filesystem layout so discovery code can
   derive class metadata directly from the folder segments.
+- Treat the JSON payload as the **authoritative source** for taxonomy
+  metadata while using the filesystem as a guardrail: loaders compare the
+  declared `class` with the path-derived taxonomy and raise a
+  `BlueprintTaxonomyMismatchError` when contributors misplace files.
 - Remove the legacy `kind`/`type` fields from the data set and require
   kebab-case `slug` identifiers to remain unique per class.
 - Extend the device blueprint schema to validate the new classes,
@@ -35,6 +39,9 @@ behaviour and downstream content.
 - Scenario loaders and integrations must refer to the `class` field rather
   than the removed `kind`/`type` keys. Attempting to load blueprints that
   omit class-specific settings now fails during schema validation.
+- Repository tests enforce the directory taxonomy so misplaced files or
+  mismatched `class` declarations fail fast with descriptive loader errors
+  instead of drifting silently at runtime.
 - Documentation and changelog updates communicate the taxonomy to engine
   contributors, establishing a precedent for future blueprint additions
   and migrations.

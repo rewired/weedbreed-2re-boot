@@ -1,5 +1,14 @@
 # Changelog
 
+### #44 WB-037 blueprint taxonomy guardrails clarified for contributors
+- Expanded SEC and DD blueprint sections with explicit directory conventions,
+  JSON-source-of-truth language, and a required loader failure when paths and
+  classes diverge.
+- Updated the TDD checklist and AGENTS guardrails to cover taxonomy-aware
+  tests and contributor guidance, ensuring misplaced blueprints fail fast in CI.
+- Added a vision-scope modding note plus ADR-0009/CHANGELOG updates so
+  documentation, governance, and implementation stay aligned.
+
 ### #43 WB-036 taxonomy-driven blueprint filesystem
 - Migrated every blueprint JSON under `/data/blueprints/**` into taxonomy-aligned
   directories whose segment names mirror the declared class (e.g.

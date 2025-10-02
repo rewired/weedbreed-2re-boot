@@ -62,7 +62,7 @@ src/
 - **Coverage threshold:** 90% lines/branches in `engine/` and `facade/`; 80% overall.
     
 - **Snapshot location:** `__snapshots__` next to specs (only for low‑volatility payloads; prefer golden JSON files for world states).
-    
+- **Blueprint fixtures:** Repository fixtures **MUST** live inside the taxonomy folders that mirror their `class` segments (`device/climate/cooling/**`, etc.). Specs walk `/data/blueprints/**` to assert the folder-derived taxonomy matches the JSON declaration and fail fast when contributors park files elsewhere.
 
 ---
 
@@ -73,7 +73,9 @@ src/
 - **Schema:** Validate with **Zod** at façade boundaries and as test helpers.
     
 - **Prices** live under `/data/prices/**`; ensure no prices leak into device blueprints.
-    
+- **Taxonomy validation:** Unit tests assert that any mismatch between a blueprint's directory taxonomy and its JSON `class` raises a `BlueprintTaxonomyMismatchError` (or equivalent). Misplaced files must fail the loader guard immediately.
+
+- **Fixture layout check:** Repository-level specs enumerate blueprint folders and ensure no stray directories exist outside the sanctioned taxonomy tree. Tests fail if contributors invent ad-hoc folders.
 
 ```ts
 // tests/unit/schema/zoneSchema.spec.ts
