@@ -1,5 +1,11 @@
 # Changelog
 
+### #15 Tooling - align engine runtime dependencies
+- Declared `zod@^3.23.8` as an explicit runtime dependency for `@wb/engine`
+  so schema validation helpers resolve consistently during builds and tests.
+- Re-synced workspace lockfiles via `pnpm install` to ensure CI resolves the
+  shared Zod version already used by the façade package.
+
 ### #14 WB-010 engine-hosted world validation schemas
 - Moved the company world Zod schemas and `parseCompanyWorld` helper into
   `@wb/engine` so validation logic ships with the canonical domain contracts.
