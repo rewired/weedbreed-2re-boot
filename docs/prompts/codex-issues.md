@@ -46,7 +46,7 @@
 > **GUARDRAILS & CHECKS**
 >
 > * No initial water/nutrient stockpiles; water is metered, nutrients via irrigation method.
-> * Add `irrigation` blueprints, `cultivationMethods` with containers & substrates (incl. density L↔kg factor).
+> * Add `irrigation` blueprints, `cultivation-method` entries with containers & substrates (incl. density L↔kg factor).
 > * Devices: power→heat coupling; quality01/condition01 on [0,1].
 > * Photoperiod hooks prepared (veg/flower switch).
 > * Everything typed, tests passing.

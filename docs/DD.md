@@ -74,11 +74,11 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
 ```
 /data
   /blueprints
-    /strains
-    /devices
-    /cultivationMethods
-    /substrates
-    /containers
+    /device/climate/cooling/cool-air-split-3000.json
+    /cultivation-method/training/sog/sea-of-green.json
+    /substrate/soil/multi-cycle/soil-multi-cycle.json
+    /container/pot/pot-10l.json
+    /room-purpose/core/growroom/growroom.json
     ...
   /prices
     electricity.json
@@ -90,9 +90,11 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
 **Blueprints are templates**; never mutated at runtime. **Prices are separated** from device blueprints.
 
 - **Blueprint taxonomy:** All blueprints expose `class` values using
-  `<domain>.<effect>[.<variant>]` plus a kebab-case `slug` unique within that class. The
-  backend validators rely on the taxonomy to select effect-specific rules (e.g. cooling,
-  dehumidification, lighting) while the data set retires the legacy `kind`/`type` fields.
+  `<domain>.<effect>[.<variant>]` plus a kebab-case `slug` unique within that class. Each
+  directory segment under `/data/blueprints/**` mirrors the matching class segment so
+  loaders can derive taxonomy metadata from the filesystem itself. The backend validators
+  rely on the taxonomy to select effect-specific rules (e.g. cooling, dehumidification,
+  lighting) while the data set retires the legacy `kind`/`type` fields.
 
 ### 4.2 Price Maps
 

@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
@@ -6,12 +7,12 @@ import dripInline from '../../../../../data/blueprints/irrigation/drip/inline-fe
 import ebbFlow from '../../../../../data/blueprints/irrigation/ebb-flow/table/ebb-flow-table-small.json' assert { type: 'json' };
 import manualCan from '../../../../../data/blueprints/irrigation/manual/can/manual-watering-can.json' assert { type: 'json' };
 import topFeed from '../../../../../data/blueprints/irrigation/top-feed/timer/top-feed-pump-timer.json' assert { type: 'json' };
-import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco_coir.json' assert { type: 'json' };
-import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil_multi_cycle.json' assert { type: 'json' };
-import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil_single_cycle.json' assert { type: 'json' };
-import basicSoilPot from '../../../../../data/blueprints/cultivationMethods/basic_soil_pot.json' assert { type: 'json' };
-import scrog from '../../../../../data/blueprints/cultivationMethods/scrog.json' assert { type: 'json' };
-import sog from '../../../../../data/blueprints/cultivationMethods/sog.json' assert { type: 'json' };
+import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco-coir.json' assert { type: 'json' };
+import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil-multi-cycle.json' assert { type: 'json' };
+import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil-single-cycle.json' assert { type: 'json' };
+import basicSoilPot from '../../../../../data/blueprints/cultivation-method/soil/basic-pot/basic-soil-pot.json' assert { type: 'json' };
+import scrog from '../../../../../data/blueprints/cultivation-method/training/scrog/screen-of-green.json' assert { type: 'json' };
+import sog from '../../../../../data/blueprints/cultivation-method/training/sog/sea-of-green.json' assert { type: 'json' };
 
 import { parseIrrigationBlueprint, type IrrigationBlueprint } from '@/backend/src/domain/world.js';
 
@@ -24,16 +25,16 @@ describe('irrigation compatibility coverage', () => {
     soilSingle.slug as string
   ]);
 
-  const irrigationFixtures = [
-    {
-      data: dripInline,
-      path: fileURLToPath(
-        new URL(
-          '../../../../../data/blueprints/irrigation/drip/inline-fertigation/drip-inline-fertigation-basic.json',
-          import.meta.url
-        )
+const irrigationFixtures = [
+  {
+    data: dripInline,
+    path: fileURLToPath(
+      new URL(
+        '../../../../../data/blueprints/irrigation/drip/inline-fertigation/drip-inline-fertigation-basic.json',
+        import.meta.url
       )
-    },
+    )
+  },
     {
       data: ebbFlow,
       path: fileURLToPath(
@@ -60,14 +61,18 @@ describe('irrigation compatibility coverage', () => {
           import.meta.url
         )
       )
-    }
-  ] as const;
-  const irrigationBlueprints = irrigationFixtures.map((fixture) =>
-    parseIrrigationBlueprint(fixture.data, {
-      knownSubstrateSlugs: substrateSlugs,
-      filePath: fixture.path
-    })
-  );
+  }
+] as const;
+const blueprintsRoot = path.resolve(
+  fileURLToPath(new URL('../../../../../data/blueprints/', import.meta.url))
+);
+const irrigationBlueprints = irrigationFixtures.map((fixture) =>
+  parseIrrigationBlueprint(fixture.data, {
+    knownSubstrateSlugs: substrateSlugs,
+    filePath: fixture.path,
+    blueprintsRoot
+  })
+);
 
   const cultivationMethods = [basicSoilPot, scrog, sog] as const satisfies readonly CultivationBlueprint[];
 

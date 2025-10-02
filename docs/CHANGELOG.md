@@ -1,5 +1,17 @@
 # Changelog
 
+### #43 WB-036 taxonomy-driven blueprint filesystem
+- Migrated every blueprint JSON under `/data/blueprints/**` into taxonomy-aligned
+  directories whose segment names mirror the declared class (e.g.
+  `device/climate/cooling/cool-air-split-3000.json`).
+- Removed legacy duplicate folders and renamed fixtures to their canonical slugs so
+  autodiscovery derives consistent `{class, slug}` keys across the dataset.
+- Added a repository sweep test that asserts each blueprint's `class` matches its
+  path-derived taxonomy and that slug identifiers remain unique per class.
+- Updated unit tests and documentation (SEC/DD/prompts) to reference the new
+  folder structure so downstream tooling, loaders, and contributors follow the
+  deeper hierarchy.
+
 ### #42 WB-035 blueprint taxonomy guardrails align filesystem & class strings
 - Reorganised device, irrigation, and substrate blueprints under taxonomy-aligned
   folders (e.g. `/data/blueprints/device/climate/cooling/**`) so directory

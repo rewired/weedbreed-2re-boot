@@ -16,7 +16,9 @@ behaviour and downstream content.
 ## Decision
 - Introduce a canonical `class` discriminator on every blueprint under
   `/data/blueprints/**` following the `<domain>.<effect>[.<variant>]`
-  pattern so files can be grouped deterministically by capability.
+  pattern so files can be grouped deterministically by capability, and
+  mirror the taxonomy in the filesystem layout so discovery code can
+  derive class metadata directly from the folder segments.
 - Remove the legacy `kind`/`type` fields from the data set and require
   kebab-case `slug` identifiers to remain unique per class.
 - Extend the device blueprint schema to validate the new classes,
