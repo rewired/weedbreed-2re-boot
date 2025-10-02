@@ -390,7 +390,7 @@
       },
       "costs": {
         "laborMinutes": 20,
-        "equipmentRentalEUR": 25.0,
+        "equipmentRentalCost": 25.0,
         "materialsCost": 0.0
       },
       "cooldownDays": 14,
