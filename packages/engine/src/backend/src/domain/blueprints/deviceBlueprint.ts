@@ -47,6 +47,69 @@ const deviceBlueprintObjectSchema = z
   })
   .passthrough();
 
+const MONETARY_KEYWORDS = ['price', 'tariff', 'fee', 'capex', 'opex', 'expense', 'expenditure'] as const;
+
+function containsMonetaryToken(key: string): boolean {
+  const lower = key.toLowerCase();
+
+  if (MONETARY_KEYWORDS.some((keyword) => lower.includes(keyword))) {
+    return true;
+  }
+
+  const costIndex = lower.indexOf('cost');
+
+  if (costIndex !== -1) {
+    const nextChar = key[costIndex + 4];
+
+    if (nextChar === undefined) {
+      return true;
+    }
+
+    if (nextChar === '_' || nextChar === '-') {
+      return true;
+    }
+
+    if (nextChar === nextChar.toUpperCase()) {
+      return true;
+    }
+
+    if (lower.startsWith('costs', costIndex)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function assertNoMonetaryFields(
+  value: unknown,
+  ctx: z.RefinementCtx,
+  path: readonly (string | number)[] = []
+): void {
+  if (!value || typeof value !== 'object') {
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      assertNoMonetaryFields(item, ctx, [...path, index]);
+    });
+    return;
+  }
+
+  for (const [key, child] of Object.entries(value)) {
+    if (containsMonetaryToken(key)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Monetary field "${key}" must be declared in /data/prices maps.`,
+        path: [...path, key]
+      });
+    }
+
+    assertNoMonetaryFields(child, ctx, [...path, key]);
+  }
+}
+
 function ensureNestedField(
   blueprint: Record<string, unknown>,
   path: readonly (string | number)[],
@@ -135,6 +198,8 @@ const classSpecificValidators: Record<DeviceClass, (blueprint: Record<string, un
 };
 
 export const deviceBlueprintSchema = deviceBlueprintObjectSchema.superRefine((blueprint, ctx) => {
+  assertNoMonetaryFields(blueprint, ctx);
+
   if (!blueprint.coverage_m2 && !blueprint.airflow_m3_per_h) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

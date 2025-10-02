@@ -24,7 +24,18 @@ describe('deviceBlueprintSchema', () => {
       allowedRoomPurposes: ['growroom'],
       power_W: 500,
       efficiency01: 0.75,
-      coverage_m2: 12
+      coverage_m2: 12,
+      coverage: {
+        maxArea_m2: 12
+      },
+      limits: {
+        coolingCapacity_kW: 1
+      },
+      settings: {
+        coolingCapacity: 0.5,
+        targetTemperature: 24,
+        targetTemperatureRange: [20, 26]
+      }
     };
 
     expect(() => deviceBlueprintSchema.parse(base)).not.toThrow();
@@ -35,6 +46,7 @@ describe('deviceBlueprintSchema', () => {
       id: '00000000-0000-4000-8000-000000000001',
       class: 'device.climate.cooling',
       name: 'Invalid Device',
+      slug: 'invalid-device',
       placementScope: 'zone',
       allowedRoomPurposes: ['growroom'],
       power_W: 200,
@@ -77,6 +89,24 @@ describe('deviceBlueprintSchema', () => {
     }
   });
 
+  it('rejects blueprints containing monetary fields', () => {
+    const invalid = {
+      ...co2Injector,
+      maintenance: {
+        ...co2Injector.maintenance,
+        costPerService_eur: 99
+      }
+    } as typeof co2Injector;
+
+    const result = deviceBlueprintSchema.safeParse(invalid);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const messages = result.error.issues.map((issue) => issue.message);
+      expect(messages).toContain('Monetary field "costPerService_eur" must be declared in /data/prices maps.');
+    }
+  });
+
   it('enforces slug uniqueness per class across fixtures', () => {
     const fixtures = [climateUnit, co2Injector, dehumidifier, exhaustFan, humidityControl, vegLight];
     const seen = new Map<string, string>();
@@ -111,12 +141,24 @@ describe('deviceBlueprintSchema', () => {
       id: '00000000-0000-4000-8000-000000000003',
       class: 'device.climate.cooling',
       name: 'Mapper Device',
+      slug: 'mapper-device',
       placementScope: 'zone',
       allowedRoomPurposes: ['growroom'],
       power_W: 420,
       efficiency01: 0.6,
       coverage_m2: 8,
-      airflow_m3_per_h: 120
+      airflow_m3_per_h: 120,
+      coverage: {
+        maxArea_m2: 8
+      },
+      limits: {
+        coolingCapacity_kW: 2
+      },
+      settings: {
+        coolingCapacity: 1,
+        targetTemperature: 22,
+        targetTemperatureRange: [18, 26]
+      }
     });
 
     expect(toDeviceInstanceCapacity(parsed)).toEqual({

@@ -13,7 +13,7 @@ Issue-0003 tracked multiple violations of the SEC §3.6 pricing guidance:
 These discrepancies made it impossible to resolve tariffs deterministically at simulation start and threatened future automation that depends on predictable maintenance curves.
 
 ## Decision
-- Normalize `/data/prices/devicePrices.json` so every entry exposes **`capitalExpenditure`**, **`baseMaintenanceCostPerHour`**, and **`costIncreasePer1000Hours`**.
+- Normalize `/data/prices/devicePrices.json` so every entry exposes **`capitalExpenditure`**, **`baseMaintenanceCostPerHour`**, **`costIncreasePer1000Hours`**, and **`maintenanceServiceCost`**.
 - Remove the nonsensical `baseRentPerTick` field from the grow room blueprint.
 - Establish `/data/prices/utilityPrices.json` as the single source of truth for tariff configuration exposing **only** `price_electricity` (cost per kWh, currency-neutral) and `price_water` (cost per m³, currency-neutral); drop the nutrient price entry entirely.
 - Update SEC, DD, TDD, and Vision/Scope documentation to call out these canonical field names and the fact that nutrient costs come through irrigation/substrate consumption rather than a utility tariff.

@@ -3,32 +3,38 @@
     "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b": {
       "capitalExpenditure": 1200,
       "baseMaintenanceCostPerHour": 0.004,
-      "costIncreasePer1000Hours": 0.001
+      "costIncreasePer1000Hours": 0.001,
+      "maintenanceServiceCost": 85
     },
     "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e": {
       "capitalExpenditure": 600,
       "baseMaintenanceCostPerHour": 0.002,
-      "costIncreasePer1000Hours": 0.0008
+      "costIncreasePer1000Hours": 0.0008,
+      "maintenanceServiceCost": 15
     },
     "3d762260-88a5-4104-b03c-9860bbac34b6": {
       "capitalExpenditure": 250,
       "baseMaintenanceCostPerHour": 0.002,
-      "costIncreasePer1000Hours": 0.1
+      "costIncreasePer1000Hours": 0.1,
+      "maintenanceServiceCost": 45
     },
     "7a639d3d-4750-440a-a200-f90d11dc3c62": {
       "capitalExpenditure": 350,
       "baseMaintenanceCostPerHour": 0.0015,
-      "costIncreasePer1000Hours": 0.0006
+      "costIncreasePer1000Hours": 0.0006,
+      "maintenanceServiceCost": 35
     },
     "c701efa6-1e90-4f28-8934-ea9c584596e4": {
       "capitalExpenditure": 220,
       "baseMaintenanceCostPerHour": 0.0008,
-      "costIncreasePer1000Hours": 0.0004
+      "costIncreasePer1000Hours": 0.0004,
+      "maintenanceServiceCost": 25
     },
     "f5d5c5a0-1b2c-4d3e-8f9a-0b1c2d3e4f5a": {
       "capitalExpenditure": 75,
       "baseMaintenanceCostPerHour": 0.0005,
-      "costIncreasePer1000Hours": 0.0002
+      "costIncreasePer1000Hours": 0.0002,
+      "maintenanceServiceCost": 10
     }
   }
 }

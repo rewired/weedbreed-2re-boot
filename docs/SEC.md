@@ -276,7 +276,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
     
 - **Consistency (SHALL):** Resource prices use unit pricing (e.g., `price_electricity` per kWh, `price_water` per m³, `price_per_kg`).
 - **Neutral terminology (SHALL):** Monetary fields **MUST NOT** embed currency symbols or codes (e.g., `*_EUR`, `*_USD`, `€`); values are interpreted as neutral costs that scenarios contextualize.
-- **Price maps (SHALL):** `/data/prices/devicePrices.json` enumerates device **CapEx** (`capitalExpenditure`) and **maintenance curve parameters** (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`). `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` per kWh** and **`price_water` per m³**. Nutrient inputs are costed via irrigation/substrate consumption — there is **no nutrient tariff entry** in the utility map.
+- **Price maps (SHALL):** `/data/prices/devicePrices.json` enumerates device **CapEx** (`capitalExpenditure`), **recurring maintenance curves** (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`), and **scheduled service visit costs** (`maintenanceServiceCost`). `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` per kWh** and **`price_water` per m³**. Nutrient inputs are costed via irrigation/substrate consumption — there is **no nutrient tariff entry** in the utility map.
     
 - **Legacy (MAY):** Migrate `per_tick → per_hour` via configured tick length.
     

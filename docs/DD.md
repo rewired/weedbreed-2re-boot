@@ -96,7 +96,7 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
 
 ### 4.2 Price Maps
 
-- `/data/prices/devicePrices.json` captures device **CapEx** (`capitalExpenditure`) and **maintenance** progression (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`).
+- `/data/prices/devicePrices.json` captures device **CapEx** (`capitalExpenditure`), **scheduled service visit costs** (`maintenanceServiceCost`), and **maintenance** progression (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`).
 - `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` per kWh** and **`price_water` per m³** only; nutrient costs are derived from irrigation/substrate consumption, not a standalone utility price.
     - **Decision:** Monetary field names stay currency-neutral — never encode `EUR`, `USD`, `GBP`, symbols, or locale-specific suffixes. Scenario configuration contextualizes the neutral cost values.
 
