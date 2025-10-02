@@ -1,5 +1,10 @@
 # Changelog
 
+## [2025-10-07] WB-001 pnpm workspace bootstrap
+- Initialised pnpm workspaces with shared TypeScript configuration and path aliases for engine, façade, transport, and monitoring packages.
+- Added base linting, formatting, and testing toolchain aligned with Node 23+ ESM requirements.
+- Provisioned CI workflow executing lint, test, and build stages to guarantee green pipelines.
+
 All notable changes to this repository will be documented in this file.
 
 ## [2025-10-06] Currency-neutral terminology enforcement

@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": [
+      "ES2022"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@wb/engine/*": [
+        "packages/engine/src/*"
+      ],
+      "@wb/facade/*": [
+        "packages/facade/src/*"
+      ],
+      "@wb/transport-sio/*": [
+        "packages/transport-sio/src/*"
+      ],
+      "@wb/tools-monitor/*": [
+        "packages/tools-monitor/src/*"
+      ],
+      "@wb/engine": [
+        "packages/engine/src/index.ts"
+      ],
+      "@wb/facade": [
+        "packages/facade/src/index.ts"
+      ],
+      "@wb/transport-sio": [
+        "packages/transport-sio/src/index.ts"
+      ],
+      "@wb/tools-monitor": [
+        "packages/tools-monitor/src/index.ts"
+      ]
+    }
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}
