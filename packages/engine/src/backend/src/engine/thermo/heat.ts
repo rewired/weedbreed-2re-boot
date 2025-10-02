@@ -1,4 +1,4 @@
-import { AIR_DENSITY_KG_PER_M3, CP_AIR_J_PER_KG_K, HOURS_PER_TICK } from '../../constants/simConstants.js';
+import { CP_AIR_J_PER_KG_K, HOURS_PER_TICK } from '../../constants/simConstants.js';
 import type { Zone, ZoneDeviceInstance } from '../../domain/world.js';
 
 const SECONDS_PER_HOUR = 3_600;
@@ -31,14 +31,12 @@ function resolveTickHours(tickHours: number | undefined): number {
   return tickHours;
 }
 
-function resolveAirMassKg(zone: Pick<Zone, 'floorArea_m2' | 'height_m'>): number {
-  const volume_m3 = zone.floorArea_m2 * zone.height_m;
-
-  if (!Number.isFinite(volume_m3) || volume_m3 <= 0) {
+function resolveAirMassKg(zone: Pick<Zone, 'airMass_kg'>): number {
+  if (!Number.isFinite(zone.airMass_kg) || zone.airMass_kg <= 0) {
     return 0;
   }
 
-  return volume_m3 * AIR_DENSITY_KG_PER_M3;
+  return zone.airMass_kg;
 }
 
 /**
@@ -51,7 +49,7 @@ function resolveAirMassKg(zone: Pick<Zone, 'floorArea_m2' | 'height_m'>): number
  * @returns Temperature delta in degrees Celsius for the tick duration.
  */
 export function applyDeviceHeat(
-  zone: Pick<Zone, 'floorArea_m2' | 'height_m'>,
+  zone: Pick<Zone, 'airMass_kg'>,
   device: Pick<ZoneDeviceInstance, 'powerDraw_W' | 'dutyCycle01' | 'efficiency01'>,
   tickHours: number = HOURS_PER_TICK
 ): number {

@@ -1,3 +1,4 @@
+import { AIR_DENSITY_KG_PER_M3 } from '../constants/simConstants.js';
 import type { SimulationWorld, Uuid } from '../domain/world.js';
 import { runTick, type EngineRunContext, type RunTickOptions } from './Engine.js';
 import type { StepName, TickTrace } from './trace.js';
@@ -11,6 +12,7 @@ const DEMO_CONTAINER_ID = '00000000-0000-4000-8000-000000000005' as Uuid;
 const DEMO_SUBSTRATE_ID = '00000000-0000-4000-8000-000000000006' as Uuid;
 const DEMO_IRRIGATION_ID = '00000000-0000-4000-8000-000000000007' as Uuid;
 const DEMO_CULTIVATION_METHOD_ID = '00000000-0000-4000-8000-000000000008' as Uuid;
+const DEMO_ZONE_AIR_MASS_KG = 60 * 3 * AIR_DENSITY_KG_PER_M3;
 
 const DEMO_WORLD: SimulationWorld = {
   id: DEMO_WORLD_ID,
@@ -55,6 +57,7 @@ const DEMO_WORLD: SimulationWorld = {
                 irrigationMethodId: DEMO_IRRIGATION_ID,
                 containerId: DEMO_CONTAINER_ID,
                 substrateId: DEMO_SUBSTRATE_ID,
+                airMass_kg: DEMO_ZONE_AIR_MASS_KG,
                 lightSchedule: {
                   onHours: 18,
                   offHours: 6,

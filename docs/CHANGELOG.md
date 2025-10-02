@@ -1,5 +1,14 @@
 # Changelog
 
+### #33 WB-026 zone air mass bootstrap derivation
+- Extended the zone domain contract and Zod schema with a documented `airMass_kg`
+  field that downstream thermodynamics consume directly.
+- Derive air mass at bootstrap from floor area × height × `AIR_DENSITY_KG_PER_M3`,
+  falling back to `ROOM_DEFAULT_HEIGHT_M` so blueprints omitting a height remain
+  SEC-compliant.
+- Updated the demo world, validation fixtures, and physics tests to populate the
+  new field and asserted regression coverage for default and overridden heights.
+
 ### #32 WB-025 device thermal coupling
 - Added dry-air thermodynamic constants (`CP_AIR_J_PER_KG_K`,
   `AIR_DENSITY_KG_PER_M3`) to the canonical sim constants module and mirrored the

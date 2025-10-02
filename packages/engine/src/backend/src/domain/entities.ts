@@ -188,6 +188,14 @@ export interface Zone extends DomainEntity, SluggedEntity, SpatialEntity {
   readonly plants: readonly Plant[];
   /** Device instances mounted at the zone scope. */
   readonly devices: readonly ZoneDeviceInstance[];
+  /**
+   * Total dry-air mass enclosed by the zone volume, expressed in kilograms.
+   *
+   * Derived during bootstrap as floor area × height × AIR_DENSITY_KG_PER_M3 so
+   * downstream thermodynamics can consume a stable baseline without
+   * re-computing volume each tick.
+   */
+  readonly airMass_kg: number;
   /** Environmental state describing the zone's well-mixed air mass. */
   readonly environment: ZoneEnvironment;
 }

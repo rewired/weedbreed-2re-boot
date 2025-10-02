@@ -242,7 +242,7 @@ import { expect, it } from 'vitest';
 import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat';
 
 it('adds sensible heat proportional to power draw and duty', () => {
-  const zone = { floorArea_m2: 60, height_m: 3 } as const;
+  const zone = { floorArea_m2: 60, height_m: 3, airMass_kg: 60 * 3 * 1.2041 } as const;
   const delta = applyDeviceHeat(zone, {
     powerDraw_W: 600,
     dutyCycle01: 0.5,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  AIR_DENSITY_KG_PER_M3,
   AREA_QUANTUM_M2,
   ROOM_DEFAULT_HEIGHT_M,
   DEFAULT_COMPANY_LOCATION_LON,
@@ -318,6 +319,7 @@ function createCompany(): Company {
     name: 'Vegetative Zone',
     floorArea_m2: AREA_QUANTUM_M2 * 8,
     height_m: ROOM_DEFAULT_HEIGHT_M,
+    airMass_kg: AREA_QUANTUM_M2 * 8 * ROOM_DEFAULT_HEIGHT_M * AIR_DENSITY_KG_PER_M3,
     cultivationMethodId: uuid('00000000-0000-0000-0000-000000000061'),
     irrigationMethodId: uuid('00000000-0000-0000-0000-000000000062'),
     containerId: plant.containerId,

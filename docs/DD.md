@@ -359,8 +359,7 @@ export function validateLightSchedule(onHours: number, offHours: number, startHo
 export function applyDeviceHeat(zone: Zone, d: { powerDraw_W: number; dutyCycle01: number; efficiency01: number }) {
   const wasteW = d.powerDraw_W * (1 - d.efficiency01) * d.dutyCycle01;
   const joules = wasteW * 3600; // 1h
-  const volume = zone.floorArea_m2 * zone.height_m;
-  const airMassKg = volume * 1.2041; // 20°C baseline density
+  const airMassKg = zone.airMass_kg; // bootstrap: area × (height || default) × 1.2041 kg/m³
   const dT = joules / (airMassKg * 1005); // Cp_air ≈ 1005 J/(kg·K)
   return dT;
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  AIR_DENSITY_KG_PER_M3,
   AREA_QUANTUM_M2,
   ROOM_DEFAULT_HEIGHT_M,
   DEFAULT_COMPANY_LOCATION_LON,
@@ -114,6 +115,7 @@ function buildInvalidCompany(): Company {
                 name: 'Oversized Zone',
                 floorArea_m2: AREA_QUANTUM_M2 * 4,
                 height_m: -1,
+                airMass_kg: AREA_QUANTUM_M2 * 4 * -1 * AIR_DENSITY_KG_PER_M3,
                 cultivationMethodId: uuid(''),
                 irrigationMethodId: uuid('10000000-0000-0000-0000-000000000022'),
                 containerId: uuid(''),
@@ -182,6 +184,7 @@ function buildInvalidCompany(): Company {
                 name: 'Lab Zone',
                 floorArea_m2: AREA_QUANTUM_M2,
                 height_m: ROOM_DEFAULT_HEIGHT_M,
+                airMass_kg: AREA_QUANTUM_M2 * ROOM_DEFAULT_HEIGHT_M * AIR_DENSITY_KG_PER_M3,
                 cultivationMethodId: uuid('10000000-0000-0000-0000-000000000034'),
                 irrigationMethodId: uuid('10000000-0000-0000-0000-000000000035'),
                 containerId: uuid('10000000-0000-0000-0000-000000000036'),
