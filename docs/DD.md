@@ -61,10 +61,11 @@ Hierarchy and constraints:
 - **Device** attaches by `placementScope: 'zone'|'room'|'structure'` with `allowedRoomPurposes` eligible set.
 
 Implementation note: Engine code codifies the hierarchy in
-`packages/engine/src/backend/src/domain/world.ts`. The helper
-`validateCompanyWorld` executes SEC guardrails (room purposes, cultivation
-methods, photoperiod schedule, device placement, geometry bounds) before the
-tick pipeline consumes a scenario payload.
+`packages/engine/src/backend/src/domain/world.ts`. The validation module pairs
+`validateCompanyWorld` with a dedicated `validateRoom` helper so structure-level
+and room-level guardrails remain focused while still enforcing SEC contracts
+(room purposes, cultivation methods, photoperiod schedule, device placement,
+geometry bounds) before the tick pipeline consumes a scenario payload.
 
 ---
 

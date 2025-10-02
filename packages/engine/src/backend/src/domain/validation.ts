@@ -8,6 +8,7 @@ import {
   type DeviceInstance,
   type DevicePlacementScope,
   type LightSchedule,
+  type Room,
   PLANT_LIFECYCLE_STAGES,
   ROOM_PURPOSES
 } from './entities.js';
@@ -193,6 +194,186 @@ function validateDevice(
 }
 
 /**
+ * Validates a room subtree, including nested zones, plants, and devices.
+ *
+ * @param room - Room node being evaluated.
+ * @param path - Path prefix pointing to the room node.
+ * @param issues - Mutable collection receiving discovered validation issues.
+ */
+function validateRoom(
+  room: Room,
+  path: string,
+  issues: WorldValidationIssue[]
+): void {
+  if (!VALID_ROOM_PURPOSES.has(room.purpose)) {
+    issues.push({
+      path: `${path}.purpose`,
+      message: `room purpose must be one of: ${ROOM_PURPOSES.join(', ')}`
+    });
+    return;
+  }
+
+  if (!isValidArea(room.floorArea_m2)) {
+    issues.push({
+      path: `${path}.floorArea_m2`,
+      message: `room floor area must be a multiple of ${String(AREA_QUANTUM_M2)}`
+    });
+  }
+
+  if (room.height_m <= 0) {
+    issues.push({
+      path: `${path}.height_m`,
+      message: 'room height must be positive'
+    });
+  }
+
+  room.devices.forEach((device, deviceIndex) => {
+    validateDevice(
+      device,
+      'room',
+      `${path}.devices[${String(deviceIndex)}]`,
+      issues
+    );
+  });
+
+  if (room.purpose !== 'growroom' && room.zones.length > 0) {
+    issues.push({
+      path: `${path}.zones`,
+      message: 'only growrooms may contain zones'
+    });
+  }
+
+  const totalZoneArea = room.zones.reduce(
+    (sum, zone) => sum + zone.floorArea_m2,
+    0
+  );
+
+  if (totalZoneArea - room.floorArea_m2 > FLOAT_TOLERANCE) {
+    issues.push({
+      path: `${path}.zones`,
+      message: 'total zone area exceeds room capacity'
+    });
+  }
+
+  room.zones.forEach((zone, zoneIndex) => {
+    const zonePath = `${path}.zones[${String(zoneIndex)}]`;
+
+    if (!isValidArea(zone.floorArea_m2)) {
+      issues.push({
+        path: `${zonePath}.floorArea_m2`,
+        message: `zone floor area must be a multiple of ${String(AREA_QUANTUM_M2)}`
+      });
+    }
+
+    if (zone.height_m <= 0) {
+      issues.push({
+        path: `${zonePath}.height_m`,
+        message: 'zone height must be positive'
+      });
+    }
+
+    if (!zone.cultivationMethodId) {
+      issues.push({
+        path: `${zonePath}.cultivationMethodId`,
+        message: 'zones must declare a cultivation method id'
+      });
+    }
+
+    if (!zone.irrigationMethodId) {
+      issues.push({
+        path: `${zonePath}.irrigationMethodId`,
+        message: 'zones must declare an irrigation method id'
+      });
+    }
+
+    if (!zone.containerId) {
+      issues.push({
+        path: `${zonePath}.containerId`,
+        message: 'zones must declare a container id'
+      });
+    }
+
+    if (!zone.substrateId) {
+      issues.push({
+        path: `${zonePath}.substrateId`,
+        message: 'zones must declare a substrate id'
+      });
+    }
+
+    const scheduleIssue = validateLightSchedule(zone.lightSchedule);
+    if (scheduleIssue) {
+      issues.push({
+        path: `${zonePath}.${scheduleIssue.path}`,
+        message: scheduleIssue.message
+      });
+    }
+
+    const phase = zone.photoperiodPhase as string;
+    if (phase !== 'vegetative' && phase !== 'flowering') {
+      issues.push({
+        path: `${zonePath}.photoperiodPhase`,
+        message: 'photoperiod phase must be either "vegetative" or "flowering"'
+      });
+    }
+
+    zone.devices.forEach((device, deviceIndex) => {
+      validateDevice(
+        device,
+        'zone',
+        `${zonePath}.devices[${String(deviceIndex)}]`,
+        issues
+      );
+    });
+
+    zone.plants.forEach((plant, plantIndex) => {
+      const plantPath = `${zonePath}.plants[${String(plantIndex)}]`;
+
+      if (!PLANT_LIFECYCLE_STAGES.includes(plant.lifecycleStage)) {
+        issues.push({
+          path: `${plantPath}.lifecycleStage`,
+          message: 'plant lifecycle stage is invalid'
+        });
+      }
+
+      if (plant.ageHours < 0) {
+        issues.push({
+          path: `${plantPath}.ageHours`,
+          message: 'plant age must be non-negative'
+        });
+      }
+
+      if (!isWithinUnitInterval(plant.health01)) {
+        issues.push({
+          path: `${plantPath}.health01`,
+          message: 'plant health01 must lie within [0,1]'
+        });
+      }
+
+      if (plant.biomass_g < 0) {
+        issues.push({
+          path: `${plantPath}.biomass_g`,
+          message: 'plant biomass must be non-negative'
+        });
+      }
+
+      if (!plant.containerId) {
+        issues.push({
+          path: `${plantPath}.containerId`,
+          message: 'plants must reference a container id'
+        });
+      }
+
+      if (!plant.substrateId) {
+        issues.push({
+          path: `${plantPath}.substrateId`,
+          message: 'plants must reference a substrate id'
+        });
+      }
+    });
+  });
+}
+
+/**
  * Validates a company world tree against canonical SEC guardrails.
  *
  * @param company - Company world tree to validate.
@@ -242,174 +423,11 @@ export function validateCompanyWorld(
     }
 
     structure.rooms.forEach((room, roomIndex) => {
-      const roomPath = `${structurePath}.rooms[${String(roomIndex)}]`;
-
-      if (!VALID_ROOM_PURPOSES.has(room.purpose)) {
-        issues.push({
-          path: `${roomPath}.purpose`,
-          message: `room purpose must be one of: ${ROOM_PURPOSES.join(', ')}`
-        });
-        return;
-      }
-
-      if (!isValidArea(room.floorArea_m2)) {
-        issues.push({
-          path: `${roomPath}.floorArea_m2`,
-          message: `room floor area must be a multiple of ${String(AREA_QUANTUM_M2)}`
-        });
-      }
-
-      if (room.height_m <= 0) {
-        issues.push({
-          path: `${roomPath}.height_m`,
-          message: 'room height must be positive'
-        });
-      }
-
-      room.devices.forEach((device, deviceIndex) => {
-        validateDevice(
-          device,
-          'room',
-          `${roomPath}.devices[${String(deviceIndex)}]`,
-          issues
-        );
-      });
-
-      if (room.purpose !== 'growroom' && room.zones.length > 0) {
-        issues.push({
-          path: `${roomPath}.zones`,
-          message: 'only growrooms may contain zones'
-        });
-      }
-
-      const totalZoneArea = room.zones.reduce(
-        (sum, zone) => sum + zone.floorArea_m2,
-        0
+      validateRoom(
+        room,
+        `${structurePath}.rooms[${String(roomIndex)}]`,
+        issues
       );
-
-      if (totalZoneArea - room.floorArea_m2 > FLOAT_TOLERANCE) {
-        issues.push({
-          path: `${roomPath}.zones`,
-          message: 'total zone area exceeds room capacity'
-        });
-      }
-
-      room.zones.forEach((zone, zoneIndex) => {
-        const zonePath = `${roomPath}.zones[${String(zoneIndex)}]`;
-
-        if (!isValidArea(zone.floorArea_m2)) {
-          issues.push({
-            path: `${zonePath}.floorArea_m2`,
-            message: `zone floor area must be a multiple of ${String(AREA_QUANTUM_M2)}`
-          });
-        }
-
-        if (zone.height_m <= 0) {
-          issues.push({
-            path: `${zonePath}.height_m`,
-            message: 'zone height must be positive'
-          });
-        }
-
-        if (!zone.cultivationMethodId) {
-          issues.push({
-            path: `${zonePath}.cultivationMethodId`,
-            message: 'zones must declare a cultivation method id'
-          });
-        }
-
-        if (!zone.irrigationMethodId) {
-          issues.push({
-            path: `${zonePath}.irrigationMethodId`,
-            message: 'zones must declare an irrigation method id'
-          });
-        }
-
-        if (!zone.containerId) {
-          issues.push({
-            path: `${zonePath}.containerId`,
-            message: 'zones must declare a container id'
-          });
-        }
-
-        if (!zone.substrateId) {
-          issues.push({
-            path: `${zonePath}.substrateId`,
-            message: 'zones must declare a substrate id'
-          });
-        }
-
-        const scheduleIssue = validateLightSchedule(zone.lightSchedule);
-        if (scheduleIssue) {
-          issues.push({
-            path: `${zonePath}.${scheduleIssue.path}`,
-            message: scheduleIssue.message
-          });
-        }
-
-        const phase = zone.photoperiodPhase as string;
-        if (phase !== 'vegetative' && phase !== 'flowering') {
-          issues.push({
-            path: `${zonePath}.photoperiodPhase`,
-            message: 'photoperiod phase must be either "vegetative" or "flowering"'
-          });
-        }
-
-        zone.devices.forEach((device, deviceIndex) => {
-          validateDevice(
-            device,
-            'zone',
-            `${zonePath}.devices[${String(deviceIndex)}]`,
-            issues
-          );
-        });
-
-        zone.plants.forEach((plant, plantIndex) => {
-          const plantPath = `${zonePath}.plants[${String(plantIndex)}]`;
-
-          if (!PLANT_LIFECYCLE_STAGES.includes(plant.lifecycleStage)) {
-            issues.push({
-              path: `${plantPath}.lifecycleStage`,
-              message: 'plant lifecycle stage is invalid'
-            });
-          }
-
-          if (plant.ageHours < 0) {
-            issues.push({
-              path: `${plantPath}.ageHours`,
-              message: 'plant age must be non-negative'
-            });
-          }
-
-          if (!isWithinUnitInterval(plant.health01)) {
-            issues.push({
-              path: `${plantPath}.health01`,
-              message: 'plant health01 must lie within [0,1]'
-            });
-          }
-
-          if (plant.biomass_g < 0) {
-            issues.push({
-              path: `${plantPath}.biomass_g`,
-              message: 'plant biomass must be non-negative'
-            });
-          }
-
-          if (!plant.containerId) {
-            issues.push({
-              path: `${plantPath}.containerId`,
-              message: 'plants must reference a container id'
-            });
-          }
-
-          if (!plant.substrateId) {
-            issues.push({
-              path: `${plantPath}.substrateId`,
-              message: 'plants must reference a substrate id'
-            });
-          }
-        });
-      });
     });
   });
 
