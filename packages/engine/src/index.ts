@@ -36,3 +36,4 @@ export function createEngineBootstrapConfig(
 
 export * from './backend/src/constants/simConstants.js';
 export * from './backend/src/domain/world.js';
+export * from './backend/src/util/rng.js';

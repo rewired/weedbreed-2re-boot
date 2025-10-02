@@ -1,5 +1,16 @@
 # Changelog
 
+### #19 WB-014 deterministic RNG utility
+- Introduced `createRng(seed, streamId)` in the engine backend util library so
+  all stochastic behaviour flows through a deterministic, stream-scoped
+  generator aligned with SEC §5.
+- Re-exported the utility from the engine package barrel and verified the
+  `@/backend` alias resolves the new module for future consumers and tests.
+- Added Vitest coverage that guarantees identical sequences for repeated
+  invocations and divergent sequences for distinct stream identifiers.
+- Captured the decision in ADR-0007 to document the deterministic RNG contract
+  and the chosen splitmix/mulberry implementation strategy.
+
 ### #18 WB-013 room validation helper extraction
 - Refactored `validateCompanyWorld` to delegate room, zone, plant, and device
   checks to a new `validateRoom` helper so hierarchy-specific invariants stay
