@@ -1,5 +1,14 @@
 # Changelog
 
+### #23 WB-018 company headquarters location metadata
+- Added Hamburg-backed default company location constants to `simConstants` and
+  documented them in the canonical constants reference for interim UI coverage.
+- Extended the domain model, schemas, and business validation to require
+  `company.location` with strict coordinate bounds and non-empty locality data.
+- Updated unit/integration coverage across engine and façade packages to supply
+  the new location metadata and assert detailed error reporting for invalid
+  coordinates.
+
 ### #22 WB-017 light schedule grid constant centralisation
 - Added the SEC-mandated `LIGHT_SCHEDULE_GRID_HOURS` export to the canonical
   `simConstants` module so photoperiod validators share the same 15 minute grid

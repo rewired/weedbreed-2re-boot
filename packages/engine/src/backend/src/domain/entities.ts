@@ -91,6 +91,21 @@ export interface SpatialEntity {
 }
 
 /**
+ * Geographic location metadata associated with a company headquarters.
+ * Essential for SEC-aligned logistics, localisation, and compliance features.
+ */
+export interface CompanyLocation {
+  /** Longitude coordinate expressed in decimal degrees within [-180, 180]. */
+  readonly lon: number;
+  /** Latitude coordinate expressed in decimal degrees within [-90, 90]. */
+  readonly lat: number;
+  /** City name describing the headquarters locality. */
+  readonly cityName: string;
+  /** Country name describing the headquarters locality. */
+  readonly countryName: string;
+}
+
+/**
  * Canonical device instance model shared across placement scopes.
  */
 export interface DeviceInstance extends DomainEntity, SluggedEntity {
@@ -195,6 +210,8 @@ export interface Structure extends DomainEntity, SluggedEntity, SpatialEntity {
  * Canonical representation of the company operating the simulation world.
  */
 export interface Company extends DomainEntity, SluggedEntity {
+  /** Geographic location of the company headquarters. */
+  readonly location: CompanyLocation;
   /** Structures owned and operated by the company. */
   readonly structures: readonly Structure[];
 }

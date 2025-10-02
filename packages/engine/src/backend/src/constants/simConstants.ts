@@ -47,6 +47,24 @@ export interface SimulationConstants {
    * in-game year.
    */
   readonly HOURS_PER_YEAR: number;
+  /**
+   * Default longitude (decimal degrees) for company headquarters metadata
+   * until the UI allows customisation.
+   */
+  readonly DEFAULT_COMPANY_LOCATION_LON: number;
+  /**
+   * Default latitude (decimal degrees) for company headquarters metadata
+   * until the UI allows customisation.
+   */
+  readonly DEFAULT_COMPANY_LOCATION_LAT: number;
+  /**
+   * Default city name used for company headquarters metadata.
+   */
+  readonly DEFAULT_COMPANY_LOCATION_CITY: string;
+  /**
+   * Default country name used for company headquarters metadata.
+   */
+  readonly DEFAULT_COMPANY_LOCATION_COUNTRY: string;
 }
 
 /**
@@ -104,6 +122,28 @@ export const HOURS_PER_MONTH = HOURS_PER_DAY * DAYS_PER_MONTH;
 export const HOURS_PER_YEAR = HOURS_PER_MONTH * MONTHS_PER_YEAR;
 
 /**
+ * Temporary default longitude for company headquarters metadata. Anchored to
+ * Hamburg (Germany) until SEC-compliant UI capture is available.
+ */
+export const DEFAULT_COMPANY_LOCATION_LON = 9.9937 as const;
+
+/**
+ * Temporary default latitude for company headquarters metadata. Anchored to
+ * Hamburg (Germany) until SEC-compliant UI capture is available.
+ */
+export const DEFAULT_COMPANY_LOCATION_LAT = 53.5511 as const;
+
+/**
+ * Temporary default city name for company headquarters metadata.
+ */
+export const DEFAULT_COMPANY_LOCATION_CITY = 'Hamburg' as const;
+
+/**
+ * Temporary default country name for company headquarters metadata.
+ */
+export const DEFAULT_COMPANY_LOCATION_COUNTRY = 'Deutschland' as const;
+
+/**
  * Frozen object literal bundling all canonical simulation constants for
  * ergonomic bulk imports.
  */
@@ -116,7 +156,11 @@ export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
   DAYS_PER_MONTH,
   MONTHS_PER_YEAR,
   HOURS_PER_MONTH,
-  HOURS_PER_YEAR
+  HOURS_PER_YEAR,
+  DEFAULT_COMPANY_LOCATION_LON,
+  DEFAULT_COMPANY_LOCATION_LAT,
+  DEFAULT_COMPANY_LOCATION_CITY,
+  DEFAULT_COMPANY_LOCATION_COUNTRY
 });
 
 /**
