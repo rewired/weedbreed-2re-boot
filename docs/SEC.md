@@ -261,14 +261,15 @@ Validation occurs at load time; on failure, the engine must not start.
 - **Aggregation (SHOULD):** Reports integrate to day/week/month.
     
 - **Consistency (SHALL):** Resource prices use unit pricing (e.g., `price_electricity` per kWh, `price_water` per m³, `price_per_kg`).
-- **Price maps (SHALL):** `/data/prices/devicePrices.json` enumerates device **CapEx** (`capitalExpenditure`) and **maintenance curve parameters** (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`). `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` (€/kWh)** and **`price_water` (€/m³)**. Nutrient inputs are costed via irrigation/substrate consumption — there is **no nutrient tariff entry** in the utility map.
+- **Neutral terminology (SHALL):** Monetary fields **MUST NOT** embed currency symbols or codes (e.g., `*_EUR`, `*_USD`, `€`); values are interpreted as neutral costs that scenarios contextualize.
+- **Price maps (SHALL):** `/data/prices/devicePrices.json` enumerates device **CapEx** (`capitalExpenditure`) and **maintenance curve parameters** (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`). `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` per kWh** and **`price_water` per m³**. Nutrient inputs are costed via irrigation/substrate consumption — there is **no nutrient tariff entry** in the utility map.
     
 - **Legacy (MAY):** Migrate `per_tick → per_hour` via configured tick length.
     
 
 #### 3.6.1 Electricity Tariff Policy (STRICT)
 
-- **Backend tariff (SHALL):** The **electricity price is fixed and configured in backend settings** as `price_electricity` (currency per kWh) sourced from `/data/prices/utilityPrices.json`.
+- **Backend tariff (SHALL):** The **electricity price is fixed and configured in backend settings** as `price_electricity` (neutral cost per kWh) sourced from `/data/prices/utilityPrices.json`.
     
 - **Difficulty modifiers (SHALL):** Difficulty may **either**
     

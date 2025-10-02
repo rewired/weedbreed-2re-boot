@@ -90,7 +90,8 @@ Hierarchy and constraints:
 ### 4.2 Price Maps
 
 - `/data/prices/devicePrices.json` captures device **CapEx** (`capitalExpenditure`) and **maintenance** progression (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`).
-- `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` (€/kWh)** and **`price_water` (€/m³)** only; nutrient costs are derived from irrigation/substrate consumption, not a standalone utility price.
+- `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` per kWh** and **`price_water` per m³** only; nutrient costs are derived from irrigation/substrate consumption, not a standalone utility price.
+    - **Decision:** Monetary field names stay currency-neutral — never encode `EUR`, `USD`, `GBP`, symbols, or locale-specific suffixes. Scenario configuration contextualizes the neutral cost values.
 
 ### 4.1 Cultivation Method (minimum shape)
 
@@ -259,8 +260,8 @@ Fixed order per tick:
 ```ts
 // src/backend/src/config/runtime.ts (facade)
 export interface BackendConfig {
-  price_electricity: number; // €/kWh
-  price_water: number;       // €/m^3
+  price_electricity: number; // cost per kWh (currency-neutral)
+  price_water: number;       // cost per m^3 (currency-neutral)
   difficulty?: {
     energyPriceFactor?: number;
     energyPriceOverride?: number;

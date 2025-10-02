@@ -186,6 +186,7 @@ it('executes fixed order', async () => {
 - **Per‑hour units only** in all recurring costs.
 
 - **Tariffs (hotfix):** backend config exposes **`price_electricity`** (per kWh) and **`price_water`** (per m³).
+- **Decision:** Monetary identifiers are currency-neutral — tests reject fields or literals that bake `EUR`, `USD`, `GBP`, or symbol suffixes into names/strings.
 
 - **Source of truth:** `/data/prices/utilityPrices.json` is the canonical tariff map and **only** carries electricity and water prices; nutrient costs are covered by irrigation/substrate consumption flows.
 
@@ -202,7 +203,7 @@ import { expect, it } from 'vitest';
 import { resolveTariffs } from '@/backend/src/util/tariffs';
 
 it('override beats factor (electricity & water)', () => {
-  const cfg = { price_electricity: 0.32, price_water: 4.0 };
+  const cfg = { price_electricity: 0.32, price_water: 4.0 }; // neutral costs
   const diff = { energyPriceFactor: 1.5, energyPriceOverride: 0.5, waterPriceFactor: 2.0 };
   const t = resolveTariffs(cfg, diff);
   expect(t.kWh).toBe(0.5);         // override

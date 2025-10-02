@@ -47,7 +47,7 @@
 
 **Primary Personas.**
 
-- **The Optimizer** — spreadsheet mindset; chases PPFD, VPD, €/g KPIs.
+- **The Optimizer** — spreadsheet mindset; chases PPFD, VPD, cost-per-gram KPIs (currency-neutral).
     
 - **The Builder** — designs efficient, beautiful layouts & upgrades.
     
@@ -180,7 +180,8 @@
 
 - Recurring costs use **per‑hour** units; **no `*_per_tick`**.
     
-- **Tariffs:** Backend exposes **`price_electricity`** (€/kWh) and **`price_water`** (€/m³). Difficulty may set **`energyPriceFactor`/`energyPriceOverride`** and **`waterPriceFactor`/`waterPriceOverride`** (**override wins**). Effective tariffs are computed **once at simulation start**.
+- **Tariffs:** Backend exposes **`price_electricity`** (per kWh) and **`price_water`** (per m³). Difficulty may set **`energyPriceFactor`/`energyPriceOverride`** and **`waterPriceFactor`/`waterPriceOverride`** (**override wins**). Effective tariffs are computed **once at simulation start**.
+- **Decision:** Experience copy and UI labels adopt neutral monetary language — never surface currency symbols/codes (EUR, USD, GBP, etc.) in identifiers or baked-in text; localized presentation layers may add symbols contextually.
 - **Tariff source:** `/data/prices/utilityPrices.json` is the single source of truth for electricity & water tariffs; nutrient pricing flows through irrigation/substrate consumption instead of a utility entry.
 - **Device maintenance pricing:** `/data/prices/devicePrices.json` carries `capitalExpenditure`, `baseMaintenanceCostPerHour`, and `costIncreasePer1000Hours` for maintenance curves.
     
@@ -275,7 +276,7 @@ function salePrice(basePrice, quality01): number {
 
 ## 10. UX & Presentation Vision
 
-- **Key Screens:** Start (New/Load/Import), Dashboard (time/tick, energy/water/€), Structure Explorer (Company → Structure → Room → Zone → Plant), detail pane with KPIs & stress breakdown, Shop/Research, Logs/Audits.
+- **Key Screens:** Start (New/Load/Import), Dashboard (time/tick, energy/water/cost), Structure Explorer (Company → Structure → Room → Zone → Plant), detail pane with KPIs & stress breakdown, Shop/Research, Logs/Audits.
     
 - **Info Hierarchy:** Top: tick/time, daily costs, energy/water, balance; middle: active zone/plant KPIs; bottom: events/tasks.
     
