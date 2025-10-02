@@ -13,7 +13,22 @@ import {
 import { updateEnvironment } from '@/backend/src/engine/pipeline/updateEnvironment.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
 import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat.js';
-import type { ZoneDeviceInstance } from '@/backend/src/domain/world.js';
+import {
+  createDeviceInstance,
+  type DeviceQualityPolicy,
+  type ZoneDeviceInstance,
+  type Uuid
+} from '@/backend/src/domain/world.js';
+
+const QUALITY_POLICY: DeviceQualityPolicy = {
+  sampleQuality01: (rng) => rng()
+};
+
+const WORLD_SEED = 'zone-capacity-seed';
+
+function deviceQuality(id: Uuid): number {
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
+}
 
 describe('Phase 1 zone capacity diagnostics', () => {
   it('clamps device effectiveness and emits coverage warnings when undersized', () => {
@@ -23,13 +38,14 @@ describe('Phase 1 zone capacity diagnostics', () => {
     zone.height_m = ROOM_DEFAULT_HEIGHT_M;
     zone.airMass_kg = zone.floorArea_m2 * zone.height_m * AIR_DENSITY_KG_PER_M3;
 
+    const heaterId = '40000000-0000-0000-0000-000000000001' as Uuid;
     const heater: ZoneDeviceInstance = {
-      id: '40000000-0000-0000-0000-000000000001',
+      id: heaterId,
       slug: 'coverage-test-heater',
       name: 'Coverage Test Heater',
       blueprintId: '40000000-0000-0000-0000-000000000002',
       placementScope: 'zone',
-      quality01: 1,
+      quality01: deviceQuality(heaterId),
       condition01: 1,
       powerDraw_W: 1_000,
       dutyCycle01: 1,
@@ -84,13 +100,14 @@ describe('Phase 1 zone capacity diagnostics', () => {
     zone.height_m = ROOM_DEFAULT_HEIGHT_M;
     zone.airMass_kg = zone.floorArea_m2 * zone.height_m * AIR_DENSITY_KG_PER_M3;
 
+    const fanId = '40000000-0000-0000-0000-000000000010' as Uuid;
     const fan: ZoneDeviceInstance = {
-      id: '40000000-0000-0000-0000-000000000010',
+      id: fanId,
       slug: 'airflow-test-fan',
       name: 'Airflow Test Fan',
       blueprintId: '40000000-0000-0000-0000-000000000011',
       placementScope: 'zone',
-      quality01: 1,
+      quality01: deviceQuality(fanId),
       condition01: 1,
       powerDraw_W: 200,
       dutyCycle01: 1,
