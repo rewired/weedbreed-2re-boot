@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  LIGHT_SCHEDULE_GRID_HOURS,
   SIM_CONSTANTS,
   getSimulationConstant,
   type SimulationConstantName
@@ -8,7 +9,10 @@ import {
 
 describe('engine exports', () => {
   it('re-exports canonical simulation constants', () => {
-    expect(SIM_CONSTANTS.AREA_QUANTUM_M2).toBe(0.25);
+    expect(SIM_CONSTANTS.AREA_QUANTUM_M2).toBe(LIGHT_SCHEDULE_GRID_HOURS);
+    expect(SIM_CONSTANTS.LIGHT_SCHEDULE_GRID_HOURS).toBe(
+      LIGHT_SCHEDULE_GRID_HOURS
+    );
     expect(SIM_CONSTANTS.ROOM_DEFAULT_HEIGHT_M).toBe(3);
   });
 

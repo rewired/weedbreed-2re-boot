@@ -1,6 +1,7 @@
 import {
   AREA_QUANTUM_M2,
-  HOURS_PER_DAY
+  HOURS_PER_DAY,
+  LIGHT_SCHEDULE_GRID_HOURS
 } from '@/backend/src/constants/simConstants.js';
 
 import {
@@ -76,11 +77,6 @@ function isValidArea(area: number): boolean {
  * @param schedule - Light schedule to evaluate.
  * @returns Optional validation issue when a constraint is violated.
  */
-/**
- * Light schedule grid resolution expressed in hours (15 minutes per step).
- */
-const FIFTEEN_MINUTE_GRID_HOURS = 0.25 as const;
-
 function validateLightSchedule(
   schedule: LightSchedule
 ): WorldValidationIssue | undefined {
@@ -137,12 +133,12 @@ function validateLightSchedule(
   }
 
   const onMod = Math.abs(
-    schedule.onHours / FIFTEEN_MINUTE_GRID_HOURS -
-      Math.round(schedule.onHours / FIFTEEN_MINUTE_GRID_HOURS)
+    schedule.onHours / LIGHT_SCHEDULE_GRID_HOURS -
+      Math.round(schedule.onHours / LIGHT_SCHEDULE_GRID_HOURS)
   );
   const offMod = Math.abs(
-    schedule.offHours / FIFTEEN_MINUTE_GRID_HOURS -
-      Math.round(schedule.offHours / FIFTEEN_MINUTE_GRID_HOURS)
+    schedule.offHours / LIGHT_SCHEDULE_GRID_HOURS -
+      Math.round(schedule.offHours / LIGHT_SCHEDULE_GRID_HOURS)
   );
 
   if (onMod > FLOAT_TOLERANCE || offMod > FLOAT_TOLERANCE) {

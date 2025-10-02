@@ -1,5 +1,14 @@
 # Changelog
 
+### #22 WB-017 light schedule grid constant centralisation
+- Added the SEC-mandated `LIGHT_SCHEDULE_GRID_HOURS` export to the canonical
+  `simConstants` module so photoperiod validators share the same 15 minute grid
+  source of truth as the documentation.
+- Updated world validation helpers and the related unit/integration coverage to
+  import the shared constant instead of redefining the `0.25h` grid locally.
+- Documented the new constant in `docs/constants/simConstants.md` to signal the
+  centralised reference for photoperiod light schedules.
+
 ### #21 WB-016 uuid schema branding alignment
 - Branded the shared `uuidSchema` in the engine domain schemas with Zod's
   `.brand<'Uuid'>()` helper so parsed entities infer the branded `Uuid` type
