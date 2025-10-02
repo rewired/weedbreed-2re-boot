@@ -8,6 +8,7 @@ import {
   type DeviceInstance,
   type DevicePlacementScope,
   type LightSchedule,
+  type PhotoperiodPhase,
   type Room,
   PLANT_LIFECYCLE_STAGES,
   ROOM_PURPOSES
@@ -20,6 +21,10 @@ import {
 const FLOAT_TOLERANCE = 1e-6;
 
 const VALID_ROOM_PURPOSES = new Set(ROOM_PURPOSES);
+const VALID_PHOTOPERIOD_PHASES = new Set<PhotoperiodPhase>([
+  'vegetative',
+  'flowering'
+]);
 
 /**
  * Validation issue emitted when the world tree violates SEC guardrails.
@@ -231,7 +236,7 @@ function validateRoom(
     validateDevice(
       device,
       'room',
-      `${path}.devices[${String(deviceIndex)}]`,
+      `${path}.devices[${deviceIndex}]`,
       issues
     );
   });
@@ -256,7 +261,7 @@ function validateRoom(
   }
 
   room.zones.forEach((zone, zoneIndex) => {
-    const zonePath = `${path}.zones[${String(zoneIndex)}]`;
+    const zonePath = `${path}.zones[${zoneIndex}]`;
 
     if (!isValidArea(zone.floorArea_m2)) {
       issues.push({
@@ -308,8 +313,7 @@ function validateRoom(
       });
     }
 
-    const phase = zone.photoperiodPhase as string;
-    if (phase !== 'vegetative' && phase !== 'flowering') {
+    if (!VALID_PHOTOPERIOD_PHASES.has(zone.photoperiodPhase)) {
       issues.push({
         path: `${zonePath}.photoperiodPhase`,
         message: 'photoperiod phase must be either "vegetative" or "flowering"'
@@ -320,13 +324,13 @@ function validateRoom(
       validateDevice(
         device,
         'zone',
-        `${zonePath}.devices[${String(deviceIndex)}]`,
+        `${zonePath}.devices[${deviceIndex}]`,
         issues
       );
     });
 
     zone.plants.forEach((plant, plantIndex) => {
-      const plantPath = `${zonePath}.plants[${String(plantIndex)}]`;
+      const plantPath = `${zonePath}.plants[${plantIndex}]`;
 
       if (!PLANT_LIFECYCLE_STAGES.includes(plant.lifecycleStage)) {
         issues.push({
@@ -385,7 +389,7 @@ export function validateCompanyWorld(
   const issues: WorldValidationIssue[] = [];
 
   company.structures.forEach((structure, structureIndex) => {
-    const structurePath = `company.structures[${String(structureIndex)}]`;
+    const structurePath = `company.structures[${structureIndex}]`;
 
     if (!isValidArea(structure.floorArea_m2)) {
       issues.push({
@@ -405,7 +409,7 @@ export function validateCompanyWorld(
       validateDevice(
         device,
         'structure',
-        `${structurePath}.devices[${String(deviceIndex)}]`,
+        `${structurePath}.devices[${deviceIndex}]`,
         issues
       );
     });
@@ -425,7 +429,7 @@ export function validateCompanyWorld(
     structure.rooms.forEach((room, roomIndex) => {
       validateRoom(
         room,
-        `${structurePath}.rooms[${String(roomIndex)}]`,
+        `${structurePath}.rooms[${roomIndex}]`,
         issues
       );
     });
