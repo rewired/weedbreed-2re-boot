@@ -10,6 +10,7 @@ import {
   DEFAULT_COMPANY_LOCATION_COUNTRY
 } from '@/backend/src/constants/simConstants.js';
 import {
+  createDeviceInstance,
   type Company,
   type Structure,
   type Room,
@@ -19,8 +20,19 @@ import {
   type RoomDeviceInstance,
   type ZoneDeviceInstance,
   type Uuid,
+  type DeviceQualityPolicy,
   validateCompanyWorld
 } from '@/backend/src/domain/world.js';
+
+const QUALITY_POLICY: DeviceQualityPolicy = {
+  sampleQuality01: (rng) => rng()
+};
+
+const WORLD_SEED = 'validate-company-world-seed';
+
+function deviceQuality(id: Uuid): number {
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
+}
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -299,13 +311,14 @@ function createCompany(): Company {
     substrateId: uuid('00000000-0000-0000-0000-000000000040')
   } satisfies Plant;
 
+  const zoneDeviceId = uuid('00000000-0000-0000-0000-000000000050');
   const zoneDevice: ZoneDeviceInstance = {
-    id: uuid('00000000-0000-0000-0000-000000000050'),
+    id: zoneDeviceId,
     slug: 'zone-device',
     name: 'Zone Device',
     blueprintId: uuid('00000000-0000-0000-0000-000000000051'),
     placementScope: 'zone',
-    quality01: 0.8,
+    quality01: deviceQuality(zoneDeviceId),
     condition01: 0.75,
     powerDraw_W: 480,
     dutyCycle01: 1,
@@ -335,13 +348,14 @@ function createCompany(): Company {
     }
   } satisfies Zone;
 
+  const roomDeviceId = uuid('00000000-0000-0000-0000-000000000070');
   const roomDevice: RoomDeviceInstance = {
-    id: uuid('00000000-0000-0000-0000-000000000070'),
+    id: roomDeviceId,
     slug: 'room-dehumidifier',
     name: 'Room Dehumidifier',
     blueprintId: uuid('00000000-0000-0000-0000-000000000071'),
     placementScope: 'room',
-    quality01: 0.85,
+    quality01: deviceQuality(roomDeviceId),
     condition01: 0.9,
     powerDraw_W: 250,
     dutyCycle01: 1,
@@ -362,13 +376,14 @@ function createCompany(): Company {
     devices: [roomDevice]
   } satisfies Room;
 
+  const structureDeviceId = uuid('00000000-0000-0000-0000-000000000090');
   const structureDevice: StructureDeviceInstance = {
-    id: uuid('00000000-0000-0000-0000-000000000090'),
+    id: structureDeviceId,
     slug: 'structure-hvac',
     name: 'Structure HVAC',
     blueprintId: uuid('00000000-0000-0000-0000-000000000091'),
     placementScope: 'structure',
-    quality01: 0.95,
+    quality01: deviceQuality(structureDeviceId),
     condition01: 0.88,
     powerDraw_W: 3_500,
     dutyCycle01: 1,

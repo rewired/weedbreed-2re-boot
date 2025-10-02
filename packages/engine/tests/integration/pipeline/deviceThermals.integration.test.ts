@@ -8,10 +8,25 @@ import {
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
 import { runTick } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import type { Uuid, ZoneDeviceInstance } from '@/backend/src/domain/world.js';
+import {
+  createDeviceInstance,
+  type DeviceQualityPolicy,
+  type Uuid,
+  type ZoneDeviceInstance
+} from '@/backend/src/domain/world.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
+}
+
+const QUALITY_POLICY: DeviceQualityPolicy = {
+  sampleQuality01: (rng) => rng()
+};
+
+const WORLD_SEED = 'device-thermals-seed';
+
+function deviceQuality(id: Uuid): number {
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
 }
 
 describe('Tick pipeline — device thermal effects', () => {
@@ -22,13 +37,14 @@ describe('Tick pipeline — device thermal effects', () => {
     const zone = room.zones[0];
     const initialTemperatureC = zone.environment.airTemperatureC;
 
+    const lightingDeviceId = uuid('20000000-0000-0000-0000-000000000001');
     const lightingDevice: ZoneDeviceInstance = {
-      id: uuid('20000000-0000-0000-0000-000000000001'),
+      id: lightingDeviceId,
       slug: 'veg-light',
       name: 'Veg Light',
       blueprintId: uuid('20000000-0000-0000-0000-000000000002'),
       placementScope: 'zone',
-      quality01: 0.95,
+      quality01: deviceQuality(lightingDeviceId),
       condition01: 0.94,
       powerDraw_W: 600,
       dutyCycle01: 1,
@@ -38,13 +54,14 @@ describe('Tick pipeline — device thermal effects', () => {
       sensibleHeatRemovalCapacity_W: 0
     } satisfies ZoneDeviceInstance;
 
+    const hvacDeviceId = uuid('20000000-0000-0000-0000-000000000003');
     const hvacDevice: ZoneDeviceInstance = {
-      id: uuid('20000000-0000-0000-0000-000000000003'),
+      id: hvacDeviceId,
       slug: 'zone-hvac',
       name: 'Zone HVAC',
       blueprintId: uuid('20000000-0000-0000-0000-000000000004'),
       placementScope: 'zone',
-      quality01: 0.9,
+      quality01: deviceQuality(hvacDeviceId),
       condition01: 0.9,
       powerDraw_W: 800,
       dutyCycle01: 1,

@@ -1,5 +1,15 @@
 # Changelog
 
+### #36 WB-029 deterministic device quality factory
+- Added `createDeviceInstance` to the backend device module so world/bootstrap
+  loaders draw device `quality01` via the deterministic `device:<uuid>` RNG
+  stream and clamp values into the canonical unit interval.
+- Updated domain exports and world/test fixtures to route device construction
+  through the shared helper, eliminating ad-hoc quality assignments in unit and
+  integration tests.
+- Introduced dedicated unit coverage that verifies frozen results and
+  deterministic equality for identical `{seed, id}` pairs.
+
 ### #35 WB-028 canonical constant consolidation
 - Added `SECONDS_PER_HOUR`, `FLOAT_TOLERANCE`, and geospatial boundary constants
   to `simConstants`, eliminating duplicate physics values across the engine

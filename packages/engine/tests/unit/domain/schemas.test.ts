@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { AIR_DENSITY_KG_PER_M3, ROOM_DEFAULT_HEIGHT_M } from '@/backend/src/constants/simConstants.js';
 import {
   companySchema,
+  createDeviceInstance,
   parseCompanyWorld,
   type DevicePlacementScope,
-  type ParsedCompanyWorld
+  type DeviceQualityPolicy,
+  type ParsedCompanyWorld,
+  type Uuid
 } from '@wb/engine';
 
 type DeepMutable<T> = T extends (...args: unknown[]) => unknown
@@ -22,6 +25,16 @@ type MutableCompanyWorld = DeepMutable<ParsedCompanyWorld>;
 type MutableZoneDeviceInstance = MutableCompanyWorld['structures'][number]['rooms'][number]['zones'][number]['devices'][number] & {
   placementScope: DevicePlacementScope;
 };
+
+const QUALITY_POLICY: DeviceQualityPolicy = {
+  sampleQuality01: (rng) => rng()
+};
+
+const WORLD_SEED = 'schema-world-seed';
+
+function deviceQuality(id: Uuid): number {
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
+}
 
 const BASE_WORLD = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -90,7 +103,7 @@ const BASE_WORLD = {
                   name: 'Zone Device',
                   blueprintId: '00000000-0000-0000-0000-000000000061',
                   placementScope: 'zone',
-                  quality01: 0.98,
+                  quality01: deviceQuality('00000000-0000-0000-0000-000000000060' as Uuid),
                   condition01: 0.97,
                   powerDraw_W: 450,
                   dutyCycle01: 1,
@@ -109,7 +122,7 @@ const BASE_WORLD = {
               name: 'Room Device',
               blueprintId: '00000000-0000-0000-0000-000000000071',
               placementScope: 'room',
-              quality01: 0.92,
+              quality01: deviceQuality('00000000-0000-0000-0000-000000000070' as Uuid),
               condition01: 0.91,
               powerDraw_W: 320,
               dutyCycle01: 1,
@@ -128,7 +141,7 @@ const BASE_WORLD = {
           name: 'Structure Device',
           blueprintId: '00000000-0000-0000-0000-000000000081',
           placementScope: 'structure',
-          quality01: 0.93,
+          quality01: deviceQuality('00000000-0000-0000-0000-000000000080' as Uuid),
           condition01: 0.9,
           powerDraw_W: 500,
           dutyCycle01: 1,
