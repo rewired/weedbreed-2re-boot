@@ -1,5 +1,14 @@
 # Changelog
 
+### #37 WB-030 device condition lifecycle scaffolding
+- Added a backend device condition helper module with placeholder degradation,
+  maintenance, and repair flows that honour SEC monotonic wear requirements and
+  clamp condition/threshold values to the canonical unit interval.
+- Exposed the condition helpers via the world barrel so downstream engine
+  surfaces can query maintenance/repair eligibility without bespoke imports.
+- Covered the new helpers with unit tests for monotonic wear, threshold checks,
+  RNG-ready repair hooks, and clamping semantics.
+
 ### #36 WB-029 deterministic device quality factory
 - Added `createDeviceInstance` to the backend device module so world/bootstrap
   loaders draw device `quality01` via the deterministic `device:<uuid>` RNG
