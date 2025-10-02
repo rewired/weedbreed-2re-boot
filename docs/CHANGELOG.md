@@ -1,5 +1,14 @@
 # Changelog
 
+### #13 WB-006 facade world schema validation
+- Added Zod-based world tree schemas in `@wb/facade` that reuse engine
+  enumerations to guarantee SEC-aligned runtime validation of cultivation
+  methods, irrigation, containers, and substrates before engine bootstrap.
+- Introduced `parseCompanyWorld` to normalise façade inputs and wire it into
+  `initializeFacade` so invalid payloads are rejected deterministically.
+- Expanded façade Vitest coverage with schema unit tests covering invalid zone
+  payloads and placement scope enforcement.
+
 ### #12 Tooling - facade Vitest alias parity
 - Added the `@/backend` path alias to the façade Vitest config so shared engine
   modules resolve consistently during façade test runs.
