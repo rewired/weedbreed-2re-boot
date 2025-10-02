@@ -1,5 +1,12 @@
 # Changelog
 
+### #31 WB-024 pipeline stages clone world snapshots
+- Normalised all pipeline stage modules to return shallow world clones so the
+  immutable tick contract holds even before stage-specific logic lands.
+- Added the snapshots pre-emptively to keep future implementations from
+  mutating the previous tick's world reference when they begin modifying the
+  staged world data.
+
 ### #30 WB-023 immutable tick world snapshots
 - Refactored all engine pipeline stages, including `commitAndTelemetry`, to return new
   `SimulationWorld` instances so tick progression honours the readonly world contract.
