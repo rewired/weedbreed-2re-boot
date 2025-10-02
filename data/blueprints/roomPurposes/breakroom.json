@@ -8,7 +8,6 @@
     "staffOnly": true
   },
   "economy": {
-    "areaCost": 280,
-    "baseRentPerTick": 1.5
+    "areaCost": 280
   }
 }

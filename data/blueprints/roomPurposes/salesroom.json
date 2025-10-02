@@ -8,7 +8,6 @@
     "requiresPointOfSale": true
   },
   "economy": {
-    "areaCost": 600,
-    "baseRentPerTick": 3.2
+    "areaCost": 600
   }
 }

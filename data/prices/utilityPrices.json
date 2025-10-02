@@ -1,5 +1,4 @@
 {
-  "pricePerKwh": 0.15,
-  "pricePerLiterWater": 0.02,
-  "pricePerGramNutrients": 0.1
+  "price_electricity": 0.35,
+  "price_water": 2.00
 }

@@ -8,7 +8,6 @@
     "requiresSterileAccess": true
   },
   "economy": {
-    "areaCost": 1200,
-    "baseRentPerTick": 5.5
+    "areaCost": 1200
   }
 }

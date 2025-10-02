@@ -8,7 +8,6 @@
     "requiresControlledEnvironment": true
   },
   "economy": {
-    "areaCost": 950,
-    "baseRentPerTick": 4.8
+    "areaCost": 950
   }
 }
