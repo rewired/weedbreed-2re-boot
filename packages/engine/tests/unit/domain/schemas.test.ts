@@ -148,7 +148,7 @@ describe('companySchema', () => {
     if (!targetDevice) {
       throw new Error('Expected a zone-level device in the base world fixture.');
     }
-    Reflect.set(targetDevice as Record<string, unknown>, 'placementScope', 'room');
+    (targetDevice as any).placementScope = 'room';
 
     const result = companySchema.safeParse(invalidWorld);
 
