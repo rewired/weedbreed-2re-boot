@@ -236,7 +236,7 @@ function validateRoom(
     validateDevice(
       device,
       'room',
-      `${path}.devices[${deviceIndex}]`,
+      `${path}.devices[${String(deviceIndex)}]`,
       issues
     );
   });
@@ -261,7 +261,7 @@ function validateRoom(
   }
 
   room.zones.forEach((zone, zoneIndex) => {
-    const zonePath = `${path}.zones[${zoneIndex}]`;
+    const zonePath = `${path}.zones[${String(zoneIndex)}]`;
 
     if (!isValidArea(zone.floorArea_m2)) {
       issues.push({
@@ -324,13 +324,13 @@ function validateRoom(
       validateDevice(
         device,
         'zone',
-        `${zonePath}.devices[${deviceIndex}]`,
+        `${zonePath}.devices[${String(deviceIndex)}]`,
         issues
       );
     });
 
     zone.plants.forEach((plant, plantIndex) => {
-      const plantPath = `${zonePath}.plants[${plantIndex}]`;
+      const plantPath = `${zonePath}.plants[${String(plantIndex)}]`;
 
       if (!PLANT_LIFECYCLE_STAGES.includes(plant.lifecycleStage)) {
         issues.push({
@@ -389,7 +389,7 @@ export function validateCompanyWorld(
   const issues: WorldValidationIssue[] = [];
 
   company.structures.forEach((structure, structureIndex) => {
-    const structurePath = `company.structures[${structureIndex}]`;
+    const structurePath = `company.structures[${String(structureIndex)}]`;
 
     if (!isValidArea(structure.floorArea_m2)) {
       issues.push({
@@ -409,7 +409,7 @@ export function validateCompanyWorld(
       validateDevice(
         device,
         'structure',
-        `${structurePath}.devices[${deviceIndex}]`,
+        `${structurePath}.devices[${String(deviceIndex)}]`,
         issues
       );
     });
@@ -429,7 +429,7 @@ export function validateCompanyWorld(
     structure.rooms.forEach((room, roomIndex) => {
       validateRoom(
         room,
-        `${structurePath}.rooms[${roomIndex}]`,
+        `${structurePath}.rooms[${String(roomIndex)}]`,
         issues
       );
     });

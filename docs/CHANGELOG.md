@@ -1,5 +1,15 @@
 # Changelog
 
+### #20 Tooling - engine lint guard compliance
+- Normalised template string usage in `@wb/engine` validation helpers so numeric
+  segments are explicitly stringified, satisfying the strict `restrict-template-expressions`
+  guard enforced by the workspace ESLint profile.
+- Refactored engine schema tests to operate on typed clones without optional
+  chaining or `any`, leaning on precise aliases to clear `no-unnecessary-condition`
+  and `no-explicit-any` lint violations in CI.
+- Documented the guard alignment here to signal that future schema fixtures must
+  continue operating on deterministic, fully typed clones of the base world tree.
+
 ### #19 WB-014 deterministic RNG utility
 - Introduced `createRng(seed, streamId)` in the engine backend util library so
   all stochastic behaviour flows through a deterministic, stream-scoped
