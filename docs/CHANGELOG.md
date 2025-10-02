@@ -1,5 +1,14 @@
 # Changelog
 
+### #30 WB-023 immutable tick world snapshots
+- Refactored all engine pipeline stages, including `commitAndTelemetry`, to return new
+  `SimulationWorld` instances so tick progression honours the readonly world contract.
+- Updated `runTick` to compose the immutable snapshots while still exposing optional
+  `TickTrace` telemetry, and rewired the instrumentation collector to propagate the
+  stage results.
+- Aligned the engine test harness, integration coverage, and TDD notes with the
+  return-value change to keep trace utilities and specs validating the new workflow.
+
 ### #29 Tooling - perf harness warm-up stabilization
 - Added a warm-up loop to `withPerfHarness` so initial ticks run without trace
   collection, allowing JIT optimizations to settle before measurements begin.

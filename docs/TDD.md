@@ -165,7 +165,7 @@ it('rejects zone device in non-grow room', () => {
 ## 7) Tick trace instrumentation & perf harness (Engine)
 
 - Canonical order: `applyDeviceEffects → updateEnvironment → applyIrrigationAndNutrients → advancePhysiology → applyHarvestAndInventory → applyEconomyAccrual → commitAndTelemetry` (mirrors SEC §4.2).
-- `runTick(world, ctx, { trace: true })` returns a {@link TickTrace} with monotonic `startedAtNs`, `durationNs`, `endedAtNs` and heap metrics for every stage without feeding wall-clock time into simulation logic.
+- `runTick(world, ctx, { trace: true })` returns `{ world, trace }` where `world` is the immutable post-tick snapshot and `trace` is an optional {@link TickTrace} with monotonic `startedAtNs`, `durationNs`, `endedAtNs`, and heap metrics for every stage without feeding wall-clock time into simulation logic.
 - `runOneTickWithTrace()` (engine test harness) clones the deterministic demo world and returns `{ world, context, trace }` for integration/unit assertions.
 - `withPerfHarness({ ticks })` executes repeated traced ticks and reports `{ traces, totalDurationNs, averageDurationNs, maxHeapUsedBytes }` so perf tests can guard throughput (< 5 ms avg/tick) and heap (< 64 MiB).
 - `createRecordingContext(buffer)` attaches the instrumentation hook so specs can assert that stage completions mirror the trace order.

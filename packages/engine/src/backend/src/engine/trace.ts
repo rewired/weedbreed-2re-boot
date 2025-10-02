@@ -29,7 +29,7 @@ export interface TickTrace {
 }
 
 interface TraceCollector {
-  readonly measureStage: (name: StepName, fn: () => void) => void;
+  readonly measureStage: <T>(name: StepName, fn: () => T) => T;
   readonly finalize: () => TickTrace;
 }
 
@@ -42,7 +42,7 @@ export function createTickTraceCollector(): TraceCollector {
 
   return {
     measureStage(name, fn) {
-      const { sample } = withPerfStage(name, fn);
+      const { sample, result } = withPerfStage(name, fn);
       const startedAtOffset = Number(sample.startedAtNs - tickStartTime);
       const durationNs = Number(sample.durationNs);
       const endedAtOffset = startedAtOffset + durationNs;
@@ -63,6 +63,8 @@ export function createTickTraceCollector(): TraceCollector {
         heapUsedAfterBytes: sample.heapUsedAfterBytes,
         heapUsedDeltaBytes: heapDelta
       });
+
+      return result;
     },
     finalize() {
       const tickEndHeap = process.memoryUsage().heapUsed;
