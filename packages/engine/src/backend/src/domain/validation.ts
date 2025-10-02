@@ -192,6 +192,27 @@ function validateDevice(
       message: 'device power draw must be non-negative'
     });
   }
+
+  if (!isWithinUnitInterval(device.dutyCycle01)) {
+    issues.push({
+      path: `${path}.dutyCycle01`,
+      message: 'device dutyCycle01 must lie within [0,1]'
+    });
+  }
+
+  if (!isWithinUnitInterval(device.efficiency01)) {
+    issues.push({
+      path: `${path}.efficiency01`,
+      message: 'device efficiency01 must lie within [0,1]'
+    });
+  }
+
+  if (device.sensibleHeatRemovalCapacity_W < 0) {
+    issues.push({
+      path: `${path}.sensibleHeatRemovalCapacity_W`,
+      message: 'device sensible heat removal capacity must be non-negative'
+    });
+  }
 }
 
 /**
@@ -313,6 +334,13 @@ function validateRoom(
       issues.push({
         path: `${zonePath}.photoperiodPhase`,
         message: 'photoperiod phase must be either "vegetative" or "flowering"'
+      });
+    }
+
+    if (!Number.isFinite(zone.environment.airTemperatureC)) {
+      issues.push({
+        path: `${zonePath}.environment.airTemperatureC`,
+        message: 'zone air temperature must be a finite number'
       });
     }
 

@@ -11,6 +11,7 @@ The Simulation Engine Contract (SEC v0.2.1 §1.2) and downstream design document
   - `AREA_QUANTUM_M2 = 0.25`
   - `ROOM_DEFAULT_HEIGHT_M = 3`
   - Calendar invariants `HOURS_PER_DAY = 24`, `DAYS_PER_MONTH = 30`, `MONTHS_PER_YEAR = 12`
+  - Thermodynamic baselines `CP_AIR_J_PER_KG_K = 1 005` and `AIR_DENSITY_KG_PER_M3 = 1.2041`
 - Record the precedence order for simulation constants in this ADR to mirror the documentation contract hierarchy (SEC → DD → TDD → AGENTS → VISION_SCOPE) and ensure any change flows through all affected documents and the shared `simConstants` module.
 - Flag the legacy exporter specification advertising `AREA_QUANTUM_M2 = 0.5` for correction so downstream integrations are updated alongside the SEC-aligned constants.
 

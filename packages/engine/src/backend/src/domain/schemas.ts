@@ -1,4 +1,6 @@
 import { z } from 'zod';
+
+import { AIR_DENSITY_KG_PER_M3, ROOM_DEFAULT_HEIGHT_M } from '../constants/simConstants.js';
 import {
   DEVICE_PLACEMENT_SCOPES,
   PLANT_LIFECYCLE_STAGES,
@@ -12,7 +14,8 @@ import {
   type Structure,
   type StructureDeviceInstance,
   type Zone,
-  type ZoneDeviceInstance
+  type ZoneDeviceInstance,
+  type ZoneEnvironment
 } from './entities.js';
 
 const [STRUCTURE_SCOPE, ROOM_SCOPE, ZONE_SCOPE] = DEVICE_PLACEMENT_SCOPES;
@@ -35,7 +38,7 @@ const sluggedEntitySchema = z.object({
 
 const spatialEntitySchema = z.object({
   floorArea_m2: finiteNumber.positive('floorArea_m2 must be positive.'),
-  height_m: finiteNumber.positive('height_m must be positive.')
+  height_m: finiteNumber.positive('height_m must be positive.').default(ROOM_DEFAULT_HEIGHT_M)
 });
 
 export const companyLocationSchema: z.ZodType<CompanyLocation> = z.object({
@@ -71,7 +74,13 @@ const baseDeviceSchema = domainEntitySchema
     blueprintId: uuidSchema,
     quality01: finiteNumber.min(0, 'quality01 must be >= 0.').max(1, 'quality01 must be <= 1.'),
     condition01: finiteNumber.min(0, 'condition01 must be >= 0.').max(1, 'condition01 must be <= 1.'),
-    powerDraw_W: finiteNumber.min(0, 'powerDraw_W cannot be negative.')
+    powerDraw_W: finiteNumber.min(0, 'powerDraw_W cannot be negative.'),
+    dutyCycle01: finiteNumber.min(0, 'dutyCycle01 must be >= 0.').max(1, 'dutyCycle01 must be <= 1.'),
+    efficiency01: finiteNumber.min(0, 'efficiency01 must be >= 0.').max(1, 'efficiency01 must be <= 1.'),
+    sensibleHeatRemovalCapacity_W: finiteNumber.min(
+      0,
+      'sensibleHeatRemovalCapacity_W cannot be negative.'
+    )
   });
 
 const structureDeviceSchema: z.ZodType<StructureDeviceInstance> = baseDeviceSchema.extend({
@@ -98,7 +107,18 @@ const plantSchema: z.ZodType<Plant> = domainEntitySchema
     substrateId: uuidSchema
   });
 
-export const zoneSchema: z.ZodType<Zone> = domainEntitySchema
+const zoneEnvironmentSchema: z.ZodType<ZoneEnvironment> = z.object({
+  airTemperatureC: finiteNumber
+});
+
+function deriveZoneAirMassKg(zone: Pick<Zone, 'floorArea_m2' | 'height_m'>): number {
+  const area = Number.isFinite(zone.floorArea_m2) && zone.floorArea_m2 > 0 ? zone.floorArea_m2 : 0;
+  const height = Number.isFinite(zone.height_m) && zone.height_m > 0 ? zone.height_m : ROOM_DEFAULT_HEIGHT_M;
+
+  return area * height * AIR_DENSITY_KG_PER_M3;
+}
+
+const zoneBaseSchema = domainEntitySchema
   .merge(sluggedEntitySchema)
   .merge(spatialEntitySchema)
   .extend({
@@ -109,8 +129,14 @@ export const zoneSchema: z.ZodType<Zone> = domainEntitySchema
     lightSchedule: lightScheduleSchema,
     photoperiodPhase: z.enum(['vegetative', 'flowering']),
     plants: z.array(plantSchema).readonly(),
-    devices: z.array(zoneDeviceSchema).readonly()
+    devices: z.array(zoneDeviceSchema).readonly(),
+    environment: zoneEnvironmentSchema
   });
+
+export const zoneSchema: z.ZodType<Zone> = zoneBaseSchema.transform((zone) => ({
+  ...zone,
+  airMass_kg: deriveZoneAirMassKg(zone)
+}) satisfies Zone);
 
 export const roomSchema: z.ZodType<Room> = domainEntitySchema
   .merge(sluggedEntitySchema)

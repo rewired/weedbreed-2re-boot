@@ -162,22 +162,13 @@ it('rejects zone device in non-grow room', () => {
 
 ---
 
-## 7) Tick Pipeline Order (SEC §4.2)
+## 7) Tick trace instrumentation & perf harness (Engine)
 
-Order: 1) Device Effects → 2) Environment → 3) Irrigation & Nutrients → 4) Plant Physiology → 5) Harvest & Inventory → 6) Economy → 7) Commit & Telemetry
-
-```ts
-// tests/integration/pipeline/order.spec.ts
-import { expect, it } from 'vitest';
-import { runOneTickWithTrace } from '@/backend/src/engine/testHarness';
-
-it('executes fixed order', async () => {
-  const trace = await runOneTickWithTrace();
-  expect(trace.map(s => s.step)).toEqual([
-    'device-effects', 'environment', 'irrigation', 'physiology', 'harvest', 'economy', 'commit'
-  ]);
-});
-```
+- Canonical order: `applyDeviceEffects → updateEnvironment → applyIrrigationAndNutrients → advancePhysiology → applyHarvestAndInventory → applyEconomyAccrual → commitAndTelemetry` (mirrors SEC §4.2).
+- `runTick(world, ctx, { trace: true })` returns `{ world, trace }` where `world` is the immutable post-tick snapshot and `trace` is an optional {@link TickTrace} with monotonic `startedAtNs`, `durationNs`, `endedAtNs`, and heap metrics for every stage without feeding wall-clock time into simulation logic.
+- `runOneTickWithTrace()` (engine test harness) clones the deterministic demo world and returns `{ world, context, trace }` for integration/unit assertions.
+- `withPerfHarness({ ticks })` executes repeated traced ticks and reports `{ traces, totalDurationNs, averageDurationNs, maxHeapUsedBytes }` so perf tests can guard throughput (< 5 ms avg/tick) and heap (< 64 MiB).
+- `createRecordingContext(buffer)` attaches the instrumentation hook so specs can assert that stage completions mirror the trace order.
 
 ---
 
@@ -246,14 +237,19 @@ it('zone without cultivationMethod fails validation', async () => {
     
 
 ```ts
-// tests/module/thermo/powerToHeat.spec.ts
+// packages/engine/tests/unit/thermo/heat.spec.ts
 import { expect, it } from 'vitest';
 import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat';
 
 it('adds sensible heat proportional to power draw and duty', () => {
-  const z = { airMass_kg: 75, tempC: 22 } as any;
-  applyDeviceHeat(z, { powerW: 600, duty01: 0.5, efficiency01: 0.9 });
-  expect(z.tempC).toBeGreaterThan(22);
+  const zone = { floorArea_m2: 60, height_m: 3, airMass_kg: 60 * 3 * 1.2041 } as const;
+  const delta = applyDeviceHeat(zone, {
+    powerDraw_W: 600,
+    dutyCycle01: 0.5,
+    efficiency01: 0.9
+  });
+
+  expect(delta).toBeGreaterThan(0);
 });
 ```
 

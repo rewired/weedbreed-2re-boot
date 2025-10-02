@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  AIR_DENSITY_KG_PER_M3,
   AREA_QUANTUM_M2,
   ROOM_DEFAULT_HEIGHT_M,
   DEFAULT_COMPANY_LOCATION_LON,
@@ -92,7 +93,10 @@ function buildInvalidCompany(): Company {
             placementScope: invalidStructureDeviceScope,
             quality01: 1.2,
             condition01: -0.2,
-            powerDraw_W: -150
+            powerDraw_W: -150,
+            dutyCycle01: 1.1,
+            efficiency01: -0.1,
+            sensibleHeatRemovalCapacity_W: -10
           }
         ],
         rooms: [
@@ -111,12 +115,16 @@ function buildInvalidCompany(): Company {
                 name: 'Oversized Zone',
                 floorArea_m2: AREA_QUANTUM_M2 * 4,
                 height_m: -1,
+                airMass_kg: AREA_QUANTUM_M2 * 4 * -1 * AIR_DENSITY_KG_PER_M3,
                 cultivationMethodId: uuid(''),
                 irrigationMethodId: uuid('10000000-0000-0000-0000-000000000022'),
                 containerId: uuid(''),
                 substrateId: uuid(''),
                 lightSchedule: { onHours: 20, offHours: 5, startHour: 24 },
                 photoperiodPhase: invalidPhotoperiodPhase,
+                environment: {
+                  airTemperatureC: Number.NaN
+                },
                 devices: [
                   {
                     id: uuid('10000000-0000-0000-0000-000000000023'),
@@ -126,7 +134,10 @@ function buildInvalidCompany(): Company {
                     placementScope: invalidZoneDeviceScope,
                     quality01: 2,
                     condition01: -1,
-                    powerDraw_W: -50
+                    powerDraw_W: -50,
+                    dutyCycle01: -0.5,
+                    efficiency01: 1.5,
+                    sensibleHeatRemovalCapacity_W: -5
                   }
                 ],
                 plants: [
@@ -173,6 +184,7 @@ function buildInvalidCompany(): Company {
                 name: 'Lab Zone',
                 floorArea_m2: AREA_QUANTUM_M2,
                 height_m: ROOM_DEFAULT_HEIGHT_M,
+                airMass_kg: AREA_QUANTUM_M2 * ROOM_DEFAULT_HEIGHT_M * AIR_DENSITY_KG_PER_M3,
                 cultivationMethodId: uuid('10000000-0000-0000-0000-000000000034'),
                 irrigationMethodId: uuid('10000000-0000-0000-0000-000000000035'),
                 containerId: uuid('10000000-0000-0000-0000-000000000036'),
@@ -180,7 +192,10 @@ function buildInvalidCompany(): Company {
                 lightSchedule: { onHours: 12, offHours: 12, startHour: 0 },
                 photoperiodPhase: 'vegetative',
                 devices: [],
-                plants: []
+                plants: [],
+                environment: {
+                  airTemperatureC: 21
+                }
               }
             ]
           },

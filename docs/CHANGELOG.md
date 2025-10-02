@@ -1,5 +1,74 @@
 # Changelog
 
+### #33 WB-026 zone air mass bootstrap derivation
+- Extended the zone domain contract and Zod schema with a documented `airMass_kg`
+  field that downstream thermodynamics consume directly.
+- Derive air mass at bootstrap from floor area × height × `AIR_DENSITY_KG_PER_M3`,
+  falling back to `ROOM_DEFAULT_HEIGHT_M` so blueprints omitting a height remain
+  SEC-compliant.
+- Updated the demo world, validation fixtures, and physics tests to populate the
+  new field and asserted regression coverage for default and overridden heights.
+
+### #32 WB-025 device thermal coupling
+- Added dry-air thermodynamic constants (`CP_AIR_J_PER_KG_K`,
+  `AIR_DENSITY_KG_PER_M3`) to the canonical sim constants module and mirrored the
+  reference documentation/ADR so pipeline code can compute heat deltas without
+  redeclaring physics baselines.
+- Implemented `applyDeviceHeat` plus the device/environment pipeline stages so
+  Phase 1 accumulates per-zone heat additions and Phase 2 removes sensible heat
+  within HVAC/dehumidifier capacity before committing air temperature updates.
+- Expanded the domain model with zone environment state and device duty/efficiency
+  fields, updating validation, fixtures, and tests (unit + integration) to cover
+  waste-heat heating, zero-duty stability, and cross-stage cooling flows.
+
+### #31 WB-024 pipeline stages clone world snapshots
+- Normalised all pipeline stage modules to return shallow world clones so the
+  immutable tick contract holds even before stage-specific logic lands.
+- Added the snapshots pre-emptively to keep future implementations from
+  mutating the previous tick's world reference when they begin modifying the
+  staged world data.
+
+### #30 WB-023 immutable tick world snapshots
+- Refactored all engine pipeline stages, including `commitAndTelemetry`, to return new
+  `SimulationWorld` instances so tick progression honours the readonly world contract.
+- Updated `runTick` to compose the immutable snapshots while still exposing optional
+  `TickTrace` telemetry, and rewired the instrumentation collector to propagate the
+  stage results.
+- Aligned the engine test harness, integration coverage, and TDD notes with the
+  return-value change to keep trace utilities and specs validating the new workflow.
+
+### #29 Tooling - perf harness warm-up stabilization
+- Added a warm-up loop to `withPerfHarness` so initial ticks run without trace
+  collection, allowing JIT optimizations to settle before measurements begin.
+- Ensured the warm-up honours custom world/context factories while forcing
+  tracing off to keep baseline metrics focused on the measured iterations.
+
+### #28 WB-022 tick commit advances simulation time
+- Implemented the `commitAndTelemetry` pipeline stage so each tick increments
+  `SimulationWorld.simTimeHours` by the SEC-mandated `HOURS_PER_TICK`, ensuring
+  downstream systems observe deterministic world time progression.
+- Added integration coverage in `packages/engine/tests/integration/pipeline/timeProgression.spec.ts`
+  that exercises repeated `runTick` invocations against the demo world and
+  asserts the cumulative hour count advances by one per stage cycle.
+
+### #26 WB-009 tick orchestrator & perf harness
+- Implemented the SEC-ordered `runTick` pipeline in `packages/engine/src/backend/src/engine/Engine.ts`, wiring the seven phase modules through the shared `PIPELINE_ORDER` map so instrumentation hooks observe deterministic sequencing.
+- Added `createTickTraceCollector` and the `withPerfStage` sampling utility in `packages/engine/src/backend/src/engine/trace.ts` and `packages/engine/src/backend/src/util/perf.ts` to record per-stage timing and heap usage without leaking wall-clock state.
+- Published the `runOneTickWithTrace`, `withPerfHarness`, and `createRecordingContext` helpers in `packages/engine/src/backend/src/engine/testHarness.ts` to simplify trace capture, perf baselines, and stage recording for integration scenarios.
+- Expanded Vitest coverage across `packages/engine/tests/integration/pipeline/order.spec.ts`, `packages/engine/tests/unit/engine/trace.spec.ts`, and `packages/engine/tests/integration/perf/baseline.spec.ts` to lock down pipeline order, trace schema invariants, and throughput guardrails for WB-009.
+
+### #27 WB-021 tick pipeline instrumentation harness
+- Introduced the SEC-ordered `runTick` orchestrator that stages the seven
+  deterministic phases and optionally collects `TickTrace` telemetry without
+  leaking wall-clock data into simulation logic.
+- Added the engine pipeline modules, trace schema, and `withPerfStage` helper
+  so each step surfaces timing and heap deltas for diagnostics.
+- Published the deterministic engine test harness (`runOneTickWithTrace`,
+  `withPerfHarness`, `createRecordingContext`) and Vitest coverage for pipeline
+  order, perf baseline, and trace schema validation.
+- Documented the trace fields and perf guardrails in `docs/TDD.md` to align QA
+  expectations with the new instrumentation surfaces.
+
 ### #25 WB-020 deterministic tariff resolution helper
 - Added `resolveTariffs(config)` to the engine backend utilities so scenarios
   deterministically derive electricity and water tariffs with override-first

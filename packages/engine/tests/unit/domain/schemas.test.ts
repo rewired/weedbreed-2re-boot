@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { AIR_DENSITY_KG_PER_M3, ROOM_DEFAULT_HEIGHT_M } from '@/backend/src/constants/simConstants.js';
 import {
   companySchema,
   parseCompanyWorld,
@@ -54,6 +55,7 @@ const BASE_WORLD = {
               name: 'Zone Alpha',
               floorArea_m2: 30,
               height_m: 3,
+              airMass_kg: 30 * ROOM_DEFAULT_HEIGHT_M * AIR_DENSITY_KG_PER_M3,
               cultivationMethodId: '00000000-0000-0000-0000-000000000040',
               irrigationMethodId: '00000000-0000-0000-0000-000000000041',
               containerId: '00000000-0000-0000-0000-000000000042',
@@ -64,6 +66,9 @@ const BASE_WORLD = {
                 startHour: 0
               },
               photoperiodPhase: 'vegetative',
+              environment: {
+                airTemperatureC: 22
+              },
               plants: [
                 {
                   id: '00000000-0000-0000-0000-000000000050',
@@ -87,7 +92,10 @@ const BASE_WORLD = {
                   placementScope: 'zone',
                   quality01: 0.98,
                   condition01: 0.97,
-                  powerDraw_W: 450
+                  powerDraw_W: 450,
+                  dutyCycle01: 1,
+                  efficiency01: 0.9,
+                  sensibleHeatRemovalCapacity_W: 0
                 }
               ]
             }
@@ -101,7 +109,10 @@ const BASE_WORLD = {
               placementScope: 'room',
               quality01: 0.92,
               condition01: 0.91,
-              powerDraw_W: 320
+              powerDraw_W: 320,
+              dutyCycle01: 1,
+              efficiency01: 0.85,
+              sensibleHeatRemovalCapacity_W: 0
             }
           ]
         }
@@ -115,7 +126,10 @@ const BASE_WORLD = {
           placementScope: 'structure',
           quality01: 0.93,
           condition01: 0.9,
-          powerDraw_W: 500
+          powerDraw_W: 500,
+          dutyCycle01: 1,
+          efficiency01: 0.88,
+          sensibleHeatRemovalCapacity_W: 0
         }
       ]
     }
@@ -324,5 +338,45 @@ describe('parseCompanyWorld', () => {
     const parsed = parseCompanyWorld(cloneWorld());
 
     expect(parsed.structures[0].rooms[0].zones[0].photoperiodPhase).toBe('vegetative');
+  });
+
+  it('derives zone air mass using the provided height when present', () => {
+    const rawWorld = structuredClone(BASE_WORLD) as Record<string, unknown>;
+    const structures = rawWorld.structures as Record<string, unknown>[];
+    const rooms = structures[0].rooms as Record<string, unknown>[];
+    const zones = rooms[0].zones as Record<string, unknown>[];
+    const zone = zones[0];
+
+    zone.height_m = 4;
+    delete zone.airMass_kg;
+
+    const parsed = parseCompanyWorld(rawWorld);
+    const parsedZone = parsed.structures[0].rooms[0].zones[0];
+
+    expect(parsedZone.height_m).toBe(4);
+    expect(parsedZone.airMass_kg).toBeCloseTo(
+      parsedZone.floorArea_m2 * 4 * AIR_DENSITY_KG_PER_M3,
+      12
+    );
+  });
+
+  it('defaults the zone height before deriving air mass when omitted', () => {
+    const rawWorld = structuredClone(BASE_WORLD) as Record<string, unknown>;
+    const structures = rawWorld.structures as Record<string, unknown>[];
+    const rooms = structures[0].rooms as Record<string, unknown>[];
+    const zones = rooms[0].zones as Record<string, unknown>[];
+    const zone = zones[0];
+
+    delete zone.height_m;
+    delete zone.airMass_kg;
+
+    const parsed = parseCompanyWorld(rawWorld);
+    const parsedZone = parsed.structures[0].rooms[0].zones[0];
+
+    expect(parsedZone.height_m).toBe(ROOM_DEFAULT_HEIGHT_M);
+    expect(parsedZone.airMass_kg).toBeCloseTo(
+      parsedZone.floorArea_m2 * ROOM_DEFAULT_HEIGHT_M * AIR_DENSITY_KG_PER_M3,
+      12
+    );
   });
 });
