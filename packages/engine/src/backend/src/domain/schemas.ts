@@ -40,11 +40,11 @@ const spatialEntitySchema = z.object({
 
 export const companyLocationSchema: z.ZodType<CompanyLocation> = z.object({
   lon: finiteNumber
-    .min(-180, 'lon must be >= -180')
-    .max(180, 'lon must be <= 180'),
+    .min(-180, 'Longitude must be >= -180.')
+    .max(180, 'Longitude must be <= 180.'),
   lat: finiteNumber
-    .min(-90, 'lat must be >= -90')
-    .max(90, 'lat must be <= 90'),
+    .min(-90, 'Latitude must be >= -90.')
+    .max(90, 'Latitude must be <= 90.'),
   cityName: nonEmptyString,
   countryName: nonEmptyString
 });
