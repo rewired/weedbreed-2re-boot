@@ -6,11 +6,11 @@
   "laborProfile": {
     "hoursPerPlantPerWeek": 0.65
   },
-  "areaPerPlant": 0.25,
+  "areaPerPlant_m2": 0.25,
   "minimumSpacing": 0.25,
   "maxCycles": 2,
-  "compatibleSubstrateTypes": ["soil", "coco"],
-  "compatibleContainerTypes": ["pot"],
+  "substrates": ["soil-single-cycle", "coco-coir"],
+  "containers": ["pot-11l"],
   "strainTraitCompatibility": {
     "preferred": {
       "genotype.indica": {

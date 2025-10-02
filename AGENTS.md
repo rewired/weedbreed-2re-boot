@@ -106,7 +106,7 @@ Every **Zone MUST reference exactly one `cultivationMethod`** (blueprint id). Th
     
 - **Substrates**: one or more options with **unit price** (per L **or** per kg), **densityFactor_L_per_kg** (or inverse) for L↔kg conversion, reuse/sterilization policy.
     
-- **Irrigation compatibility**: supported irrigation methods (ids) incl. schedules.
+- **Irrigation compatibility**: inherited from substrate options; each substrate blueprint declares supported irrigation method ids + schedules.
     
 - **Costs**: recurring/hour normalized; acquisitions per unit.
     
