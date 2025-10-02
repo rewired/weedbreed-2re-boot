@@ -37,7 +37,7 @@ Bevor du Codex loslässt, mach einen 2-Min-Preflight und gib ihm dann den Start-
 > 4. **WB-006**: RNG utility + lint rule banning `Math.random`.
 > 5. **WB-008**: Light schedule validator (`onHours+offHours=24`, `startHour∈[0,24)`, 15-min grid).
 > 6. **WB-009**: Tick pipeline skeleton (7 Phases) with tracing hooks.
-> 7. **WB-018**: Economy accrual per-hour (kWh, m³, €), no `*_per_tick`.
+> 7. **WB-018**: Economy accrual per-hour (kWh, m³, neutral cost), no `*_per_tick`.
 > 8. **WB-015/024**: Socket.IO transport (telemetry read-only) + snapshots emission for zone/plant/economy.
 >
 > **DELIVERY PROTOCOL**
