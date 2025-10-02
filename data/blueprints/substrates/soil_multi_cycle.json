@@ -4,6 +4,11 @@
   "kind": "Substrate",
   "name": "Multi-Cycle Soil Mix",
   "type": "soil",
+  "supportedIrrigationMethodIds": [
+    "b7a5d5fa-6561-4a1c-93c8-2d3f9a11c201",
+    "c8f3a2b1-7d4e-4c9a-b5e6-3f8a9c1d2e4f",
+    "e0f5c4d3-9f6g-6e1c-d7g8-5h0c1e3f4g6h"
+  ],
   "maxCycles": 2,
   "meta": {
     "description": "Reconditionable soil blend that survives two full runs with proper amendment and sterilization between crops.",

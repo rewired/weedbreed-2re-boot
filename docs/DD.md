@@ -96,11 +96,12 @@ Hierarchy and constraints:
   "name": "Screen of Green",
   "areaPerPlant_m2": 0.20,
   "containers": [ { "id": "uuid", "slug": "pot-10l", "capex_per_unit": 2.0, "serviceLife_cycles": 8 } ],
-  "substrates": [ { "id": "uuid", "slug": "soil-basic", "unitPrice_per_L": 0.15, "densityFactor_L_per_kg": 0.7, "reusePolicy": { "maxCycles": 1, "sterilizationTaskCode": "sterilize_substrate" } } ],
-  "irrigationMethodIds": ["hand-watering", "drip-emitters"],
+  "substrates": [ { "id": "uuid", "slug": "soil-basic", "unitPrice_per_L": 0.15, "densityFactor_L_per_kg": 0.7, "reusePolicy": { "maxCycles": 1, "sterilizationTaskCode": "sterilize_substrate" }, "supportedIrrigationMethodIds": ["hand-watering", "drip-emitters"] } ],
   "notes": "SEC §7.5 compliant"
 }
 ```
+
+> **Irrigation compatibility note:** Cultivation methods no longer list irrigation method IDs directly; compatibility is inherited from the selected substrate option's `supportedIrrigationMethodIds`.
 
 ---
 

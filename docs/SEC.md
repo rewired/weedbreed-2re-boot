@@ -435,7 +435,7 @@ Validation occurs at load time; on failure, the engine must not start.
         
     - **Substrate:** one or more **substrate options** with **purchase unit** (e.g., per L or per kg), **density factor** to convert L↔kg if needed, and **unit price**; optional **re-use/sterilization policy**.
         
-    - **Irrigation compatibility:** which irrigation methods are compatible (ids), including schedules (on/off windows, frequency).
+    - **Irrigation compatibility:** determined indirectly through substrate options. Each substrate blueprint referenced by the cultivation method **SHALL** declare its supported irrigation methods (ids) and any scheduling constraints; the cultivation method inherits compatibility from the selected substrate.
         
 - **Costs (SHALL):**
     
