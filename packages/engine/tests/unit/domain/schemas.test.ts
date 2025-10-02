@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { companySchema, parseCompanyWorld, type ParsedCompanyWorld } from '../../../src/schemas/world.js';
+import {
+  companySchema,
+  parseCompanyWorld,
+  type ParsedCompanyWorld
+} from '@wb/engine';
 
 type DeepMutable<T> = T extends (...args: unknown[]) => unknown
   ? T

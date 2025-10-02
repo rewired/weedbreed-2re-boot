@@ -16,9 +16,5 @@
   },
   "engines": {
     "node": ">=23.0.0"
-  },
-  "dependencies": {
-    "@wb/engine": "workspace:*",
-    "zod": "^3.23.8"
   }
 }

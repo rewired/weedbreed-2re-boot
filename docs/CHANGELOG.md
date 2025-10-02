@@ -1,5 +1,13 @@
 # Changelog
 
+### #14 WB-010 engine-hosted world validation schemas
+- Moved the company world Zod schemas and `parseCompanyWorld` helper into
+  `@wb/engine` so validation logic ships with the canonical domain contracts.
+- Exported the schemas from the engine package and updated façade imports to
+  depend on the new public surface instead of a local copy.
+- Relocated the corresponding Vitest coverage into `@wb/engine` to keep
+  validation regression tests close to the source of truth.
+
 ### #13 WB-006 facade world schema validation
 - Added Zod-based world tree schemas in `@wb/facade` that reuse engine
   enumerations to guarantee SEC-aligned runtime validation of cultivation
