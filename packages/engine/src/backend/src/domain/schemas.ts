@@ -103,6 +103,14 @@ export const roomSchema: z.ZodType<Room> = domainEntitySchema
         path: ['zones']
       });
     }
+
+    if (room.purpose === 'growroom' && room.zones.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Growrooms must define at least one zone.',
+        path: ['zones']
+      });
+    }
   });
 
 export const structureSchema: z.ZodType<Structure> = domainEntitySchema

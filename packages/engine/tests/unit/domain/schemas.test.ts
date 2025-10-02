@@ -166,6 +166,26 @@ describe('companySchema', () => {
     ]);
   });
 
+  it('rejects growrooms that omit zones', () => {
+    const invalidWorld = cloneWorld();
+    const targetRoom = invalidWorld.structures[0]?.rooms[0];
+    if (!targetRoom) {
+      throw new Error('Expected a room in the base world fixture.');
+    }
+    targetRoom.zones = [];
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'structures',
+      0,
+      'rooms',
+      0,
+      'zones'
+    ]);
+  });
+
   it('rejects non-growroom purposes that still contain zones', () => {
     const invalidWorld = cloneWorld();
     const targetRoom = invalidWorld.structures[0]?.rooms[0];
