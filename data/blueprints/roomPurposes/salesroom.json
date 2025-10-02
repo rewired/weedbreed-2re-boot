@@ -1,6 +1,7 @@
 {
   "id": "828aa416-37be-4176-bfa6-9ce847e9dfd5",
-  "type": "salesroom",
+  "slug": "sales-room",
+  "class": "room-purpose.core.sales",
   "name": "Sales Room",
   "description": "A commercial space for selling harvested products.",
   "economy": {

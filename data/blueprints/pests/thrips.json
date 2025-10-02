@@ -1,12 +1,22 @@
 {
   "id": "4bb767d7-403e-49c9-aa10-b957dfc0e881",
-  "kind": "Pest",
+  "slug": "thrips",
+  "class": "pest.insect.thrips",
   "name": "Thrips",
   "category": "sap-sucking",
-  "targets": ["leaves", "flowers"],
+  "targets": [
+    "leaves",
+    "flowers"
+  ],
   "environmentalRisk": {
-    "temperatureRange": [20, 30],
-    "humidityRange": [0.3, 0.7]
+    "temperatureRange": [
+      20,
+      30
+    ],
+    "humidityRange": [
+      0.3,
+      0.7
+    ]
   },
   "populationDynamics": {
     "dailyReproductionRate": 0.3,
@@ -26,12 +36,26 @@
       "Black fecal spots",
       "Distorted new growth"
     ],
-    "monitoring": ["Blue sticky cards near canopy", "Tap test over white paper"]
+    "monitoring": [
+      "Blue sticky cards near canopy",
+      "Tap test over white paper"
+    ]
   },
   "controlOptions": {
-    "biological": ["Orius spp.", "Amblyseius cucumeris"],
-    "cultural": ["Remove weeds/volunteers", "Screen intakes"],
-    "mechanical": ["Sticky cards mass-trapping"],
-    "chemical": ["Spinosad where allowed", "Soaps and oils (rotate)"]
+    "biological": [
+      "Orius spp.",
+      "Amblyseius cucumeris"
+    ],
+    "cultural": [
+      "Remove weeds/volunteers",
+      "Screen intakes"
+    ],
+    "mechanical": [
+      "Sticky cards mass-trapping"
+    ],
+    "chemical": [
+      "Spinosad where allowed",
+      "Soaps and oils (rotate)"
+    ]
   }
 }

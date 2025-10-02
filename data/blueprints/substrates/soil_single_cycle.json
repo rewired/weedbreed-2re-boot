@@ -1,9 +1,8 @@
 {
   "id": "04c8b1a5-09cc-4d86-8dc6-9007a64de6f2",
   "slug": "soil-single-cycle",
-  "kind": "Substrate",
+  "class": "substrate.soil.single-cycle",
   "name": "Single-Cycle Soil Mix",
-  "type": "soil",
   "maxCycles": 1,
   "meta": {
     "description": "Pre-charged soil mix formulated for one-and-done harvests; ideal when designers prefer a fresh medium each run.",

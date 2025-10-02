@@ -1,17 +1,31 @@
 {
   "id": "818bc83c-0a18-47c5-b861-c378181b0812",
-  "kind": "Disease",
+  "slug": "powdery-mildew",
+  "class": "disease.fungal.powdery-mildew",
   "name": "Powdery Mildew",
   "pathogenType": "fungus",
-  "targets": ["leaves", "stems"],
+  "targets": [
+    "leaves",
+    "stems"
+  ],
   "environmentalRisk": {
-    "idealHumidityRange": [0.5, 0.7],
-    "temperatureRange": [20, 28],
+    "idealHumidityRange": [
+      0.5,
+      0.7
+    ],
+    "temperatureRange": [
+      20,
+      28
+    ],
     "leafWetnessRequired": false,
     "lowAirflowRisk": 0.8,
     "overcrowdingRisk": 0.7
   },
-  "transmission": ["airborneSpores", "tools", "workers"],
+  "transmission": [
+    "airborneSpores",
+    "tools",
+    "workers"
+  ],
   "contagious": true,
   "model": {
     "dailyInfectionIncrement": 0.06,
@@ -22,15 +36,27 @@
     "fatalityThreshold": 0.9
   },
   "detection": {
-    "symptoms": ["White, powdery coating on leaf surfaces", "Yellowish spots leading to necrosis"],
+    "symptoms": [
+      "White, powdery coating on leaf surfaces",
+      "Yellowish spots leading to necrosis"
+    ],
     "scoutingHints": [
       "Inspect leaf surfaces in dense canopies",
       "Check during humidity fluctuations"
     ]
   },
   "treatments": {
-    "cultural": ["Increase air circulation", "Prune dense leaves", "Avoid humidity spikes"],
-    "biological": ["Bacillus subtilis", "Low-dose sulfur sprays"],
-    "mechanical": ["Remove heavily infected leaves"]
+    "cultural": [
+      "Increase air circulation",
+      "Prune dense leaves",
+      "Avoid humidity spikes"
+    ],
+    "biological": [
+      "Bacillus subtilis",
+      "Low-dose sulfur sprays"
+    ],
+    "mechanical": [
+      "Remove heavily infected leaves"
+    ]
   }
 }

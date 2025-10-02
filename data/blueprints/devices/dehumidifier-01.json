@@ -1,8 +1,12 @@
 {
   "id": "7a639d3d-4750-440a-a200-f90d11dc3c62",
-  "kind": "Dehumidifier",
+  "slug": "drybox-200",
+  "class": "device.climate.dehumidifier",
   "name": "DryBox 200",
   "placementScope": "zone",
+  "allowedRoomPurposes": [
+    "growroom"
+  ],
   "power_W": 300,
   "efficiency01": 0.6,
   "coverage_m2": 6.67,
@@ -39,8 +43,5 @@
       "Limited capacity for large rooms",
       "Generates heat"
     ]
-  },
-  "allowedRoomPurposes": [
-    "growroom"
-  ]
+  }
 }

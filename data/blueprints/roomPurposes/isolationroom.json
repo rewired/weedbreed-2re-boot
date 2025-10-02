@@ -1,6 +1,7 @@
 {
   "id": "828aa416-37be-4176-bfa6-9ce847e9dfd6",
-  "type": "isolationroom",
+  "slug": "isolation-room",
+  "class": "room-purpose.core.isolation",
   "name": "Isolation Room (Quarantine)",
   "description": "A special room to isolate ill plants from healthy plants.",
   "economy": {

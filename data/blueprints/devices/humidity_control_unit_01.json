@@ -1,8 +1,12 @@
 {
   "id": "3d762260-88a5-4104-b03c-9860bbac34b6",
-  "kind": "HumidityControlUnit",
+  "slug": "humidity-control-unit-l1",
+  "class": "device.climate.humidity-controller",
   "name": "Humidity Control Unit L1",
   "placementScope": "zone",
+  "allowedRoomPurposes": [
+    "growroom"
+  ],
   "power_W": 350,
   "efficiency01": 0.6,
   "coverage_m2": 8.33,
@@ -42,8 +46,5 @@
       "Limited capacity for large rooms",
       "Requires regular maintenance"
     ]
-  },
-  "allowedRoomPurposes": [
-    "growroom"
-  ]
+  }
 }

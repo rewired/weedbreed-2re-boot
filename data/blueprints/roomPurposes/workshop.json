@@ -1,6 +1,7 @@
 {
   "id": "828aa416-37be-4176-bfa6-9ce847e9dfe6",
-  "type": "workshop",
+  "slug": "workshop",
+  "class": "room-purpose.core.workshop",
   "name": "Workshop",
   "description": "A space for repairing and improving devices.",
   "economy": {

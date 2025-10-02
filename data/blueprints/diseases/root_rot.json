@@ -1,16 +1,30 @@
 {
   "id": "55741064-9052-407f-8fbe-9eb3690ff851",
-  "kind": "Disease",
+  "slug": "root-rot-pythium-fusarium-rhizoctonia",
+  "class": "disease.fungal.root-rot",
   "name": "Root Rot (Pythium/Fusarium/Rhizoctonia)",
   "pathogenType": "fungus-complex",
-  "targets": ["roots", "crown"],
+  "targets": [
+    "roots",
+    "crown"
+  ],
   "environmentalRisk": {
-    "idealHumidityRange": [0.4, 0.7],
-    "temperatureRange": [18, 26],
+    "idealHumidityRange": [
+      0.4,
+      0.7
+    ],
+    "temperatureRange": [
+      18,
+      26
+    ],
     "substrateWaterloggingRisk": 0.9,
     "poorDrainageRisk": 0.85
   },
-  "transmission": ["contaminatedWater", "substrate", "tools"],
+  "transmission": [
+    "contaminatedWater",
+    "substrate",
+    "tools"
+  ],
   "contagious": true,
   "model": {
     "dailyInfectionIncrement": 0.07,
@@ -21,11 +35,22 @@
     "fatalityThreshold": 0.98
   },
   "detection": {
-    "symptoms": ["Plants wilting despite wet soil", "Brown, slimy roots with foul smell"]
+    "symptoms": [
+      "Plants wilting despite wet soil",
+      "Brown, slimy roots with foul smell"
+    ]
   },
   "treatments": {
-    "cultural": ["Avoid overwatering", "Improve drainage", "Extend irrigation intervals"],
-    "biological": ["Trichoderma spp."],
-    "mechanical": ["Remove heavily affected plants"]
+    "cultural": [
+      "Avoid overwatering",
+      "Improve drainage",
+      "Extend irrigation intervals"
+    ],
+    "biological": [
+      "Trichoderma spp."
+    ],
+    "mechanical": [
+      "Remove heavily affected plants"
+    ]
   }
 }

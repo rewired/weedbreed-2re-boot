@@ -1,9 +1,8 @@
 {
   "id": "d9267b6f-41f3-4e91-95b8-5bd7be381d3f",
   "slug": "pot-11l",
-  "kind": "Container",
+  "class": "container.pot",
   "name": "11 L Pot",
-  "type": "pot",
   "volumeInLiters": 11,
   "footprintArea": 0.2,
   "reusableCycles": 6,

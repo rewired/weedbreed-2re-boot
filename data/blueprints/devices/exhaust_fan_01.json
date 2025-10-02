@@ -1,8 +1,12 @@
 {
   "id": "f5d5c5a0-1b2c-4d3e-8f9a-0b1c2d3e4f5a",
-  "kind": "Ventilation",
+  "slug": "exhaust-fan-4-inch",
+  "class": "device.airflow.exhaust",
   "name": "Exhaust Fan 4-inch",
   "placementScope": "zone",
+  "allowedRoomPurposes": [
+    "growroom"
+  ],
   "power_W": 50,
   "efficiency01": 0.7,
   "coverage_m2": 5,
@@ -42,8 +46,5 @@
       "Relies on ambient temperature for cooling"
     ],
     "notes": "Essential for any small grow setup to prevent heat and humidity buildup without the cost of a full climate unit."
-  },
-  "allowedRoomPurposes": [
-    "growroom"
-  ]
+  }
 }

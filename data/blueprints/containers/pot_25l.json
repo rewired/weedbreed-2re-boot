@@ -1,9 +1,8 @@
 {
   "id": "9fb62d74-df4e-4e74-a0fb-77fa1f21d3ef",
   "slug": "pot-25l",
-  "kind": "Container",
+  "class": "container.pot",
   "name": "25 L Pot",
-  "type": "pot",
   "volumeInLiters": 25,
   "footprintArea": 0.3,
   "reusableCycles": 6,

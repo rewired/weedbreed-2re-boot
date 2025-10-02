@@ -1,15 +1,29 @@
 {
   "id": "01b6d921-88d8-42f0-8009-7111eff56e70",
-  "kind": "Disease",
+  "slug": "bacterial-wilt-erwinia-like",
+  "class": "disease.bacterial.wilt",
   "name": "Bacterial Wilt (Erwinia-like)",
   "pathogenType": "bacteria",
-  "targets": ["stems", "vascular"],
+  "targets": [
+    "stems",
+    "vascular"
+  ],
   "environmentalRisk": {
-    "idealHumidityRange": [0.5, 0.9],
-    "temperatureRange": [20, 30],
+    "idealHumidityRange": [
+      0.5,
+      0.9
+    ],
+    "temperatureRange": [
+      20,
+      30
+    ],
     "woundEntryRisk": 0.8
   },
-  "transmission": ["tools", "substrate", "splashingWater"],
+  "transmission": [
+    "tools",
+    "substrate",
+    "splashingWater"
+  ],
   "contagious": true,
   "model": {
     "dailyInfectionIncrement": 0.07,
@@ -20,10 +34,19 @@
     "fatalityThreshold": 0.96
   },
   "detection": {
-    "symptoms": ["Sudden wilting despite sufficient soil moisture", "Darkened vascular tissue"]
+    "symptoms": [
+      "Sudden wilting despite sufficient soil moisture",
+      "Darkened vascular tissue"
+    ]
   },
   "treatments": {
-    "cultural": ["Avoid wounding", "Increase hygiene", "Maintain low rH"],
-    "mechanical": ["Remove heavily infected plants"]
+    "cultural": [
+      "Avoid wounding",
+      "Increase hygiene",
+      "Maintain low rH"
+    ],
+    "mechanical": [
+      "Remove heavily infected plants"
+    ]
   }
 }

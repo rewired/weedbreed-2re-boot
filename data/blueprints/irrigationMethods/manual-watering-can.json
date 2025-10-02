@@ -1,8 +1,8 @@
 {
   "id": "b7a5d5fa-6561-4a1c-93c8-2d3f9a11c201",
   "slug": "manual-watering-can",
+  "class": "irrigation.manual.can",
   "name": "Watering Can",
-  "kind": "ManualCan",
   "description": "Hand watering with premixed nutrients; highest labor, lowest capex.",
   "mixing": "batch",
   "couplesFertilizer": true,
@@ -21,8 +21,15 @@
     "minPressure_bar": 0
   },
   "compatibility": {
-    "substrates": ["soil", "coco"],
-    "methods": ["sog", "scrog", "basic_soil_pot"]
+    "substrates": [
+      "soil",
+      "coco"
+    ],
+    "methods": [
+      "sog",
+      "scrog",
+      "basic_soil_pot"
+    ]
   },
   "maintenance": {
     "inspectionEveryDays": 14,

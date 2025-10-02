@@ -1,8 +1,12 @@
 {
   "id": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
-  "kind": "ClimateUnit",
+  "slug": "cool-air-split-3000",
+  "class": "device.climate.cooling",
   "name": "CoolAir Split 3000",
   "placementScope": "zone",
+  "allowedRoomPurposes": [
+    "growroom"
+  ],
   "power_W": 1200,
   "efficiency01": 0.65,
   "coverage_m2": 25,
@@ -52,8 +56,5 @@
       "Limited precision for multi-zone systems"
     ],
     "notes": "Recommended for vegetative and early flowering stages in temperate climates."
-  },
-  "allowedRoomPurposes": [
-    "growroom"
-  ]
+  }
 }

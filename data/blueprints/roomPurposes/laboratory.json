@@ -1,6 +1,7 @@
 {
   "id": "05566944-af3c-40f5-9d22-2cbe701457c7",
-  "type": "laboratory",
+  "slug": "laboratory",
+  "class": "room-purpose.core.laboratory",
   "name": "Laboratory",
   "description": "A facility for research and breeding new plant strains.",
   "economy": {

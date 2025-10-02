@@ -1,9 +1,8 @@
 {
   "id": "ebdb6d5e-fb3d-4db2-90a4-8e6c5be137f4",
   "slug": "soil-multi-cycle",
-  "kind": "Substrate",
+  "class": "substrate.soil.multi-cycle",
   "name": "Multi-Cycle Soil Mix",
-  "type": "soil",
   "maxCycles": 2,
   "meta": {
     "description": "Reconditionable soil blend that survives two full runs with proper amendment and sterilization between crops.",

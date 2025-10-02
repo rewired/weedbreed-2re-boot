@@ -1,5 +1,7 @@
 {
   "id": "d96dd659-4678-4d5d-a97c-a590ab52c2f3",
+  "slug": "cellar",
+  "class": "structure.storage.cellar",
   "name": "Cellar",
   "footprint": {
     "length_m": 3,

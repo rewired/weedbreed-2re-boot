@@ -1,6 +1,11 @@
 {
   "id": "Administration",
+  "slug": "administration",
+  "class": "personnel.skill.administration",
   "name": "Administration",
   "description": "Planning, reporting, compliance oversight, and documentation workflows.",
-  "tags": ["management", "compliance"]
+  "tags": [
+    "management",
+    "compliance"
+  ]
 }
