@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0",
+
+  "gradeOrder": ["F","E","D","C","B","A"],
+
+  "basePricePerM2": {
+    "A": 32.0,
+    "B": 24.0,
+    "C": 17.0,
+    "D": 12.0,
+    "E": 9.0,
+    "F": 6.0
+  },
+
+  "gradeSelection": {
+    "weights": { "A": 0.05, "B": 0.15, "C": 0.30, "D": 0.25, "E": 0.15, "F": 0.10 },
+    "rngStream": "rent:grade:<city_name>:<microtime>:<number_of_request>"
+  },
+
+  "rngVariation": {
+    "factorMin": 0.50,
+    "factorMax": 2.75,
+    "mode": "per-lot", 
+    "rngStream": "rent:lot:<microtime>:<company_name>"
+  },
+
+  "heightAdjustment": {
+    "enabled": true,
+    "baselineMeters": 3.0,
+    "formula": "heightFactor = clamp(0.8, height_m / baselineMeters, 1.25)"
+  },
+
+  "billing": {
+    "periodDays": 30,
+    "proration": "per-day",
+    "upfrontPaymentMonths": 0.75,
+    "depositMonths": 0.0
+  },
+
+  "formulae": {
+    "monthlyBase": "basePricePerM2[grade] * area_m2",
+    "monthlyVar":  "monthlyBase * rngVariationFactor * heightFactor",
+    "upfrontDue":  "upfrontPaymentMonths * monthlyVar"
+  },
+
+  "notes": [
+    "rngVariationFactor is sampled uniformly in [factorMin, factorMax] per lot (stable via seed).",
+    "If heightAdjustment.enabled=false then heightFactor=1.0.",
+    "gradeSelection.weights control RNG grade pick per city/market."
+  ]
+}
