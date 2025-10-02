@@ -33,3 +33,5 @@ export function createEngineBootstrapConfig(
     verbose
   } satisfies EngineBootstrapConfig;
 }
+
+export * from './backend/src/constants/simConstants.js';

@@ -18,3 +18,4 @@ The Simulation Engine Contract (SEC v0.2.1 §1.2) and downstream design document
 - Future modifications to canonical constants require updating this ADR plus the SEC/DD/TDD/AGENTS/VISION_SCOPE documents to preserve the documented precedence chain.
 - Tooling that assumed the `0.5 m²` area quantum must be adjusted to the `0.25 m²` baseline; export contracts and fixtures should align with the shared `simConstants` definitions.
 - The documentation set now has an authoritative historical record for why these constants are fixed, reducing the risk of silent drift across specs, code, and integrations.
+- The repository must expose the canonical constants exclusively through `src/backend/src/constants/simConstants.ts`, with linting guardrails preventing redeclarations elsewhere.

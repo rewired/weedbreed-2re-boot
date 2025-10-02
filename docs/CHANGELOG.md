@@ -1,5 +1,10 @@
 # Changelog
 
+## [2025-10-09] WB-002 canonical constants module
+- Added the canonical `simConstants.ts` module under `src/backend/src/constants` with SEC-aligned values and helper accessors.
+- Documented the constants in `docs/constants/simConstants.md` and enforced single-source usage through a bespoke ESLint rule.
+- Expanded automated coverage with unit/integration tests verifying immutable exports and package re-exports.
+
 ## [2025-10-08] Tooling - pnpm 10.17.1 alignment
 - Harmonised the repository on pnpm 10.17.1 via package manager engines metadata.
 - Simplified CI pnpm setup to source the version from `package.json`, preventing action self-install conflicts.

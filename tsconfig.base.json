@@ -40,6 +40,9 @@
       ],
       "@wb/tools-monitor": [
         "packages/tools-monitor/src/index.ts"
+      ],
+      "@/backend/*": [
+        "packages/engine/src/backend/*"
       ]
     }
   },
