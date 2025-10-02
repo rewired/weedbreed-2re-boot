@@ -1,5 +1,17 @@
 # Changelog
 
+### #32 WB-025 device thermal coupling
+- Added dry-air thermodynamic constants (`CP_AIR_J_PER_KG_K`,
+  `AIR_DENSITY_KG_PER_M3`) to the canonical sim constants module and mirrored the
+  reference documentation/ADR so pipeline code can compute heat deltas without
+  redeclaring physics baselines.
+- Implemented `applyDeviceHeat` plus the device/environment pipeline stages so
+  Phase 1 accumulates per-zone heat additions and Phase 2 removes sensible heat
+  within HVAC/dehumidifier capacity before committing air temperature updates.
+- Expanded the domain model with zone environment state and device duty/efficiency
+  fields, updating validation, fixtures, and tests (unit + integration) to cover
+  waste-heat heating, zero-duty stability, and cross-stage cooling flows.
+
 ### #31 WB-024 pipeline stages clone world snapshots
 - Normalised all pipeline stage modules to return shallow world clones so the
   immutable tick contract holds even before stage-specific logic lands.

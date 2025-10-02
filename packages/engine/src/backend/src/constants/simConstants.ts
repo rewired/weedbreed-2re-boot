@@ -22,6 +22,16 @@ export interface SimulationConstants {
    */
   readonly ROOM_DEFAULT_HEIGHT_M: number;
   /**
+   * Specific heat capacity of dry air at constant pressure, expressed in
+   * joules per kilogram and kelvin.
+   */
+  readonly CP_AIR_J_PER_KG_K: number;
+  /**
+   * Density of dry air at standard conditions, expressed in kilograms per
+   * cubic metre.
+   */
+  readonly AIR_DENSITY_KG_PER_M3: number;
+  /**
    * Number of in-game hours contained in a single simulation tick.
    */
   readonly HOURS_PER_TICK: number;
@@ -84,6 +94,18 @@ export const LIGHT_SCHEDULE_GRID_HOURS = 0.25 as const;
  * expressed in metres.
  */
 export const ROOM_DEFAULT_HEIGHT_M = 3 as const;
+
+/**
+ * Canonical constant describing the specific heat capacity of dry air at
+ * constant pressure, expressed in joules per kilogram and kelvin.
+ */
+export const CP_AIR_J_PER_KG_K = 1_005 as const;
+
+/**
+ * Canonical constant describing the density of dry air at standard conditions,
+ * expressed in kilograms per cubic metre.
+ */
+export const AIR_DENSITY_KG_PER_M3 = 1.2041 as const;
 
 /**
  * Canonical constant describing the number of in-game hours represented by a
@@ -151,6 +173,8 @@ export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
   AREA_QUANTUM_M2,
   LIGHT_SCHEDULE_GRID_HOURS,
   ROOM_DEFAULT_HEIGHT_M,
+  CP_AIR_J_PER_KG_K,
+  AIR_DENSITY_KG_PER_M3,
   HOURS_PER_TICK,
   HOURS_PER_DAY,
   DAYS_PER_MONTH,

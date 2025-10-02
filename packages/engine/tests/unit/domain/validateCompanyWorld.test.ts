@@ -306,7 +306,10 @@ function createCompany(): Company {
     placementScope: 'zone',
     quality01: 0.8,
     condition01: 0.75,
-    powerDraw_W: 480
+    powerDraw_W: 480,
+    dutyCycle01: 1,
+    efficiency01: 0.85,
+    sensibleHeatRemovalCapacity_W: 0
   } satisfies ZoneDeviceInstance;
 
   const zone: Zone = {
@@ -322,7 +325,10 @@ function createCompany(): Company {
     lightSchedule: { onHours: 18, offHours: 6, startHour: 0 },
     photoperiodPhase: 'vegetative',
     plants: [plant],
-    devices: [zoneDevice]
+    devices: [zoneDevice],
+    environment: {
+      airTemperatureC: 22
+    }
   } satisfies Zone;
 
   const roomDevice: RoomDeviceInstance = {
@@ -333,7 +339,10 @@ function createCompany(): Company {
     placementScope: 'room',
     quality01: 0.85,
     condition01: 0.9,
-    powerDraw_W: 250
+    powerDraw_W: 250,
+    dutyCycle01: 1,
+    efficiency01: 0.8,
+    sensibleHeatRemovalCapacity_W: 0
   } satisfies RoomDeviceInstance;
 
   const room: Room = {
@@ -355,7 +364,10 @@ function createCompany(): Company {
     placementScope: 'structure',
     quality01: 0.95,
     condition01: 0.88,
-    powerDraw_W: 3500
+    powerDraw_W: 3_500,
+    dutyCycle01: 1,
+    efficiency01: 0.9,
+    sensibleHeatRemovalCapacity_W: 0
   } satisfies StructureDeviceInstance;
 
   const structure: Structure = {

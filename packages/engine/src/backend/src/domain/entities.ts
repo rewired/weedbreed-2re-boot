@@ -119,6 +119,12 @@ export interface DeviceInstance extends DomainEntity, SluggedEntity {
   readonly condition01: number;
   /** Electrical power draw expressed in watts. */
   readonly powerDraw_W: number;
+  /** Duty cycle applied during the current tick on the canonical [0,1] scale. */
+  readonly dutyCycle01: number;
+  /** Useful-work efficiency on the canonical [0,1] scale per SEC §6.1. */
+  readonly efficiency01: number;
+  /** Maximum sensible heat removal capacity expressed in watts. */
+  readonly sensibleHeatRemovalCapacity_W: number;
 }
 
 /**
@@ -182,6 +188,16 @@ export interface Zone extends DomainEntity, SluggedEntity, SpatialEntity {
   readonly plants: readonly Plant[];
   /** Device instances mounted at the zone scope. */
   readonly devices: readonly ZoneDeviceInstance[];
+  /** Environmental state describing the zone's well-mixed air mass. */
+  readonly environment: ZoneEnvironment;
+}
+
+/**
+ * Canonical representation of the environmental state maintained for a zone.
+ */
+export interface ZoneEnvironment {
+  /** Dry-bulb air temperature expressed in degrees Celsius. */
+  readonly airTemperatureC: number;
 }
 
 /**

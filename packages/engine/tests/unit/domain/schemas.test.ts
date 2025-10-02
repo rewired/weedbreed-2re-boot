@@ -64,6 +64,9 @@ const BASE_WORLD = {
                 startHour: 0
               },
               photoperiodPhase: 'vegetative',
+              environment: {
+                airTemperatureC: 22
+              },
               plants: [
                 {
                   id: '00000000-0000-0000-0000-000000000050',
@@ -87,7 +90,10 @@ const BASE_WORLD = {
                   placementScope: 'zone',
                   quality01: 0.98,
                   condition01: 0.97,
-                  powerDraw_W: 450
+                  powerDraw_W: 450,
+                  dutyCycle01: 1,
+                  efficiency01: 0.9,
+                  sensibleHeatRemovalCapacity_W: 0
                 }
               ]
             }
@@ -101,7 +107,10 @@ const BASE_WORLD = {
               placementScope: 'room',
               quality01: 0.92,
               condition01: 0.91,
-              powerDraw_W: 320
+              powerDraw_W: 320,
+              dutyCycle01: 1,
+              efficiency01: 0.85,
+              sensibleHeatRemovalCapacity_W: 0
             }
           ]
         }
@@ -115,7 +124,10 @@ const BASE_WORLD = {
           placementScope: 'structure',
           quality01: 0.93,
           condition01: 0.9,
-          powerDraw_W: 500
+          powerDraw_W: 500,
+          dutyCycle01: 1,
+          efficiency01: 0.88,
+          sensibleHeatRemovalCapacity_W: 0
         }
       ]
     }

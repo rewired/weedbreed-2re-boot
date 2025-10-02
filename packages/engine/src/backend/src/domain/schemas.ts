@@ -12,7 +12,8 @@ import {
   type Structure,
   type StructureDeviceInstance,
   type Zone,
-  type ZoneDeviceInstance
+  type ZoneDeviceInstance,
+  type ZoneEnvironment
 } from './entities.js';
 
 const [STRUCTURE_SCOPE, ROOM_SCOPE, ZONE_SCOPE] = DEVICE_PLACEMENT_SCOPES;
@@ -71,7 +72,13 @@ const baseDeviceSchema = domainEntitySchema
     blueprintId: uuidSchema,
     quality01: finiteNumber.min(0, 'quality01 must be >= 0.').max(1, 'quality01 must be <= 1.'),
     condition01: finiteNumber.min(0, 'condition01 must be >= 0.').max(1, 'condition01 must be <= 1.'),
-    powerDraw_W: finiteNumber.min(0, 'powerDraw_W cannot be negative.')
+    powerDraw_W: finiteNumber.min(0, 'powerDraw_W cannot be negative.'),
+    dutyCycle01: finiteNumber.min(0, 'dutyCycle01 must be >= 0.').max(1, 'dutyCycle01 must be <= 1.'),
+    efficiency01: finiteNumber.min(0, 'efficiency01 must be >= 0.').max(1, 'efficiency01 must be <= 1.'),
+    sensibleHeatRemovalCapacity_W: finiteNumber.min(
+      0,
+      'sensibleHeatRemovalCapacity_W cannot be negative.'
+    )
   });
 
 const structureDeviceSchema: z.ZodType<StructureDeviceInstance> = baseDeviceSchema.extend({
@@ -98,6 +105,10 @@ const plantSchema: z.ZodType<Plant> = domainEntitySchema
     substrateId: uuidSchema
   });
 
+const zoneEnvironmentSchema: z.ZodType<ZoneEnvironment> = z.object({
+  airTemperatureC: finiteNumber
+});
+
 export const zoneSchema: z.ZodType<Zone> = domainEntitySchema
   .merge(sluggedEntitySchema)
   .merge(spatialEntitySchema)
@@ -109,7 +120,8 @@ export const zoneSchema: z.ZodType<Zone> = domainEntitySchema
     lightSchedule: lightScheduleSchema,
     photoperiodPhase: z.enum(['vegetative', 'flowering']),
     plants: z.array(plantSchema).readonly(),
-    devices: z.array(zoneDeviceSchema).readonly()
+    devices: z.array(zoneDeviceSchema).readonly(),
+    environment: zoneEnvironmentSchema
   });
 
 export const roomSchema: z.ZodType<Room> = domainEntitySchema
