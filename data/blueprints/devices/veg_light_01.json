@@ -1,8 +1,12 @@
 {
   "id": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
-  "kind": "Lamp",
+  "slug": "led-veg-light-600",
+  "class": "device.lighting.vegetative",
   "name": "LED VegLight 600",
   "placementScope": "zone",
+  "allowedRoomPurposes": [
+    "growroom"
+  ],
   "power_W": 600,
   "efficiency01": 0.7,
   "coverage_m2": 1.2,
@@ -47,8 +51,5 @@
       "Higher upfront cost compared to HPS"
     ],
     "notes": "Best used in enclosed environments with adequate canopy management."
-  },
-  "allowedRoomPurposes": [
-    "growroom"
-  ]
+  }
 }

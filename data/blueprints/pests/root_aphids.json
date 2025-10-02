@@ -1,12 +1,21 @@
 {
   "id": "1946a4a4-e2c7-494b-8777-7beffafcffba",
-  "kind": "Pest",
+  "slug": "root-aphids",
+  "class": "pest.insect.root-aphid",
   "name": "Root Aphids",
   "category": "sap-sucking",
-  "targets": ["roots"],
+  "targets": [
+    "roots"
+  ],
   "environmentalRisk": {
-    "temperatureRange": [18, 26],
-    "humidityRange": [0.5, 0.9],
+    "temperatureRange": [
+      18,
+      26
+    ],
+    "humidityRange": [
+      0.5,
+      0.9
+    ],
     "overfertilizationRisk": 0.5
   },
   "populationDynamics": {
@@ -27,12 +36,24 @@
       "White waxy residue on roots",
       "Poor response to fertilization"
     ],
-    "monitoring": ["Root inspections during repotting", "Yellow sticky cards at substrate level"]
+    "monitoring": [
+      "Root inspections during repotting",
+      "Yellow sticky cards at substrate level"
+    ]
   },
   "controlOptions": {
-    "biological": ["Beneficial nematodes (Steinernema/ Heterorhabditis)"],
-    "cultural": ["Avoid overwatering and excess N", "Sterilize media/tools"],
-    "mechanical": ["Discard heavily infested media"],
-    "chemical": ["Drenches permitted by regulation (jurisdiction-dependent)"]
+    "biological": [
+      "Beneficial nematodes (Steinernema/ Heterorhabditis)"
+    ],
+    "cultural": [
+      "Avoid overwatering and excess N",
+      "Sterilize media/tools"
+    ],
+    "mechanical": [
+      "Discard heavily infested media"
+    ],
+    "chemical": [
+      "Drenches permitted by regulation (jurisdiction-dependent)"
+    ]
   }
 }

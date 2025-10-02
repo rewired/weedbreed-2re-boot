@@ -89,6 +89,11 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
 
 **Blueprints are templates**; never mutated at runtime. **Prices are separated** from device blueprints.
 
+- **Blueprint taxonomy:** All blueprints expose `class` values using
+  `<domain>.<effect>[.<variant>]` plus a kebab-case `slug` unique within that class. The
+  backend validators rely on the taxonomy to select effect-specific rules (e.g. cooling,
+  dehumidification, lighting) while the data set retires the legacy `kind`/`type` fields.
+
 ### 4.2 Price Maps
 
 - `/data/prices/devicePrices.json` captures device **CapEx** (`capitalExpenditure`) and **maintenance** progression (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`).

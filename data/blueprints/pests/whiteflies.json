@@ -1,12 +1,21 @@
 {
   "id": "ac38b09c-d963-4dd4-b105-54c8f4ba30b6",
-  "kind": "Pest",
+  "slug": "whiteflies",
+  "class": "pest.insect.whitefly",
   "name": "Whiteflies",
   "category": "sap-sucking",
-  "targets": ["leaves"],
+  "targets": [
+    "leaves"
+  ],
   "environmentalRisk": {
-    "temperatureRange": [22, 30],
-    "humidityRange": [0.4, 0.8]
+    "temperatureRange": [
+      22,
+      30
+    ],
+    "humidityRange": [
+      0.4,
+      0.8
+    ]
   },
   "populationDynamics": {
     "dailyReproductionRate": 0.28,
@@ -26,12 +35,25 @@
       "Sticky honeydew, sooty mold",
       "Leaf yellowing and drop"
     ],
-    "monitoring": ["Yellow sticky cards just above canopy", "Check leaf undersides for nymphs"]
+    "monitoring": [
+      "Yellow sticky cards just above canopy",
+      "Check leaf undersides for nymphs"
+    ]
   },
   "controlOptions": {
-    "biological": ["Encarsia formosa", "Eretmocerus spp."],
-    "cultural": ["Sanitation, remove lower leaves", "Screen air intakes"],
-    "mechanical": ["Vacuum adults routinely"],
-    "chemical": ["Soaps/oils (rotate modes)"]
+    "biological": [
+      "Encarsia formosa",
+      "Eretmocerus spp."
+    ],
+    "cultural": [
+      "Sanitation, remove lower leaves",
+      "Screen air intakes"
+    ],
+    "mechanical": [
+      "Vacuum adults routinely"
+    ],
+    "chemical": [
+      "Soaps/oils (rotate modes)"
+    ]
   }
 }

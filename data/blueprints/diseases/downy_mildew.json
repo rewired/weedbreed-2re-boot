@@ -1,16 +1,28 @@
 {
   "id": "645b6253-4692-4396-ab6a-f3b02c9783bf",
-  "kind": "Disease",
+  "slug": "downy-mildew",
+  "class": "disease.fungal.downy-mildew",
   "name": "Downy Mildew",
   "pathogenType": "fungus",
-  "targets": ["leaves"],
+  "targets": [
+    "leaves"
+  ],
   "environmentalRisk": {
-    "idealHumidityRange": [0.7, 0.95],
-    "temperatureRange": [15, 24],
+    "idealHumidityRange": [
+      0.7,
+      0.95
+    ],
+    "temperatureRange": [
+      15,
+      24
+    ],
     "leafWetnessRequired": true,
     "lowAirflowRisk": 0.7
   },
-  "transmission": ["airborneSpores", "splashingWater"],
+  "transmission": [
+    "airborneSpores",
+    "splashingWater"
+  ],
   "contagious": true,
   "model": {
     "dailyInfectionIncrement": 0.055,
@@ -21,10 +33,18 @@
     "fatalityThreshold": 0.92
   },
   "detection": {
-    "symptoms": ["Yellowish angular leaf spots", "Gray-white fungal growth on leaf undersides"]
+    "symptoms": [
+      "Yellowish angular leaf spots",
+      "Gray-white fungal growth on leaf undersides"
+    ]
   },
   "treatments": {
-    "cultural": ["Avoid night condensation", "Irrigate during day"],
-    "mechanical": ["Remove infected leaves"]
+    "cultural": [
+      "Avoid night condensation",
+      "Irrigate during day"
+    ],
+    "mechanical": [
+      "Remove infected leaves"
+    ]
   }
 }

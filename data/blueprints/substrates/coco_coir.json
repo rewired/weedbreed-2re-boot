@@ -1,9 +1,8 @@
 {
   "id": "285041f1-9586-4b43-b55c-0cb76f343037",
   "slug": "coco-coir",
-  "kind": "Substrate",
+  "class": "substrate.coco.coir",
   "name": "Coco Coir",
-  "type": "coco",
   "maxCycles": 4,
   "meta": {
     "description": "Buffered coco coir blend optimized for drain-to-waste or recirculating fertigation systems with multiple reuse cycles.",

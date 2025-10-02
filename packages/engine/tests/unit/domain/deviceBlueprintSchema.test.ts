@@ -17,6 +17,7 @@ describe('deviceBlueprintSchema', () => {
   it('accepts canonical blueprint payloads', () => {
     const base = {
       id: '00000000-0000-4000-8000-000000000000',
+      class: 'device.climate.cooling',
       name: 'Test Device',
       slug: 'test-device',
       placementScope: 'zone',
@@ -32,6 +33,7 @@ describe('deviceBlueprintSchema', () => {
   it('rejects blueprints missing both coverage and airflow', () => {
     const invalid = {
       id: '00000000-0000-4000-8000-000000000001',
+      class: 'device.climate.cooling',
       name: 'Invalid Device',
       placementScope: 'zone',
       allowedRoomPurposes: ['growroom'],
@@ -50,6 +52,7 @@ describe('deviceBlueprintSchema', () => {
   it('rejects efficiency values outside the unit interval', () => {
     const invalid = {
       id: '00000000-0000-4000-8000-000000000002',
+      class: 'device.climate.cooling',
       name: 'Invalid Efficiency',
       placementScope: 'zone',
       allowedRoomPurposes: ['growroom'],
@@ -74,9 +77,39 @@ describe('deviceBlueprintSchema', () => {
     }
   });
 
+  it('enforces slug uniqueness per class across fixtures', () => {
+    const fixtures = [climateUnit, co2Injector, dehumidifier, exhaustFan, humidityControl, vegLight];
+    const seen = new Map<string, string>();
+
+    for (const fixture of fixtures) {
+      const parsed = parseDeviceBlueprint(fixture);
+      const key = `${parsed.class}:${parsed.slug}`;
+      expect(seen.has(key)).toBe(false);
+      seen.set(key, parsed.id);
+    }
+  });
+
+  it('requires effect-specific settings based on class', () => {
+    const invalid = {
+      ...dehumidifier,
+      settings: { ...dehumidifier.settings }
+    } as typeof dehumidifier;
+
+    delete (invalid.settings as Record<string, unknown>).latentRemovalKgPerTick;
+
+    const result = deviceBlueprintSchema.safeParse(invalid);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const issuePaths = result.error.issues.map((issue) => issue.path.join('.'));
+      expect(issuePaths).toContain('settings.latentRemovalKgPerTick');
+    }
+  });
+
   it('maps blueprint capacity fields onto device instance props', () => {
     const parsed = parseDeviceBlueprint({
       id: '00000000-0000-4000-8000-000000000003',
+      class: 'device.climate.cooling',
       name: 'Mapper Device',
       placementScope: 'zone',
       allowedRoomPurposes: ['growroom'],

@@ -1,5 +1,7 @@
 {
   "id": "d96dd659-4678-4d5d-a97c-a590ab52c2f2",
+  "slug": "shed",
+  "class": "structure.storage.shed",
   "name": "Shed",
   "footprint": {
     "length_m": 6,

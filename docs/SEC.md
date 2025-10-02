@@ -232,6 +232,20 @@ The world is a tree with typed nodes and bounded geometry.
 
 Validation occurs at load time; on failure, the engine must not start. Validation schemas live with the engine domain types so the engine remains the single source of truth; see [ADR-0005](ADR/ADR-0005-validation-schema-centralization.md) for implementation details.
 
+### 3.0.1 Blueprint Taxonomy (STRICT)
+
+- Every blueprint under `/data/blueprints/**` **MUST** publish a `class` field in the
+  `<domain>.<effect>[.<variant>]` format plus a kebab-case `slug` that remains unique per
+  class. The taxonomy binds fixtures, runtime loaders, and documentation to the same
+  capability vocabulary.
+- Legacy `kind`/`type` identifiers are **removed**; integrations **MUST** read the new
+  `class` discriminator.
+- Device blueprint classes **drive validation**: cooling units declare cooling capacity
+  and temperature targets, dehumidifiers expose latent removal rates, CO₂ injectors
+  specify enrichment ranges, humidity controllers provide humidify/dehumidify rates,
+  airflow devices publish steady airflow, and grow lights define PPFD and spectrum
+  coverage.
+
 ### 3.1 Device Placement & Eligibility (STRICT)
 
 (unchanged; uses `allowedRoomPurposes` and `placementScope`)

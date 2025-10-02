@@ -1,15 +1,28 @@
 {
   "id": "c1823c46-47df-4106-a039-88e60a6aa5ed",
-  "kind": "Disease",
+  "slug": "bacterial-leaf-spot",
+  "class": "disease.bacterial.leaf-spot",
   "name": "Bacterial Leaf Spot",
   "pathogenType": "bacteria",
-  "targets": ["leaves"],
+  "targets": [
+    "leaves"
+  ],
   "environmentalRisk": {
-    "idealHumidityRange": [0.6, 0.95],
-    "temperatureRange": [18, 28],
+    "idealHumidityRange": [
+      0.6,
+      0.95
+    ],
+    "temperatureRange": [
+      18,
+      28
+    ],
     "leafWetnessRequired": true
   },
-  "transmission": ["splashingWater", "tools", "workers"],
+  "transmission": [
+    "splashingWater",
+    "tools",
+    "workers"
+  ],
   "contagious": true,
   "model": {
     "dailyInfectionIncrement": 0.06,
@@ -26,7 +39,12 @@
     ]
   },
   "treatments": {
-    "cultural": ["Keep foliage dry", "Disinfect tools"],
-    "mechanical": ["Remove heavily infected leaves"]
+    "cultural": [
+      "Keep foliage dry",
+      "Disinfect tools"
+    ],
+    "mechanical": [
+      "Remove heavily infected leaves"
+    ]
   }
 }

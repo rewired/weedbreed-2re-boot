@@ -1,12 +1,22 @@
 {
   "id": "7a887ad2-34ed-4284-9c86-b573aadffdb9",
-  "kind": "Pest",
+  "slug": "spider-mites",
+  "class": "pest.mite.spider",
   "name": "Spider Mites",
   "category": "sap-sucking",
-  "targets": ["leaves", "stems"],
+  "targets": [
+    "leaves",
+    "stems"
+  ],
   "environmentalRisk": {
-    "temperatureRange": [24, 32],
-    "humidityRange": [0.3, 0.6],
+    "temperatureRange": [
+      24,
+      32
+    ],
+    "humidityRange": [
+      0.3,
+      0.6
+    ],
     "lowAirflowRisk": 0.6,
     "dustyCanopyRisk": 0.5
   },
@@ -28,12 +38,26 @@
       "Webbing under leaves at high density",
       "Leaves bronzing and drying out"
     ],
-    "monitoring": ["Use hand lens (≥40x) under leaves", "Sticky traps for presence trends"]
+    "monitoring": [
+      "Use hand lens (\u226540x) under leaves",
+      "Sticky traps for presence trends"
+    ]
   },
   "controlOptions": {
-    "biological": ["Predatory mites (Phytoseiulus persimilis, Amblyseius californicus)"],
-    "cultural": ["Increase humidity short-term", "Improve airflow", "Quarantine new plants"],
-    "mechanical": ["Rinse undersides, remove heavily infested leaves"],
-    "chemical": ["Horticultural oils", "Soaps (rotate actives to avoid resistance)"]
+    "biological": [
+      "Predatory mites (Phytoseiulus persimilis, Amblyseius californicus)"
+    ],
+    "cultural": [
+      "Increase humidity short-term",
+      "Improve airflow",
+      "Quarantine new plants"
+    ],
+    "mechanical": [
+      "Rinse undersides, remove heavily infested leaves"
+    ],
+    "chemical": [
+      "Horticultural oils",
+      "Soaps (rotate actives to avoid resistance)"
+    ]
   }
 }

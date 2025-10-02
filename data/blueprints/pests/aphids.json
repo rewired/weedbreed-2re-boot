@@ -1,12 +1,22 @@
 {
   "id": "90fd2899-4563-468d-9e32-500a75ce9275",
-  "kind": "Pest",
+  "slug": "aphids",
+  "class": "pest.insect.aphid",
   "name": "Aphids",
   "category": "sap-sucking",
-  "targets": ["leaves", "stems"],
+  "targets": [
+    "leaves",
+    "stems"
+  ],
   "environmentalRisk": {
-    "temperatureRange": [18, 28],
-    "humidityRange": [0.4, 0.8]
+    "temperatureRange": [
+      18,
+      28
+    ],
+    "humidityRange": [
+      0.4,
+      0.8
+    ]
   },
   "populationDynamics": {
     "dailyReproductionRate": 0.32,
@@ -26,12 +36,27 @@
       "Sticky honeydew leading to sooty mold",
       "Leaf curling"
     ],
-    "monitoring": ["Yellow sticky cards", "Visual scouting on new growth"]
+    "monitoring": [
+      "Yellow sticky cards",
+      "Visual scouting on new growth"
+    ]
   },
   "controlOptions": {
-    "biological": ["Lady beetles (Coccinellidae)", "Aphidius parasitoids"],
-    "cultural": ["Remove infested shoots", "Avoid over-fertilizing with N"],
-    "mechanical": ["Water jet dislodging", "Pruning"],
-    "chemical": ["Soaps and oils", "Azadirachtin (where compliant)"]
+    "biological": [
+      "Lady beetles (Coccinellidae)",
+      "Aphidius parasitoids"
+    ],
+    "cultural": [
+      "Remove infested shoots",
+      "Avoid over-fertilizing with N"
+    ],
+    "mechanical": [
+      "Water jet dislodging",
+      "Pruning"
+    ],
+    "chemical": [
+      "Soaps and oils",
+      "Azadirachtin (where compliant)"
+    ]
   }
 }

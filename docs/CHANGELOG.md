@@ -1,5 +1,15 @@
 # Changelog
 
+### #39 WB-032 blueprint taxonomy alignment
+- Added a canonical `<domain>.<effect>[.<variant>]` `class` discriminator and kebab-case
+  slugs across every blueprint JSON under `/data/blueprints/**`, removing legacy
+  `kind`/`type` identifiers while keeping slug uniqueness per class.
+- Extended the device blueprint schema to require the taxonomy, enforce slug format, and
+  validate effect-specific fields for cooling, CO₂ injection, humidity control,
+  dehumidification, airflow, and vegetative lighting classes.
+- Refreshed fixtures, unit tests, SEC/DD guidance, and a new ADR to document the
+  taxonomy-driven migration for future contributors.
+
 ### #38 WB-031 device read-model percent enrichment
 - Introduced a façade read-model mapper that forwards canonical device metrics
   while appending `qualityPercent`/`conditionPercent` derived via the SEC-mandated

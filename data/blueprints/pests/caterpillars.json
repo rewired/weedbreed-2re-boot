@@ -1,12 +1,22 @@
 {
   "id": "2335b750-3c2a-4540-a44c-3d510036bafd",
-  "kind": "Pest",
+  "slug": "caterpillars",
+  "class": "pest.insect.caterpillar",
   "name": "Caterpillars",
   "category": "chewing",
-  "targets": ["leaves", "buds"],
+  "targets": [
+    "leaves",
+    "buds"
+  ],
   "environmentalRisk": {
-    "temperatureRange": [18, 30],
-    "humidityRange": [0.4, 0.8]
+    "temperatureRange": [
+      18,
+      30
+    ],
+    "humidityRange": [
+      0.4,
+      0.8
+    ]
   },
   "populationDynamics": {
     "dailyReproductionRate": 0.2,
@@ -26,12 +36,25 @@
       "Holes and tunnels in buds",
       "Secondary bud rot (Botrytis)"
     ],
-    "monitoring": ["Blacklight scouting outdoors", "Pheromone traps where available"]
+    "monitoring": [
+      "Blacklight scouting outdoors",
+      "Pheromone traps where available"
+    ]
   },
   "controlOptions": {
-    "biological": ["Bacillus thuringiensis kurstaki (Btk)", "Trichogramma wasps"],
-    "cultural": ["Remove plant debris", "Timing: treat early instars"],
-    "mechanical": ["Hand-pick, inspect buds"],
-    "chemical": ["Selective stomach poisons (where allowed)"]
+    "biological": [
+      "Bacillus thuringiensis kurstaki (Btk)",
+      "Trichogramma wasps"
+    ],
+    "cultural": [
+      "Remove plant debris",
+      "Timing: treat early instars"
+    ],
+    "mechanical": [
+      "Hand-pick, inspect buds"
+    ],
+    "chemical": [
+      "Selective stomach poisons (where allowed)"
+    ]
   }
 }
