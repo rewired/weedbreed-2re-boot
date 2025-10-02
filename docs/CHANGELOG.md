@@ -1,5 +1,9 @@
 # Changelog
 
+## [2025-10-08] Tooling - pnpm 10.17.1 alignment
+- Harmonised the repository on pnpm 10.17.1 via package manager engines metadata.
+- Simplified CI pnpm setup to source the version from `package.json`, preventing action self-install conflicts.
+
 ## [2025-10-07] WB-001 pnpm workspace bootstrap
 - Initialised pnpm workspaces with shared TypeScript configuration and path aliases for engine, façade, transport, and monitoring packages.
 - Added base linting, formatting, and testing toolchain aligned with Node 23+ ESM requirements.
