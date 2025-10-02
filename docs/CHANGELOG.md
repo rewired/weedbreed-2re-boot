@@ -1,5 +1,11 @@
 # Changelog
 
+### #29 Tooling - perf harness warm-up stabilization
+- Added a warm-up loop to `withPerfHarness` so initial ticks run without trace
+  collection, allowing JIT optimizations to settle before measurements begin.
+- Ensured the warm-up honours custom world/context factories while forcing
+  tracing off to keep baseline metrics focused on the measured iterations.
+
 ### #28 WB-022 tick commit advances simulation time
 - Implemented the `commitAndTelemetry` pipeline stage so each tick increments
   `SimulationWorld.simTimeHours` by the SEC-mandated `HOURS_PER_TICK`, ensuring
