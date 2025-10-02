@@ -184,11 +184,15 @@ it('executes fixed order', async () => {
 ## 8) Economy & Tariffs (SEC §3.6)
 
 - **Per‑hour units only** in all recurring costs.
-    
+
 - **Tariffs (hotfix):** backend config exposes **`price_electricity`** (per kWh) and **`price_water`** (per m³).
-    
+
+- **Source of truth:** `/data/prices/utilityPrices.json` is the canonical tariff map and **only** carries electricity and water prices; nutrient costs are covered by irrigation/substrate consumption flows.
+
+- **Device maintenance:** `/data/prices/devicePrices.json` provides `capitalExpenditure`, `baseMaintenanceCostPerHour`, and `costIncreasePer1000Hours`. Schema tests must guard these identifiers.
+
 - Difficulty layer may set **`energyPriceFactor`/`energyPriceOverride`** and **`waterPriceFactor`/`waterPriceOverride`**; **override wins**.
-    
+
 - Effective tariffs computed **once at sim start**.
     
 
