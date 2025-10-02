@@ -3,11 +3,19 @@ import { initializeFacade } from '../../src/index.js';
 
 describe('initializeFacade', () => {
   it('composes the engine bootstrap configuration using shared path aliases', () => {
-    const result = initializeFacade({ scenarioId: 'integration', verbose: true });
+    const world = {
+      id: '30bd7f5e-1c8d-4f5f-9a5b-8b9e5821fd52',
+      slug: 'integration-company',
+      name: 'Integration Company',
+      structures: []
+    } as const;
+
+    const result = initializeFacade({ scenarioId: 'integration', verbose: true, world });
 
     expect(result.engineConfig).toEqual({
       scenarioId: 'integration',
       verbose: true
     });
+    expect(result.companyWorld).toEqual(world);
   });
 });
