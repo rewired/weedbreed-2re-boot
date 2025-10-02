@@ -7,7 +7,11 @@ describe('createEngineBootstrapConfig', () => {
 
     expect(config).toEqual({
       scenarioId: 'demo',
-      verbose: false
+      verbose: false,
+      tariffs: {
+        price_electricity: 0.35,
+        price_water: 2
+      }
     });
   });
 

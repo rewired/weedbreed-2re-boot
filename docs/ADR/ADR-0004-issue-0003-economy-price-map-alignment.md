@@ -23,3 +23,6 @@ These discrepancies made it impossible to resolve tariffs deterministically at s
 - Room blueprints stay focused on spatial semantics; rent modelling will live in dedicated economy systems if/when needed.
 - Tariff resolution utilities can load `/data/prices/utilityPrices.json` as-is, confident that the map aligns with SEC policy and contains no unrelated knobs.
 - Tooling and validation must flag regressions if new tariff fields appear or if device maintenance schemas drift from the base/increase structure.
+- Introduced a memoised `resolveTariffs` helper in the engine bootstrap path to
+  enforce override-before-factor precedence and keep resolved electricity and
+  water tariffs immutable for the lifetime of a scenario run.

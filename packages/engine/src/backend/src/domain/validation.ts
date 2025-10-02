@@ -384,6 +384,53 @@ export function validateCompanyWorld(
 ): WorldValidationResult {
   const issues: WorldValidationIssue[] = [];
 
+  if (!company.location) {
+    issues.push({
+      path: 'company.location',
+      message: 'company must define a location'
+    });
+  } else {
+    const { lon, lat, cityName, countryName } = company.location;
+
+    if (!Number.isFinite(lon)) {
+      issues.push({
+        path: 'company.location.lon',
+        message: 'longitude must be a finite number'
+      });
+    } else if (lon < -180 || lon > 180) {
+      issues.push({
+        path: 'company.location.lon',
+        message: 'longitude must lie within [-180, 180]'
+      });
+    }
+
+    if (!Number.isFinite(lat)) {
+      issues.push({
+        path: 'company.location.lat',
+        message: 'latitude must be a finite number'
+      });
+    } else if (lat < -90 || lat > 90) {
+      issues.push({
+        path: 'company.location.lat',
+        message: 'latitude must lie within [-90, 90]'
+      });
+    }
+
+    if (typeof cityName !== 'string' || cityName.trim().length === 0) {
+      issues.push({
+        path: 'company.location.cityName',
+        message: 'city name must not be empty'
+      });
+    }
+
+    if (typeof countryName !== 'string' || countryName.trim().length === 0) {
+      issues.push({
+        path: 'company.location.countryName',
+        message: 'country name must not be empty'
+      });
+    }
+  }
+
   company.structures.forEach((structure, structureIndex) => {
     const structurePath = `company.structures[${String(structureIndex)}]`;
 

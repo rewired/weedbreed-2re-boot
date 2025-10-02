@@ -1,3 +1,93 @@
+import difficultyConfig from '../../../data/configs/difficulty.json' assert { type: 'json' };
+import utilityPrices from '../../../data/prices/utilityPrices.json' assert { type: 'json' };
+
+import {
+  resolveTariffs,
+  tariffDifficultySchema,
+  type ResolvedTariffs,
+  type TariffConfig,
+  type TariffDifficultyModifiers
+} from './backend/src/util/tariffs.js';
+
+const DEFAULT_DIFFICULTY_ID = 'normal';
+
+interface DifficultyEconomicsConfig extends Record<string, unknown> {
+  readonly energyPriceFactor?: number;
+  readonly energyPriceOverride?: number;
+  readonly waterPriceFactor?: number;
+  readonly waterPriceOverride?: number;
+}
+
+interface DifficultyConfigEntry extends Record<string, unknown> {
+  readonly modifiers?: {
+    readonly economics?: DifficultyEconomicsConfig;
+  };
+}
+
+const difficultyMap = difficultyConfig as Record<string, DifficultyConfigEntry>;
+
+const baseTariffConfig: Pick<TariffConfig, 'price_electricity' | 'price_water'> = {
+  price_electricity: Number(utilityPrices.price_electricity),
+  price_water: Number(utilityPrices.price_water)
+};
+
+const tariffCache = new Map<string, ResolvedTariffs>();
+
+function hasDifficultyModifiers(
+  modifiers: TariffDifficultyModifiers | undefined
+): modifiers is TariffDifficultyModifiers {
+  if (!modifiers) {
+    return false;
+  }
+
+  return Object.values(modifiers).some((value) => value !== undefined);
+}
+
+function selectDifficultyId(scenarioId: string): string {
+  return difficultyMap[scenarioId] ? scenarioId : DEFAULT_DIFFICULTY_ID;
+}
+
+function extractDifficultyTariffs(
+  entry: DifficultyConfigEntry | undefined
+): TariffDifficultyModifiers | undefined {
+  const economics = entry?.modifiers?.economics;
+
+  if (!economics) {
+    return undefined;
+  }
+
+  const parsed = tariffDifficultySchema.parse({
+    energyPriceFactor: economics.energyPriceFactor,
+    energyPriceOverride: economics.energyPriceOverride,
+    waterPriceFactor: economics.waterPriceFactor,
+    waterPriceOverride: economics.waterPriceOverride
+  });
+
+  return hasDifficultyModifiers(parsed) ? parsed : undefined;
+}
+
+function getScenarioTariffs(scenarioId: string): ResolvedTariffs {
+  const difficultyId = selectDifficultyId(scenarioId);
+  const cacheKey = `difficulty:${difficultyId}`;
+  const cached = tariffCache.get(cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  const difficultyEntry = difficultyMap[difficultyId];
+  const difficultyModifiers = extractDifficultyTariffs(difficultyEntry);
+
+  const resolved = resolveTariffs({
+    ...baseTariffConfig,
+    difficulty: difficultyModifiers
+  });
+
+  tariffCache.set(cacheKey, resolved);
+
+  return resolved;
+}
+
 /**
  * Describes the configuration required to bootstrap the Weed Breed simulation engine.
  */
@@ -11,6 +101,11 @@ export interface EngineBootstrapConfig {
    * Determines whether the engine should emit verbose lifecycle diagnostics.
    */
   readonly verbose: boolean;
+
+  /**
+   * Effective electricity and water tariffs resolved at bootstrap time.
+   */
+  readonly tariffs: ResolvedTariffs;
 }
 
 /**
@@ -28,12 +123,17 @@ export function createEngineBootstrapConfig(
     throw new Error('scenarioId must be a non-empty string');
   }
 
+  const tariffs = getScenarioTariffs(scenarioId);
+
   return {
     scenarioId,
-    verbose
+    verbose,
+    tariffs
   } satisfies EngineBootstrapConfig;
 }
 
 export * from './backend/src/constants/simConstants.js';
 export * from './backend/src/domain/world.js';
 export * from './backend/src/util/rng.js';
+export { resolveTariffs } from './backend/src/util/tariffs.js';
+export type { ResolvedTariffs } from './backend/src/util/tariffs.js';
