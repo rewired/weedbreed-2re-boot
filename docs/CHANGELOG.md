@@ -1,5 +1,14 @@
 # Changelog
 
+### #18 WB-013 room validation helper extraction
+- Refactored `validateCompanyWorld` to delegate room, zone, plant, and device
+  checks to a new `validateRoom` helper so hierarchy-specific invariants stay
+  co-located with their scope.
+- Documented the decision in ADR-0006 to capture the motivation for the helper
+  and its impact on future partial-world validation work.
+- Added JSDoc to the helper to preserve inline documentation parity across the
+  validation module.
+
 ### #17 WB-012 light schedule 24-hour enforcement
 - Enforced the light schedule schema to reject photoperiods that do not sum to
   a full 24-hour cycle, aligning validation with the SEC light-cycle contract.
