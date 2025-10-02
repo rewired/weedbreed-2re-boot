@@ -12,7 +12,7 @@ import {
   type StructureDeviceInstance,
   type Zone,
   type ZoneDeviceInstance
-} from '@wb/engine';
+} from './entities.js';
 
 const [STRUCTURE_SCOPE, ROOM_SCOPE, ZONE_SCOPE] = DEVICE_PLACEMENT_SCOPES;
 

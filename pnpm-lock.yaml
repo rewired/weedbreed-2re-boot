@@ -36,16 +36,13 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@20.19.19)
 
-  packages/engine: {}
-
-  packages/facade:
+  packages/engine:
     dependencies:
-      '@wb/engine':
-        specifier: workspace:*
-        version: link:../engine
       zod:
         specifier: ^3.23.8
         version: 3.25.76
+
+  packages/facade: {}
 
   packages/tools-monitor: {}
 

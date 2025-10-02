@@ -1,8 +1,12 @@
-import { createEngineBootstrapConfig, type EngineBootstrapConfig } from '@wb/engine';
-import { parseCompanyWorld, type ParsedCompanyWorld } from './schemas/world.js';
+import {
+  createEngineBootstrapConfig,
+  parseCompanyWorld,
+  type EngineBootstrapConfig,
+  type ParsedCompanyWorld
+} from '@wb/engine';
 
-export type { ParsedCompanyWorld } from './schemas/world.js';
-export { parseCompanyWorld } from './schemas/world.js';
+export type { ParsedCompanyWorld } from '@wb/engine';
+export { parseCompanyWorld } from '@wb/engine';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.
