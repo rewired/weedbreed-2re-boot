@@ -1,5 +1,17 @@
 # Changelog
 
+### #26 WB-021 tick pipeline instrumentation harness
+- Introduced the SEC-ordered `runTick` orchestrator that stages the seven
+  deterministic phases and optionally collects `TickTrace` telemetry without
+  leaking wall-clock data into simulation logic.
+- Added the engine pipeline modules, trace schema, and `withPerfStage` helper
+  so each step surfaces timing and heap deltas for diagnostics.
+- Published the deterministic engine test harness (`runOneTickWithTrace`,
+  `withPerfHarness`, `createRecordingContext`) and Vitest coverage for pipeline
+  order, perf baseline, and trace schema validation.
+- Documented the trace fields and perf guardrails in `docs/TDD.md` to align QA
+  expectations with the new instrumentation surfaces.
+
 ### #25 WB-020 deterministic tariff resolution helper
 - Added `resolveTariffs(config)` to the engine backend utilities so scenarios
   deterministically derive electricity and water tariffs with override-first
