@@ -1,6 +1,6 @@
 # Changelog
 
-## [2025-10-11] WB-004 validation guard fixes
+### #11 WB-004 validation guard fixes
 - Hardened light schedule validation to reject non-finite values before range
   checks, preventing NaN/Infinity leakage into tick logic.
 - Adopted readonly array typing across world entities and rewrote tests to use
@@ -8,7 +8,7 @@
 - Added regression coverage ensuring non-finite light schedules report a
   validation issue.
 
-## [2025-10-10] WB-004 domain model scaffolding
+### #10 WB-004 domain model scaffolding
 - Added strongly typed world tree entities and validation helpers under
   `packages/engine/src/backend/src/domain/world.ts` to encode SEC hierarchy and
   guardrails.
@@ -17,45 +17,45 @@
 - Documented the new module usage within the design document to steer
   implementation alignment.
 
-## [2025-10-09] WB-002 canonical constants module
+### #09 WB-002 canonical constants module
 - Added the canonical `simConstants.ts` module under `src/backend/src/constants` with SEC-aligned values and helper accessors.
 - Documented the constants in `docs/constants/simConstants.md` and enforced single-source usage through a bespoke ESLint rule.
 - Expanded automated coverage with unit/integration tests verifying immutable exports and package re-exports.
 
-## [2025-10-08] Tooling - pnpm 10.17.1 alignment
+### #08 Tooling - pnpm 10.17.1 alignment
 - Harmonised the repository on pnpm 10.17.1 via package manager engines metadata.
 - Simplified CI pnpm setup to source the version from `package.json`, preventing action self-install conflicts.
 
-## [2025-10-07] WB-001 pnpm workspace bootstrap
+### #07 WB-001 pnpm workspace bootstrap
 - Initialised pnpm workspaces with shared TypeScript configuration and path aliases for engine, façade, transport, and monitoring packages.
 - Added base linting, formatting, and testing toolchain aligned with Node 23+ ESM requirements.
 - Provisioned CI workflow executing lint, test, and build stages to guarantee green pipelines.
 
 All notable changes to this repository will be documented in this file.
 
-## [2025-10-06] Currency-neutral terminology enforcement
+### #06 Currency-neutral terminology enforcement
 - Clarified across SEC, DD, TDD, and Vision Scope that monetary identifiers and UI copy must remain currency-neutral, forbidding baked-in codes/symbols (EUR, USD, GBP, etc.).
 - Updated reference docs and prompts to describe tariffs and KPIs using neutral cost phrasing instead of currency-specific notation.
 
-## [2025-10-05] Issue-0003 economy price map alignment
+### #05 Issue-0003 economy price map alignment
 - Added ADR-0004 documenting the canonical maintenance and tariff price maps (device maintenance base/increase fields; utility tariffs limited to electricity & water).
 - Normalized `/data/prices/devicePrices.json` maintenance keys, confirmed grow room blueprints omit `baseRentPerTick`, and set `/data/prices/utilityPrices.json` as the single source of truth for `price_electricity`/`price_water`.
 - Updated SEC, DD, TDD, and Vision/Scope guidance to reflect the canonical field names and removal of the nutrient tariff knob.
 
-## [2025-10-04] Canonical simulation constants alignment
+### #04 Canonical simulation constants alignment
 - Added ADR-0001 to capture the canonical simulation constants contract (`AREA_QUANTUM_M2 = 0.25`, `ROOM_DEFAULT_HEIGHT_M = 3`, calendar invariants) and document precedence across SEC, DD, TDD, AGENTS, and VISION_SCOPE.
 - Flagged exporter tooling drift that still referenced `AREA_QUANTUM_M2 = 0.5`, aligning it with the SEC baseline in the decision history.
 
-## [2025-10-03] Irrigation compatibility source of truth correction
+### #03 Irrigation compatibility source of truth correction
 - Removed `supportedIrrigationMethodIds` from substrate blueprints; irrigation compatibility is now resolved from irrigation method blueprints that list compatible substrates under `compatibility.substrates`.
 - Superseded ADR-0002 with ADR-0003 to document the irrigation-method-driven compatibility model and refreshed SEC/DD/TDD guidance accordingly.
 
-## [2025-10-02] Cultivation method blueprint field alignment
+### #02 Cultivation method blueprint field alignment
 - Renamed cultivation method planting density to `areaPerPlant_m2` and updated container/substrate references to concrete blueprint slugs.
 - Shifted irrigation compatibility to substrate blueprints via `supportedIrrigationMethodIds`, removing direct `irrigationMethodIds` from cultivation methods (see ADR-0002, superseded by ADR-0003).
 - Added ADR-0002 documenting the substrate-driven irrigation compatibility decision and refreshed SEC/DD/AGENTS guidance.
 
-## [2025-10-01] Data audit groundwork
+### #01 Data audit groundwork
 - Logged device blueprint schema gaps (placement scope + room eligibility) in ISSUE-0001 for SEC alignment.
 - Captured cultivation method blueprint compliance gaps with SEC §7.5 in ISSUE-0002.
 - Recorded pricing data violations (per-tick rates, tariff fields) in ISSUE-0003.
