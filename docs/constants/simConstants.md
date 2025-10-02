@@ -11,6 +11,7 @@ normalisation mandated by the SEC.
 | Identifier | Value | Unit | Description |
 | --- | --- | --- | --- |
 | `AREA_QUANTUM_M2` | `0.25` | m² | Minimal calculable floor area for placement, zoning, and area rounding. |
+| `LIGHT_SCHEDULE_GRID_HOURS` | `0.25` | h | Photoperiod grid resolution enforcing 15 minute scheduling steps. |
 | `ROOM_DEFAULT_HEIGHT_M` | `3` | m | Default room interior height when blueprints omit overrides. |
 | `HOURS_PER_TICK` | `1` | h | Duration represented by one simulation tick (one in-game hour). |
 | `HOURS_PER_DAY` | `24` | h | Hours per in-game day (calendar invariant). |

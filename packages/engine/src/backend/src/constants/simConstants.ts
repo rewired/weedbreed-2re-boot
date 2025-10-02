@@ -12,6 +12,11 @@ export interface SimulationConstants {
    */
   readonly AREA_QUANTUM_M2: number;
   /**
+   * Canonical grid resolution for light schedule photoperiod definitions,
+   * expressed in in-game hours.
+   */
+  readonly LIGHT_SCHEDULE_GRID_HOURS: number;
+  /**
    * Default room interior height in metres whenever a blueprint does not
    * provide an explicit override.
    */
@@ -49,6 +54,12 @@ export interface SimulationConstants {
  * in square metres.
  */
 export const AREA_QUANTUM_M2 = 0.25 as const;
+
+/**
+ * Canonical constant describing the light schedule grid resolution, expressed
+ * in in-game hours (15 minutes per step).
+ */
+export const LIGHT_SCHEDULE_GRID_HOURS = 0.25 as const;
 
 /**
  * Canonical constant describing the default height of a room interior,
@@ -98,6 +109,7 @@ export const HOURS_PER_YEAR = HOURS_PER_MONTH * MONTHS_PER_YEAR;
  */
 export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
   AREA_QUANTUM_M2,
+  LIGHT_SCHEDULE_GRID_HOURS,
   ROOM_DEFAULT_HEIGHT_M,
   HOURS_PER_TICK,
   HOURS_PER_DAY,
