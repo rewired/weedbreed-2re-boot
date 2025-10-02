@@ -1,0 +1,168 @@
+import { describe, expect, it } from 'vitest';
+import { companySchema, parseCompanyWorld } from '../../../src/schemas/world.js';
+
+const BASE_WORLD = {
+  id: '00000000-0000-0000-0000-000000000001',
+  slug: 'acme-cultivation',
+  name: 'ACME Cultivation',
+  structures: [
+    {
+      id: '00000000-0000-0000-0000-000000000010',
+      slug: 'warehouse-alpha',
+      name: 'Warehouse Alpha',
+      floorArea_m2: 120,
+      height_m: 6,
+      rooms: [
+        {
+          id: '00000000-0000-0000-0000-000000000020',
+          slug: 'growroom-alpha',
+          name: 'Growroom Alpha',
+          floorArea_m2: 60,
+          height_m: 3,
+          purpose: 'growroom',
+          zones: [
+            {
+              id: '00000000-0000-0000-0000-000000000030',
+              slug: 'zone-alpha',
+              name: 'Zone Alpha',
+              floorArea_m2: 30,
+              height_m: 3,
+              cultivationMethodId: '00000000-0000-0000-0000-000000000040',
+              irrigationMethodId: '00000000-0000-0000-0000-000000000041',
+              containerId: '00000000-0000-0000-0000-000000000042',
+              substrateId: '00000000-0000-0000-0000-000000000043',
+              lightSchedule: {
+                onHours: 18,
+                offHours: 6,
+                startHour: 0
+              },
+              photoperiodPhase: 'vegetative',
+              plants: [
+                {
+                  id: '00000000-0000-0000-0000-000000000050',
+                  slug: 'plant-alpha',
+                  name: 'Plant Alpha',
+                  strainId: '00000000-0000-0000-0000-000000000051',
+                  lifecycleStage: 'vegetative',
+                  ageHours: 72,
+                  health01: 0.95,
+                  biomass_g: 125,
+                  containerId: '00000000-0000-0000-0000-000000000042',
+                  substrateId: '00000000-0000-0000-0000-000000000043'
+                }
+              ],
+              devices: [
+                {
+                  id: '00000000-0000-0000-0000-000000000060',
+                  slug: 'zone-device',
+                  name: 'Zone Device',
+                  blueprintId: '00000000-0000-0000-0000-000000000061',
+                  placementScope: 'zone',
+                  quality01: 0.98,
+                  condition01: 0.97,
+                  powerDraw_W: 450
+                }
+              ]
+            }
+          ],
+          devices: [
+            {
+              id: '00000000-0000-0000-0000-000000000070',
+              slug: 'room-device',
+              name: 'Room Device',
+              blueprintId: '00000000-0000-0000-0000-000000000071',
+              placementScope: 'room',
+              quality01: 0.92,
+              condition01: 0.91,
+              powerDraw_W: 320
+            }
+          ]
+        }
+      ],
+      devices: [
+        {
+          id: '00000000-0000-0000-0000-000000000080',
+          slug: 'structure-device',
+          name: 'Structure Device',
+          blueprintId: '00000000-0000-0000-0000-000000000081',
+          placementScope: 'structure',
+          quality01: 0.93,
+          condition01: 0.9,
+          powerDraw_W: 500
+        }
+      ]
+    }
+  ]
+} as const;
+
+const cloneWorld = () => JSON.parse(JSON.stringify(BASE_WORLD));
+
+describe('companySchema', () => {
+  it('accepts a valid company world payload', () => {
+    const result = companySchema.safeParse(cloneWorld());
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects zones missing a cultivation method identifier', () => {
+    const invalidWorld: any = cloneWorld();
+    delete invalidWorld.structures[0].rooms[0].zones[0].cultivationMethodId;
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'structures',
+      0,
+      'rooms',
+      0,
+      'zones',
+      0,
+      'cultivationMethodId'
+    ]);
+  });
+
+  it('rejects devices that declare an incorrect placement scope for the zone level', () => {
+    const invalidWorld: any = cloneWorld();
+    invalidWorld.structures[0].rooms[0].zones[0].devices[0].placementScope = 'room';
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'structures',
+      0,
+      'rooms',
+      0,
+      'zones',
+      0,
+      'devices',
+      0,
+      'placementScope'
+    ]);
+  });
+
+  it('rejects non-growroom purposes that still contain zones', () => {
+    const invalidWorld: any = cloneWorld();
+    invalidWorld.structures[0].rooms[0].purpose = 'laboratory';
+
+    const result = companySchema.safeParse(invalidWorld);
+
+    expect(result.success).toBe(false);
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+      'structures',
+      0,
+      'rooms',
+      0,
+      'zones'
+    ]);
+  });
+});
+
+describe('parseCompanyWorld', () => {
+  it('returns typed data when provided with a valid payload', () => {
+    const parsed = parseCompanyWorld(cloneWorld());
+
+    expect(parsed.structures[0]?.rooms[0]?.zones[0]?.photoperiodPhase).toBe('vegetative');
+  });
+});

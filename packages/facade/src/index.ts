@@ -1,4 +1,8 @@
 import { createEngineBootstrapConfig, type EngineBootstrapConfig } from '@wb/engine';
+import { parseCompanyWorld, type ParsedCompanyWorld } from './schemas/world.js';
+
+export type { ParsedCompanyWorld } from './schemas/world.js';
+export { parseCompanyWorld } from './schemas/world.js';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.
@@ -13,6 +17,11 @@ export interface FacadeInitOptions {
    * When true, the façade mirrors verbose diagnostics emitted by the engine.
    */
   readonly verbose?: boolean;
+
+  /**
+   * Company-centric world tree that should be validated before the engine boots.
+   */
+  readonly world: unknown;
 }
 
 /**
@@ -23,6 +32,11 @@ export interface FacadeInitResult {
    * The deterministic engine bootstrap configuration derived from façade inputs.
    */
   readonly engineConfig: EngineBootstrapConfig;
+
+  /**
+   * Strongly typed company world tree validated against SEC invariants.
+   */
+  readonly companyWorld: ParsedCompanyWorld;
 }
 
 /**
@@ -32,7 +46,8 @@ export interface FacadeInitResult {
  * @returns {@link FacadeInitResult} referencing the engine bootstrap configuration.
  */
 export function initializeFacade(options: FacadeInitOptions): FacadeInitResult {
+  const companyWorld = parseCompanyWorld(options.world);
   const engineConfig = createEngineBootstrapConfig(options.scenarioId, options.verbose ?? false);
 
-  return { engineConfig } satisfies FacadeInitResult;
+  return { engineConfig, companyWorld } satisfies FacadeInitResult;
 }
