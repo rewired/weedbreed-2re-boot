@@ -92,8 +92,12 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
 - **Blueprint taxonomy:** All blueprints expose `class` values using
   `<domain>.<effect>[.<variant>]` plus a kebab-case `slug` unique within that class. Each
   directory segment under `/data/blueprints/**` mirrors the matching class segment so
-  loaders can derive taxonomy metadata from the filesystem itself. The backend validators
-  rely on the taxonomy to select effect-specific rules (e.g. cooling, dehumidification,
+  loaders can derive taxonomy metadata from the filesystem itself. JSON stays
+  authoritative for metadata; filesystem placement provides expectations only. When the
+  folder taxonomy and JSON `class` disagree, the loader throws a
+  `BlueprintTaxonomyMismatchError` and rejects the payload so contributors correct the
+  placement instead of allowing divergent runtime behaviour. The backend validators rely
+  on the taxonomy to select effect-specific rules (e.g. cooling, dehumidification,
   lighting) while the data set retires the legacy `kind`/`type` fields.
 
 ### 4.2 Price Maps
