@@ -59,6 +59,24 @@ describe('validateCompanyWorld (unit)', () => {
     );
   });
 
+  it('rejects rooms whose purpose is unsupported', () => {
+    const company = withRoomOverride(createCompany(), (room) => ({
+      ...room,
+      purpose: 'moonbase' as unknown as Room['purpose']
+    }));
+
+    const result = validateCompanyWorld(company);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        path: 'company.structures[0].rooms[0].purpose',
+        message:
+          'room purpose must be one of: growroom, breakroom, laboratory, storageroom, salesroom, workshop'
+      })
+    );
+  });
+
   it('rejects devices whose placement scope conflicts with their host node', () => {
     const company = withRoomOverride(createCompany(), (room) => ({
       ...room,

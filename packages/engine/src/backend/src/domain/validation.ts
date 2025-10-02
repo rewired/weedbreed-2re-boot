@@ -8,7 +8,8 @@ import {
   type DeviceInstance,
   type DevicePlacementScope,
   type LightSchedule,
-  PLANT_LIFECYCLE_STAGES
+  PLANT_LIFECYCLE_STAGES,
+  ROOM_PURPOSES
 } from './entities.js';
 
 /**
@@ -16,6 +17,8 @@ import {
  * exact within the simulation.
  */
 const FLOAT_TOLERANCE = 1e-6;
+
+const VALID_ROOM_PURPOSES = new Set(ROOM_PURPOSES);
 
 /**
  * Validation issue emitted when the world tree violates SEC guardrails.
@@ -240,6 +243,14 @@ export function validateCompanyWorld(
 
     structure.rooms.forEach((room, roomIndex) => {
       const roomPath = `${structurePath}.rooms[${String(roomIndex)}]`;
+
+      if (!VALID_ROOM_PURPOSES.has(room.purpose)) {
+        issues.push({
+          path: `${roomPath}.purpose`,
+          message: `room purpose must be one of: ${ROOM_PURPOSES.join(', ')}`
+        });
+        return;
+      }
 
       if (!isValidArea(room.floorArea_m2)) {
         issues.push({
