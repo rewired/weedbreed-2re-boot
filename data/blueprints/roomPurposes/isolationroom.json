@@ -3,11 +3,7 @@
   "kind": "isolationroom",
   "name": "Isolation Room (Quarantine)",
   "description": "A special room to isolate ill plants from healthy plants.",
-  "flags": {
-    "customerFacing": true,
-    "requiresPointOfSale": true
-  },
   "economy": {
-    "areaCost": 600
+    "areaCost": 6.0
   }
 }

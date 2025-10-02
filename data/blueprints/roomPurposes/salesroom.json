@@ -3,11 +3,7 @@
   "kind": "salesroom",
   "name": "Sales Room",
   "description": "A commercial space for selling harvested products.",
-  "flags": {
-    "customerFacing": true,
-    "requiresPointOfSale": true
-  },
   "economy": {
-    "areaCost": 600
+    "areaCost": 6.0
   }
 }

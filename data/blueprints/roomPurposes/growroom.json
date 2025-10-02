@@ -3,11 +3,7 @@
   "kind": "growroom",
   "name": "Grow Room",
   "description": "A room designed for cultivating plants under controlled conditions.",
-  "flags": {
-    "supportsCultivation": true,
-    "requiresControlledEnvironment": true
-  },
   "economy": {
-    "areaCost": 950
+    "areaCost": 3.5
   }
 }

@@ -3,11 +3,7 @@
   "kind": "breakroom",
   "name": "Break Room",
   "description": "A space for employees to rest and recover energy.",
-  "flags": {
-    "supportsRest": true,
-    "staffOnly": true
-  },
   "economy": {
-    "areaCost": 280
+    "areaCost": 2.8
   }
 }
