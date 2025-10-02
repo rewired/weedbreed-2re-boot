@@ -1,5 +1,14 @@
 # Changelog
 
+### #38 WB-031 device read-model percent enrichment
+- Introduced a façade read-model mapper that forwards canonical device metrics
+  while appending `qualityPercent`/`conditionPercent` derived via the SEC-mandated
+  `Math.round(100 * value)` normalisation.
+- Re-exported the mapper from the façade entrypoint so downstream UI/transport
+  layers consume the enriched payload without bespoke imports.
+- Added Vitest unit coverage proving raw `[0,1]` fields coexist with the rounded
+  percentage metrics, including edge rounding behaviour.
+
 ### #37 WB-030 device condition lifecycle scaffolding
 - Added a backend device condition helper module with placeholder degradation,
   maintenance, and repair flows that honour SEC monotonic wear requirements and

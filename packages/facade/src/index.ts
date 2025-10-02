@@ -7,6 +7,7 @@ import {
 
 export type { ParsedCompanyWorld } from '@wb/engine';
 export { parseCompanyWorld } from '@wb/engine';
+export { mapDeviceToView, type DeviceView } from './readModels/deviceView.js';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.
