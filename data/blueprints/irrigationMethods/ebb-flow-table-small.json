@@ -22,9 +22,7 @@
   },
   "compatibility": {
     "substrates": [
-      "coco",
-      "rockwool",
-      "perlite"
+      "coco-coir"
     ],
     "methods": [
       "sog",
@@ -50,6 +48,6 @@
       "Power dependency",
       "Not suitable for soil"
     ],
-    "notes": "Ideal for SOG/SCROG methods with coco or rockwool. Captured runoff reduces water costs."
+    "notes": "Ideal for SOG/SCROG methods with coco coir. Captured runoff reduces water costs."
   }
 }
