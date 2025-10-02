@@ -122,6 +122,14 @@ export function withPerfHarness(options: PerfHarnessOptions): PerfHarnessResult 
   const tickCount = Math.max(1, Math.trunc(options.ticks));
   const worldFactory = options.worldFactory ?? createDemoWorld;
   const contextFactory = options.contextFactory ?? (() => ({}));
+  const warmupTicks = Math.min(tickCount, 5);
+
+  // Warm-up phase to allow for JIT compilation and other runtime optimizations
+  for (let i = 0; i < warmupTicks; i += 1) {
+    const world = worldFactory();
+    const context = contextFactory();
+    runTick(world, context, { ...options.runTickOptions, trace: false });
+  }
 
   const traces: TickTrace[] = [];
 
