@@ -1,5 +1,9 @@
 # Changelog
 
+### #12 Tooling - facade Vitest alias parity
+- Added the `@/backend` path alias to the façade Vitest config so shared engine
+  modules resolve consistently during façade test runs.
+
 ### #11 WB-004 validation guard fixes
 - Hardened light schedule validation to reject non-finite values before range
   checks, preventing NaN/Infinity leakage into tick logic.
