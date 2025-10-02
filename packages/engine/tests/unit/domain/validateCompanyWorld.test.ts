@@ -310,6 +310,8 @@ function createCompany(): Company {
     powerDraw_W: 480,
     dutyCycle01: 1,
     efficiency01: 0.85,
+    coverage_m2: AREA_QUANTUM_M2 * 8,
+    airflow_m3_per_h: 0,
     sensibleHeatRemovalCapacity_W: 0
   } satisfies ZoneDeviceInstance;
 
@@ -344,6 +346,8 @@ function createCompany(): Company {
     powerDraw_W: 250,
     dutyCycle01: 1,
     efficiency01: 0.8,
+    coverage_m2: 0,
+    airflow_m3_per_h: 0,
     sensibleHeatRemovalCapacity_W: 0
   } satisfies RoomDeviceInstance;
 
@@ -369,6 +373,8 @@ function createCompany(): Company {
     powerDraw_W: 3_500,
     dutyCycle01: 1,
     efficiency01: 0.9,
+    coverage_m2: 0,
+    airflow_m3_per_h: 0,
     sensibleHeatRemovalCapacity_W: 0
   } satisfies StructureDeviceInstance;
 

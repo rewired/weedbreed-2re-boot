@@ -195,6 +195,9 @@ Fixed order per tick:
 }
 ```
 
+- **Coverage vs. demand:** Phase 1 sums `coverage_m2` across zone devices and scales useful work by `min(1, coverage/zoneArea)`. Emit `zone.capacity.coverage.warn` when the ratio < 1.
+- **Airflow audit:** Airflow totals yield **ACH**; raise `zone.capacity.airflow.warn` for ACH < 1 and expose totals for downstream models.
+
 ---
 
 ## 9) Engine vs Façade vs Transport (SEC §11)

@@ -2,6 +2,10 @@
   "id": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
   "kind": "Lamp",
   "name": "LED VegLight 600",
+  "placementScope": "zone",
+  "power_W": 600,
+  "efficiency01": 0.7,
+  "coverage_m2": 1.2,
   "quality": 0.95,
   "complexity": 0.2,
   "lifetime_h": 52560,
@@ -46,8 +50,5 @@
   },
   "allowedRoomPurposes": [
     "growroom"
-  ],
-  "placementScope": [
-    "zone"
   ]
 }

@@ -123,6 +123,10 @@ export interface DeviceInstance extends DomainEntity, SluggedEntity {
   readonly dutyCycle01: number;
   /** Useful-work efficiency on the canonical [0,1] scale per SEC §6.1. */
   readonly efficiency01: number;
+  /** Effective floor coverage provided by the device expressed in square metres. */
+  readonly coverage_m2: number;
+  /** Volumetric airflow throughput expressed in cubic metres per hour. */
+  readonly airflow_m3_per_h: number;
   /** Maximum sensible heat removal capacity expressed in watts. */
   readonly sensibleHeatRemovalCapacity_W: number;
 }

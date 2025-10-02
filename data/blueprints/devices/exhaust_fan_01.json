@@ -2,6 +2,11 @@
   "id": "f5d5c5a0-1b2c-4d3e-8f9a-0b1c2d3e4f5a",
   "kind": "Ventilation",
   "name": "Exhaust Fan 4-inch",
+  "placementScope": "zone",
+  "power_W": 50,
+  "efficiency01": 0.7,
+  "coverage_m2": 5,
+  "airflow_m3_per_h": 170,
   "quality": 0.7,
   "complexity": 0.1,
   "lifetime_h": 17520,
@@ -40,8 +45,5 @@
   },
   "allowedRoomPurposes": [
     "growroom"
-  ],
-  "placementScope": [
-    "zone"
   ]
 }

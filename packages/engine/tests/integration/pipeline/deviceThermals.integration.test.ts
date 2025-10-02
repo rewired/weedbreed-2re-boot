@@ -31,6 +31,8 @@ describe('Tick pipeline — device thermal effects', () => {
       powerDraw_W: 600,
       dutyCycle01: 1,
       efficiency01: 0.2,
+      coverage_m2: 60,
+      airflow_m3_per_h: 0,
       sensibleHeatRemovalCapacity_W: 0
     } satisfies ZoneDeviceInstance;
 
@@ -45,6 +47,8 @@ describe('Tick pipeline — device thermal effects', () => {
       powerDraw_W: 800,
       dutyCycle01: 1,
       efficiency01: 0.6,
+      coverage_m2: 60,
+      airflow_m3_per_h: 0,
       sensibleHeatRemovalCapacity_W: 500
     } satisfies ZoneDeviceInstance;
 

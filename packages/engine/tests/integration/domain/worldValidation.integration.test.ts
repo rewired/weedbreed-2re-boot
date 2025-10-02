@@ -96,6 +96,8 @@ function buildInvalidCompany(): Company {
             powerDraw_W: -150,
             dutyCycle01: 1.1,
             efficiency01: -0.1,
+            coverage_m2: -5,
+            airflow_m3_per_h: -10,
             sensibleHeatRemovalCapacity_W: -10
           }
         ],
@@ -137,6 +139,8 @@ function buildInvalidCompany(): Company {
                     powerDraw_W: -50,
                     dutyCycle01: -0.5,
                     efficiency01: 1.5,
+                    coverage_m2: -1,
+                    airflow_m3_per_h: -2,
                     sensibleHeatRemovalCapacity_W: -5
                   }
                 ],
@@ -174,7 +178,12 @@ function buildInvalidCompany(): Company {
                   'zone' as unknown as RoomDeviceInstance['placementScope'],
                 quality01: 0.5,
                 condition01: 0.5,
-                powerDraw_W: 100
+                powerDraw_W: 100,
+                dutyCycle01: 1,
+                efficiency01: 0.5,
+                coverage_m2: 0,
+                airflow_m3_per_h: 0,
+                sensibleHeatRemovalCapacity_W: 0
               }
             ],
             zones: [

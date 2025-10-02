@@ -95,6 +95,8 @@ const BASE_WORLD = {
                   powerDraw_W: 450,
                   dutyCycle01: 1,
                   efficiency01: 0.9,
+                  coverage_m2: 30,
+                  airflow_m3_per_h: 0,
                   sensibleHeatRemovalCapacity_W: 0
                 }
               ]
@@ -112,6 +114,8 @@ const BASE_WORLD = {
               powerDraw_W: 320,
               dutyCycle01: 1,
               efficiency01: 0.85,
+              coverage_m2: 0,
+              airflow_m3_per_h: 0,
               sensibleHeatRemovalCapacity_W: 0
             }
           ]
@@ -129,6 +133,8 @@ const BASE_WORLD = {
           powerDraw_W: 500,
           dutyCycle01: 1,
           efficiency01: 0.88,
+          coverage_m2: 0,
+          airflow_m3_per_h: 0,
           sensibleHeatRemovalCapacity_W: 0
         }
       ]

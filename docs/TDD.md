@@ -234,7 +234,7 @@ it('zone without cultivationMethod fails validation', async () => {
 ## 10) Power→Heat Coupling (SEC §6.1)
 
 - Non‑useful electrical power becomes **sensible heat** in hosting zone unless exported. Assert temperature delta is positive given power draw and insufficient removal capacity.
-    
+
 
 ```ts
 // packages/engine/tests/unit/thermo/heat.spec.ts
@@ -250,6 +250,28 @@ it('adds sensible heat proportional to power draw and duty', () => {
   });
 
   expect(delta).toBeGreaterThan(0);
+});
+```
+
+---
+
+## 10.1) Zone capacity diagnostics (SEC §6)
+
+- Phase 1 clamps device impact to `coverage_m2 / zoneArea` when < 1. Warn via `zone.capacity.coverage.warn` and surface totals.
+- Airflow totals compute ACH; emit `zone.capacity.airflow.warn` when ACH < 1.
+
+```
+// packages/engine/tests/integration/pipeline/zoneCapacity.integration.test.ts
+import { describe, expect, it } from 'vitest';
+
+describe('Phase 1 zone capacity diagnostics', () => {
+  it('clamps device effectiveness when coverage undershoots demand', () => {
+    // assert coverage ratio scales heat delta and warning triggers
+  });
+
+  it('warns when airflow-derived ACH drops below 1', () => {
+    // expect ACH warning + totals in runtime snapshot
+  });
 });
 ```
 
