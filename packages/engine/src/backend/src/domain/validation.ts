@@ -213,6 +213,20 @@ function validateDevice(
       message: 'device sensible heat removal capacity must be non-negative'
     });
   }
+
+  if (device.coverage_m2 < 0) {
+    issues.push({
+      path: `${path}.coverage_m2`,
+      message: 'device coverage_m2 must be non-negative'
+    });
+  }
+
+  if (device.airflow_m3_per_h < 0) {
+    issues.push({
+      path: `${path}.airflow_m3_per_h`,
+      message: 'device airflow_m3_per_h must be non-negative'
+    });
+  }
 }
 
 /**

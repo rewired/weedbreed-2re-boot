@@ -2,6 +2,11 @@
   "id": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
   "kind": "ClimateUnit",
   "name": "CoolAir Split 3000",
+  "placementScope": "zone",
+  "power_W": 1200,
+  "efficiency01": 0.65,
+  "coverage_m2": 25,
+  "airflow_m3_per_h": 350,
   "quality": 0.9,
   "complexity": 0.4,
   "lifetime_h": 35040,
@@ -50,8 +55,5 @@
   },
   "allowedRoomPurposes": [
     "growroom"
-  ],
-  "placementScope": [
-    "zone"
   ]
 }

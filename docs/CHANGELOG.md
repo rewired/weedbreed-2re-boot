@@ -1,5 +1,10 @@
 # Changelog
 
+### #34 WB-027 device capacity diagnostics & blueprint schema hardening
+- Introduced a Zod-backed device blueprint schema enforcing `power_W`, `efficiency01`, and at least one of `coverage_m2`/`airflow_m3_per_h`, exporting the validator for downstream loaders and adding unit coverage (including live JSON fixtures).
+- Normalised device instances with `coverage_m2`/`airflow_m3_per_h` fields, updated validation, demo fixtures, and pipeline logic to aggregate coverage & airflow totals, clamp effectiveness by coverage ratio, and emit `zone.capacity.coverage.warn` / `zone.capacity.airflow.warn` diagnostics when undersized.
+- Added integration tests verifying the new runtime totals and warnings, refreshed SEC/DD/TDD guidance, and migrated device blueprints to the canonical placement scope + capacity fields.
+
 ### #33 WB-026 zone air mass bootstrap derivation
 - Extended the zone domain contract and Zod schema with a documented `airMass_kg`
   field that downstream thermodynamics consume directly.

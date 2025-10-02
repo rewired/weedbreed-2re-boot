@@ -339,8 +339,10 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 - **Air/Climate:** HVAC devices contribute sensible/latent heat removal/addition and airflow. Well-mixed bucket as baseline (**upgrade path:** alternative psychrometric models like Magnus/Penman–Monteith may be slotted under the same interface later).
     
 - **CO₂:** injection rate limited by device spec and safety; leaks/venting modeled at zone level.
-    
+
 - **Dehumidification:** water removal from air, respecting device capacity and psychrometric constraints.
+
+- **Coverage & Airflow diagnostics:** Phase 1 aggregates device `coverage_m2` per zone; if effective coverage < zone floor area the stage clamps device effectiveness to the coverage ratio and emits `zone.capacity.coverage.warn`. Airflow totals produce **ACH** (air changes/hour); if ACH < 1, emit `zone.capacity.airflow.warn` and surface totals for downstream modelling.
     
 
 ### 6.1 Device Heat & Power Coupling (SHALL)

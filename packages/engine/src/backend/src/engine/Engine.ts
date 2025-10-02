@@ -1,4 +1,4 @@
-import type { SimulationWorld } from '../domain/world.js';
+import type { SimulationWorld, Uuid } from '../domain/world.js';
 import { applyDeviceEffects } from './pipeline/applyDeviceEffects.js';
 import { updateEnvironment } from './pipeline/updateEnvironment.js';
 import { applyIrrigationAndNutrients } from './pipeline/applyIrrigationAndNutrients.js';
@@ -12,8 +12,21 @@ export interface EngineInstrumentation {
   readonly onStageComplete?: (stage: StepName, world: SimulationWorld) => void;
 }
 
+export interface EngineDiagnostic {
+  readonly scope: 'zone';
+  readonly code: string;
+  readonly zoneId: Uuid;
+  readonly message: string;
+  readonly metadata?: Record<string, unknown>;
+}
+
+export interface EngineDiagnosticsSink {
+  emit(diagnostic: EngineDiagnostic): void;
+}
+
 export interface EngineRunContext {
   readonly instrumentation?: EngineInstrumentation;
+  readonly diagnostics?: EngineDiagnosticsSink;
   readonly [key: string]: unknown;
 }
 

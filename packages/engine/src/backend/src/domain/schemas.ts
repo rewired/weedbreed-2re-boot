@@ -77,6 +77,10 @@ const baseDeviceSchema = domainEntitySchema
     powerDraw_W: finiteNumber.min(0, 'powerDraw_W cannot be negative.'),
     dutyCycle01: finiteNumber.min(0, 'dutyCycle01 must be >= 0.').max(1, 'dutyCycle01 must be <= 1.'),
     efficiency01: finiteNumber.min(0, 'efficiency01 must be >= 0.').max(1, 'efficiency01 must be <= 1.'),
+    coverage_m2: finiteNumber.min(0, 'coverage_m2 cannot be negative.').default(0),
+    airflow_m3_per_h: finiteNumber
+      .min(0, 'airflow_m3_per_h cannot be negative.')
+      .default(0),
     sensibleHeatRemovalCapacity_W: finiteNumber.min(
       0,
       'sensibleHeatRemovalCapacity_W cannot be negative.'
