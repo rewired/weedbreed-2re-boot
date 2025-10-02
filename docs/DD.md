@@ -87,6 +87,11 @@ Hierarchy and constraints:
 
 **Blueprints are templates**; never mutated at runtime. **Prices are separated** from device blueprints.
 
+### 4.2 Price Maps
+
+- `/data/prices/devicePrices.json` captures device **CapEx** (`capitalExpenditure`) and **maintenance** progression (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`).
+- `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` (€/kWh)** and **`price_water` (€/m³)** only; nutrient costs are derived from irrigation/substrate consumption, not a standalone utility price.
+
 ### 4.1 Cultivation Method (minimum shape)
 
 ```json

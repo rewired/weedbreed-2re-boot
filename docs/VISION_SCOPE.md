@@ -181,6 +181,8 @@
 - Recurring costs use **per‑hour** units; **no `*_per_tick`**.
     
 - **Tariffs:** Backend exposes **`price_electricity`** (€/kWh) and **`price_water`** (€/m³). Difficulty may set **`energyPriceFactor`/`energyPriceOverride`** and **`waterPriceFactor`/`waterPriceOverride`** (**override wins**). Effective tariffs are computed **once at simulation start**.
+- **Tariff source:** `/data/prices/utilityPrices.json` is the single source of truth for electricity & water tariffs; nutrient pricing flows through irrigation/substrate consumption instead of a utility entry.
+- **Device maintenance pricing:** `/data/prices/devicePrices.json` carries `capitalExpenditure`, `baseMaintenanceCostPerHour`, and `costIncreasePer1000Hours` for maintenance curves.
     
 - **Electric power → heat:** Non‑useful electrical power becomes **sensible heat** in the hosting zone unless exported.
     

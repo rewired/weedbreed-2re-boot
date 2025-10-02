@@ -260,14 +260,15 @@ Validation occurs at load time; on failure, the engine must not start.
     
 - **Aggregation (SHOULD):** Reports integrate to day/week/month.
     
-- **Consistency (SHALL):** Resource prices use unit pricing (e.g., `price_per_kWh`, `price_per_m3`, `price_per_kg`).
+- **Consistency (SHALL):** Resource prices use unit pricing (e.g., `price_electricity` per kWh, `price_water` per m³, `price_per_kg`).
+- **Price maps (SHALL):** `/data/prices/devicePrices.json` enumerates device **CapEx** (`capitalExpenditure`) and **maintenance curve parameters** (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`). `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` (€/kWh)** and **`price_water` (€/m³)**. Nutrient inputs are costed via irrigation/substrate consumption — there is **no nutrient tariff entry** in the utility map.
     
 - **Legacy (MAY):** Migrate `per_tick → per_hour` via configured tick length.
     
 
 #### 3.6.1 Electricity Tariff Policy (STRICT)
 
-- **Backend tariff (SHALL):** The **electricity price is fixed and configured in backend settings** as `price_per_kWh` (currency per kWh).
+- **Backend tariff (SHALL):** The **electricity price is fixed and configured in backend settings** as `price_electricity` (currency per kWh) sourced from `/data/prices/utilityPrices.json`.
     
 - **Difficulty modifiers (SHALL):** Difficulty may **either**
     
@@ -278,7 +279,7 @@ Validation occurs at load time; on failure, the engine must not start.
         
 - **Determinism (SHALL):** The effective tariff **MUST** be fully determined by the loaded configuration at simulation start (including difficulty). Changing difficulty mid-run **SHALL** be disallowed or treated as an explicit administrative migration.
     
-- **Computation (SHALL):** Device energy use integrates **power (kW) × time (h) → kWh**, then multiplies by the **effective `price_per_kWh`** to accrue cost.
+- **Computation (SHALL):** Device energy use integrates **power (kW) × time (h) → kWh**, then multiplies by the **effective `price_electricity`** to accrue cost.
     
 - **Reporting (SHOULD):** Read-models expose both **consumption (kWh)** and **cost** per period.
     
@@ -515,7 +516,7 @@ Validation occurs at load time; on failure, the engine must not start.
 
 - **Consumption:** energy (kWh), water (m³ or L), nutrients (kg) aggregated per tick.
     
-- **Energy pricing:** costs computed using **effective `price_per_kWh`** per §3.6.1.
+- **Energy pricing:** costs computed using **effective `price_electricity`** per §3.6.1.
     
 - **Maintenance:** time-dependent maintenance curves per device; replacement suggestions to planning.
     
