@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import { noDuplicateSimConstantsRule } from "./tools/eslint/rules/no-duplicate-sim-constants.js";
+import { noMathRandomRule } from "./tools/eslint/rules/no-math-random.js";
 
 export default tseslint.config(
   {
@@ -20,13 +21,15 @@ export default tseslint.config(
     plugins: {
       "wb-sim": {
         rules: {
-          "no-duplicate-sim-constants": noDuplicateSimConstantsRule
+          "no-duplicate-sim-constants": noDuplicateSimConstantsRule,
+          "no-math-random": noMathRandomRule
         }
       }
     },
     rules: {
       "@typescript-eslint/explicit-module-boundary-types": "error",
-      "wb-sim/no-duplicate-sim-constants": "error"
+      "wb-sim/no-duplicate-sim-constants": "error",
+      "wb-sim/no-math-random": "error"
     }
   }
 );
