@@ -56,11 +56,3 @@
 > * If issues already exist: self-assign and begin with **WB-001** → **WB-002** → **WB-005/008/009** → **WB-018** → **WB-015/024**.
 > * If no issues: generate them from `/tasks.json` (UTF-8), then proceed as above.
 
----
-
-## Quick-Tipps
-
-* Wenn du Codex die Issues erstellen lässt: gib ihm die **Label-Liste** gleich mit oder lass ihn ohne Labels starten und später taggen.
-* Beobachte den ersten PR (WB-001): stimmt Workspace-Layout und CI? Wenn ja, freie Fahrt für die restliche Kette.
-
-Willst du, dass ich dir die `tasks.json` jetzt noch einmal **clean (UTF-8), mit 0.25 und minimalen Labels** poste? Ich kann sie dir hier direkt liefern.
