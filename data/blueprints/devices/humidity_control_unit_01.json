@@ -26,7 +26,6 @@
   "efficiencyDegeneration": 1.5,
   "maintenance": {
     "intervalDays": 45,
-    "costPerService_eur": 45.0,
     "hoursPerService": 1.25
   },
   "settings": {

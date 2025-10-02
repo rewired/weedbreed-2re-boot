@@ -246,6 +246,18 @@
 - Added the `@/backend` path alias to the façade Vitest config so shared engine
   modules resolve consistently during façade test runs.
 
+### #12 Price map enforcement for device service costs
+- Removed per-service maintenance costs from device blueprints and migrated the
+  values into `/data/prices/devicePrices.json` under the new
+  `maintenanceServiceCost` field.
+- Hardened the device blueprint schema to reject any monetary keys at load time
+  and added unit coverage to catch regressions.
+- Added a canonical schema + tests for the device price map to ensure all
+  entries expose `maintenanceServiceCost` alongside the existing maintenance
+  curve parameters.
+- Updated SEC, DD, TDD, and ADR-0004 to document the separation of blueprint
+  metadata from pricing data.
+
 ### #11 WB-004 validation guard fixes
 - Hardened light schedule validation to reject non-finite values before range
   checks, preventing NaN/Infinity leakage into tick logic.
