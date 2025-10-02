@@ -1,5 +1,16 @@
 # Changelog
 
+### #25 WB-020 deterministic tariff resolution helper
+- Added `resolveTariffs(config)` to the engine backend utilities so scenarios
+  deterministically derive electricity and water tariffs with override-first
+  precedence before multiplicative difficulty factors.
+- Wired the bootstrap pipeline to memoise resolved tariffs per difficulty,
+  exposing the immutable tariff map on `EngineBootstrapConfig` and the façade
+  integration surface for downstream consumers.
+- Enriched `data/configs/difficulty.json` with the documented tariff override
+  and factor knobs and expanded Vitest unit/integration coverage to exercise
+  base-only, factor-only, override-only, and mixed configurations.
+
 ### #24 WB-019 company location validation consolidation
 - Updated the shared `nonEmptyString` schema to trim incoming values before
   enforcing non-empty constraints so world tree strings remain normalised at
