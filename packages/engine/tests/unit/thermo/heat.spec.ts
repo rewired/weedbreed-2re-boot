@@ -9,7 +9,8 @@ import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat.js';
 
 const BASE_ZONE = {
   floorArea_m2: 50,
-  height_m: 3
+  height_m: 3,
+  airMass_kg: 50 * 3 * AIR_DENSITY_KG_PER_M3
 } as const;
 
 const BASE_DEVICE = {
@@ -22,7 +23,7 @@ describe('applyDeviceHeat', () => {
   it('returns a positive temperature delta for waste heat', () => {
     const deltaC = applyDeviceHeat(BASE_ZONE, BASE_DEVICE);
 
-    const airMassKg = BASE_ZONE.floorArea_m2 * BASE_ZONE.height_m * AIR_DENSITY_KG_PER_M3;
+    const airMassKg = BASE_ZONE.airMass_kg;
     const wastePower_W =
       BASE_DEVICE.powerDraw_W * (1 - BASE_DEVICE.efficiency01) * BASE_DEVICE.dutyCycle01;
     const expectedDelta =

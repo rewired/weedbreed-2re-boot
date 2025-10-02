@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  AIR_DENSITY_KG_PER_M3,
-  CP_AIR_J_PER_KG_K,
-  HOURS_PER_TICK
-} from '@/backend/src/constants/simConstants.js';
+import { CP_AIR_J_PER_KG_K, HOURS_PER_TICK } from '@/backend/src/constants/simConstants.js';
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
 import { runTick } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
@@ -63,7 +59,7 @@ describe('Tick pipeline — device thermal effects', () => {
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
     const tickHours = (ctx as { tickDurationHours: number }).tickDurationHours ?? HOURS_PER_TICK;
     const tickSeconds = tickHours * SECONDS_PER_HOUR;
-    const airMassKg = zone.floorArea_m2 * zone.height_m * AIR_DENSITY_KG_PER_M3;
+    const airMassKg = zone.airMass_kg;
 
     const wasteLight_W = lightingDevice.powerDraw_W * (1 - lightingDevice.efficiency01);
     const wasteHvac_W = hvacDevice.powerDraw_W * (1 - hvacDevice.efficiency01);

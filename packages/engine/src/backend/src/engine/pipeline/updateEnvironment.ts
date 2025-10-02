@@ -1,4 +1,8 @@
-import { AIR_DENSITY_KG_PER_M3, CP_AIR_J_PER_KG_K } from '../../constants/simConstants.js';
+import {
+  AIR_DENSITY_KG_PER_M3,
+  CP_AIR_J_PER_KG_K,
+  ROOM_DEFAULT_HEIGHT_M
+} from '../../constants/simConstants.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
 import type { EngineRunContext } from '../Engine.js';
 import {
@@ -26,7 +30,12 @@ function clamp01(value: number): number {
 }
 
 function resolveAirMassKg(zone: Zone): number {
-  const volume_m3 = zone.floorArea_m2 * zone.height_m;
+  if (Number.isFinite(zone.airMass_kg) && zone.airMass_kg > 0) {
+    return zone.airMass_kg;
+  }
+
+  const height = Number.isFinite(zone.height_m) && zone.height_m > 0 ? zone.height_m : ROOM_DEFAULT_HEIGHT_M;
+  const volume_m3 = zone.floorArea_m2 * height;
 
   if (!Number.isFinite(volume_m3) || volume_m3 <= 0) {
     return 0;
