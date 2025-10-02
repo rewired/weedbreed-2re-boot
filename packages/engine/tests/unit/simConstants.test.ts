@@ -7,6 +7,7 @@ import {
   HOURS_PER_MONTH,
   HOURS_PER_TICK,
   HOURS_PER_YEAR,
+  LIGHT_SCHEDULE_GRID_HOURS,
   MONTHS_PER_YEAR,
   ROOM_DEFAULT_HEIGHT_M,
   SIM_CONSTANTS
@@ -14,7 +15,8 @@ import {
 
 describe('simConstants', () => {
   it('exposes canonical SEC values', () => {
-    expect(AREA_QUANTUM_M2).toBe(0.25);
+    expect(AREA_QUANTUM_M2).toBe(LIGHT_SCHEDULE_GRID_HOURS);
+    expect(LIGHT_SCHEDULE_GRID_HOURS).toBeCloseTo(1 / 4);
     expect(ROOM_DEFAULT_HEIGHT_M).toBe(3);
     expect(HOURS_PER_TICK).toBe(1);
     expect(HOURS_PER_DAY).toBe(24);
@@ -28,6 +30,9 @@ describe('simConstants', () => {
     expect(Object.isFrozen(SIM_CONSTANTS)).toBe(true);
     expect(Reflect.set(SIM_CONSTANTS, 'AREA_QUANTUM_M2', 1)).toBe(false);
     expect(SIM_CONSTANTS.AREA_QUANTUM_M2).toBe(AREA_QUANTUM_M2);
+    expect(SIM_CONSTANTS.LIGHT_SCHEDULE_GRID_HOURS).toBe(
+      LIGHT_SCHEDULE_GRID_HOURS
+    );
   });
 
 });

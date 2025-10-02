@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import {
   AREA_QUANTUM_M2,
-  ROOM_DEFAULT_HEIGHT_M
+  ROOM_DEFAULT_HEIGHT_M,
+  DEFAULT_COMPANY_LOCATION_LON,
+  DEFAULT_COMPANY_LOCATION_LAT,
+  DEFAULT_COMPANY_LOCATION_CITY,
+  DEFAULT_COMPANY_LOCATION_COUNTRY
 } from '@/backend/src/constants/simConstants.js';
 import {
   type Company,
@@ -66,6 +70,12 @@ function buildInvalidCompany(): Company {
     id: uuid('10000000-0000-0000-0000-000000000001'),
     slug: 'invalid-company',
     name: 'Invalid Company',
+    location: {
+      lon: DEFAULT_COMPANY_LOCATION_LON,
+      lat: DEFAULT_COMPANY_LOCATION_LAT,
+      cityName: DEFAULT_COMPANY_LOCATION_CITY,
+      countryName: DEFAULT_COMPANY_LOCATION_COUNTRY
+    },
     structures: [
       {
         id: uuid('10000000-0000-0000-0000-000000000010'),

@@ -1,5 +1,43 @@
 # Changelog
 
+### #24 WB-019 company location validation consolidation
+- Updated the shared `nonEmptyString` schema to trim incoming values before
+  enforcing non-empty constraints so world tree strings remain normalised at
+  parse time.
+- Removed duplicate company location bounds and emptiness checks from
+  `validateCompanyWorld`, delegating structural enforcement to the Zod schema
+  layer to avoid divergent error reporting.
+- Recorded the consolidation here to highlight that business validation now
+  focuses on SEC-specific guardrails beyond baseline schema requirements.
+
+### #23 WB-018 company headquarters location metadata
+- Added Hamburg-backed default company location constants to `simConstants` and
+  documented them in the canonical constants reference for interim UI coverage.
+- Extended the domain model, schemas, and business validation to require
+  `company.location` with strict coordinate bounds and non-empty locality data.
+- Updated unit/integration coverage across engine and façade packages to supply
+  the new location metadata and assert detailed error reporting for invalid
+  coordinates.
+
+### #22 WB-017 light schedule grid constant centralisation
+- Added the SEC-mandated `LIGHT_SCHEDULE_GRID_HOURS` export to the canonical
+  `simConstants` module so photoperiod validators share the same 15 minute grid
+  source of truth as the documentation.
+- Updated world validation helpers and the related unit/integration coverage to
+  import the shared constant instead of redefining the `0.25h` grid locally.
+- Documented the new constant in `docs/constants/simConstants.md` to signal the
+  centralised reference for photoperiod light schedules.
+
+### #21 WB-016 uuid schema branding alignment
+- Branded the shared `uuidSchema` in the engine domain schemas with Zod's
+  `.brand<'Uuid'>()` helper so parsed entities infer the branded `Uuid` type
+  expected by the domain model.
+- Unblocked strict TypeScript builds that previously reported `string` vs.
+  `Uuid` incompatibilities when the schemas were annotated with explicit
+  domain entity types.
+- Confirmed the runtime validation behaviour remains unchanged, keeping
+  existing schema unit coverage relevant without modification.
+
 ### #20 Tooling - engine lint guard compliance
 - Normalised template string usage in `@wb/engine` validation helpers so numeric
   segments are explicitly stringified, satisfying the strict `restrict-template-expressions`
@@ -68,6 +106,8 @@
   `initializeFacade` so invalid payloads are rejected deterministically.
 - Expanded façade Vitest coverage with schema unit tests covering invalid zone
   payloads and placement scope enforcement.
+- Introduced the `wb-sim/no-math-random` ESLint rule to block `Math.random`
+  usage and keep all randomness routed through deterministic RNG utilities.
 
 ### #12 Tooling - facade Vitest alias parity
 - Added the `@/backend` path alias to the façade Vitest config so shared engine

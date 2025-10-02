@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import {
   AREA_QUANTUM_M2,
-  ROOM_DEFAULT_HEIGHT_M
+  ROOM_DEFAULT_HEIGHT_M,
+  DEFAULT_COMPANY_LOCATION_LON,
+  DEFAULT_COMPANY_LOCATION_LAT,
+  DEFAULT_COMPANY_LOCATION_CITY,
+  DEFAULT_COMPANY_LOCATION_COUNTRY
 } from '@/backend/src/constants/simConstants.js';
 import {
   type Company,
@@ -29,6 +33,128 @@ describe('validateCompanyWorld (unit)', () => {
 
     expect(result.ok).toBe(true);
     expect(result.issues).toHaveLength(0);
+  });
+
+  it('rejects companies missing location metadata', () => {
+    const company = withCompanyOverride(createCompany(), (current) => {
+      const clone: Company = { ...current };
+      Reflect.deleteProperty(clone, 'location');
+      return clone;
+    });
+
+    const result = validateCompanyWorld(company);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        path: 'company.location',
+        message: 'company must define a location'
+      })
+    );
+  });
+
+  it('rejects longitude coordinates outside the allowed range', () => {
+    const company = withCompanyOverride(createCompany(), (current) => ({
+      ...current,
+      location: { ...current.location, lon: 181 }
+    }));
+
+    const result = validateCompanyWorld(company);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        path: 'company.location.lon',
+        message: 'longitude must lie within [-180, 180]'
+      })
+    );
+  });
+
+  it('rejects latitude coordinates outside the allowed range', () => {
+    const company = withCompanyOverride(createCompany(), (current) => ({
+      ...current,
+      location: { ...current.location, lat: -91 }
+    }));
+
+    const result = validateCompanyWorld(company);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        path: 'company.location.lat',
+        message: 'latitude must lie within [-90, 90]'
+      })
+    );
+  });
+
+  it('rejects location coordinates that are not finite numbers', () => {
+    const company = withCompanyOverride(createCompany(), (current) => ({
+      ...current,
+      location: {
+        ...current.location,
+        lon: Number.NaN,
+        lat: Number.POSITIVE_INFINITY
+      }
+    }));
+
+    const result = validateCompanyWorld(company);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: 'company.location.lon',
+          message: 'longitude must be a finite number'
+        }),
+        expect.objectContaining({
+          path: 'company.location.lat',
+          message: 'latitude must be a finite number'
+        })
+      ])
+    );
+  });
+
+  it('rejects empty city or country metadata', () => {
+    const company = withCompanyOverride(createCompany(), (current) => ({
+      ...current,
+      location: { ...current.location, cityName: '', countryName: '   ' }
+    }));
+
+    const result = validateCompanyWorld(company);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: 'company.location.cityName',
+          message: 'city name must not be empty'
+        }),
+        expect.objectContaining({
+          path: 'company.location.countryName',
+          message: 'country name must not be empty'
+        })
+      ])
+    );
+  });
+
+  it('accepts locations located on boundary coordinates', () => {
+    const company = withCompanyOverride(createCompany(), (current) => ({
+      ...current,
+      location: { ...current.location, lon: -180, lat: -90 }
+    }));
+
+    let result = validateCompanyWorld(company);
+
+    expect(result.ok).toBe(true);
+
+    const secondCompany = withCompanyOverride(company, (current) => ({
+      ...current,
+      location: { ...current.location, lon: 180, lat: 90 }
+    }));
+
+    result = validateCompanyWorld(secondCompany);
+
+    expect(result.ok).toBe(true);
   });
 
   it('rejects zones that omit the cultivation method id', () => {
@@ -124,6 +250,14 @@ function withStructureOverride(
       index === 0 ? update(structure, index) : structure
     )
   } satisfies Company;
+}
+
+function withCompanyOverride(
+  company: Company,
+  update: (company: Company) => Company
+): Company {
+  const draft: Company = { ...company };
+  return update(draft);
 }
 
 function withRoomOverride(
@@ -238,6 +372,12 @@ function createCompany(): Company {
     id: uuid('00000000-0000-0000-0000-000000000001'),
     slug: 'company-alpha',
     name: 'Company Alpha',
+    location: {
+      lon: DEFAULT_COMPANY_LOCATION_LON,
+      lat: DEFAULT_COMPANY_LOCATION_LAT,
+      cityName: DEFAULT_COMPANY_LOCATION_CITY,
+      countryName: DEFAULT_COMPANY_LOCATION_COUNTRY
+    },
     structures: [structure]
   } satisfies Company;
 }

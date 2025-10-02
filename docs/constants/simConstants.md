@@ -11,6 +11,7 @@ normalisation mandated by the SEC.
 | Identifier | Value | Unit | Description |
 | --- | --- | --- | --- |
 | `AREA_QUANTUM_M2` | `0.25` | m² | Minimal calculable floor area for placement, zoning, and area rounding. |
+| `LIGHT_SCHEDULE_GRID_HOURS` | `0.25` | h | Photoperiod grid resolution enforcing 15 minute scheduling steps. |
 | `ROOM_DEFAULT_HEIGHT_M` | `3` | m | Default room interior height when blueprints omit overrides. |
 | `HOURS_PER_TICK` | `1` | h | Duration represented by one simulation tick (one in-game hour). |
 | `HOURS_PER_DAY` | `24` | h | Hours per in-game day (calendar invariant). |
@@ -18,6 +19,10 @@ normalisation mandated by the SEC.
 | `MONTHS_PER_YEAR` | `12` | months | Months per in-game year. |
 | `HOURS_PER_MONTH` | `720` | h | Derived: `HOURS_PER_DAY × DAYS_PER_MONTH`. |
 | `HOURS_PER_YEAR` | `8 640` | h | Derived: `HOURS_PER_MONTH × MONTHS_PER_YEAR`. |
+| `DEFAULT_COMPANY_LOCATION_LON` | `9.9937` | ° | Default headquarters longitude (Hamburg) until UI capture lands. |
+| `DEFAULT_COMPANY_LOCATION_LAT` | `53.5511` | ° | Default headquarters latitude (Hamburg) until UI capture lands. |
+| `DEFAULT_COMPANY_LOCATION_CITY` | `"Hamburg"` | — | Default headquarters city placeholder. |
+| `DEFAULT_COMPANY_LOCATION_COUNTRY` | `"Deutschland"` | — | Default headquarters country placeholder. |
 
 ## Usage guidelines
 
