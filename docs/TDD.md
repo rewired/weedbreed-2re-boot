@@ -162,22 +162,13 @@ it('rejects zone device in non-grow room', () => {
 
 ---
 
-## 7) Tick Pipeline Order (SEC §4.2)
+## 7) Tick trace instrumentation & perf harness (Engine)
 
-Order: 1) Device Effects → 2) Environment → 3) Irrigation & Nutrients → 4) Plant Physiology → 5) Harvest & Inventory → 6) Economy → 7) Commit & Telemetry
-
-```ts
-// tests/integration/pipeline/order.spec.ts
-import { expect, it } from 'vitest';
-import { runOneTickWithTrace } from '@/backend/src/engine/testHarness';
-
-it('executes fixed order', async () => {
-  const trace = await runOneTickWithTrace();
-  expect(trace.map(s => s.step)).toEqual([
-    'device-effects', 'environment', 'irrigation', 'physiology', 'harvest', 'economy', 'commit'
-  ]);
-});
-```
+- Canonical order: `applyDeviceEffects → updateEnvironment → applyIrrigationAndNutrients → advancePhysiology → applyHarvestAndInventory → applyEconomyAccrual → commitAndTelemetry` (mirrors SEC §4.2).
+- `runTick(world, ctx, { trace: true })` returns a {@link TickTrace} with monotonic `startedAtNs`, `durationNs`, `endedAtNs` and heap metrics for every stage without feeding wall-clock time into simulation logic.
+- `runOneTickWithTrace()` (engine test harness) clones the deterministic demo world and returns `{ world, context, trace }` for integration/unit assertions.
+- `withPerfHarness({ ticks })` executes repeated traced ticks and reports `{ traces, totalDurationNs, averageDurationNs, maxHeapUsedBytes }` so perf tests can guard throughput (< 5 ms avg/tick) and heap (< 64 MiB).
+- `createRecordingContext(buffer)` attaches the instrumentation hook so specs can assert that stage completions mirror the trace order.
 
 ---
 
