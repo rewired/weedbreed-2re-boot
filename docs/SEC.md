@@ -451,7 +451,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
         
     - **Plant containers:** one or more **container options** (e.g., pots by nominal liters) with **acquisition cost** and **service life** policy (degradation/replace rules).
         
-    - **Substrate:** one or more **substrate options** with **purchase unit** (e.g., per L or per kg), **density factor** to convert L↔kg if needed, and **unit price**; optional **re-use/sterilization policy**.
+    - **Substrate:** one or more **substrate options** with **`purchaseUnit`** (`"liter"|"kilogram"`), **`unitPrice_per_*`** aligned to that unit, **`densityFactor_L_per_kg`** for deterministic L↔kg conversion, and **`reusePolicy`** (sterilisation task required when `maxCycles > 1`). Cultivation and irrigation subsystems use the density factor to translate container volumes into substrate mass and moisture targets.
         
     - **Irrigation compatibility:** determined indirectly through substrate options. Irrigation method blueprints **SHALL** declare the substrate slugs they support under `compatibility.substrates`; cultivation methods inherit compatibility from the irrigation methods that list their chosen substrate.
         

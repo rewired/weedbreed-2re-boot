@@ -4,6 +4,14 @@
   "class": "substrate.coco.coir",
   "name": "Coco Coir",
   "maxCycles": 4,
+  "purchaseUnit": "liter",
+  "unitPrice_per_L": 0.55,
+  "densityFactor_L_per_kg": 8.5,
+  "reusePolicy": {
+    "maxCycles": 4,
+    "sterilizationTaskCode": "overhaul_zone_substrate",
+    "sterilizationInterval_cycles": 1
+  },
   "meta": {
     "description": "Buffered coco coir blend optimized for drain-to-waste or recirculating fertigation systems with multiple reuse cycles.",
     "advantages": [

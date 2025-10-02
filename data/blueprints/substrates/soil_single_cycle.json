@@ -4,6 +4,12 @@
   "class": "substrate.soil.single-cycle",
   "name": "Single-Cycle Soil Mix",
   "maxCycles": 1,
+  "purchaseUnit": "liter",
+  "unitPrice_per_L": 0.025,
+  "densityFactor_L_per_kg": 1.4,
+  "reusePolicy": {
+    "maxCycles": 1
+  },
   "meta": {
     "description": "Pre-charged soil mix formulated for one-and-done harvests; ideal when designers prefer a fresh medium each run.",
     "advantages": [
