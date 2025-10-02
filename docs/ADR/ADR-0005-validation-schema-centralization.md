@@ -1,7 +1,7 @@
 # ADR-0005: Validation schema centralization
 
 ## Status
-Proposed
+Accepted
 
 ## Context
 Validation schemas that gate blueprint loading currently live in `packages/facade/src/schemas/world.ts`, while the corresponding TypeScript domain types live in `packages/engine/src/backend/src/domain/entities.ts`. This split violates the SEC §3 validation mandate that calls for a single authoritative contract governing economic and blueprint inputs, increasing the risk of divergence between runtime validation and the engine's understanding of the world model.
