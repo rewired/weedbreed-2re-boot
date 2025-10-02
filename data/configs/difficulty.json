@@ -15,7 +15,11 @@
         "itemPriceMultiplier": 0.9,
         "harvestPriceMultiplier": 1.1,
         "rentPerSqmStructurePerTick": 0.1,
-        "rentPerSqmRoomPerTick": 0.2
+        "rentPerSqmRoomPerTick": 0.2,
+        "energyPriceFactor": 0.85,
+        "energyPriceOverride": 0.25,
+        "waterPriceFactor": 0.8,
+        "waterPriceOverride": 1.5
       }
     }
   },
@@ -35,7 +39,9 @@
         "itemPriceMultiplier": 1.0,
         "harvestPriceMultiplier": 1.0,
         "rentPerSqmStructurePerTick": 0.15,
-        "rentPerSqmRoomPerTick": 0.3
+        "rentPerSqmRoomPerTick": 0.3,
+        "energyPriceFactor": 1.0,
+        "waterPriceFactor": 1.0
       }
     }
   },
@@ -55,7 +61,9 @@
         "itemPriceMultiplier": 1.1,
         "harvestPriceMultiplier": 0.9,
         "rentPerSqmStructurePerTick": 0.2,
-        "rentPerSqmRoomPerTick": 0.4
+        "rentPerSqmRoomPerTick": 0.4,
+        "energyPriceFactor": 1.25,
+        "waterPriceOverride": 2.5
       }
     }
   }

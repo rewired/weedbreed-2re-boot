@@ -20,7 +20,11 @@ describe('initializeFacade', () => {
 
     expect(result.engineConfig).toEqual({
       scenarioId: 'integration',
-      verbose: true
+      verbose: true,
+      tariffs: {
+        price_electricity: 0.35,
+        price_water: 2
+      }
     });
     expect(result.companyWorld).toEqual(world);
   });
