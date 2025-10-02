@@ -1,5 +1,15 @@
 # Changelog
 
+### #41 WB-034 irrigation compatibility slug validation
+- Normalised every irrigation blueprint `compatibility.substrates` entry to the real substrate
+  slugs shipped under `/data/blueprints/substrates`, removing phantom media names and keeping
+  scenario metadata aligned with available inventory.
+- Added an irrigation blueprint parser that validates compatibility entries against the
+  known substrate slug set and fails fast when unknown media sneak in, with unit coverage
+  for the repository fixtures and regression cases.
+- Expanded cultivation compatibility tests so method defaults and substrate options resolve
+  to at least one compatible irrigation blueprint automatically, preventing future drift.
+
 ### #40 WB-033 substrate density enforcement
 - Enriched every substrate blueprint with `purchaseUnit`, `unitPrice_per_*`, `densityFactor_L_per_kg`,
   and explicit `reusePolicy` metadata aligned with SEC §7.5 so cultivation tooling can convert

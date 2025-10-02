@@ -22,9 +22,9 @@
   },
   "compatibility": {
     "substrates": [
-      "soil",
-      "coco",
-      "rockwool"
+      "coco-coir",
+      "soil-single-cycle",
+      "soil-multi-cycle"
     ],
     "methods": [
       "sog",

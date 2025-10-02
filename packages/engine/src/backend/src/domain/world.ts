@@ -3,6 +3,7 @@ export * from './schemas.js';
 export * from './validation.js';
 export * from './blueprints/deviceBlueprint.js';
 export * from './blueprints/substrateBlueprint.js';
+export * from './blueprints/irrigationBlueprint.js';
 export * from './pricing/devicePriceMap.js';
 export * from '../device/createDeviceInstance.js';
 export * from '../device/condition.js';
