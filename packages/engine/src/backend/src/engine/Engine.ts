@@ -80,8 +80,8 @@ export type PipelineStage = (
 
 const PIPELINE_DEFINITION: ReadonlyArray<readonly [StepName, PipelineStage]> = [
   ['applyDeviceEffects', applyDeviceEffects],
-  ['updateEnvironment', updateEnvironment],
   ['applySensors', applySensors],
+  ['updateEnvironment', updateEnvironment],
   ['applyIrrigationAndNutrients', applyIrrigationAndNutrients],
   ['advancePhysiology', advancePhysiology],
   ['applyHarvestAndInventory', applyHarvestAndInventory],

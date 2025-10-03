@@ -1,5 +1,14 @@
 # Changelog
 
+### #54 WB-047 sensor sampling before environment integration
+- Reordered the Engine tick pipeline so `applySensors` executes immediately after
+  `applyDeviceEffects`, capturing zone conditions before `updateEnvironment`
+  integrates actuator deltas as required by SEC §4.2.
+- Updated Pattern D integration coverage and the pipeline order trace assertion
+  to reflect the new sequencing while keeping runtime cleanup semantics intact.
+- Revised SEC, DD, and TDD documentation to call out the dedicated sensor stage
+  and its placement ahead of environmental integration.
+
 ### #53 WB-046 idle tick immutability guard
 - Updated `commitAndTelemetry` to return the existing world snapshot untouched
   (including `simTimeHours`) when no pipeline stage mutated state, matching the
