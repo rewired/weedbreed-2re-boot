@@ -1,76 +1,7 @@
-import {
-  AIR_DENSITY_KG_PER_M3,
-  CP_AIR_J_PER_KG_K,
-  FLOAT_TOLERANCE,
-  ROOM_DEFAULT_HEIGHT_M,
-  SECONDS_PER_HOUR
-} from '../../constants/simConstants.js';
+import { FLOAT_TOLERANCE } from '../../constants/simConstants.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
 import type { EngineRunContext } from '../Engine.js';
-import {
-  clearDeviceEffectsRuntime,
-  getDeviceEffectsRuntime,
-  resolveTickHours
-} from './applyDeviceEffects.js';
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  if (value <= 0) {
-    return 0;
-  }
-
-  if (value >= 1) {
-    return 1;
-  }
-
-  return value;
-}
-
-function resolveAirMassKg(zone: Zone): number {
-  if (Number.isFinite(zone.airMass_kg) && zone.airMass_kg > 0) {
-    return zone.airMass_kg;
-  }
-
-  const height = Number.isFinite(zone.height_m) && zone.height_m > 0 ? zone.height_m : ROOM_DEFAULT_HEIGHT_M;
-  const volume_m3 = zone.floorArea_m2 * height;
-
-  if (!Number.isFinite(volume_m3) || volume_m3 <= 0) {
-    return 0;
-  }
-
-  return volume_m3 * AIR_DENSITY_KG_PER_M3;
-}
-
-function computeRemovalDeltaC(zone: Zone, tickHours: number): number {
-  const airMassKg = resolveAirMassKg(zone);
-
-  if (airMassKg === 0) {
-    return 0;
-  }
-
-  const tickSeconds = tickHours * SECONDS_PER_HOUR;
-  const removalPower_W = zone.devices.reduce((total, device) => {
-    const duty = clamp01(device.dutyCycle01);
-    const capacity = Math.max(0, device.sensibleHeatRemovalCapacity_W);
-
-    if (capacity === 0 || duty === 0) {
-      return total;
-    }
-
-    return total + capacity * duty;
-  }, 0);
-
-  if (removalPower_W === 0) {
-    return 0;
-  }
-
-  const joules = removalPower_W * tickSeconds;
-
-  return joules / (airMassKg * CP_AIR_J_PER_KG_K);
-}
+import { clearDeviceEffectsRuntime, getDeviceEffectsRuntime } from './applyDeviceEffects.js';
 
 function updateZoneTemperature(zone: Zone, netDeltaC: number): Zone {
   if (Math.abs(netDeltaC) < FLOAT_TOLERANCE) {
@@ -86,6 +17,74 @@ function updateZoneTemperature(zone: Zone, netDeltaC: number): Zone {
   } satisfies Zone;
 }
 
+function clampHumidity(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  if (value <= 0) {
+    return 0;
+  }
+
+  if (value >= 100) {
+    return 100;
+  }
+
+  return value;
+}
+
+function updateZoneHumidity(zone: Zone, deltaRH_pct: number): Zone {
+  if (Math.abs(deltaRH_pct) < FLOAT_TOLERANCE) {
+    return zone;
+  }
+
+  const currentRaw = zone.environment.relativeHumidity_pct;
+  const current = Number.isFinite(currentRaw) ? currentRaw : 0;
+  const next = clampHumidity(current + deltaRH_pct);
+
+  if (Math.abs(next - current) < FLOAT_TOLERANCE) {
+    return zone;
+  }
+
+  return {
+    ...zone,
+    environment: {
+      ...zone.environment,
+      relativeHumidity_pct: next
+    }
+  } satisfies Zone;
+}
+
+function updateZoneLighting(zone: Zone, ppfd: number, dli_inc: number): Zone {
+  const nextPPFD = Number.isFinite(ppfd) && ppfd > 0 ? ppfd : 0;
+  const nextDLI = Number.isFinite(dli_inc) && dli_inc > 0 ? dli_inc : 0;
+
+  if (nextPPFD <= 0 && nextDLI <= 0) {
+    return zone;
+  }
+
+  let changed = false;
+  let draft: Zone = zone;
+
+  if (Math.abs(nextPPFD - zone.ppfd_umol_m2s) > FLOAT_TOLERANCE) {
+    draft = {
+      ...draft,
+      ppfd_umol_m2s: nextPPFD
+    } satisfies Zone;
+    changed = true;
+  }
+
+  if (Math.abs(nextDLI - draft.dli_mol_m2d_inc) > FLOAT_TOLERANCE) {
+    draft = {
+      ...draft,
+      dli_mol_m2d_inc: nextDLI
+    } satisfies Zone;
+    changed = true;
+  }
+
+  return changed ? draft : zone;
+}
+
 export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
   const runtime = getDeviceEffectsRuntime(ctx);
 
@@ -93,8 +92,10 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
     return world;
   }
 
-  const tickHours = resolveTickHours(ctx);
   const zoneHeatMap = runtime.zoneTemperatureDeltaC;
+  const zoneHumidityMap = runtime.zoneHumidityDeltaPct;
+  const zonePPFDMap = runtime.zonePPFD_umol_m2s;
+  const zoneDLIMap = runtime.zoneDLI_mol_m2d_inc;
 
   let structuresChanged = false;
 
@@ -106,16 +107,24 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
 
       const nextZones = room.zones.map((zone) => {
         const additionDeltaC = zoneHeatMap.get(zone.id) ?? 0;
-        const removalDeltaC = computeRemovalDeltaC(zone, tickHours);
-        const netDeltaC = additionDeltaC - removalDeltaC;
+        const netDeltaC = additionDeltaC;
 
-        const nextZone = updateZoneTemperature(zone, netDeltaC);
+        let nextZone = updateZoneTemperature(zone, netDeltaC);
+        zoneHeatMap.delete(zone.id);
+
+        const deltaRH_pct = zoneHumidityMap.get(zone.id) ?? 0;
+        nextZone = updateZoneHumidity(nextZone, deltaRH_pct);
+        zoneHumidityMap.delete(zone.id);
+
+        const ppfd = zonePPFDMap.get(zone.id) ?? 0;
+        const dli_inc = zoneDLIMap.get(zone.id) ?? 0;
+        nextZone = updateZoneLighting(nextZone, ppfd, dli_inc);
+        zonePPFDMap.delete(zone.id);
+        zoneDLIMap.delete(zone.id);
 
         if (nextZone !== zone) {
           zonesChanged = true;
         }
-
-        zoneHeatMap.delete(zone.id);
 
         return nextZone;
       });

@@ -19,3 +19,19 @@ export * from './IIrrigationService.js';
 export * from './IAirflowActuator.js';
 export * from './IFiltrationUnit.js';
 export * from './ISensor.js';
+
+export type {
+  IThermalActuator,
+  ThermalActuatorInputs,
+  ThermalActuatorOutputs
+} from './IThermalActuator.js';
+export type {
+  IHumidityActuator,
+  HumidityActuatorInputs,
+  HumidityActuatorOutputs
+} from './IHumidityActuator.js';
+export type {
+  ILightEmitter,
+  LightEmitterInputs,
+  LightEmitterOutputs
+} from './ILightEmitter.js';

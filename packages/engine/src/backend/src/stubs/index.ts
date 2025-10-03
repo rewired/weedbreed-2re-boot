@@ -11,3 +11,7 @@ export * from './HumidityActuatorStub.js';
 export * from './LightEmitterStub.js';
 export * from './NutrientBufferStub.js';
 export * from './IrrigationServiceStub.js';
+
+export { createThermalActuatorStub } from './ThermalActuatorStub.js';
+export { createHumidityActuatorStub } from './HumidityActuatorStub.js';
+export { createLightEmitterStub } from './LightEmitterStub.js';

@@ -3,13 +3,21 @@ import {
   HOURS_PER_TICK,
   ROOM_DEFAULT_HEIGHT_M
 } from '../../constants/simConstants.js';
+import type {
+  HumidityActuatorInputs,
+  LightEmitterInputs,
+  ThermalActuatorInputs
+} from '../../domain/interfaces/index.js';
+import type { ZoneDeviceInstance } from '../../domain/entities.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
+import { createHumidityActuatorStub, createLightEmitterStub, createThermalActuatorStub } from '../../stubs/index.js';
 import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
-import { applyDeviceHeat } from '../thermo/heat.js';
 
 export interface DeviceEffectsRuntime {
   readonly zoneTemperatureDeltaC: Map<Zone['id'], number>;
   readonly zoneHumidityDeltaPct: Map<Zone['id'], number>;
+  readonly zonePPFD_umol_m2s: Map<Zone['id'], number>;
+  readonly zoneDLI_mol_m2d_inc: Map<Zone['id'], number>;
   readonly zoneCoverageTotals_m2: Map<Zone['id'], number>;
   readonly zoneAirflowTotals_m3_per_h: Map<Zone['id'], number>;
   readonly zoneCoverageEffectiveness01: Map<Zone['id'], number>;
@@ -36,6 +44,8 @@ export function ensureDeviceEffectsRuntime(ctx: EngineRunContext): DeviceEffects
   return setDeviceEffectsRuntime(ctx, {
     zoneTemperatureDeltaC: new Map(),
     zoneHumidityDeltaPct: new Map(),
+    zonePPFD_umol_m2s: new Map(),
+    zoneDLI_mol_m2d_inc: new Map(),
     zoneCoverageTotals_m2: new Map(),
     zoneAirflowTotals_m3_per_h: new Map(),
     zoneCoverageEffectiveness01: new Map(),
@@ -55,6 +65,22 @@ export function clearDeviceEffectsRuntime(ctx: EngineRunContext): void {
 
 function isPositiveFinite(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0;
+}
+
+function clamp01(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  if (value <= 0) {
+    return 0;
+  }
+
+  if (value >= 1) {
+    return 1;
+  }
+
+  return value;
 }
 
 export function resolveTickHours(ctx: EngineRunContext): number {
@@ -80,6 +106,54 @@ function accumulateTemperatureDelta(
 
   const current = runtime.zoneTemperatureDeltaC.get(zoneId) ?? 0;
   runtime.zoneTemperatureDeltaC.set(zoneId, current + deltaC);
+}
+
+/**
+ * Accumulates relative humidity deltas for a zone within the runtime maps.
+ */
+function accumulateHumidityDelta(
+  runtime: DeviceEffectsRuntime,
+  zoneId: Zone['id'],
+  deltaPct: number
+): void {
+  if (!Number.isFinite(deltaPct) || deltaPct === 0) {
+    return;
+  }
+
+  const current = runtime.zoneHumidityDeltaPct.get(zoneId) ?? 0;
+  runtime.zoneHumidityDeltaPct.set(zoneId, current + deltaPct);
+}
+
+/**
+ * Accumulates photosynthetic photon flux density contributions for a zone.
+ */
+function accumulatePPFD(
+  runtime: DeviceEffectsRuntime,
+  zoneId: Zone['id'],
+  ppfd: number
+): void {
+  if (!Number.isFinite(ppfd) || ppfd === 0) {
+    return;
+  }
+
+  const current = runtime.zonePPFD_umol_m2s.get(zoneId) ?? 0;
+  runtime.zonePPFD_umol_m2s.set(zoneId, current + ppfd);
+}
+
+/**
+ * Accumulates daily light integral increments for a zone.
+ */
+function accumulateDLI(
+  runtime: DeviceEffectsRuntime,
+  zoneId: Zone['id'],
+  dli: number
+): void {
+  if (!Number.isFinite(dli) || dli === 0) {
+    return;
+  }
+
+  const current = runtime.zoneDLI_mol_m2d_inc.get(zoneId) ?? 0;
+  runtime.zoneDLI_mol_m2d_inc.set(zoneId, current + dli);
 }
 
 const MIN_AIR_CHANGES_PER_HOUR = 1;
@@ -195,6 +269,117 @@ function emitAirflowWarning(
   });
 }
 
+/**
+ * Derives thermal actuator inputs based on the device instance fields.
+ *
+ * Phase 1 simplification: mode selection hinges on sensible heat removal
+ * capacity being available. Devices without cooling capacity operate in waste
+ * heat mode.
+ */
+function deriveThermalInputs(
+  device: ZoneDeviceInstance
+): ThermalActuatorInputs | null {
+  const power_W = Number.isFinite(device.powerDraw_W) ? device.powerDraw_W : 0;
+  const duty01 = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 0);
+
+  if (power_W <= 0 || duty01 <= 0) {
+    return null;
+  }
+
+  const efficiency01 = clamp01(
+    Number.isFinite(device.efficiency01) ? device.efficiency01 : 0
+  );
+  const maxCool_W = Number.isFinite(device.sensibleHeatRemovalCapacity_W)
+    ? device.sensibleHeatRemovalCapacity_W
+    : 0;
+  const effectivePower_W = power_W * duty01;
+
+  if (maxCool_W > 0) {
+    return {
+      power_W: effectivePower_W,
+      efficiency01,
+      mode: 'cool',
+      max_cool_W: maxCool_W * duty01
+    } satisfies ThermalActuatorInputs;
+  }
+
+  return {
+    power_W: effectivePower_W,
+    efficiency01,
+    mode: 'heat'
+  } satisfies ThermalActuatorInputs;
+}
+
+/**
+ * Derives humidity actuator inputs using heuristic slug classification.
+ *
+ * Phase 1 simplification: relies on slug/name matching while blueprint-driven
+ * configuration is scheduled for a subsequent phase.
+ */
+function deriveHumidityInputs(
+  device: ZoneDeviceInstance
+): HumidityActuatorInputs | null {
+  const slug = (device.slug ?? '').toLowerCase();
+  const name = (device.name ?? '').toLowerCase();
+  const duty01 = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 0);
+
+  if (duty01 <= 0) {
+    return null;
+  }
+
+  if (slug.includes('dehumid') || name.includes('dehumid')) {
+    return {
+      mode: 'dehumidify',
+      capacity_g_per_h: 500 * duty01
+    } satisfies HumidityActuatorInputs; // TODO: Replace heuristic in Phase 2
+  }
+
+  if (slug.includes('humid') || name.includes('humid')) {
+    return {
+      mode: 'humidify',
+      capacity_g_per_h: 300 * duty01
+    } satisfies HumidityActuatorInputs; // TODO: Replace heuristic in Phase 2
+  }
+
+  return null;
+}
+
+/**
+ * Derives light emitter inputs assuming a constant photon efficacy.
+ *
+ * Phase 1 simplification: infers PPFD from electrical power draw, coverage,
+ * and duty cycle while awaiting blueprint integration.
+ */
+function deriveLightingInputs(
+  device: ZoneDeviceInstance
+): LightEmitterInputs | null {
+  const coverage_m2 = Number.isFinite(device.coverage_m2)
+    ? device.coverage_m2
+    : 0;
+  const power_W = Number.isFinite(device.powerDraw_W) ? device.powerDraw_W : 0;
+
+  if (coverage_m2 <= 0 || power_W <= 0) {
+    return null;
+  }
+
+  const efficiency01 = clamp01(
+    Number.isFinite(device.efficiency01) ? device.efficiency01 : 0
+  );
+  const dim01 = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 0);
+  const photonEfficacy_umol_per_J = 2.5; // TODO: Blueprint-sourced value
+  const ppfd_center_umol_m2s = power_W * efficiency01 * photonEfficacy_umol_per_J;
+
+  if (ppfd_center_umol_m2s <= 0) {
+    return null;
+  }
+
+  return {
+    ppfd_center_umol_m2s,
+    coverage_m2,
+    dim01
+  } satisfies LightEmitterInputs;
+}
+
 export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
   const tickHours = resolveTickHours(ctx);
   const runtime = ensureDeviceEffectsRuntime(ctx);
@@ -216,8 +401,42 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
         emitAirflowWarning(ctx, zone, totalAirflow_m3_per_h, ach, volume_m3);
 
         for (const device of zone.devices) {
-          const deltaC = applyDeviceHeat(zone, device, tickHours) * effectiveness01;
-          accumulateTemperatureDelta(runtime, zone.id, deltaC);
+          const thermalInputs = deriveThermalInputs(device);
+          if (thermalInputs) {
+            const thermalStub = createThermalActuatorStub();
+            const { deltaT_K } = thermalStub.computeEffect(
+              thermalInputs,
+              zone.environment,
+              zone.airMass_kg,
+              tickHours
+            );
+            accumulateTemperatureDelta(
+              runtime,
+              zone.id,
+              deltaT_K * effectiveness01
+            );
+          }
+
+          const humidityInputs = deriveHumidityInputs(device);
+          if (humidityInputs) {
+            const humidityStub = createHumidityActuatorStub();
+            const { deltaRH_pct } = humidityStub.computeEffect(
+              humidityInputs,
+              zone.environment,
+              zone.airMass_kg,
+              tickHours
+            );
+            accumulateHumidityDelta(runtime, zone.id, deltaRH_pct);
+          }
+
+          const lightingInputs = deriveLightingInputs(device);
+          if (lightingInputs) {
+            const lightingStub = createLightEmitterStub();
+            const { ppfd_effective_umol_m2s, dli_mol_m2d_inc } =
+              lightingStub.computeEffect(lightingInputs, tickHours);
+            accumulatePPFD(runtime, zone.id, ppfd_effective_umol_m2s);
+            accumulateDLI(runtime, zone.id, dli_mol_m2d_inc);
+          }
         }
       }
     }
