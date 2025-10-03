@@ -1,5 +1,16 @@
 # Changelog
 
+### #45 WB-038 thermal actuator stub with cooling & auto support
+- Added `createThermalActuatorStub` under `@/backend/src/stubs` to deliver
+  deterministic heating, cooling, and auto-mode behaviour with structured
+  outputs for downstream composition.
+- Reused the canonical dry-air physics helpers so both heating waste loads and
+  cooling capacity honour device efficiency and `max_*_W` clamps while guarding
+  invalid inputs.
+- Introduced dedicated Vitest coverage validating heating/cooling reference
+  vectors, auto-mode branching, output finiteness, and the documented edge
+  cases alongside a soft deprecation notice on the legacy heating helper.
+
 ### #44 WB-037 blueprint taxonomy guardrails clarified for contributors
 - Expanded SEC and DD blueprint sections with explicit directory conventions,
   JSON-source-of-truth language, and a required loader failure when paths and

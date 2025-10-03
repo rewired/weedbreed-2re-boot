@@ -42,6 +42,14 @@ function resolveAirMassKg(zone: Pick<Zone, 'airMass_kg'>): number {
 }
 
 /**
+ * @deprecated Heating-only implementation (waste heat).
+ * For full thermal actuator support (heating, cooling, auto),
+ * use {@link createThermalActuatorStub} from `@/backend/src/stubs/ThermalActuatorStub.js`.
+ *
+ * This function will be refactored in Phase 4 to delegate to ThermalActuatorStub.
+ *
+ * @see packages/engine/src/backend/src/stubs/ThermalActuatorStub.ts
+ *
  * Converts waste electrical power produced by a device into a sensible heat
  * delta for the hosting zone.
  *
