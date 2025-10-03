@@ -59,6 +59,33 @@ function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
   return createDeviceInstance(QUALITY_POLICY, 'sensor-seed', id, blueprint).quality01;
 }
 
+function runSensorTick(
+  world: ReturnType<typeof createDemoWorld>,
+  deviceId: Uuid
+): SensorOutputs<number>[] {
+  const readings: SensorOutputs<number>[] = [];
+  const ctx: EngineRunContext = {
+    instrumentation: {
+      onStageComplete(stage) {
+        if (stage !== 'applySensors') {
+          return;
+        }
+
+        const runtime = getSensorReadingsRuntime(ctx);
+        const deviceReadings = runtime?.deviceSensorReadings.get(deviceId);
+
+        if (deviceReadings?.[0]) {
+          readings.push(deviceReadings[0]);
+        }
+      }
+    }
+  };
+
+  runTick(world, ctx);
+
+  return readings;
+}
+
 describe('Tick pipeline — sensor readings', () => {
   it('registers applySensors in the pipeline trace after updateEnvironment', () => {
     const world = createDemoWorld();
@@ -352,13 +379,13 @@ describe('Tick pipeline — sensor readings', () => {
     const secondZone = secondWorld.company.structures[0].rooms[0].zones[0];
 
     const sensorId = uuid('40000000-0000-0000-0000-000000000015');
-    const sensorDevice: ZoneDeviceInstance = {
-      id: sensorId,
+    const buildSensor = (id: Uuid): ZoneDeviceInstance => ({
+      id,
       slug: sensorBlueprint.slug,
       name: sensorBlueprint.name,
       blueprintId: sensorBlueprint.id,
       placementScope: 'zone',
-      quality01: deviceQuality(sensorId, sensorBlueprint),
+      quality01: deviceQuality(id, sensorBlueprint),
       condition01: 0.7,
       powerDraw_W: 0,
       dutyCycle01: 1,
@@ -373,63 +400,67 @@ describe('Tick pipeline — sensor readings', () => {
           noise01: 0.2
         }
       }
-    } satisfies ZoneDeviceInstance;
+    });
 
-    firstZone.devices = [sensorDevice];
-    secondZone.devices = [
-      {
-        ...sensorDevice,
-        id: uuid('40000000-0000-0000-0000-000000000016')
-      }
-    ];
+    firstZone.devices = [buildSensor(sensorId)];
+    secondZone.devices = [buildSensor(sensorId)];
 
-    const readingsA: SensorOutputs<number>[] = [];
-    const readingsB: SensorOutputs<number>[] = [];
-
-    const ctxA: EngineRunContext = {
-      instrumentation: {
-        onStageComplete(stage) {
-          if (stage !== 'applySensors') {
-            return;
-          }
-
-          const runtime = getSensorReadingsRuntime(ctxA);
-          const values = runtime?.deviceSensorReadings.values().next().value as
-            | SensorOutputs<number>[]
-            | undefined;
-
-          if (values?.[0]) {
-            readingsA.push(values[0]);
-          }
-        }
-      }
-    };
-
-    const ctxB: EngineRunContext = {
-      instrumentation: {
-        onStageComplete(stage) {
-          if (stage !== 'applySensors') {
-            return;
-          }
-
-          const runtime = getSensorReadingsRuntime(ctxB);
-          const values = runtime?.deviceSensorReadings.values().next().value as
-            | SensorOutputs<number>[]
-            | undefined;
-
-          if (values?.[0]) {
-            readingsB.push(values[0]);
-          }
-        }
-      }
-    };
-
-    runTick(firstWorld, ctxA);
-    runTick(secondWorld, ctxB);
+    const readingsA = runSensorTick(firstWorld, sensorId);
+    const readingsB = runSensorTick(secondWorld, sensorId);
 
     expect(readingsA).toHaveLength(1);
     expect(readingsB).toHaveLength(1);
     expect(readingsA[0]?.measuredValue).toBe(readingsB[0]?.measuredValue);
     expect(readingsA[0]?.error).toBe(readingsB[0]?.error);
+  });
+
+  it('changes sensor readings when the device id changes', () => {
+    const firstWorld = createDemoWorld();
+    const secondWorld = createDemoWorld();
+
+    const sensorBlueprint: DeviceBlueprint = {
+      ...SENSOR_BLUEPRINT,
+      slug: 'deterministic-sensor'
+    };
+
+    const firstZone = firstWorld.company.structures[0].rooms[0].zones[0];
+    const secondZone = secondWorld.company.structures[0].rooms[0].zones[0];
+
+    const sensorIdA = uuid('40000000-0000-0000-0000-000000000015');
+    const sensorIdB = uuid('40000000-0000-0000-0000-000000000016');
+
+    const buildSensor = (id: Uuid): ZoneDeviceInstance => ({
+      id,
+      slug: sensorBlueprint.slug,
+      name: sensorBlueprint.name,
+      blueprintId: sensorBlueprint.id,
+      placementScope: 'zone',
+      quality01: deviceQuality(id, sensorBlueprint),
+      condition01: 0.7,
+      powerDraw_W: 0,
+      dutyCycle01: 1,
+      efficiency01: 1,
+      coverage_m2: 0,
+      airflow_m3_per_h: 0,
+      sensibleHeatRemovalCapacity_W: 0,
+      effects: ['sensor'],
+      effectConfigs: {
+        sensor: {
+          measurementType: 'temperature',
+          noise01: 0.2
+        }
+      }
+    });
+
+    firstZone.devices = [buildSensor(sensorIdA)];
+    secondZone.devices = [buildSensor(sensorIdB)];
+
+    const readingsA = runSensorTick(firstWorld, sensorIdA);
+    const readingsB = runSensorTick(secondWorld, sensorIdB);
+
+    expect(readingsA).toHaveLength(1);
+    expect(readingsB).toHaveLength(1);
+    expect(readingsA[0]?.measuredValue).not.toBe(readingsB[0]?.measuredValue);
+    expect(readingsA[0]?.error).not.toBe(readingsB[0]?.error);
   });
 });
