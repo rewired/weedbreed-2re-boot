@@ -1,4 +1,5 @@
 import type { SimulationWorld, Uuid } from '../domain/world.js';
+import type { IrrigationEvent } from '../domain/interfaces/IIrrigationService.js';
 import { applyDeviceEffects } from './pipeline/applyDeviceEffects.js';
 import { updateEnvironment } from './pipeline/updateEnvironment.js';
 import { applyIrrigationAndNutrients } from './pipeline/applyIrrigationAndNutrients.js';
@@ -27,6 +28,7 @@ export interface EngineDiagnosticsSink {
 export interface EngineRunContext {
   readonly instrumentation?: EngineInstrumentation;
   readonly diagnostics?: EngineDiagnosticsSink;
+  readonly irrigationEvents?: readonly IrrigationEvent[];
   readonly [key: string]: unknown;
 }
 

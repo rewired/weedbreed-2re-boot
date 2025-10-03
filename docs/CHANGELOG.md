@@ -1,5 +1,16 @@
 # Changelog
 
+### #47 WB-040 irrigation and nutrient buffering pipeline
+- Extended the zone domain contract and Zod schemas with `nutrientBuffer_mg`
+  and `moisture01`, wiring the demo harness defaults so simulation snapshots
+  expose substrate inventory for irrigation logic.
+- Implemented the `applyIrrigationAndNutrients` pipeline stage using the
+  deterministic irrigation and nutrient buffer stubs, runtime context maps, and
+  diagnostics emission while updating zone nutrient buffers in the world tree.
+- Added an Engine run context hook for `irrigationEvents`, a comprehensive
+  integration suite covering single/multi-event aggregation, leaching,
+  persistence, and multi-zone isolation, plus documentation updates here.
+
 ### #46 WB-039 light emitter stub and zone lighting telemetry
 - Added `createLightEmitterStub` mirroring the plateau-field model from the SEC
   so dimming factors linearly scale PPFD, DLI increments derive from tick
