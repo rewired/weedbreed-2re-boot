@@ -14,6 +14,10 @@
   "effects": [
     "airflow"
   ],
+  "airflow": {
+    "mode": "exhaust",
+    "airflow_m3_per_h": 170
+  },
   "quality": 0.7,
   "complexity": 0.1,
   "lifetime_h": 17520,

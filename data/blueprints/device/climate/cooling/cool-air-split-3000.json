@@ -24,6 +24,10 @@
     "mode": "dehumidify",
     "capacity_g_per_h": 500
   },
+  "airflow": {
+    "mode": "recirculation",
+    "airflow_m3_per_h": 350
+  },
   "quality": 0.9,
   "complexity": 0.4,
   "lifetime_h": 35040,
