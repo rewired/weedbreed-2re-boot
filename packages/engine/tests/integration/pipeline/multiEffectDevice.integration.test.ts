@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CP_AIR_J_PER_KG_K,
   HOURS_PER_TICK,
+  LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG,
   SECONDS_PER_HOUR
 } from '@/backend/src/constants/simConstants.js';
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
@@ -15,6 +16,7 @@ import {
   type ZoneDeviceInstance
 } from '@/backend/src/domain/world.js';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
+import { getDeviceEffectsRuntime } from '@/backend/src/engine/pipeline/applyDeviceEffects.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -191,9 +193,23 @@ describe('Tick pipeline — multi-effect devices', () => {
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
 
     const cooling_W = multiEffectDevice.powerDraw_W * multiEffectDevice.efficiency01;
-    const tickSeconds = (ctx.tickDurationHours ?? HOURS_PER_TICK) * SECONDS_PER_HOUR;
-    const expectedDeltaC =
-      (-cooling_W * tickSeconds) / (zone.airMass_kg * CP_AIR_J_PER_KG_K);
+    const tickHours = ctx.tickDurationHours ?? HOURS_PER_TICK;
+    const tickSeconds = tickHours * SECONDS_PER_HOUR;
+    const coverageEffectiveness01 = Math.min(
+      1,
+      multiEffectDevice.coverage_m2 / Math.max(1, zone.floorArea_m2)
+    );
+    const sensibleDeltaC =
+      ((-cooling_W) * tickSeconds * coverageEffectiveness01) /
+      (zone.airMass_kg * CP_AIR_J_PER_KG_K);
+    const waterRemoved_g =
+      (multiEffectDevice.effectConfigs?.humidity?.capacity_g_per_h ?? 0) *
+      multiEffectDevice.dutyCycle01 *
+      tickHours;
+    const latentDeltaC =
+      ((-waterRemoved_g / 1_000) * LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG * coverageEffectiveness01) /
+      (zone.airMass_kg * CP_AIR_J_PER_KG_K);
+    const expectedDeltaC = sensibleDeltaC + latentDeltaC;
 
     expect(nextZone.environment.airTemperatureC).toBeCloseTo(
       initialTemperatureC + expectedDeltaC,
@@ -260,13 +276,28 @@ describe('Tick pipeline — multi-effect devices', () => {
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
 
     const tickSeconds = HOURS_PER_TICK * SECONDS_PER_HOUR;
+    const coverageEffectiveness01 = Math.min(
+      1,
+      (heater.coverage_m2 + dehumidifier.coverage_m2) /
+        Math.max(1, zone.floorArea_m2)
+    );
     const heaterWaste_W = heater.powerDraw_W * (1 - heater.efficiency01);
     const dehumidifierWaste_W =
       dehumidifier.powerDraw_W * (1 - dehumidifier.efficiency01);
-    const expectedTemp =
-      zone.environment.airTemperatureC +
-      ((heaterWaste_W + dehumidifierWaste_W) * tickSeconds) /
-        (zone.airMass_kg * CP_AIR_J_PER_KG_K);
+    const sensibleEnergy_J =
+      (heaterWaste_W + dehumidifierWaste_W) * tickSeconds * coverageEffectiveness01;
+    const waterRemoved_g =
+      (dehumidifier.effectConfigs?.humidity?.capacity_g_per_h ?? 0) *
+      dehumidifier.dutyCycle01 *
+      HOURS_PER_TICK;
+    const latentEnergy_J =
+      (waterRemoved_g / 1_000) *
+      LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG *
+      coverageEffectiveness01;
+    const totalDeltaC =
+      (sensibleEnergy_J + latentEnergy_J) /
+      (zone.airMass_kg * CP_AIR_J_PER_KG_K);
+    const expectedTemp = zone.environment.airTemperatureC + totalDeltaC;
 
     expect(nextZone.environment.airTemperatureC).toBeCloseTo(expectedTemp, 5);
     expect(nextZone.environment.relativeHumidity_pct).toBeLessThan(
@@ -357,7 +388,25 @@ describe('Tick pipeline — multi-effect devices', () => {
 
     zone.devices = [splitAC];
 
-    const ctx: EngineRunContext = { tickDurationHours: 1 } satisfies EngineRunContext;
+    const ctx: EngineRunContext = {
+      tickDurationHours: 1,
+      instrumentation: {
+        onStageComplete: (stage) => {
+          if (stage === 'applyDeviceEffects') {
+            const runtime = getDeviceEffectsRuntime(ctx);
+            const zoneId = zone.id;
+            const log = {
+              thermalDeltaC: runtime?.zoneTemperatureDeltaC.get(zoneId) ?? 0,
+              humidityDeltaPct: runtime?.zoneHumidityDeltaPct.get(zoneId) ?? 0,
+              airflow_m3_per_h: runtime?.zoneAirflowTotals_m3_per_h.get(zoneId) ?? 0,
+              coverageEffectiveness01:
+                runtime?.zoneCoverageEffectiveness01.get(zoneId) ?? 0
+            };
+            console.info('[Pattern A] device contributions', JSON.stringify(log));
+          }
+        }
+      }
+    } satisfies EngineRunContext;
     const { world: nextWorld } = runTick(world, ctx);
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
 
@@ -369,10 +418,19 @@ describe('Tick pipeline — multi-effect devices', () => {
       splitAC.powerDraw_W * splitAC.dutyCycle01 * splitAC.efficiency01,
       splitAC.effectConfigs?.thermal?.max_cool_W ?? Number.POSITIVE_INFINITY
     );
-    const tickSeconds = (ctx.tickDurationHours ?? HOURS_PER_TICK) * SECONDS_PER_HOUR;
-    const expectedDeltaC =
+    const tickHours = ctx.tickDurationHours ?? HOURS_PER_TICK;
+    const tickSeconds = tickHours * SECONDS_PER_HOUR;
+    const sensibleDeltaC =
       ((-cooling_W) * tickSeconds * coverageEffectiveness01) /
       (zone.airMass_kg * CP_AIR_J_PER_KG_K);
+    const waterRemoved_g =
+      (splitAC.effectConfigs?.humidity?.capacity_g_per_h ?? 0) *
+      splitAC.dutyCycle01 *
+      tickHours;
+    const latentDeltaC =
+      ((-waterRemoved_g / 1_000) * LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG * coverageEffectiveness01) /
+      (zone.airMass_kg * CP_AIR_J_PER_KG_K);
+    const expectedDeltaC = sensibleDeltaC + latentDeltaC;
 
     expect(nextZone.environment.airTemperatureC).toBeCloseTo(
       initialTemperatureC + expectedDeltaC,
@@ -414,7 +472,26 @@ describe('Tick pipeline — multi-effect devices', () => {
 
     zone.devices = [reheatDehumidifier];
 
-    const { world: nextWorld } = runTick(world, {});
+    const ctx: EngineRunContext = {
+      instrumentation: {
+        onStageComplete: (stage) => {
+          if (stage === 'applyDeviceEffects') {
+            const runtime = getDeviceEffectsRuntime(ctx);
+            const zoneId = zone.id;
+            const log = {
+              thermalDeltaC: runtime?.zoneTemperatureDeltaC.get(zoneId) ?? 0,
+              humidityDeltaPct: runtime?.zoneHumidityDeltaPct.get(zoneId) ?? 0,
+              airflow_m3_per_h: runtime?.zoneAirflowTotals_m3_per_h.get(zoneId) ?? 0,
+              coverageEffectiveness01:
+                runtime?.zoneCoverageEffectiveness01.get(zoneId) ?? 0
+            };
+            console.info('[Pattern B] device contributions', JSON.stringify(log));
+          }
+        }
+      }
+    } satisfies EngineRunContext;
+
+    const { world: nextWorld } = runTick(world, ctx);
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
 
     const coverageEffectiveness01 = Math.min(
@@ -423,9 +500,18 @@ describe('Tick pipeline — multi-effect devices', () => {
     );
     const wasteHeat_W =
       reheatDehumidifier.powerDraw_W * (1 - reheatDehumidifier.efficiency01);
-    const tickSeconds = HOURS_PER_TICK * SECONDS_PER_HOUR;
+    const sensibleEnergy_J =
+      wasteHeat_W * HOURS_PER_TICK * SECONDS_PER_HOUR * coverageEffectiveness01;
+    const waterRemoved_g =
+      (reheatDehumidifier.effectConfigs?.humidity?.capacity_g_per_h ?? 0) *
+      reheatDehumidifier.dutyCycle01 *
+      HOURS_PER_TICK;
+    const latentEnergy_J =
+      (waterRemoved_g / 1_000) *
+      LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG *
+      coverageEffectiveness01;
     const expectedTempIncrease =
-      (wasteHeat_W * tickSeconds * coverageEffectiveness01) /
+      (sensibleEnergy_J + latentEnergy_J) /
       (zone.airMass_kg * CP_AIR_J_PER_KG_K);
 
     expect(nextZone.environment.airTemperatureC).toBeCloseTo(

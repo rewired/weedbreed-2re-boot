@@ -1,6 +1,8 @@
 import {
+  CP_AIR_J_PER_KG_K,
   FLOAT_TOLERANCE,
   HOURS_PER_TICK,
+  LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG,
   ROOM_DEFAULT_HEIGHT_M
 } from '../../constants/simConstants.js';
 import type {
@@ -42,6 +44,8 @@ type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 type DeviceEffectsCarrier = Mutable<EngineRunContext> & {
   [DEVICE_EFFECTS_CONTEXT_KEY]?: DeviceEffectsRuntime;
 };
+
+const GRAMS_PER_KG = 1_000;
 
 function setDeviceEffectsRuntime(
   ctx: EngineRunContext,
@@ -120,6 +124,74 @@ function accumulateTemperatureDelta(
 
   const current = runtime.zoneTemperatureDeltaC.get(zoneId) ?? 0;
   runtime.zoneTemperatureDeltaC.set(zoneId, current + deltaC);
+}
+
+function resolveLatentDisposition(
+  thermalInputs: ThermalActuatorInputs | null,
+  thermalDeltaK: number
+): -1 | 0 | 1 {
+  if (thermalInputs) {
+    if (thermalInputs.mode === 'cool') {
+      return -1;
+    }
+
+    if (thermalInputs.mode === 'heat') {
+      return 1;
+    }
+
+    if (thermalInputs.mode === 'auto') {
+      if (thermalDeltaK < 0) {
+        return -1;
+      }
+
+      if (thermalDeltaK > 0) {
+        return 1;
+      }
+
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+function computeLatentTemperatureDelta(
+  water_g: number,
+  airMass_kg: number,
+  effectiveness01: number,
+  thermalInputs: ThermalActuatorInputs | null,
+  thermalDeltaK: number
+): number {
+  if (!Number.isFinite(water_g) || water_g === 0) {
+    return 0;
+  }
+
+  if (!Number.isFinite(airMass_kg) || airMass_kg <= 0) {
+    return 0;
+  }
+
+  if (!Number.isFinite(effectiveness01) || effectiveness01 <= 0) {
+    return 0;
+  }
+
+  const disposition = resolveLatentDisposition(thermalInputs, thermalDeltaK);
+
+  if (disposition === 0) {
+    return 0;
+  }
+
+  const latentHeat_J =
+    (water_g / GRAMS_PER_KG) *
+    LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG *
+    disposition;
+
+  const deltaK = latentHeat_J / (airMass_kg * CP_AIR_J_PER_KG_K);
+
+  if (!Number.isFinite(deltaK) || deltaK === 0) {
+    return 0;
+  }
+
+  return deltaK * effectiveness01;
 }
 
 /**
@@ -524,6 +596,8 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
 
         for (const device of zone.devices) {
           const thermalInputs = deriveThermalInputs(device);
+          let thermalDeltaK = 0;
+
           if (thermalInputs) {
             const thermalStub = createThermalActuatorStub();
             const { deltaT_K } = thermalStub.computeEffect(
@@ -532,6 +606,7 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
               zone.airMass_kg,
               tickHours
             );
+            thermalDeltaK = deltaT_K;
             accumulateTemperatureDelta(
               runtime,
               zone.id,
@@ -542,13 +617,25 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
           const humidityInputs = deriveHumidityInputs(device);
           if (humidityInputs) {
             const humidityStub = createHumidityActuatorStub();
-            const { deltaRH_pct } = humidityStub.computeEffect(
+            const { deltaRH_pct, water_g } = humidityStub.computeEffect(
               humidityInputs,
               zone.environment,
               zone.airMass_kg,
               tickHours
             );
             accumulateHumidityDelta(runtime, zone.id, deltaRH_pct);
+
+            const latentDeltaK = computeLatentTemperatureDelta(
+              water_g,
+              zone.airMass_kg,
+              effectiveness01,
+              thermalInputs,
+              thermalDeltaK
+            );
+
+            if (latentDeltaK !== 0) {
+              accumulateTemperatureDelta(runtime, zone.id, latentDeltaK);
+            }
           }
 
           const lightingInputs = deriveLightingInputs(device);

@@ -31,6 +31,11 @@ export interface SimulationConstants {
    */
   readonly CP_AIR_J_PER_KG_K: number;
   /**
+   * Latent heat of vaporisation for water at standard atmospheric pressure,
+   * expressed in joules per kilogram.
+   */
+  readonly LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG: number;
+  /**
    * Density of dry air at standard conditions, expressed in kilograms per
    * cubic metre.
    */
@@ -133,6 +138,13 @@ export const ROOM_DEFAULT_HEIGHT_M = 3 as const;
 export const CP_AIR_J_PER_KG_K = 1_005 as const;
 
 /**
+ * Canonical constant describing the latent heat of vaporisation for water at
+ * standard atmospheric pressure (SEC §6.3.2), expressed in joules per
+ * kilogram.
+ */
+export const LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG = 2_260_000 as const;
+
+/**
  * Canonical constant describing the density of dry air at standard conditions,
  * expressed in kilograms per cubic metre.
  */
@@ -231,6 +243,7 @@ export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
   SECONDS_PER_HOUR,
   ROOM_DEFAULT_HEIGHT_M,
   CP_AIR_J_PER_KG_K,
+  LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG,
   AIR_DENSITY_KG_PER_M3,
   HOURS_PER_TICK,
   HOURS_PER_DAY,
