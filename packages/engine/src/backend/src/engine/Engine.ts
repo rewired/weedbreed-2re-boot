@@ -33,6 +33,34 @@ export interface EngineRunContext {
   readonly [key: string]: unknown;
 }
 
+type Mutable<T> = { -readonly [K in keyof T]: T[K] };
+
+type WorldMutationCarrier = Mutable<EngineRunContext> & { __wb_worldMutated: boolean };
+
+function ensureWorldMutationCarrier(ctx: EngineRunContext): WorldMutationCarrier {
+  const carrier = ctx as Mutable<EngineRunContext> & {
+    __wb_worldMutated?: boolean;
+  };
+
+  if (typeof carrier.__wb_worldMutated !== 'boolean') {
+    carrier.__wb_worldMutated = false;
+  }
+
+  return carrier as WorldMutationCarrier;
+}
+
+export function hasWorldBeenMutated(ctx: EngineRunContext): boolean {
+  return ensureWorldMutationCarrier(ctx).__wb_worldMutated;
+}
+
+function resetWorldMutationFlag(ctx: EngineRunContext): void {
+  ensureWorldMutationCarrier(ctx).__wb_worldMutated = false;
+}
+
+function markWorldMutated(ctx: EngineRunContext): void {
+  ensureWorldMutationCarrier(ctx).__wb_worldMutated = true;
+}
+
 export interface RunTickOptions {
   readonly trace?: boolean;
 }
@@ -67,12 +95,19 @@ export function runTick(
 ): RunTickResult {
   const collector = opts.trace ? createTickTraceCollector() : undefined;
   let nextWorld = world;
+  resetWorldMutationFlag(ctx);
 
   for (const [stepName, stageFn] of PIPELINE_DEFINITION) {
+    const inputWorld = nextWorld;
+
     if (collector) {
-      nextWorld = collector.measureStage(stepName, () => stageFn(nextWorld, ctx));
+      nextWorld = collector.measureStage(stepName, () => stageFn(inputWorld, ctx));
     } else {
-      nextWorld = stageFn(nextWorld, ctx);
+      nextWorld = stageFn(inputWorld, ctx);
+    }
+
+    if (nextWorld !== inputWorld) {
+      markWorldMutated(ctx);
     }
 
     ctx.instrumentation?.onStageComplete?.(stepName, nextWorld);
@@ -81,6 +116,8 @@ export function runTick(
       clearSensorReadingsRuntime(ctx);
     }
   }
+
+  resetWorldMutationFlag(ctx);
 
   const trace = collector?.finalize();
 
