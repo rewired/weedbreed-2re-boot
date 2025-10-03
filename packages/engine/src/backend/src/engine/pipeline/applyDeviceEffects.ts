@@ -9,6 +9,7 @@ import { applyDeviceHeat } from '../thermo/heat.js';
 
 export interface DeviceEffectsRuntime {
   readonly zoneTemperatureDeltaC: Map<Zone['id'], number>;
+  readonly zoneHumidityDeltaPct: Map<Zone['id'], number>;
   readonly zoneCoverageTotals_m2: Map<Zone['id'], number>;
   readonly zoneAirflowTotals_m3_per_h: Map<Zone['id'], number>;
   readonly zoneCoverageEffectiveness01: Map<Zone['id'], number>;
@@ -34,6 +35,7 @@ function setDeviceEffectsRuntime(
 export function ensureDeviceEffectsRuntime(ctx: EngineRunContext): DeviceEffectsRuntime {
   return setDeviceEffectsRuntime(ctx, {
     zoneTemperatureDeltaC: new Map(),
+    zoneHumidityDeltaPct: new Map(),
     zoneCoverageTotals_m2: new Map(),
     zoneAirflowTotals_m3_per_h: new Map(),
     zoneCoverageEffectiveness01: new Map(),

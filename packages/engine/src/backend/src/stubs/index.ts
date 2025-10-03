@@ -7,8 +7,8 @@
  * @see Consolidated Reference Document: Interfaces & Stubs (Engine v1, Phase 1)
  */
 export * from './ThermalActuatorStub.js';
+export * from './HumidityActuatorStub.js';
 // Future exports:
-// export * from './HumidityActuatorStub.js';
 // export * from './LightEmitterStub.js';
 // export * from './NutrientBufferStub.js';
 // export * from './IrrigationServiceStub.js';
