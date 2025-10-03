@@ -227,6 +227,40 @@ Fixed order per tick:
 - **Coverage vs. demand:** Phase 1 sums `coverage_m2` across zone devices and scales useful work by `min(1, coverage/zoneArea)`. Emit `zone.capacity.coverage.warn` when the ratio < 1.
 - **Airflow audit:** Airflow totals yield **ACH**; raise `zone.capacity.airflow.warn` for ACH < 1 and expose totals for downstream models.
 
+## 8a) Interface-Stacking Architecture (Phase 1)
+
+**Concept:** Devices implement one or more interfaces (`IThermalActuator`, `IHumidityActuator`, `ILightEmitter`, `IAirflowActuator`, `IFiltrationUnit`, `ISensor`, `INutrientBuffer`, `IIrrigationService`). Effects are computed deterministically in pipeline order and aggregated.
+
+**Composition Patterns:**
+- **Pattern A — Multi-Interface in One Device (Split-AC):**
+  - A device implements multiple interfaces (e.g., `IThermalActuator` + `IHumidityActuator` + `IAirflowActuator`)
+  - Example: Split-AC cools (Thermal), dehumidifies (Humidity), and moves air (Airflow)
+  - Test: `multiEffectDevice.integration.test.ts:226-276`
+- **Pattern B — Combined Device with Coupled Effects (Dehumidifier with Reheat):**
+  - Humidity effect (dehumidification) + Thermal effect (reheat from waste heat)
+  - Example: Dehumidifier with reheat function
+  - Test: `multiEffectDevice.integration.test.ts:278-327`
+- **Pattern C — Composition via Chain (Fan→Filter):**
+  - Two separate devices in chain: Fan (Airflow) → Filter (Filtration + pressure drop)
+  - Example: Inline fan with downstream carbon filter
+  - Test: `fanFilterChain.integration.test.ts`
+- **Pattern D — Sensor + Actuator in One Housing:**
+  - A device implements `ISensor` + actuator interface (e.g., `IThermalActuator`)
+  - Example: Temperature controller with integrated sensor
+  - Note: Sensor readings must not be "polluted" by actuator output in the same tick
+- **Pattern E — Substrate Buffer + Irrigation (Service + Domain):**
+  - Service (`IIrrigationService`) + Domain stub (`INutrientBuffer`) jointly deliver nutrient outcome
+  - Example: Irrigation service calculates flow, substrate buffer manages uptake/leaching
+
+**Stub Conventions (Design Decision):**
+- All stubs are **pure functions** (no side effects)
+- **Deterministic:** Same input set ⇒ same output set (with fixed seed)
+- **SI-Units:** W, Wh, m², m³/h, mg/h, µmol·m⁻²·s⁻¹ (PPFD), K, %
+- **Clamps/Caps:** Respect blueprint parameters (`capacity`, `max_*`)
+- **Telemetry:** Each stub returns primary outputs + auxiliary values (e.g., `energy_Wh`)
+
+**Reference:** `/docs/proposals/20251002-interface_stubs.md` (consolidated specification)
+
 ---
 
 ## 9) Engine vs Façade vs Transport (SEC §11)
