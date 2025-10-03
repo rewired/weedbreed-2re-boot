@@ -67,6 +67,8 @@ const DEMO_WORLD: SimulationWorld = {
                 environment: {
                   airTemperatureC: 22
                 },
+                ppfd_umol_m2s: 0,
+                dli_mol_m2d_inc: 0,
                 plants: [],
                 devices: []
               }

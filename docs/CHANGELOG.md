@@ -1,5 +1,17 @@
 # Changelog
 
+### #46 WB-039 light emitter stub and zone lighting telemetry
+- Added `createLightEmitterStub` mirroring the plateau-field model from the SEC
+  so dimming factors linearly scale PPFD, DLI increments derive from tick
+  duration, and optional power draw reports watthour consumption.
+- Extended the zone domain model, schemas, and validation pipeline with
+  `ppfd_umol_m2s` and `dli_mol_m2d_inc` aggregates, ensuring lighting telemetry
+  is available for downstream orchestration layers and initialised in the demo
+  harness.
+- Shipped comprehensive Vitest coverage for the new stub including reference
+  vectors, dimming clamps, energy accounting, and edge-case validation, plus
+  documentation updates (ADR-0010) describing the contract change.
+
 ### #45 WB-038 thermal actuator stub with cooling & auto support
 - Added `createThermalActuatorStub` under `@/backend/src/stubs` to deliver
   deterministic heating, cooling, and auto-mode behaviour with structured
