@@ -3,6 +3,7 @@ import { withPerfStage } from '../util/perf.js';
 export type StepName =
   | 'applyDeviceEffects'
   | 'updateEnvironment'
+  | 'applySensors'
   | 'applyIrrigationAndNutrients'
   | 'advancePhysiology'
   | 'applyHarvestAndInventory'

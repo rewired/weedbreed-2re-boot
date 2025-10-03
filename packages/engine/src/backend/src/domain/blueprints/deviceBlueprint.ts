@@ -26,7 +26,7 @@ const deviceClassSchema = z
 /**
  * Canonical device blueprint contract enforced for JSON payloads.
  */
-const deviceEffectSchema = z.enum(['thermal', 'humidity', 'lighting', 'airflow', 'filtration']);
+const deviceEffectSchema = z.enum(['thermal', 'humidity', 'lighting', 'airflow', 'filtration', 'sensor']);
 
 const thermalConfigObjectSchema = z.object({
   mode: z.enum(['heat', 'cool', 'auto']),
@@ -47,9 +47,20 @@ const lightingConfigObjectSchema = z.object({
     .optional()
 });
 
+const sensorMeasurementTypeSchema = z.enum(['temperature', 'humidity', 'ppfd']);
+
+const sensorConfigObjectSchema = z.object({
+  measurementType: sensorMeasurementTypeSchema,
+  noise01: finiteNumber
+    .min(0, 'sensor.noise01 must be >= 0.')
+    .max(1, 'sensor.noise01 must be <= 1.')
+    .default(0.05)
+});
+
 const thermalConfigSchema = thermalConfigObjectSchema.optional();
 const humidityConfigSchema = humidityConfigObjectSchema.optional();
 const lightingConfigSchema = lightingConfigObjectSchema.optional();
+const sensorConfigSchema = sensorConfigObjectSchema.optional();
 
 const deviceBlueprintObjectSchema = z
   .object({
@@ -74,7 +85,8 @@ const deviceBlueprintObjectSchema = z
     effects: z.array(deviceEffectSchema).nonempty('effects must not be empty.').optional(),
     thermal: thermalConfigSchema,
     humidity: humidityConfigSchema,
-    lighting: lightingConfigSchema
+    lighting: lightingConfigSchema,
+    sensor: sensorConfigSchema
   })
   .passthrough();
 
@@ -278,6 +290,7 @@ export type DeviceEffect = z.infer<typeof deviceEffectSchema>;
 export type ThermalConfig = z.infer<typeof thermalConfigObjectSchema>;
 export type HumidityConfig = z.infer<typeof humidityConfigObjectSchema>;
 export type LightingConfig = z.infer<typeof lightingConfigObjectSchema>;
+export type SensorConfig = z.infer<typeof sensorConfigObjectSchema>;
 export type DeviceBlueprint = z.infer<typeof deviceBlueprintSchema>;
 
 export interface ParseDeviceBlueprintOptions extends BlueprintPathOptions {
@@ -340,11 +353,70 @@ export interface DeviceEffectConfigs {
   readonly thermal?: ThermalConfig;
   readonly humidity?: HumidityConfig;
   readonly lighting?: LightingConfig;
+  readonly sensor?: SensorConfig;
 }
 
 export interface DeviceInstanceEffectConfigProjection {
   readonly effects?: readonly DeviceEffect[];
   readonly effectConfigs?: DeviceEffectConfigs;
+}
+
+function clampNoise01(value: number | undefined, fallback: number): number {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  if (value <= 0) {
+    return 0;
+  }
+
+  if (value >= 1) {
+    return 1;
+  }
+
+  return value;
+}
+
+function inferSensorMeasurementType(slug: string): SensorConfig['measurementType'] | null {
+  const lower = slug.toLowerCase();
+
+  if (!lower.includes('sensor') && !lower.includes('probe')) {
+    return null;
+  }
+
+  if (lower.includes('temp') || lower.includes('therm')) {
+    return 'temperature';
+  }
+
+  if (lower.includes('humid') || lower.includes('rh')) {
+    return 'humidity';
+  }
+
+  if (lower.includes('ppfd') || lower.includes('par') || lower.includes('light')) {
+    return 'ppfd';
+  }
+
+  return null;
+}
+
+function deriveSensorConfig(blueprint: DeviceBlueprint): SensorConfig | undefined {
+  if (blueprint.sensor) {
+    return {
+      measurementType: blueprint.sensor.measurementType,
+      noise01: clampNoise01(blueprint.sensor.noise01, 0.05)
+    } satisfies SensorConfig;
+  }
+
+  const inferred = inferSensorMeasurementType(blueprint.slug);
+
+  if (!inferred) {
+    return undefined;
+  }
+
+  return {
+    measurementType: inferred,
+    noise01: 0.05
+  } satisfies SensorConfig;
 }
 
 export function toDeviceInstanceEffectConfigs(
@@ -371,6 +443,15 @@ export function toDeviceInstanceEffectConfigs(
   if (effects.includes('lighting') && blueprint.lighting) {
     configs.lighting = { ...blueprint.lighting };
     hasConfig = true;
+  }
+
+  if (effects.includes('sensor')) {
+    const sensorConfig = deriveSensorConfig(blueprint);
+
+    if (sensorConfig) {
+      configs.sensor = sensorConfig;
+      hasConfig = true;
+    }
   }
 
   return {
