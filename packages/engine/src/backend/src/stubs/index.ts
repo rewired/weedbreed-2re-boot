@@ -9,6 +9,5 @@
 export * from './ThermalActuatorStub.js';
 export * from './HumidityActuatorStub.js';
 export * from './LightEmitterStub.js';
-// Future exports:
-// export * from './NutrientBufferStub.js';
-// export * from './IrrigationServiceStub.js';
+export * from './NutrientBufferStub.js';
+export * from './IrrigationServiceStub.js';
