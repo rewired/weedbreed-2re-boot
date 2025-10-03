@@ -9,3 +9,4 @@ export * from '../device/createDeviceInstance.js';
 export * from '../device/condition.js';
 export * from './cultivation/substrateUsage.js';
 export * from './irrigation/waterUsage.js';
+export * from './interfaces/index.js';
