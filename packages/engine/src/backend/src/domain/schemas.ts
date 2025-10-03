@@ -157,7 +157,14 @@ const zoneBaseSchema = domainEntitySchema
     devices: z.array(zoneDeviceSchema).readonly(),
     environment: zoneEnvironmentSchema,
     ppfd_umol_m2s: finiteNumber.min(0, 'ppfd_umol_m2s cannot be negative.'),
-    dli_mol_m2d_inc: finiteNumber.min(0, 'dli_mol_m2d_inc cannot be negative.')
+    dli_mol_m2d_inc: finiteNumber.min(0, 'dli_mol_m2d_inc cannot be negative.'),
+    nutrientBuffer_mg: z
+      .record(z.string(), finiteNumber.min(0, 'Nutrient buffer values cannot be negative.'))
+      .default({}),
+    moisture01: finiteNumber
+      .min(0, 'moisture01 must be >= 0.')
+      .max(1, 'moisture01 must be <= 1.')
+      .default(0.5)
   });
 
 export const zoneSchema: z.ZodType<Zone> = zoneBaseSchema.transform((zone) => ({

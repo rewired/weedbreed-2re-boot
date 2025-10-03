@@ -69,6 +69,12 @@ const DEMO_WORLD: SimulationWorld = {
                 },
                 ppfd_umol_m2s: 0,
                 dli_mol_m2d_inc: 0,
+                nutrientBuffer_mg: {
+                  N: 1000,
+                  P: 500,
+                  K: 800
+                },
+                moisture01: 0.5,
                 plants: [],
                 devices: []
               }

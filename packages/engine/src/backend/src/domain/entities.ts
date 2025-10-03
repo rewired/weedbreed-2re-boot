@@ -212,6 +212,16 @@ export interface Zone extends DomainEntity, SluggedEntity, SpatialEntity {
    * expressed in mol·m⁻²·d⁻¹.
    */
   readonly dli_mol_m2d_inc: number;
+  /**
+   * Nutrient buffer inventory for the zone's substrate expressed in milligrams per nutrient.
+   * Updated each tick by the irrigation and nutrients pipeline stage.
+   */
+  readonly nutrientBuffer_mg: Record<string, number>;
+  /**
+   * Substrate moisture proxy on the canonical [0,1] scale.
+   * Phase 1: Reserved for future moisture control integration.
+   */
+  readonly moisture01: number;
 }
 
 /**
