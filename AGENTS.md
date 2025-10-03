@@ -120,13 +120,35 @@ Every **Zone MUST reference exactly one `cultivationMethod`** (blueprint id). Th
 ## 6) Device Power↔Heat Coupling & Quality Model (SEC §6.1, §6.2 Option A)
 
 - **Non‑useful electrical power becomes sensible heat** in the hosting zone unless explicitly exported.
-    
+
 - **Efficiency & duty** bound power draw and effect rates.
-    
+
 - **Quality/Condition scales:** use canonical **[0,1]** engine scale (`quality01`, `condition01`). UI/read‑models may expose `%` = `round(100*value)`.
-    
+
 - **Quality affects rates/thresholds**, not purchase price.
-    
+
+
+---
+
+## 6a) Interface-Stacking & Stubs (Phase 1)
+
+- **Interface-Stacking:** Devices may implement multiple interfaces (e.g., Split-AC: `IThermalActuator` + `IHumidityActuator` + `IAirflowActuator`). Effects are computed deterministically in pipeline order and aggregated.
+
+- **Stub Conventions (Phase 1):**
+  - **Determinism:** Same input set ⇒ same output set (with fixed seed)
+  - **SI-Units:** W, Wh, m², m³/h, mg/h, µmol·m⁻²·s⁻¹ (PPFD), K, %
+  - **Clamps:** All 0..1 scales hard-clamped; negative flows/stocks avoided
+  - **Caps:** Stubs respect `capacity`/`max_*` from blueprint parameters
+  - **Telemetry:** Each stub returns primary outputs + auxiliary values (e.g., `energy_Wh`)
+
+- **Composition Patterns:**
+  - **Pattern A:** Multi-Interface in one device (Split-AC)
+  - **Pattern B:** Combined device with coupled effects (Dehumidifier with Reheat)
+  - **Pattern C:** Composition via chain (Fan→Filter)
+  - **Pattern D:** Sensor + Actuator in one housing
+  - **Pattern E:** Substrate Buffer + Irrigation (Service + Domain)
+
+- **Reference:** `/docs/proposals/20251002-interface_stubs.md` (consolidated specification)
 
 ---
 
