@@ -508,9 +508,11 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
     for (const room of structure.rooms) {
       for (const zone of room.zones) {
         const { totalCoverage_m2, effectiveness01 } = computeCoverageTotals(zone);
-        const { totalAirflow_m3_per_h } = computeAirflowMetrics(zone);
         const height_m = resolveZoneHeight(zone);
         const volume_m3 = Math.max(0, zone.floorArea_m2) * height_m;
+        let runningAirflow_m3_per_h = 0;
+        let totalAirflowDelivered_m3_per_h = 0;
+        let totalAirflowReduction_m3_per_h = 0;
 
         runtime.zoneCoverageTotals_m2.set(zone.id, totalCoverage_m2);
         runtime.zoneCoverageEffectiveness01.set(zone.id, effectiveness01);
@@ -571,18 +573,31 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
             deviceAirflow_m3_per_h = effective_airflow_m3_per_h;
           }
 
-          const filtrationInputs = deriveFiltrationInputs(device, deviceAirflow_m3_per_h);
+          if (deviceAirflow_m3_per_h > 0) {
+            runningAirflow_m3_per_h += deviceAirflow_m3_per_h;
+            totalAirflowDelivered_m3_per_h += deviceAirflow_m3_per_h;
+          }
+
+          const filtrationInputs = deriveFiltrationInputs(device, runningAirflow_m3_per_h);
 
           if (filtrationInputs) {
             const filtrationStub = createFiltrationStub();
             const { airflow_reduction_m3_per_h, odor_concentration_delta, particulate_removal_pct } =
               filtrationStub.computeEffect(filtrationInputs, tickHours);
 
+            const availableAirflow_m3_per_h = runningAirflow_m3_per_h;
+            const reductionApplied_m3_per_h = Math.min(
+              airflow_reduction_m3_per_h,
+              availableAirflow_m3_per_h
+            );
+
             const currentReduction = runtime.zoneAirflowReductions_m3_per_h.get(zone.id) ?? 0;
             runtime.zoneAirflowReductions_m3_per_h.set(
               zone.id,
-              currentReduction + airflow_reduction_m3_per_h
+              currentReduction + reductionApplied_m3_per_h
             );
+
+            totalAirflowReduction_m3_per_h += reductionApplied_m3_per_h;
 
             const currentOdor = runtime.zoneOdorDelta.get(zone.id) ?? 0;
             runtime.zoneOdorDelta.set(zone.id, currentOdor + odor_concentration_delta);
@@ -593,13 +608,19 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
               currentParticulate + particulate_removal_pct
             );
 
-            deviceAirflow_m3_per_h = Math.max(0, deviceAirflow_m3_per_h - airflow_reduction_m3_per_h);
+            runningAirflow_m3_per_h = Math.max(0, runningAirflow_m3_per_h - reductionApplied_m3_per_h);
           }
         }
 
-        const airflowReduction = runtime.zoneAirflowReductions_m3_per_h.get(zone.id) ?? 0;
-        const netAirflow_m3_per_h = Math.max(0, totalAirflow_m3_per_h - airflowReduction);
+        const netAirflow_m3_per_h = Math.max(0, runningAirflow_m3_per_h);
         const netACH = volume_m3 > 0 ? netAirflow_m3_per_h / volume_m3 : 0;
+
+        if (totalAirflowReduction_m3_per_h > 0 || totalAirflowDelivered_m3_per_h > 0) {
+          runtime.zoneAirflowReductions_m3_per_h.set(
+            zone.id,
+            Math.min(totalAirflowDelivered_m3_per_h, totalAirflowReduction_m3_per_h)
+          );
+        }
 
         runtime.zoneAirflowTotals_m3_per_h.set(zone.id, netAirflow_m3_per_h);
         runtime.zoneAirChangesPerHour.set(zone.id, netACH);
