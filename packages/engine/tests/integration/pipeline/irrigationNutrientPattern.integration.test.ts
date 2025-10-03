@@ -28,30 +28,36 @@ describe('Tick pipeline — irrigation + nutrient buffer pattern', () => {
     } satisfies IrrigationEvent;
 
     const snapshots: NutrientSnapshot[] = [];
-    const ctx: EngineRunContext = {
-      irrigationEvents: [irrigationEvent],
-      instrumentation: {
-        onStageComplete(stage) {
-          if (stage !== 'applyIrrigationAndNutrients') {
-            return;
-          }
 
-          const runtime = getIrrigationNutrientsRuntime(ctx);
-          if (!runtime) {
-            return;
-          }
+    function createContext(events: readonly IrrigationEvent[] = []): EngineRunContext {
+      const ctx: EngineRunContext = {
+        irrigationEvents: events,
+        instrumentation: {
+          onStageComplete(stage) {
+            if (stage !== 'applyIrrigationAndNutrients') {
+              return;
+            }
 
-          snapshots.push({
-            uptake: runtime.zoneNutrientsUptake_mg.get(zone.id) ?? {},
-            leached: runtime.zoneNutrientsLeached_mg.get(zone.id) ?? {},
-            buffer: runtime.zoneBufferUpdates_mg.get(zone.id) ?? {},
-          });
+            const runtime = getIrrigationNutrientsRuntime(ctx);
+
+            snapshots.push({
+              uptake: runtime?.zoneNutrientsUptake_mg.get(zone.id) ?? {},
+              leached: runtime?.zoneNutrientsLeached_mg.get(zone.id) ?? {},
+              buffer: runtime?.zoneBufferUpdates_mg.get(zone.id) ?? {},
+            });
+          },
         },
-      },
-    } satisfies EngineRunContext;
+      } satisfies EngineRunContext;
 
-    const { world: nextWorld } = runTick(world, ctx);
-    const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
+      return ctx;
+    }
+
+    const firstCtx = createContext([irrigationEvent]);
+    const { world: afterFirstTick } = runTick(world, firstCtx);
+    const nextZone = afterFirstTick.company.structures[0].rooms[0].zones[0];
+    const secondCtx = createContext([]);
+    const { world: afterSecondTick } = runTick(afterFirstTick, secondCtx);
+    const secondZone = afterSecondTick.company.structures[0].rooms[0].zones[0];
 
     const expectedDeliveredN = irrigationEvent.water_L * irrigationEvent.concentrations_mg_per_L.N;
     const expectedDeliveredP = irrigationEvent.water_L * irrigationEvent.concentrations_mg_per_L.P;
@@ -60,9 +66,13 @@ describe('Tick pipeline — irrigation + nutrient buffer pattern', () => {
     const expectedBufferN = startingBuffer.N + expectedDeliveredN - expectedLeachedN;
     const expectedBufferP = startingBuffer.P + expectedDeliveredP - expectedLeachedP;
 
-    expect(snapshots).toHaveLength(1);
+    expect(snapshots).toHaveLength(2);
 
-    const { uptake, leached, buffer } = snapshots[0] as NutrientSnapshot;
+    const [firstSnapshot, secondSnapshot] = snapshots as [
+      NutrientSnapshot,
+      NutrientSnapshot,
+    ];
+    const { uptake, leached, buffer } = firstSnapshot;
 
     expect(leached.N).toBeCloseTo(expectedLeachedN, 5);
     expect(leached.P).toBeCloseTo(expectedLeachedP, 5);
@@ -72,5 +82,12 @@ describe('Tick pipeline — irrigation + nutrient buffer pattern', () => {
 
     expect(nextZone.nutrientBuffer_mg.N).toBeCloseTo(expectedBufferN, 5);
     expect(nextZone.nutrientBuffer_mg.P).toBeCloseTo(expectedBufferP, 5);
+
+    expect(Object.keys(secondSnapshot.uptake)).toHaveLength(0);
+    expect(Object.keys(secondSnapshot.leached)).toHaveLength(0);
+    expect(Object.keys(secondSnapshot.buffer)).toHaveLength(0);
+
+    expect(secondZone.nutrientBuffer_mg.N).toBeCloseTo(expectedBufferN, 5);
+    expect(secondZone.nutrientBuffer_mg.P).toBeCloseTo(expectedBufferP, 5);
   });
 });

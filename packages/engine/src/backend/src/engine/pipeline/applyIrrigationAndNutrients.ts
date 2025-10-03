@@ -154,7 +154,7 @@ export function applyIrrigationAndNutrients(
       | [];
 
   if (events.length === 0) {
-    clearIrrigationNutrientsRuntime(ctx);
+    ensureIrrigationNutrientsRuntime(ctx);
     return world;
   }
 
@@ -204,7 +204,6 @@ export function applyIrrigationAndNutrients(
   }
 
   if (!worldMutated) {
-    clearIrrigationNutrientsRuntime(ctx);
     return world;
   }
 
@@ -249,8 +248,6 @@ export function applyIrrigationAndNutrients(
       structures: nextStructures,
     },
   };
-
-  clearIrrigationNutrientsRuntime(ctx);
 
   return nextWorld;
 }

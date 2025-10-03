@@ -3,7 +3,10 @@ import type { IrrigationEvent } from '../domain/interfaces/IIrrigationService.js
 import { applyDeviceEffects } from './pipeline/applyDeviceEffects.js';
 import { updateEnvironment } from './pipeline/updateEnvironment.js';
 import { applySensors, clearSensorReadingsRuntime } from './pipeline/applySensors.js';
-import { applyIrrigationAndNutrients } from './pipeline/applyIrrigationAndNutrients.js';
+import {
+  applyIrrigationAndNutrients,
+  clearIrrigationNutrientsRuntime,
+} from './pipeline/applyIrrigationAndNutrients.js';
 import { advancePhysiology } from './pipeline/advancePhysiology.js';
 import { applyHarvestAndInventory } from './pipeline/applyHarvestAndInventory.js';
 import { applyEconomyAccrual } from './pipeline/applyEconomyAccrual.js';
@@ -114,6 +117,10 @@ export function runTick(
 
     if (stepName === 'applySensors') {
       clearSensorReadingsRuntime(ctx);
+    }
+
+    if (stepName === 'applyIrrigationAndNutrients') {
+      clearIrrigationNutrientsRuntime(ctx);
     }
   }
 

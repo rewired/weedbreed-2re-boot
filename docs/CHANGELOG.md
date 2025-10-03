@@ -1,5 +1,15 @@
 # Changelog
 
+### #52 WB-045 irrigation runtime lifecycle instrumentation
+- Deferred `clearIrrigationNutrientsRuntime` to the Engine tick runner so the
+  instrumentation hook can inspect irrigation/nutrient outputs before the
+  runtime clears, mirroring the sensor lifecycle defined in SEC §6.3.
+- Ensured the irrigation stage seeds a fresh runtime even when zero events
+  arrive so successive ticks never inherit stale zone delivery maps.
+- Expanded the irrigation/nutrient integration test to execute a second tick
+  without events, asserting the runtime surfaces empty maps and the zone buffer
+  remains stable per the SEC/TDD pipeline contracts.
+
 ### #51 WB-044 latent heat coupling for stacked climate devices
 - Added the SEC-mandated `LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG` constant to
   the simulation canon and documentation so latent/sensible coupling shares a
