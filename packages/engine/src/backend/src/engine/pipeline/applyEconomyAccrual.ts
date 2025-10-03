@@ -4,7 +4,5 @@ import type { EngineRunContext } from '../Engine.js';
 export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
   void ctx;
 
-  const nextWorld = { ...world } satisfies SimulationWorld;
-
-  return nextWorld;
+  return world;
 }

@@ -1,5 +1,17 @@
 # Changelog
 
+### #53 WB-046 idle tick immutability guard
+- Updated `commitAndTelemetry` to return the existing world snapshot untouched
+  (including `simTimeHours`) when no pipeline stage mutated state, matching the
+  SEC §1 ordered-tick guarantee that idle ticks do not fabricate temporal
+  advancement.
+- Extended the irrigation/nutrient integration suite to assert both reference
+  equality and time stability when the tick processes zero irrigation events,
+  ensuring regressions surface immediately.
+- Normalised placeholder physiology/harvest/economy pipeline stages to return
+  their input world when no work occurs so mutation tracking and the new commit
+  semantics remain faithful.
+
 ### #52 WB-045 irrigation runtime lifecycle instrumentation
 - Deferred `clearIrrigationNutrientsRuntime` to the Engine tick runner so the
   instrumentation hook can inspect irrigation/nutrient outputs before the
