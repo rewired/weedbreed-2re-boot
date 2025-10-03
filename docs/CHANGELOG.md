@@ -1,5 +1,12 @@
 # Changelog
 
+### #49 WB-042 airflow config parity for exhaust and cooling devices
+- Added explicit airflow effect blocks to the Exhaust Fan 4-inch and CoolAir Split 3000
+  blueprints so `parseDeviceBlueprint` enforces the SEC airflow schema for existing
+  airflow effects.
+- Documented the airflow contract alignment here to keep blueprint data changes
+  traceable for contributors.
+
 ### #48 WB-041 interface stacking vectors and integration coverage
 - Documented stub reference vectors, stacking patterns, and acceptance criteria
   across SEC §6.3, DD §8a, and TDD §9a to align documentation with the
