@@ -131,10 +131,23 @@ export interface SensorEffectConfig {
   readonly noise01: number;
 }
 
+export interface AirflowEffectConfig {
+  readonly mode: 'recirculation' | 'exhaust' | 'intake';
+  readonly airflow_m3_per_h: number;
+}
+
+export interface FiltrationEffectConfig {
+  readonly filterType: 'carbon' | 'hepa' | 'pre-filter';
+  readonly efficiency01: number;
+  readonly basePressureDrop_pa: number;
+}
+
 export interface DeviceEffectConfigs {
   readonly thermal?: ThermalEffectConfig;
   readonly humidity?: HumidityEffectConfig;
   readonly lighting?: LightingEffectConfig;
+  readonly airflow?: AirflowEffectConfig;
+  readonly filtration?: FiltrationEffectConfig;
   readonly sensor?: SensorEffectConfig;
 }
 

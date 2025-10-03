@@ -12,8 +12,12 @@ export * from './LightEmitterStub.js';
 export * from './NutrientBufferStub.js';
 export * from './IrrigationServiceStub.js';
 export * from './SensorStub.js';
+export * from './AirflowActuatorStub.js';
+export * from './FiltrationStub.js';
 
 export { createThermalActuatorStub } from './ThermalActuatorStub.js';
 export { createHumidityActuatorStub } from './HumidityActuatorStub.js';
 export { createLightEmitterStub } from './LightEmitterStub.js';
 export { createSensorStub } from './SensorStub.js';
+export { createAirflowActuatorStub } from './AirflowActuatorStub.js';
+export { createFiltrationStub } from './FiltrationStub.js';

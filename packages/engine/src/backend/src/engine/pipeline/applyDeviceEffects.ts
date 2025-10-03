@@ -4,13 +4,21 @@ import {
   ROOM_DEFAULT_HEIGHT_M
 } from '../../constants/simConstants.js';
 import type {
+  AirflowActuatorInputs,
+  FiltrationUnitInputs,
   HumidityActuatorInputs,
   LightEmitterInputs,
   ThermalActuatorInputs
 } from '../../domain/interfaces/index.js';
 import type { ZoneDeviceInstance } from '../../domain/entities.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
-import { createHumidityActuatorStub, createLightEmitterStub, createThermalActuatorStub } from '../../stubs/index.js';
+import {
+  createAirflowActuatorStub,
+  createFiltrationStub,
+  createHumidityActuatorStub,
+  createLightEmitterStub,
+  createThermalActuatorStub
+} from '../../stubs/index.js';
 import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
 
 export interface DeviceEffectsRuntime {
@@ -22,6 +30,9 @@ export interface DeviceEffectsRuntime {
   readonly zoneAirflowTotals_m3_per_h: Map<Zone['id'], number>;
   readonly zoneCoverageEffectiveness01: Map<Zone['id'], number>;
   readonly zoneAirChangesPerHour: Map<Zone['id'], number>;
+  readonly zoneAirflowReductions_m3_per_h: Map<Zone['id'], number>;
+  readonly zoneOdorDelta: Map<Zone['id'], number>;
+  readonly zoneParticulateRemoval_pct: Map<Zone['id'], number>;
 }
 
 const DEVICE_EFFECTS_CONTEXT_KEY = '__wb_deviceEffects' as const;
@@ -49,7 +60,10 @@ export function ensureDeviceEffectsRuntime(ctx: EngineRunContext): DeviceEffects
     zoneCoverageTotals_m2: new Map(),
     zoneAirflowTotals_m3_per_h: new Map(),
     zoneCoverageEffectiveness01: new Map(),
-    zoneAirChangesPerHour: new Map()
+    zoneAirChangesPerHour: new Map(),
+    zoneAirflowReductions_m3_per_h: new Map(),
+    zoneOdorDelta: new Map(),
+    zoneParticulateRemoval_pct: new Map()
   });
 }
 
@@ -429,6 +443,63 @@ function deriveLightingInputs(
   } satisfies LightEmitterInputs;
 }
 
+function deriveAirflowInputs(device: ZoneDeviceInstance): AirflowActuatorInputs | null {
+  const effects = device.effects ?? [];
+  const duty01 = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 0);
+
+  if (duty01 <= 0) {
+    return null;
+  }
+
+  if (effects.includes('airflow') && device.effectConfigs?.airflow) {
+    const config = device.effectConfigs.airflow;
+
+    if (!Number.isFinite(config.airflow_m3_per_h) || config.airflow_m3_per_h <= 0) {
+      return null;
+    }
+
+    return {
+      airflow_m3_per_h: config.airflow_m3_per_h,
+      mode: config.mode,
+      dutyCycle01: duty01
+    } satisfies AirflowActuatorInputs;
+  }
+
+  const legacyAirflow = Number.isFinite(device.airflow_m3_per_h) ? device.airflow_m3_per_h : 0;
+
+  if (legacyAirflow <= 0) {
+    return null;
+  }
+
+  return {
+    airflow_m3_per_h: legacyAirflow,
+    mode: 'exhaust',
+    dutyCycle01: duty01
+  } satisfies AirflowActuatorInputs;
+}
+
+function deriveFiltrationInputs(
+  device: ZoneDeviceInstance,
+  upstreamAirflow_m3_per_h: number
+): FiltrationUnitInputs | null {
+  const effects = device.effects ?? [];
+
+  if (!effects.includes('filtration') || !device.effectConfigs?.filtration) {
+    return null;
+  }
+
+  const config = device.effectConfigs.filtration;
+  const condition01 = clamp01(Number.isFinite(device.condition01) ? device.condition01 : 0.9);
+
+  return {
+    airflow_m3_per_h: upstreamAirflow_m3_per_h,
+    filterType: config.filterType,
+    efficiency01: config.efficiency01,
+    condition01,
+    basePressureDrop_pa: config.basePressureDrop_pa
+  } satisfies FiltrationUnitInputs;
+}
+
 export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
   const tickHours = resolveTickHours(ctx);
   const runtime = ensureDeviceEffectsRuntime(ctx);
@@ -437,17 +508,17 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
     for (const room of structure.rooms) {
       for (const zone of room.zones) {
         const { totalCoverage_m2, effectiveness01 } = computeCoverageTotals(zone);
-        const { totalAirflow_m3_per_h, ach } = computeAirflowMetrics(zone);
+        const { totalAirflow_m3_per_h } = computeAirflowMetrics(zone);
         const height_m = resolveZoneHeight(zone);
         const volume_m3 = Math.max(0, zone.floorArea_m2) * height_m;
 
         runtime.zoneCoverageTotals_m2.set(zone.id, totalCoverage_m2);
         runtime.zoneCoverageEffectiveness01.set(zone.id, effectiveness01);
-        runtime.zoneAirflowTotals_m3_per_h.set(zone.id, totalAirflow_m3_per_h);
-        runtime.zoneAirChangesPerHour.set(zone.id, ach);
+        runtime.zoneAirflowReductions_m3_per_h.set(zone.id, 0);
+        runtime.zoneOdorDelta.set(zone.id, 0);
+        runtime.zoneParticulateRemoval_pct.set(zone.id, 0);
 
         emitCoverageWarning(ctx, zone, totalCoverage_m2, Math.max(0, zone.floorArea_m2), effectiveness01);
-        emitAirflowWarning(ctx, zone, totalAirflow_m3_per_h, ach, volume_m3);
 
         for (const device of zone.devices) {
           const thermalInputs = deriveThermalInputs(device);
@@ -486,7 +557,54 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
             accumulatePPFD(runtime, zone.id, ppfd_effective_umol_m2s);
             accumulateDLI(runtime, zone.id, dli_mol_m2d_inc);
           }
+
+          const airflowInputs = deriveAirflowInputs(device);
+          let deviceAirflow_m3_per_h = 0;
+
+          if (airflowInputs) {
+            const airflowStub = createAirflowActuatorStub();
+            const { effective_airflow_m3_per_h } = airflowStub.computeEffect(
+              airflowInputs,
+              volume_m3,
+              tickHours
+            );
+            deviceAirflow_m3_per_h = effective_airflow_m3_per_h;
+          }
+
+          const filtrationInputs = deriveFiltrationInputs(device, deviceAirflow_m3_per_h);
+
+          if (filtrationInputs) {
+            const filtrationStub = createFiltrationStub();
+            const { airflow_reduction_m3_per_h, odor_concentration_delta, particulate_removal_pct } =
+              filtrationStub.computeEffect(filtrationInputs, tickHours);
+
+            const currentReduction = runtime.zoneAirflowReductions_m3_per_h.get(zone.id) ?? 0;
+            runtime.zoneAirflowReductions_m3_per_h.set(
+              zone.id,
+              currentReduction + airflow_reduction_m3_per_h
+            );
+
+            const currentOdor = runtime.zoneOdorDelta.get(zone.id) ?? 0;
+            runtime.zoneOdorDelta.set(zone.id, currentOdor + odor_concentration_delta);
+
+            const currentParticulate = runtime.zoneParticulateRemoval_pct.get(zone.id) ?? 0;
+            runtime.zoneParticulateRemoval_pct.set(
+              zone.id,
+              currentParticulate + particulate_removal_pct
+            );
+
+            deviceAirflow_m3_per_h = Math.max(0, deviceAirflow_m3_per_h - airflow_reduction_m3_per_h);
+          }
         }
+
+        const airflowReduction = runtime.zoneAirflowReductions_m3_per_h.get(zone.id) ?? 0;
+        const netAirflow_m3_per_h = Math.max(0, totalAirflow_m3_per_h - airflowReduction);
+        const netACH = volume_m3 > 0 ? netAirflow_m3_per_h / volume_m3 : 0;
+
+        runtime.zoneAirflowTotals_m3_per_h.set(zone.id, netAirflow_m3_per_h);
+        runtime.zoneAirChangesPerHour.set(zone.id, netACH);
+
+        emitAirflowWarning(ctx, zone, netAirflow_m3_per_h, netACH, volume_m3);
       }
     }
   }
