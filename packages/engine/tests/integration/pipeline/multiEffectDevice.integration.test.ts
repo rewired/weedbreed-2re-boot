@@ -14,6 +14,7 @@ import {
   type Uuid,
   type ZoneDeviceInstance
 } from '@/backend/src/domain/world.js';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -23,10 +24,23 @@ const QUALITY_POLICY: DeviceQualityPolicy = {
   sampleQuality01: (rng) => rng()
 };
 
+const BASE_BLUEPRINT: DeviceBlueprint = {
+  id: '00000000-0000-0000-0000-000000000000',
+  slug: 'integration-test-device',
+  class: 'device.test.mock',
+  name: 'Integration Test Device',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 0,
+  efficiency01: 1,
+  coverage_m2: 0,
+  airflow_m3_per_h: 0
+};
+
 const WORLD_SEED = 'multi-effect-seed';
 
 function deviceQuality(id: Uuid): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, BASE_BLUEPRINT).quality01;
 }
 
 describe('Tick pipeline — multi-effect devices', () => {
@@ -64,7 +78,12 @@ describe('Tick pipeline — multi-effect devices', () => {
       efficiency01: 0.65,
       coverage_m2: 25,
       airflow_m3_per_h: 350,
-      sensibleHeatRemovalCapacity_W: 3_000
+      sensibleHeatRemovalCapacity_W: 3_000,
+      effects: ['thermal', 'humidity', 'airflow'],
+      effectConfigs: {
+        thermal: { mode: 'cool', max_cool_W: 3_000 },
+        humidity: { mode: 'dehumidify', capacity_g_per_h: 500 }
+      }
     } satisfies ZoneDeviceInstance;
 
     zone.devices = [multiEffectDevice];
@@ -114,7 +133,9 @@ describe('Tick pipeline — multi-effect devices', () => {
       efficiency01: 0.2,
       coverage_m2: 60,
       airflow_m3_per_h: 0,
-      sensibleHeatRemovalCapacity_W: 0
+      sensibleHeatRemovalCapacity_W: 0,
+      effects: ['thermal'],
+      effectConfigs: { thermal: { mode: 'heat' } }
     } satisfies ZoneDeviceInstance;
 
     const dehumidifierId = uuid('30000000-0000-0000-0000-000000000005');
@@ -131,7 +152,11 @@ describe('Tick pipeline — multi-effect devices', () => {
       efficiency01: 0.5,
       coverage_m2: 30,
       airflow_m3_per_h: 0,
-      sensibleHeatRemovalCapacity_W: 0
+      sensibleHeatRemovalCapacity_W: 0,
+      effects: ['humidity'],
+      effectConfigs: {
+        humidity: { mode: 'dehumidify', capacity_g_per_h: 500 }
+      }
     } satisfies ZoneDeviceInstance;
 
     zone.devices = [heater, dehumidifier];
@@ -177,7 +202,9 @@ describe('Tick pipeline — multi-effect devices', () => {
       efficiency01: 0.2,
       coverage_m2: 10,
       airflow_m3_per_h: 0,
-      sensibleHeatRemovalCapacity_W: 0
+      sensibleHeatRemovalCapacity_W: 0,
+      effects: ['thermal'],
+      effectConfigs: { thermal: { mode: 'heat' } }
     } satisfies ZoneDeviceInstance;
 
     zone.devices = [partialCoverageHeater];
@@ -194,5 +221,144 @@ describe('Tick pipeline — multi-effect devices', () => {
       zone.environment.airTemperatureC + unscaledDeltaC * effectiveness01;
 
     expect(nextZone.environment.airTemperatureC).toBeCloseTo(expectedTemp, 5);
+  });
+
+  it('Pattern A: Split-AC with explicit blueprint configs', () => {
+    const world = createDemoWorld();
+    const zone = world.company.structures[0].rooms[0].zones[0];
+
+    zone.environment = {
+      ...zone.environment,
+      relativeHumidity_pct: 62
+    };
+
+    const initialTemperatureC = zone.environment.airTemperatureC;
+    const initialHumidity = zone.environment.relativeHumidity_pct;
+
+    const deviceId = uuid('30000000-0000-0000-0000-000000000009');
+    const splitAC: ZoneDeviceInstance = {
+      id: deviceId,
+      slug: 'pattern-a-unit',
+      name: 'Pattern A Split AC',
+      blueprintId: uuid('30000000-0000-0000-0000-00000000000a'),
+      placementScope: 'zone',
+      quality01: deviceQuality(deviceId),
+      condition01: 0.96,
+      powerDraw_W: 1_200,
+      dutyCycle01: 1,
+      efficiency01: 0.65,
+      coverage_m2: 25,
+      airflow_m3_per_h: 350,
+      sensibleHeatRemovalCapacity_W: 0,
+      effects: ['thermal', 'humidity', 'airflow'],
+      effectConfigs: {
+        thermal: { mode: 'cool', max_cool_W: 3_000 },
+        humidity: { mode: 'dehumidify', capacity_g_per_h: 500 }
+      }
+    } satisfies ZoneDeviceInstance;
+
+    zone.devices = [splitAC];
+
+    const ctx: EngineRunContext = { tickDurationHours: 1 } satisfies EngineRunContext;
+    const { world: nextWorld } = runTick(world, ctx);
+    const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
+
+    const cooling_W = splitAC.powerDraw_W * splitAC.efficiency01;
+    const tickSeconds = (ctx.tickDurationHours ?? HOURS_PER_TICK) * SECONDS_PER_HOUR;
+    const expectedDeltaC =
+      (-cooling_W * tickSeconds) / (zone.airMass_kg * CP_AIR_J_PER_KG_K);
+
+    expect(nextZone.environment.airTemperatureC).toBeCloseTo(
+      initialTemperatureC + expectedDeltaC,
+      5
+    );
+    expect(nextZone.environment.relativeHumidity_pct).toBeLessThan(initialHumidity);
+  });
+
+  it('Pattern B: Dehumidifier with reheat', () => {
+    const world = createDemoWorld();
+    const zone = world.company.structures[0].rooms[0].zones[0];
+
+    zone.environment = {
+      ...zone.environment,
+      relativeHumidity_pct: 68
+    };
+
+    const deviceId = uuid('30000000-0000-0000-0000-00000000000b');
+    const reheatDehumidifier: ZoneDeviceInstance = {
+      id: deviceId,
+      slug: 'pattern-b-unit',
+      name: 'Pattern B Dehumidifier',
+      blueprintId: uuid('30000000-0000-0000-0000-00000000000c'),
+      placementScope: 'zone',
+      quality01: deviceQuality(deviceId),
+      condition01: 0.9,
+      powerDraw_W: 300,
+      dutyCycle01: 1,
+      efficiency01: 0.6,
+      coverage_m2: 6.67,
+      airflow_m3_per_h: 0,
+      sensibleHeatRemovalCapacity_W: 0,
+      effects: ['humidity', 'thermal'],
+      effectConfigs: {
+        humidity: { mode: 'dehumidify', capacity_g_per_h: 1_800 },
+        thermal: { mode: 'heat' }
+      }
+    } satisfies ZoneDeviceInstance;
+
+    zone.devices = [reheatDehumidifier];
+
+    const { world: nextWorld } = runTick(world, {});
+    const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
+
+    const wasteHeat_W =
+      reheatDehumidifier.powerDraw_W * (1 - reheatDehumidifier.efficiency01);
+    const tickSeconds = HOURS_PER_TICK * SECONDS_PER_HOUR;
+    const expectedTempIncrease =
+      (wasteHeat_W * tickSeconds) / (zone.airMass_kg * CP_AIR_J_PER_KG_K);
+
+    expect(nextZone.environment.airTemperatureC).toBeCloseTo(
+      zone.environment.airTemperatureC + expectedTempIncrease,
+      5
+    );
+    expect(nextZone.environment.relativeHumidity_pct).toBeLessThan(
+      zone.environment.relativeHumidity_pct
+    );
+  });
+
+  it('retains heuristic behaviour for legacy devices without effects metadata', () => {
+    const world = createDemoWorld();
+    const zone = world.company.structures[0].rooms[0].zones[0];
+
+    zone.environment = {
+      ...zone.environment,
+      relativeHumidity_pct: 70
+    };
+
+    const legacyId = uuid('30000000-0000-0000-0000-00000000000d');
+    const legacyDevice: ZoneDeviceInstance = {
+      id: legacyId,
+      slug: 'legacy-dehumidifier',
+      name: 'Legacy Dehumidifier',
+      blueprintId: uuid('30000000-0000-0000-0000-00000000000e'),
+      placementScope: 'zone',
+      quality01: deviceQuality(legacyId),
+      condition01: 0.85,
+      powerDraw_W: 400,
+      dutyCycle01: 1,
+      efficiency01: 0.5,
+      coverage_m2: 30,
+      airflow_m3_per_h: 0,
+      sensibleHeatRemovalCapacity_W: 0
+    } satisfies ZoneDeviceInstance;
+
+    zone.devices = [legacyDevice];
+
+    const { world: nextWorld } = runTick(world, {});
+    const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
+
+    expect(nextZone.environment.relativeHumidity_pct).toBeLessThan(
+      zone.environment.relativeHumidity_pct
+    );
   });
 });

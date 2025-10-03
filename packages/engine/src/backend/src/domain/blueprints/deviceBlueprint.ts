@@ -26,6 +26,31 @@ const deviceClassSchema = z
 /**
  * Canonical device blueprint contract enforced for JSON payloads.
  */
+const deviceEffectSchema = z.enum(['thermal', 'humidity', 'lighting', 'airflow', 'filtration']);
+
+const thermalConfigObjectSchema = z.object({
+  mode: z.enum(['heat', 'cool', 'auto']),
+  max_heat_W: finiteNumber.min(0, 'max_heat_W must be non-negative.').optional(),
+  max_cool_W: finiteNumber.min(0, 'max_cool_W must be non-negative.').optional(),
+  setpoint_C: finiteNumber.optional()
+});
+
+const humidityConfigObjectSchema = z.object({
+  mode: z.enum(['humidify', 'dehumidify']),
+  capacity_g_per_h: finiteNumber.min(0, 'capacity_g_per_h must be non-negative.')
+});
+
+const lightingConfigObjectSchema = z.object({
+  ppfd_center_umol_m2s: finiteNumber.min(0, 'ppfd_center_umol_m2s must be non-negative.'),
+  photonEfficacy_umol_per_J: finiteNumber
+    .min(0, 'photonEfficacy_umol_per_J must be non-negative.')
+    .optional()
+});
+
+const thermalConfigSchema = thermalConfigObjectSchema.optional();
+const humidityConfigSchema = humidityConfigObjectSchema.optional();
+const lightingConfigSchema = lightingConfigObjectSchema.optional();
+
 const deviceBlueprintObjectSchema = z
   .object({
     id: z.string().uuid('Device blueprint id must be a UUID v4.'),
@@ -45,7 +70,11 @@ const deviceBlueprintObjectSchema = z
     coverage_m2: finiteNumber.min(0, 'coverage_m2 must be non-negative.').optional(),
     airflow_m3_per_h: finiteNumber
       .min(0, 'airflow_m3_per_h must be non-negative.')
-      .optional()
+      .optional(),
+    effects: z.array(deviceEffectSchema).nonempty('effects must not be empty.').optional(),
+    thermal: thermalConfigSchema,
+    humidity: humidityConfigSchema,
+    lighting: lightingConfigSchema
   })
   .passthrough();
 
@@ -204,6 +233,32 @@ const classSpecificValidators: Partial<
 export const deviceBlueprintSchema = deviceBlueprintObjectSchema.superRefine((blueprint, ctx) => {
   assertNoMonetaryFields(blueprint, ctx);
 
+  const effects = blueprint.effects ?? [];
+
+  if (effects.includes('thermal') && !blueprint.thermal) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['thermal'],
+      message: "thermal config is required when effects include 'thermal'."
+    });
+  }
+
+  if (effects.includes('humidity') && !blueprint.humidity) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['humidity'],
+      message: "humidity config is required when effects include 'humidity'."
+    });
+  }
+
+  if (effects.includes('lighting') && !blueprint.lighting) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['lighting'],
+      message: "lighting config is required when effects include 'lighting'."
+    });
+  }
+
   if (!blueprint.coverage_m2 && !blueprint.airflow_m3_per_h) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -219,6 +274,10 @@ export const deviceBlueprintSchema = deviceBlueprintObjectSchema.superRefine((bl
   }
 });
 
+export type DeviceEffect = z.infer<typeof deviceEffectSchema>;
+export type ThermalConfig = z.infer<typeof thermalConfigObjectSchema>;
+export type HumidityConfig = z.infer<typeof humidityConfigObjectSchema>;
+export type LightingConfig = z.infer<typeof lightingConfigObjectSchema>;
 export type DeviceBlueprint = z.infer<typeof deviceBlueprintSchema>;
 
 export interface ParseDeviceBlueprintOptions extends BlueprintPathOptions {
@@ -275,4 +334,47 @@ export function toDeviceInstanceCapacity(blueprint: DeviceBlueprint): DeviceInst
     coverage_m2: blueprint.coverage_m2 ?? 0,
     airflow_m3_per_h: blueprint.airflow_m3_per_h ?? 0
   } satisfies DeviceInstanceCapacity;
+}
+
+export interface DeviceEffectConfigs {
+  readonly thermal?: ThermalConfig;
+  readonly humidity?: HumidityConfig;
+  readonly lighting?: LightingConfig;
+}
+
+export interface DeviceInstanceEffectConfigProjection {
+  readonly effects?: readonly DeviceEffect[];
+  readonly effectConfigs?: DeviceEffectConfigs;
+}
+
+export function toDeviceInstanceEffectConfigs(
+  blueprint: DeviceBlueprint
+): DeviceInstanceEffectConfigProjection {
+  if (!blueprint.effects || blueprint.effects.length === 0) {
+    return { effects: undefined, effectConfigs: undefined };
+  }
+
+  const effects = [...blueprint.effects] as readonly DeviceEffect[];
+  const configs: DeviceEffectConfigs = {};
+  let hasConfig = false;
+
+  if (effects.includes('thermal') && blueprint.thermal) {
+    configs.thermal = { ...blueprint.thermal };
+    hasConfig = true;
+  }
+
+  if (effects.includes('humidity') && blueprint.humidity) {
+    configs.humidity = { ...blueprint.humidity };
+    hasConfig = true;
+  }
+
+  if (effects.includes('lighting') && blueprint.lighting) {
+    configs.lighting = { ...blueprint.lighting };
+    hasConfig = true;
+  }
+
+  return {
+    effects,
+    effectConfigs: hasConfig ? configs : undefined
+  } satisfies DeviceInstanceEffectConfigProjection;
 }

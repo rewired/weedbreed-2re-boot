@@ -270,11 +270,8 @@ function emitAirflowWarning(
 }
 
 /**
- * Derives thermal actuator inputs based on the device instance fields.
- *
- * Phase 1 simplification: mode selection hinges on sensible heat removal
- * capacity being available. Devices without cooling capacity operate in waste
- * heat mode.
+ * Derives thermal actuator inputs favouring blueprint-provided configuration
+ * and falling back to legacy sensible-heat heuristics when unavailable.
  */
 function deriveThermalInputs(
   device: ZoneDeviceInstance
@@ -289,10 +286,35 @@ function deriveThermalInputs(
   const efficiency01 = clamp01(
     Number.isFinite(device.efficiency01) ? device.efficiency01 : 0
   );
+  const effectivePower_W = power_W * duty01;
+  const effects = device.effects ?? [];
+
+  if (effects.includes('thermal') && device.effectConfigs?.thermal) {
+    const config = device.effectConfigs.thermal;
+    const inputs: ThermalActuatorInputs = {
+      power_W: effectivePower_W,
+      efficiency01,
+      mode: config.mode
+    };
+
+    if (typeof config.max_heat_W === 'number') {
+      inputs.max_heat_W = config.max_heat_W * duty01;
+    }
+
+    if (typeof config.max_cool_W === 'number') {
+      inputs.max_cool_W = config.max_cool_W * duty01;
+    }
+
+    if (typeof config.setpoint_C === 'number') {
+      inputs.setpoint_C = config.setpoint_C;
+    }
+
+    return inputs;
+  }
+
   const maxCool_W = Number.isFinite(device.sensibleHeatRemovalCapacity_W)
     ? device.sensibleHeatRemovalCapacity_W
     : 0;
-  const effectivePower_W = power_W * duty01;
 
   if (maxCool_W > 0) {
     return {
@@ -311,10 +333,8 @@ function deriveThermalInputs(
 }
 
 /**
- * Derives humidity actuator inputs using heuristic slug classification.
- *
- * Phase 1 simplification: relies on slug/name matching while blueprint-driven
- * configuration is scheduled for a subsequent phase.
+ * Derives humidity actuator inputs preferring explicit blueprint configuration
+ * with slug/name heuristics for legacy devices lacking effects metadata.
  */
 function deriveHumidityInputs(
   device: ZoneDeviceInstance
@@ -327,28 +347,41 @@ function deriveHumidityInputs(
     return null;
   }
 
+  const effects = device.effects ?? [];
+
+  if (effects.includes('humidity') && device.effectConfigs?.humidity) {
+    const config = device.effectConfigs.humidity;
+
+    if (!Number.isFinite(config.capacity_g_per_h) || config.capacity_g_per_h <= 0) {
+      return null;
+    }
+
+    return {
+      mode: config.mode,
+      capacity_g_per_h: config.capacity_g_per_h * duty01
+    } satisfies HumidityActuatorInputs;
+  }
+
   if (slug.includes('dehumid') || name.includes('dehumid')) {
     return {
       mode: 'dehumidify',
       capacity_g_per_h: 500 * duty01
-    } satisfies HumidityActuatorInputs; // TODO: Replace heuristic in Phase 2
+    } satisfies HumidityActuatorInputs; // Legacy heuristic
   }
 
   if (slug.includes('humid') || name.includes('humid')) {
     return {
       mode: 'humidify',
       capacity_g_per_h: 300 * duty01
-    } satisfies HumidityActuatorInputs; // TODO: Replace heuristic in Phase 2
+    } satisfies HumidityActuatorInputs; // Legacy heuristic
   }
 
   return null;
 }
 
 /**
- * Derives light emitter inputs assuming a constant photon efficacy.
- *
- * Phase 1 simplification: infers PPFD from electrical power draw, coverage,
- * and duty cycle while awaiting blueprint integration.
+ * Derives light emitter inputs prioritising explicit blueprint configuration
+ * with power-based heuristics for legacy devices lacking lighting metadata.
  */
 function deriveLightingInputs(
   device: ZoneDeviceInstance
@@ -366,7 +399,23 @@ function deriveLightingInputs(
     Number.isFinite(device.efficiency01) ? device.efficiency01 : 0
   );
   const dim01 = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 0);
-  const photonEfficacy_umol_per_J = 2.5; // TODO: Blueprint-sourced value
+  const effects = device.effects ?? [];
+
+  if (effects.includes('lighting') && device.effectConfigs?.lighting) {
+    const config = device.effectConfigs.lighting;
+
+    if (!Number.isFinite(config.ppfd_center_umol_m2s) || config.ppfd_center_umol_m2s <= 0) {
+      return null;
+    }
+
+    return {
+      ppfd_center_umol_m2s: config.ppfd_center_umol_m2s,
+      coverage_m2,
+      dim01
+    } satisfies LightEmitterInputs;
+  }
+
+  const photonEfficacy_umol_per_J = 2.5; // Legacy heuristic until all blueprints migrate
   const ppfd_center_umol_m2s = power_W * efficiency01 * photonEfficacy_umol_per_J;
 
   if (ppfd_center_umol_m2s <= 0) {
