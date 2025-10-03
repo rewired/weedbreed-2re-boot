@@ -42,7 +42,7 @@ const COOL_AIR_DEHUMIDIFIER_BLUEPRINT: DeviceBlueprint = {
   effects: ['thermal', 'humidity', 'airflow'],
   thermal: { mode: 'cool', max_cool_W: 3_000 },
   humidity: { mode: 'dehumidify', capacity_g_per_h: 500 },
-  airflow: { mode: 'circulate' }
+  airflow: { mode: 'circulate', airflow_m3_per_h: 350 }
 };
 
 const RESISTIVE_HEATER_BLUEPRINT: DeviceBlueprint = {
@@ -104,7 +104,7 @@ const PATTERN_A_SPLIT_AC_BLUEPRINT: DeviceBlueprint = {
   effects: ['thermal', 'humidity', 'airflow'],
   thermal: { mode: 'cool', max_cool_W: 3_000 },
   humidity: { mode: 'dehumidify', capacity_g_per_h: 500 },
-  airflow: { mode: 'circulate' }
+  airflow: { mode: 'circulate', airflow_m3_per_h: 350 }
 };
 
 const PATTERN_B_REHEAT_BLUEPRINT: DeviceBlueprint = {
@@ -179,7 +179,8 @@ describe('Tick pipeline — multi-effect devices', () => {
       effects: ['thermal', 'humidity', 'airflow'],
       effectConfigs: {
         thermal: { mode: 'cool', max_cool_W: 3_000 },
-        humidity: { mode: 'dehumidify', capacity_g_per_h: 500 }
+        humidity: { mode: 'dehumidify', capacity_g_per_h: 500 },
+        airflow: { mode: 'circulate', airflow_m3_per_h: 350 }
       }
     } satisfies ZoneDeviceInstance;
 
@@ -382,7 +383,8 @@ describe('Tick pipeline — multi-effect devices', () => {
       effects: ['thermal', 'humidity', 'airflow'],
       effectConfigs: {
         thermal: { mode: 'cool', max_cool_W: 3_000 },
-        humidity: { mode: 'dehumidify', capacity_g_per_h: 500 }
+        humidity: { mode: 'dehumidify', capacity_g_per_h: 500 },
+        airflow: { mode: 'circulate', airflow_m3_per_h: 350 }
       }
     } satisfies ZoneDeviceInstance;
 
