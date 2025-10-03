@@ -129,7 +129,11 @@ const plantSchema: z.ZodType<Plant> = domainEntitySchema
   });
 
 const zoneEnvironmentSchema: z.ZodType<ZoneEnvironment> = z.object({
-  airTemperatureC: finiteNumber
+  airTemperatureC: finiteNumber,
+  relativeHumidity_pct: finiteNumber
+    .min(0, 'relativeHumidity_pct must be >= 0.')
+    .max(100, 'relativeHumidity_pct must be <= 100.')
+    .default(50)
 });
 
 function deriveZoneAirMassKg(zone: Pick<Zone, 'floorArea_m2' | 'height_m'>): number {
