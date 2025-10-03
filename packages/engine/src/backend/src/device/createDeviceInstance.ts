@@ -92,5 +92,9 @@ function freezeEffectConfigs(
     next.lighting = Object.freeze({ ...configs.lighting });
   }
 
+  if (configs.sensor) {
+    next.sensor = Object.freeze({ ...configs.sensor });
+  }
+
   return Object.freeze(next);
 }

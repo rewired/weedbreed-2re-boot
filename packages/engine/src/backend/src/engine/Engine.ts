@@ -2,6 +2,7 @@ import type { SimulationWorld, Uuid } from '../domain/world.js';
 import type { IrrigationEvent } from '../domain/interfaces/IIrrigationService.js';
 import { applyDeviceEffects } from './pipeline/applyDeviceEffects.js';
 import { updateEnvironment } from './pipeline/updateEnvironment.js';
+import { applySensors, clearSensorReadingsRuntime } from './pipeline/applySensors.js';
 import { applyIrrigationAndNutrients } from './pipeline/applyIrrigationAndNutrients.js';
 import { advancePhysiology } from './pipeline/advancePhysiology.js';
 import { applyHarvestAndInventory } from './pipeline/applyHarvestAndInventory.js';
@@ -49,6 +50,7 @@ export type PipelineStage = (
 const PIPELINE_DEFINITION: ReadonlyArray<readonly [StepName, PipelineStage]> = [
   ['applyDeviceEffects', applyDeviceEffects],
   ['updateEnvironment', updateEnvironment],
+  ['applySensors', applySensors],
   ['applyIrrigationAndNutrients', applyIrrigationAndNutrients],
   ['advancePhysiology', advancePhysiology],
   ['applyHarvestAndInventory', applyHarvestAndInventory],
@@ -74,6 +76,10 @@ export function runTick(
     }
 
     ctx.instrumentation?.onStageComplete?.(stepName, nextWorld);
+
+    if (stepName === 'applySensors') {
+      clearSensorReadingsRuntime(ctx);
+    }
   }
 
   const trace = collector?.finalize();

@@ -105,7 +105,7 @@ export interface CompanyLocation {
   readonly countryName: string;
 }
 
-export type DeviceEffectType = 'thermal' | 'humidity' | 'lighting' | 'airflow' | 'filtration';
+export type DeviceEffectType = 'thermal' | 'humidity' | 'lighting' | 'airflow' | 'filtration' | 'sensor';
 
 export interface ThermalEffectConfig {
   readonly mode: 'heat' | 'cool' | 'auto';
@@ -124,10 +124,18 @@ export interface LightingEffectConfig {
   readonly photonEfficacy_umol_per_J?: number;
 }
 
+export type SensorMeasurementType = 'temperature' | 'humidity' | 'ppfd';
+
+export interface SensorEffectConfig {
+  readonly measurementType: SensorMeasurementType;
+  readonly noise01: number;
+}
+
 export interface DeviceEffectConfigs {
   readonly thermal?: ThermalEffectConfig;
   readonly humidity?: HumidityEffectConfig;
   readonly lighting?: LightingEffectConfig;
+  readonly sensor?: SensorEffectConfig;
 }
 
 /**
