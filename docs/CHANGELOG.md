@@ -1,5 +1,13 @@
 # Changelog
 
+### #50 WB-043 world mutation tracking in Engine pipeline
+- Added a private `__wb_worldMutated` tracking helper on `EngineRunContext` so the
+  tick runner can detect in-place stage stability without cloning worlds.
+- Updated `runTick` to raise the flag when a stage returns a new world instance
+  and to clear it once the pipeline finishes, keeping context reuse deterministic.
+- Optimised `commitAndTelemetry` to mutate `simTimeHours` in-place when no prior
+  stage touched the world, preserving the existing clone path when mutations do occur.
+
 ### #49 WB-042 airflow config parity for exhaust and cooling devices
 - Added explicit airflow effect blocks to the Exhaust Fan 4-inch and CoolAir Split 3000
   blueprints so `parseDeviceBlueprint` enforces the SEC airflow schema for existing
