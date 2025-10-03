@@ -357,6 +357,30 @@ function validateRoom(
       });
     }
 
+    if (!Number.isFinite(zone.ppfd_umol_m2s)) {
+      issues.push({
+        path: `${zonePath}.ppfd_umol_m2s`,
+        message: 'zone PPFD must be a finite number'
+      });
+    } else if (zone.ppfd_umol_m2s < 0) {
+      issues.push({
+        path: `${zonePath}.ppfd_umol_m2s`,
+        message: 'zone PPFD must be non-negative'
+      });
+    }
+
+    if (!Number.isFinite(zone.dli_mol_m2d_inc)) {
+      issues.push({
+        path: `${zonePath}.dli_mol_m2d_inc`,
+        message: 'zone DLI increment must be a finite number'
+      });
+    } else if (zone.dli_mol_m2d_inc < 0) {
+      issues.push({
+        path: `${zonePath}.dli_mol_m2d_inc`,
+        message: 'zone DLI increment must be non-negative'
+      });
+    }
+
     zone.devices.forEach((device, deviceIndex) => {
       validateDevice(
         device,

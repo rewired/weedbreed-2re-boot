@@ -202,6 +202,16 @@ export interface Zone extends DomainEntity, SluggedEntity, SpatialEntity {
   readonly airMass_kg: number;
   /** Environmental state describing the zone's well-mixed air mass. */
   readonly environment: ZoneEnvironment;
+  /**
+   * Photosynthetic photon flux density delivered to the zone canopy expressed
+   * in µmol·m⁻²·s⁻¹.
+   */
+  readonly ppfd_umol_m2s: number;
+  /**
+   * Daily light integral increment accumulated during the current tick
+   * expressed in mol·m⁻²·d⁻¹.
+   */
+  readonly dli_mol_m2d_inc: number;
 }
 
 /**
