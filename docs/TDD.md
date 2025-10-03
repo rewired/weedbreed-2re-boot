@@ -219,7 +219,7 @@ it('hourly cost derives from power draw (W) and tariff (kWh)', () => {
 - Zone **must** reference a `cultivationMethod` defining **containers**, **substrates** (incl. `densityFactor_L_per_kg` and `purchaseUnit`), **irrigation** compatibility, and **planting density**.
   - Irrigation compatibility is derived from irrigation method blueprints that list the substrate slug under `compatibility.substrates`; zones selecting a substrate without matching irrigation support should fail validation.
 - Substrate blueprints SHALL include `reusePolicy.maxCycles` (matching the top-level `maxCycles`), `densityFactor_L_per_kg`, and unit price metadata bound to `purchaseUnit`. Validation rejects reuse profiles missing sterilisation tasks when `maxCycles > 1`.
-    
+
 
 ```ts
 // tests/integration/zone/cultivationMethod.spec.ts
@@ -231,6 +231,33 @@ it('zone without cultivationMethod fails validation', async () => {
   expect(world.errors).toContainEqual(expect.stringContaining('cultivationMethod'));
 });
 ```
+
+---
+
+## 9a) Interface-Stacking & Stubs (Phase 1)
+
+- **Interface-Stacking:** Devices may implement multiple interfaces (e.g., Split-AC: `IThermalActuator` + `IHumidityActuator` + `IAirflowActuator`). Tests assert deterministic aggregation of interface effects per pipeline order.
+
+- **Stub Conventions (Phase 1):**
+  - **Determinism:** Same input set ⇒ same output set (with fixed seed)
+  - **SI-Units:** W, Wh, m², m³/h, mg/h, µmol·m⁻²·s⁻¹ (PPFD), K, %
+  - **Clamps:** All 0..1 scales hard-clamped; negative flows/stocks avoided
+  - **Caps:** Stubs respect `capacity`/`max_*` from blueprint parameters
+  - **Telemetry:** Each stub returns primary outputs + auxiliary values (e.g., `energy_Wh`)
+
+- **Test Vectors:**
+  - Golden vectors cover each interface combination to lock deterministic aggregation.
+  - Module specs assert clamp/cap enforcement with boundary inputs (0, 1, max).
+  - Integration specs verify telemetry payloads include auxiliary metrics for downstream monitors.
+
+- **Composition Patterns:**
+  - **Pattern A:** Multi-Interface in one device (Split-AC)
+  - **Pattern B:** Combined device with coupled effects (Dehumidifier with Reheat)
+  - **Pattern C:** Composition via chain (Fan→Filter)
+  - **Pattern D:** Sensor + Actuator in one housing
+  - **Pattern E:** Substrate Buffer + Irrigation (Service + Domain)
+
+- **Reference:** `/docs/proposals/20251002-interface_stubs.md` (consolidated specification)
 
 ---
 
