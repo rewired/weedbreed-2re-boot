@@ -92,6 +92,14 @@ function freezeEffectConfigs(
     next.lighting = Object.freeze({ ...configs.lighting });
   }
 
+  if (configs.airflow) {
+    next.airflow = Object.freeze({ ...configs.airflow });
+  }
+
+  if (configs.filtration) {
+    next.filtration = Object.freeze({ ...configs.filtration });
+  }
+
   if (configs.sensor) {
     next.sensor = Object.freeze({ ...configs.sensor });
   }

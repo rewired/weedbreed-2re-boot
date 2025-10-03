@@ -10,6 +10,8 @@ export interface FiltrationUnitInputs {
   readonly efficiency01: number;
   /** Filter condition on the canonical [0,1] scale representing clogging or ageing. */
   readonly condition01: number;
+  /** Baseline pressure drop characteristic for the clean filter media, expressed in pascal. */
+  readonly basePressureDrop_pa: number;
 }
 
 /**

@@ -47,6 +47,19 @@ const lightingConfigObjectSchema = z.object({
     .optional()
 });
 
+const airflowConfigObjectSchema = z.object({
+  mode: z.enum(['recirculation', 'exhaust', 'intake']),
+  airflow_m3_per_h: finiteNumber.min(0, 'airflow_m3_per_h must be non-negative.')
+});
+
+const filtrationConfigObjectSchema = z.object({
+  filterType: z.enum(['carbon', 'hepa', 'pre-filter']),
+  efficiency01: finiteNumber
+    .min(0, 'efficiency01 must be >= 0.')
+    .max(1, 'efficiency01 must be <= 1.'),
+  basePressureDrop_pa: finiteNumber.min(0, 'basePressureDrop_pa must be non-negative.')
+});
+
 const sensorMeasurementTypeSchema = z.enum(['temperature', 'humidity', 'ppfd']);
 
 const sensorConfigObjectSchema = z.object({
@@ -60,6 +73,8 @@ const sensorConfigObjectSchema = z.object({
 const thermalConfigSchema = thermalConfigObjectSchema.optional();
 const humidityConfigSchema = humidityConfigObjectSchema.optional();
 const lightingConfigSchema = lightingConfigObjectSchema.optional();
+const airflowConfigSchema = airflowConfigObjectSchema.optional();
+const filtrationConfigSchema = filtrationConfigObjectSchema.optional();
 const sensorConfigSchema = sensorConfigObjectSchema.optional();
 
 const deviceBlueprintObjectSchema = z
@@ -86,6 +101,8 @@ const deviceBlueprintObjectSchema = z
     thermal: thermalConfigSchema,
     humidity: humidityConfigSchema,
     lighting: lightingConfigSchema,
+    airflow: airflowConfigSchema,
+    filtration: filtrationConfigSchema,
     sensor: sensorConfigSchema
   })
   .passthrough();
@@ -271,6 +288,22 @@ export const deviceBlueprintSchema = deviceBlueprintObjectSchema.superRefine((bl
     });
   }
 
+  if (effects.includes('airflow') && !blueprint.airflow) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['airflow'],
+      message: "airflow config is required when effects include 'airflow'."
+    });
+  }
+
+  if (effects.includes('filtration') && !blueprint.filtration) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['filtration'],
+      message: "filtration config is required when effects include 'filtration'."
+    });
+  }
+
   if (!blueprint.coverage_m2 && !blueprint.airflow_m3_per_h) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -290,6 +323,8 @@ export type DeviceEffect = z.infer<typeof deviceEffectSchema>;
 export type ThermalConfig = z.infer<typeof thermalConfigObjectSchema>;
 export type HumidityConfig = z.infer<typeof humidityConfigObjectSchema>;
 export type LightingConfig = z.infer<typeof lightingConfigObjectSchema>;
+export type AirflowConfig = z.infer<typeof airflowConfigObjectSchema>;
+export type FiltrationConfig = z.infer<typeof filtrationConfigObjectSchema>;
 export type SensorConfig = z.infer<typeof sensorConfigObjectSchema>;
 export type DeviceBlueprint = z.infer<typeof deviceBlueprintSchema>;
 
@@ -353,6 +388,8 @@ export interface DeviceEffectConfigs {
   readonly thermal?: ThermalConfig;
   readonly humidity?: HumidityConfig;
   readonly lighting?: LightingConfig;
+  readonly airflow?: AirflowConfig;
+  readonly filtration?: FiltrationConfig;
   readonly sensor?: SensorConfig;
 }
 
@@ -442,6 +479,16 @@ export function toDeviceInstanceEffectConfigs(
 
   if (effects.includes('lighting') && blueprint.lighting) {
     configs.lighting = { ...blueprint.lighting };
+    hasConfig = true;
+  }
+
+  if (effects.includes('airflow') && blueprint.airflow) {
+    configs.airflow = { ...blueprint.airflow };
+    hasConfig = true;
+  }
+
+  if (effects.includes('filtration') && blueprint.filtration) {
+    configs.filtration = { ...blueprint.filtration };
     hasConfig = true;
   }
 
