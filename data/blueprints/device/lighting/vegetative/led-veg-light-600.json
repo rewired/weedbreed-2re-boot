@@ -10,6 +10,17 @@
   "power_W": 600,
   "efficiency01": 0.7,
   "coverage_m2": 1.2,
+  "effects": [
+    "lighting",
+    "thermal"
+  ],
+  "lighting": {
+    "ppfd_center_umol_m2s": 800,
+    "photonEfficacy_umol_per_J": 2.5
+  },
+  "thermal": {
+    "mode": "heat"
+  },
   "quality": 0.95,
   "complexity": 0.2,
   "lifetime_h": 52560,

@@ -105,6 +105,31 @@ export interface CompanyLocation {
   readonly countryName: string;
 }
 
+export type DeviceEffectType = 'thermal' | 'humidity' | 'lighting' | 'airflow' | 'filtration';
+
+export interface ThermalEffectConfig {
+  readonly mode: 'heat' | 'cool' | 'auto';
+  readonly max_heat_W?: number;
+  readonly max_cool_W?: number;
+  readonly setpoint_C?: number;
+}
+
+export interface HumidityEffectConfig {
+  readonly mode: 'humidify' | 'dehumidify';
+  readonly capacity_g_per_h: number;
+}
+
+export interface LightingEffectConfig {
+  readonly ppfd_center_umol_m2s: number;
+  readonly photonEfficacy_umol_per_J?: number;
+}
+
+export interface DeviceEffectConfigs {
+  readonly thermal?: ThermalEffectConfig;
+  readonly humidity?: HumidityEffectConfig;
+  readonly lighting?: LightingEffectConfig;
+}
+
 /**
  * Canonical device instance model shared across placement scopes.
  */
@@ -129,6 +154,10 @@ export interface DeviceInstance extends DomainEntity, SluggedEntity {
   readonly airflow_m3_per_h: number;
   /** Maximum sensible heat removal capacity expressed in watts. */
   readonly sensibleHeatRemovalCapacity_W: number;
+  /** Explicit enumeration of effects copied from the originating blueprint, when available. */
+  readonly effects?: readonly DeviceEffectType[];
+  /** Effect-specific configuration payloads copied from the originating blueprint, when available. */
+  readonly effectConfigs?: DeviceEffectConfigs;
 }
 
 /**

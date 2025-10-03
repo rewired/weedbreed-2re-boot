@@ -10,6 +10,13 @@
   "power_W": 350,
   "efficiency01": 0.6,
   "coverage_m2": 8.33,
+  "effects": [
+    "humidity"
+  ],
+  "humidity": {
+    "mode": "dehumidify",
+    "capacity_g_per_h": 1000
+  },
   "quality": 0.8,
   "complexity": 0.3,
   "lifetime_h": 8760,
@@ -44,6 +51,7 @@
     "disadvantages": [
       "Limited capacity for large rooms",
       "Requires regular maintenance"
-    ]
+    ],
+    "notes": "Phase 1: Dehumidify-only. Phase 2: Dynamic mode switching based on setpoint."
   }
 }

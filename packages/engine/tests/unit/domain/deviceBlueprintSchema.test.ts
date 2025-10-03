@@ -79,6 +79,100 @@ describe('deviceBlueprintSchema', () => {
     expect(() => deviceBlueprintSchema.parse(base)).not.toThrow();
   });
 
+  it('accepts blueprint with effects array and thermal config', () => {
+    const blueprint = {
+      id: '00000000-0000-4000-8000-000000000010',
+      class: 'device.climate.cooling',
+      name: 'Thermal Effects Device',
+      slug: 'thermal-effects-device',
+      placementScope: 'zone',
+      allowedRoomPurposes: ['growroom'],
+      power_W: 1_000,
+      efficiency01: 0.6,
+      coverage_m2: 12,
+      effects: ['thermal'],
+      thermal: { mode: 'cool', max_cool_W: 2_500 },
+      coverage: { maxArea_m2: 12 },
+      limits: { coolingCapacity_kW: 2.5 },
+      settings: {
+        coolingCapacity: 2,
+        targetTemperature: 24,
+        targetTemperatureRange: [20, 26]
+      }
+    };
+
+    expect(() => deviceBlueprintSchema.parse(blueprint)).not.toThrow();
+  });
+
+  it('accepts blueprint with effects array and humidity config', () => {
+    const blueprint = {
+      id: '00000000-0000-4000-8000-000000000011',
+      class: 'device.climate.dehumidifier',
+      name: 'Humidity Effects Device',
+      slug: 'humidity-effects-device',
+      placementScope: 'zone',
+      allowedRoomPurposes: ['growroom'],
+      power_W: 400,
+      efficiency01: 0.5,
+      coverage_m2: 8,
+      effects: ['humidity'],
+      humidity: { mode: 'dehumidify', capacity_g_per_h: 900 },
+      coverage: { maxVolume_m3: 20 },
+      limits: { removalRate_kg_h: 0.9 },
+      settings: { latentRemovalKgPerTick: 0.025 }
+    };
+
+    expect(() => deviceBlueprintSchema.parse(blueprint)).not.toThrow();
+  });
+
+  it('accepts blueprint with effects array and lighting config', () => {
+    const blueprint = {
+      id: '00000000-0000-4000-8000-000000000012',
+      class: 'device.lighting.vegetative',
+      name: 'Lighting Effects Device',
+      slug: 'lighting-effects-device',
+      placementScope: 'zone',
+      allowedRoomPurposes: ['growroom'],
+      power_W: 600,
+      efficiency01: 0.7,
+      coverage_m2: 1.2,
+      effects: ['lighting'],
+      lighting: { ppfd_center_umol_m2s: 700, photonEfficacy_umol_per_J: 2.3 },
+      coverage: { maxArea_m2: 1.2, effectivePPFD_at_m: 0.6, beamProfile: 'wide' },
+      limits: { power_W: 600, maxPPFD: 1_200, minPPFD: 200 },
+      settings: { ppfd: 700, power: 0.6, spectralRange: [400, 700], heatFraction: 0.3 }
+    } as const;
+
+    expect(() => deviceBlueprintSchema.parse(blueprint)).not.toThrow();
+  });
+
+  it('accepts blueprint with multiple effects and configs', () => {
+    const blueprint = {
+      id: '00000000-0000-4000-8000-000000000013',
+      class: 'device.climate.cooling',
+      name: 'Multi-Effect Device',
+      slug: 'multi-effect-device',
+      placementScope: 'zone',
+      allowedRoomPurposes: ['growroom'],
+      power_W: 1_200,
+      efficiency01: 0.65,
+      coverage_m2: 25,
+      airflow_m3_per_h: 300,
+      effects: ['thermal', 'humidity', 'airflow'],
+      thermal: { mode: 'cool', max_cool_W: 3_000 },
+      humidity: { mode: 'dehumidify', capacity_g_per_h: 600 },
+      coverage: { maxArea_m2: 25 },
+      limits: { coolingCapacity_kW: 3 },
+      settings: {
+        coolingCapacity: 2.4,
+        targetTemperature: 24,
+        targetTemperatureRange: [20, 26]
+      }
+    };
+
+    expect(() => deviceBlueprintSchema.parse(blueprint)).not.toThrow();
+  });
+
   it('rejects blueprints missing both coverage and airflow', () => {
     const invalid = {
       id: '00000000-0000-4000-8000-000000000001',
@@ -210,5 +304,81 @@ describe('deviceBlueprintSchema', () => {
       coverage_m2: 8,
       airflow_m3_per_h: 120
     });
+  });
+
+  it('rejects blueprint with effects array but missing config', () => {
+    const invalid = {
+      id: '00000000-0000-4000-8000-000000000014',
+      class: 'device.climate.cooling',
+      name: 'Missing Thermal Config',
+      slug: 'missing-thermal-config',
+      placementScope: 'zone',
+      allowedRoomPurposes: ['growroom'],
+      power_W: 800,
+      efficiency01: 0.6,
+      coverage_m2: 10,
+      effects: ['thermal'],
+      coverage: { maxArea_m2: 10 },
+      limits: { coolingCapacity_kW: 1.5 },
+      settings: {
+        coolingCapacity: 1,
+        targetTemperature: 24,
+        targetTemperatureRange: [20, 26]
+      }
+    };
+
+    const result = deviceBlueprintSchema.safeParse(invalid);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const messages = result.error.issues.map((issue) => issue.message);
+      expect(messages).toContain("thermal config is required when effects include 'thermal'.");
+    }
+  });
+
+  it('accepts blueprint without effects array for backward compatibility', () => {
+    const legacy = {
+      id: '00000000-0000-4000-8000-000000000015',
+      class: 'device.airflow.exhaust',
+      name: 'Legacy Exhaust',
+      slug: 'legacy-exhaust',
+      placementScope: 'zone',
+      allowedRoomPurposes: ['growroom'],
+      power_W: 40,
+      efficiency01: 0.7,
+      airflow_m3_per_h: 150,
+      coverage_m2: 5,
+      coverage: { maxVolume_m3: 12, ventilationPattern: 'exhaust' },
+      limits: { power_W: 40, airflow_m3_h: 180, minAirflow_m3_h: 100, maxStaticPressure_Pa: 120 },
+      settings: { airflow: 150, power: 0.04 }
+    } as const;
+
+    expect(() => deviceBlueprintSchema.parse(legacy)).not.toThrow();
+  });
+
+  it('rejects invalid effect names in effects array', () => {
+    const invalid = {
+      id: '00000000-0000-4000-8000-000000000016',
+      class: 'device.climate.cooling',
+      name: 'Invalid Effect Device',
+      slug: 'invalid-effect-device',
+      placementScope: 'zone',
+      allowedRoomPurposes: ['growroom'],
+      power_W: 800,
+      efficiency01: 0.6,
+      coverage_m2: 10,
+      effects: ['invalid-effect'],
+      coverage: { maxArea_m2: 10 },
+      limits: { coolingCapacity_kW: 1.5 },
+      settings: {
+        coolingCapacity: 1,
+        targetTemperature: 24,
+        targetTemperatureRange: [20, 26]
+      }
+    };
+
+    const result = deviceBlueprintSchema.safeParse(invalid);
+
+    expect(result.success).toBe(false);
   });
 });
