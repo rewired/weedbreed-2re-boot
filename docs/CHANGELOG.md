@@ -1,5 +1,13 @@
 # Changelog
 
+### #48 WB-041 interface stacking vectors and integration coverage
+- Documented stub reference vectors, stacking patterns, and acceptance criteria
+  across SEC §6.3, DD §8a, and TDD §9a to align documentation with the
+  `/docs/proposals/20251002-interface_stubs.md` specification.
+- Added dedicated integration coverage for Pattern D (sensor + thermal actuator)
+  and Pattern E (irrigation service + nutrient buffer) within the engine pipeline
+  suite to backfill explicit stacking scenarios referenced by the docs.
+
 ### #47 WB-040 irrigation and nutrient buffering pipeline
 - Extended the zone domain contract and Zod schemas with `nutrientBuffer_mg`
   and `moisture01`, wiring the demo harness defaults so simulation snapshots

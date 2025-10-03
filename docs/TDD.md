@@ -234,30 +234,33 @@ it('zone without cultivationMethod fails validation', async () => {
 
 ---
 
-## 9a) Interface-Stacking & Stubs (Phase 1)
+## 9a) Stub Tests & Test Vectors (Phase 1)
 
-- **Interface-Stacking:** Devices may implement multiple interfaces (e.g., Split-AC: `IThermalActuator` + `IHumidityActuator` + `IAirflowActuator`). Tests assert deterministic aggregation of interface effects per pipeline order.
+**Reference Test Vectors (from `/docs/proposals/20251002-interface_stubs.md` §8):**
+- **Thermal:** 1000 W, eff=0.9, 50 m³ room (≈60 kg air) ⇒ ΔT ≈ **+0.6 K/h** (sanity)
+  - Test: `packages/engine/tests/unit/stubs/ThermalActuatorStub.test.ts:30-41`
+- **Humidity:** 500 g/h dehumidify, 60 kg air, k_rh(25°C) ≈ 0.15 ⇒ ΔrH ≈ **-1.25 %/h**
+  - Test: `packages/engine/tests/unit/stubs/HumidityActuatorStub.test.ts:32-39`
+- **Lighting:** 600 µmol·m⁻²·s⁻¹, 0.25 h ⇒ **DLI_inc ≈ 0.54 mol·m⁻²**
+  - Test: `packages/engine/tests/unit/stubs/LightEmitterStub.test.ts:23-29`
+- **NutrientBuffer:** capacity_N=10000 mg, buffer_N=1000 mg, flow_N=500 mg, demand_N=300 mg, leach=10% ⇒ uptake=**300**, leached=**50**, new_buffer=**1150**
+  - Test: `packages/engine/tests/unit/stubs/NutrientBufferStub.test.ts:27-34`
 
-- **Stub Conventions (Phase 1):**
-  - **Determinism:** Same input set ⇒ same output set (with fixed seed)
-  - **SI-Units:** W, Wh, m², m³/h, mg/h, µmol·m⁻²·s⁻¹ (PPFD), K, %
-  - **Clamps:** All 0..1 scales hard-clamped; negative flows/stocks avoided
-  - **Caps:** Stubs respect `capacity`/`max_*` from blueprint parameters
-  - **Telemetry:** Each stub returns primary outputs + auxiliary values (e.g., `energy_Wh`)
+**Stacking-Pattern Tests (Integration):**
+- **Pattern A (Split-AC):** Multi-Interface in one device (Thermal + Humidity + Airflow)
+  - Test: `packages/engine/tests/integration/pipeline/multiEffectDevice.integration.test.ts:226-276`
+- **Pattern B (Dehumidifier+Reheat):** Combined device with coupled effects
+  - Test: `packages/engine/tests/integration/pipeline/multiEffectDevice.integration.test.ts:278-327`
+- **Pattern C (Fan→Filter):** Composition via chain (Airflow + Filtration)
+  - Test: `packages/engine/tests/integration/pipeline/fanFilterChain.integration.test.ts`
+- **Pattern D (Sensor+Actuator):** Test: `packages/engine/tests/integration/pipeline/sensorActuatorPattern.integration.test.ts`
+- **Pattern E (Substrate+Irrigation):** Test: `packages/engine/tests/integration/pipeline/irrigationNutrientPattern.integration.test.ts`
 
-- **Test Vectors:**
-  - Golden vectors cover each interface combination to lock deterministic aggregation.
-  - Module specs assert clamp/cap enforcement with boundary inputs (0, 1, max).
-  - Integration specs verify telemetry payloads include auxiliary metrics for downstream monitors.
-
-- **Composition Patterns:**
-  - **Pattern A:** Multi-Interface in one device (Split-AC)
-  - **Pattern B:** Combined device with coupled effects (Dehumidifier with Reheat)
-  - **Pattern C:** Composition via chain (Fan→Filter)
-  - **Pattern D:** Sensor + Actuator in one housing
-  - **Pattern E:** Substrate Buffer + Irrigation (Service + Domain)
-
-- **Reference:** `/docs/proposals/20251002-interface_stubs.md` (consolidated specification)
+**Acceptance Criteria (Stubs):**
+- ✅ Pure functions, deterministic, units validated
+- ✅ Caps/Clamps enforced; no negative stocks/flows
+- ✅ Tests for all stubs including the above vectors
+- ✅ Telemetry fields available (energy_Wh, dli_inc, uptake/leached, …)
 
 ---
 

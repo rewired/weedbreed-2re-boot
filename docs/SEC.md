@@ -412,8 +412,31 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 - **MTBF:** MAY be extended by a quality factor.
     
 
-**Separation (SHALL):** Quality affects **rates/thresholds**, not the purchase price (price maps handle costs).  
+**Separation (SHALL):** Quality affects **rates/thresholds**, not the purchase price (price maps handle costs).
 **Observability (SHOULD):** Telemetry MAY expose both quality01 (static) and condition01 (dynamic).
+
+## 6.3 Interface-Stacking & Stub Specifications (Phase 1)
+
+**Interface-Stacking (SHALL):**
+- Devices **MAY** implement multiple effect interfaces (thermal, humidity, lighting, airflow, filtration, sensors).
+- Effects **SHALL** be computed in deterministic pipeline order (§4.2) and aggregated per zone.
+- Stubs **SHALL** be pure functions with predefined test vectors for validation.
+
+**Stub Conventions (SHALL):**
+- **Determinism:** Same inputs → same outputs (with fixed seed). No `Math.random` in stubs.
+- **Units:** W, Wh, m², m³/h, mg/h, µmol·m⁻²·s⁻¹ (PPFD), K, %.
+- **Clamps:** All 0..1 scales hard-clamped; negative flows/stocks avoided.
+- **Caps:** Stubs respect `capacity`/`max_*` from blueprint parameters.
+- **Telemetry:** Each stub returns primary outputs + auxiliary values (e.g., `energy_Wh`).
+
+**Composition Patterns (SHOULD):**
+- **Pattern A:** Multi-Interface in one device (e.g., Split-AC: thermal + humidity + airflow).
+- **Pattern B:** Combined device with coupled effects (e.g., dehumidifier with reheat).
+- **Pattern C:** Composition via chain (e.g., fan → filter).
+- **Pattern D:** Sensor + actuator in one housing.
+- **Pattern E:** Substrate buffer + irrigation (service + domain).
+
+**Reference:** `/docs/proposals/20251002-interface_stubs.md` (consolidated specification)
 
 ---
 
