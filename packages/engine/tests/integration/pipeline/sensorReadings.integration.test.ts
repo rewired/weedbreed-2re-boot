@@ -87,7 +87,7 @@ function runSensorTick(
 }
 
 describe('Tick pipeline — sensor readings', () => {
-  it('registers applySensors in the pipeline trace after updateEnvironment', () => {
+  it('registers applySensors in the pipeline trace before updateEnvironment', () => {
     const world = createDemoWorld();
     const ctx: EngineRunContext = {};
 
@@ -95,17 +95,19 @@ describe('Tick pipeline — sensor readings', () => {
 
     expect(trace).toBeDefined();
     const stepNames = trace?.steps.map((step) => step.name) ?? [];
-    const updateIndex = stepNames.indexOf('updateEnvironment');
+    const deviceEffectsIndex = stepNames.indexOf('applyDeviceEffects');
     const sensorIndex = stepNames.indexOf('applySensors');
+    const updateIndex = stepNames.indexOf('updateEnvironment');
     const advanceIndex = stepNames.indexOf('advancePhysiology');
 
-    expect(updateIndex).toBeGreaterThanOrEqual(0);
-    expect(sensorIndex).toBeGreaterThan(updateIndex);
+    expect(deviceEffectsIndex).toBeGreaterThanOrEqual(0);
+    expect(sensorIndex).toBeGreaterThan(deviceEffectsIndex);
+    expect(updateIndex).toBeGreaterThan(sensorIndex);
     expect(sensorIndex).toBeLessThan(advanceIndex);
     expect(getSensorReadingsRuntime(ctx)).toBeUndefined();
   });
 
-  it('sensors capture the environment state after actuators run', () => {
+  it('sensors capture the pre-integration environment state after actuators run', () => {
     const world = createDemoWorld();
     const structure = world.company.structures[0];
     const room = structure.rooms[0];
@@ -115,6 +117,8 @@ describe('Tick pipeline — sensor readings', () => {
       ...zone.environment,
       airTemperatureC: 20
     };
+
+    const baselineTemperature = zone.environment.airTemperatureC;
 
     const heaterId = uuid('40000000-0000-0000-0000-000000000010');
     const heater: ZoneDeviceInstance = {
@@ -180,7 +184,8 @@ describe('Tick pipeline — sensor readings', () => {
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
 
     expect(captured).toHaveLength(1);
-    expect(captured[0]?.measuredValue).toBeCloseTo(nextZone.environment.airTemperatureC, 5);
+    expect(captured[0]?.measuredValue).toBeCloseTo(baselineTemperature, 5);
+    expect(nextZone.environment.airTemperatureC).toBeGreaterThan(baselineTemperature);
     expect(captured[0]?.error).toBe(0);
   });
 

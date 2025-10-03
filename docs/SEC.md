@@ -329,18 +329,20 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 ### 4.2 Phase Order
 
 1. **Device Effects** — compute device outputs (light, heat, airflow, CO₂, dehumidification) subject to capacity & efficiency.
-    
-2. **Environment Update** — integrate device outputs into zone state (well-mixed model baseline).
-    
-3. **Irrigation & Nutrients** — fulfill zone method (manual enqueues tasks; automated fulfills on schedule).
-    
-4. **Plant Physiology** — update age/phase, biomass, stress, disease risk using strain curves and environment.
-    
-5. **Harvest & Inventory** — create lots when criteria met; move yield to inventory.
-    
-6. **Economy & Cost Accrual** — aggregate consumption/costs; maintenance curves progress.
-    
-7. **Commit & Telemetry** — snapshot state and publish read-only events.
+
+2. **Sensor Sampling** — record zone state before environmental integration so co-housed actuators observe pre-actuation values.
+
+3. **Environment Update** — integrate device outputs into zone state (well-mixed model baseline).
+
+4. **Irrigation & Nutrients** — fulfill zone method (manual enqueues tasks; automated fulfills on schedule).
+
+5. **Plant Physiology** — update age/phase, biomass, stress, disease risk using strain curves and environment.
+
+6. **Harvest & Inventory** — create lots when criteria met; move yield to inventory.
+
+7. **Economy & Cost Accrual** — aggregate consumption/costs; maintenance curves progress.
+
+8. **Commit & Telemetry** — snapshot state and publish read-only events.
     
 
 ---

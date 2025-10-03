@@ -247,7 +247,7 @@ Fixed order per tick:
 - **Pattern D — Sensor + Actuator in One Housing:**
   - A device implements `ISensor` + actuator interface (e.g., `IThermalActuator`)
   - Example: Temperature controller with integrated sensor
-  - Note: Sensor readings must not be "polluted" by actuator output in the same tick
+  - Note: Sensor readings must not be "polluted" by actuator output in the same tick — pipeline order runs `applySensors` immediately after `applyDeviceEffects`, before `updateEnvironment` integrates actuator deltas.
 - **Pattern E — Substrate Buffer + Irrigation (Service + Domain):**
   - Service (`IIrrigationService`) + Domain stub (`INutrientBuffer`) jointly deliver nutrient outcome
   - Example: Irrigation service calculates flow, substrate buffer manages uptake/leaching
