@@ -46,7 +46,9 @@ function resolveAirMassKg(zone: Pick<Zone, 'airMass_kg'>): number {
  * For full thermal actuator support (heating, cooling, auto),
  * use {@link createThermalActuatorStub} from `@/backend/src/stubs/ThermalActuatorStub.js`.
  *
- * This function will be refactored in Phase 4 to delegate to ThermalActuatorStub.
+ * This function has been replaced by ThermalActuatorStub in
+ * `applyDeviceEffects.ts` (Phase 6) and is retained for backward compatibility
+ * with external tests. It will be removed in a future phase.
  *
  * @see packages/engine/src/backend/src/stubs/ThermalActuatorStub.ts
  *
