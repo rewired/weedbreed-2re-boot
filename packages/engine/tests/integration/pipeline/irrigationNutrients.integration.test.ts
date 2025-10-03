@@ -140,9 +140,24 @@ describe('Tick pipeline — irrigation and nutrients', () => {
     const world = createDemoWorld();
     setWorldSeed(world, WORLD_SEED);
 
-    const { world: nextWorld } = runTick(world, { irrigationEvents: [] });
+    const initialSimTime = world.simTimeHours;
+    const stageMutations: Record<string, boolean> = {};
+    let lastWorld: SimulationWorld = world;
+
+    const { world: nextWorld } = runTick(world, {
+      irrigationEvents: [],
+      instrumentation: {
+        onStageComplete(stage, stageWorld) {
+          stageMutations[stage] = stageWorld !== lastWorld;
+          lastWorld = stageWorld;
+        }
+      }
+    });
 
     expect(nextWorld).toBe(world);
+    expect(nextWorld.simTimeHours).toBe(initialSimTime);
+    expect(stageMutations.commitAndTelemetry).toBe(false);
+    expect(Object.values(stageMutations)).not.toContain(true);
   });
 
   it('updates multiple zones independently based on targeted events', () => {
