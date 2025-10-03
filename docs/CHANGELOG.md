@@ -1,5 +1,17 @@
 # Changelog
 
+### #51 WB-044 latent heat coupling for stacked climate devices
+- Added the SEC-mandated `LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG` constant to
+  the simulation canon and documentation so latent/sensible coupling shares a
+  single source of truth.
+- Extended `applyDeviceEffects` to translate humidity actuator water removal/
+  addition into sensible temperature deltas using the new constant while
+  respecting duty cycle, coverage effectiveness, and thermal mode to avoid
+  double counting on multi-effect devices.
+- Updated the multi-effect integration suite to log per-zone contributions via
+  pipeline instrumentation and to assert the combined sensible+latent
+  expectations for Patterns A/B and stacked heater+dehumidifier scenarios.
+
 ### #50 WB-043 world mutation tracking in Engine pipeline
 - Added a private `__wb_worldMutated` tracking helper on `EngineRunContext` so the
   tick runner can detect in-place stage stability without cloning worlds.

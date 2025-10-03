@@ -15,6 +15,7 @@ normalisation mandated by the SEC.
 | `SECONDS_PER_HOUR` | `3 600` | s | Seconds per in-game hour for power ↔ energy conversions. |
 | `ROOM_DEFAULT_HEIGHT_M` | `3` | m | Default room interior height when blueprints omit overrides. |
 | `CP_AIR_J_PER_KG_K` | `1 005` | J/(kg·K) | Specific heat capacity of dry air at constant pressure. |
+| `LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG` | `2 260 000` | J/kg | Latent heat of vaporisation for water at 1 atm (SEC §6.3.2). |
 | `AIR_DENSITY_KG_PER_M3` | `1.2041` | kg/m³ | Density of dry air at standard conditions (20 °C, 1 atm). |
 | `HOURS_PER_TICK` | `1` | h | Duration represented by one simulation tick (one in-game hour). |
 | `HOURS_PER_DAY` | `24` | h | Hours per in-game day (calendar invariant). |
