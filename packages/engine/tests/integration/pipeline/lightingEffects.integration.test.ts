@@ -12,6 +12,7 @@ import {
   type Uuid,
   type ZoneDeviceInstance
 } from '@/backend/src/domain/world.js';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -23,8 +24,73 @@ const QUALITY_POLICY: DeviceQualityPolicy = {
 
 const WORLD_SEED = 'lighting-effects-seed';
 
-function deviceQuality(id: Uuid): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
+const LED_VEG_BLUEPRINT: DeviceBlueprint = {
+  id: '40000000-0000-0000-0000-000000000002',
+  slug: 'led-veg-light',
+  class: 'device.test.lighting',
+  name: 'LED Veg Light',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 600,
+  efficiency01: 0.7,
+  coverage_m2: 1.2,
+  airflow_m3_per_h: 0
+};
+
+const VEG_LIGHT_A_BLUEPRINT: DeviceBlueprint = {
+  id: '40000000-0000-0000-0000-000000000005',
+  slug: 'veg-light-a',
+  class: 'device.test.lighting',
+  name: 'Veg Light A',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 500,
+  efficiency01: 0.65,
+  coverage_m2: 1,
+  airflow_m3_per_h: 0
+};
+
+const VEG_LIGHT_B_BLUEPRINT: DeviceBlueprint = {
+  id: '40000000-0000-0000-0000-000000000006',
+  slug: 'veg-light-b',
+  class: 'device.test.lighting',
+  name: 'Veg Light B',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 450,
+  efficiency01: 0.6,
+  coverage_m2: 1,
+  airflow_m3_per_h: 0
+};
+
+const DIMMED_LIGHT_BLUEPRINT: DeviceBlueprint = {
+  id: '40000000-0000-0000-0000-000000000008',
+  slug: 'dimmed-light',
+  class: 'device.test.lighting',
+  name: 'Dimmed Light',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 400,
+  efficiency01: 0.6,
+  coverage_m2: 1,
+  airflow_m3_per_h: 0
+};
+
+const INVALID_LIGHT_BLUEPRINT: DeviceBlueprint = {
+  id: '40000000-0000-0000-0000-000000000010',
+  slug: 'invalid-light',
+  class: 'device.test.lighting',
+  name: 'Invalid Light',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 500,
+  efficiency01: 0.6,
+  coverage_m2: 1,
+  airflow_m3_per_h: 0
+};
+
+function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
 }
 
 describe('Tick pipeline — lighting effects', () => {
@@ -37,11 +103,11 @@ describe('Tick pipeline — lighting effects', () => {
     const deviceId = uuid('40000000-0000-0000-0000-000000000001');
     const lightingDevice: ZoneDeviceInstance = {
       id: deviceId,
-      slug: 'led-veg-light',
-      name: 'LED Veg Light',
-      blueprintId: uuid('40000000-0000-0000-0000-000000000002'),
+      slug: LED_VEG_BLUEPRINT.slug,
+      name: LED_VEG_BLUEPRINT.name,
+      blueprintId: uuid(LED_VEG_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceId),
+      quality01: deviceQuality(deviceId, LED_VEG_BLUEPRINT),
       condition01: 0.96,
       powerDraw_W: 600,
       dutyCycle01: 1,
@@ -75,11 +141,11 @@ describe('Tick pipeline — lighting effects', () => {
 
     const lightA: ZoneDeviceInstance = {
       id: deviceAId,
-      slug: 'veg-light-a',
-      name: 'Veg Light A',
-      blueprintId: uuid('40000000-0000-0000-0000-000000000005'),
+      slug: VEG_LIGHT_A_BLUEPRINT.slug,
+      name: VEG_LIGHT_A_BLUEPRINT.name,
+      blueprintId: uuid(VEG_LIGHT_A_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceAId),
+      quality01: deviceQuality(deviceAId, VEG_LIGHT_A_BLUEPRINT),
       condition01: 0.94,
       powerDraw_W: 500,
       dutyCycle01: 1,
@@ -91,11 +157,11 @@ describe('Tick pipeline — lighting effects', () => {
 
     const lightB: ZoneDeviceInstance = {
       id: deviceBId,
-      slug: 'veg-light-b',
-      name: 'Veg Light B',
-      blueprintId: uuid('40000000-0000-0000-0000-000000000006'),
+      slug: VEG_LIGHT_B_BLUEPRINT.slug,
+      name: VEG_LIGHT_B_BLUEPRINT.name,
+      blueprintId: uuid(VEG_LIGHT_B_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceBId),
+      quality01: deviceQuality(deviceBId, VEG_LIGHT_B_BLUEPRINT),
       condition01: 0.93,
       powerDraw_W: 450,
       dutyCycle01: 1,
@@ -128,11 +194,11 @@ describe('Tick pipeline — lighting effects', () => {
     const deviceId = uuid('40000000-0000-0000-0000-000000000007');
     const dimmedLight: ZoneDeviceInstance = {
       id: deviceId,
-      slug: 'dimmed-light',
-      name: 'Dimmed Light',
-      blueprintId: uuid('40000000-0000-0000-0000-000000000008'),
+      slug: DIMMED_LIGHT_BLUEPRINT.slug,
+      name: DIMMED_LIGHT_BLUEPRINT.name,
+      blueprintId: uuid(DIMMED_LIGHT_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceId),
+      quality01: deviceQuality(deviceId, DIMMED_LIGHT_BLUEPRINT),
       condition01: 0.91,
       powerDraw_W: 400,
       dutyCycle01: 0.5,
@@ -164,11 +230,11 @@ describe('Tick pipeline — lighting effects', () => {
     const deviceId = uuid('40000000-0000-0000-0000-000000000009');
     const invalidLight: ZoneDeviceInstance = {
       id: deviceId,
-      slug: 'invalid-light',
-      name: 'Invalid Light',
-      blueprintId: uuid('40000000-0000-0000-0000-000000000010'),
+      slug: INVALID_LIGHT_BLUEPRINT.slug,
+      name: INVALID_LIGHT_BLUEPRINT.name,
+      blueprintId: uuid(INVALID_LIGHT_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceId),
+      quality01: deviceQuality(deviceId, INVALID_LIGHT_BLUEPRINT),
       condition01: 0.9,
       powerDraw_W: 500,
       dutyCycle01: 1,

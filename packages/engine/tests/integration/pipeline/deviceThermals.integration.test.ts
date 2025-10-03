@@ -14,6 +14,7 @@ import {
   type Uuid,
   type ZoneDeviceInstance
 } from '@/backend/src/domain/world.js';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -25,8 +26,34 @@ const QUALITY_POLICY: DeviceQualityPolicy = {
 
 const WORLD_SEED = 'device-thermals-seed';
 
-function deviceQuality(id: Uuid): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
+const LIGHTING_BLUEPRINT: DeviceBlueprint = {
+  id: '20000000-0000-0000-0000-000000000002',
+  slug: 'veg-light',
+  class: 'device.test.lighting',
+  name: 'Veg Light',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 600,
+  efficiency01: 0.2,
+  coverage_m2: 60,
+  airflow_m3_per_h: 0
+};
+
+const HVAC_BLUEPRINT: DeviceBlueprint = {
+  id: '20000000-0000-0000-0000-000000000004',
+  slug: 'zone-hvac',
+  class: 'device.test.hvac',
+  name: 'Zone HVAC',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 800,
+  efficiency01: 0.6,
+  coverage_m2: 60,
+  airflow_m3_per_h: 0
+};
+
+function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
 }
 
 describe('Tick pipeline — device thermal effects', () => {
@@ -40,11 +67,11 @@ describe('Tick pipeline — device thermal effects', () => {
     const lightingDeviceId = uuid('20000000-0000-0000-0000-000000000001');
     const lightingDevice: ZoneDeviceInstance = {
       id: lightingDeviceId,
-      slug: 'veg-light',
-      name: 'Veg Light',
-      blueprintId: uuid('20000000-0000-0000-0000-000000000002'),
+      slug: LIGHTING_BLUEPRINT.slug,
+      name: LIGHTING_BLUEPRINT.name,
+      blueprintId: uuid(LIGHTING_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(lightingDeviceId),
+      quality01: deviceQuality(lightingDeviceId, LIGHTING_BLUEPRINT),
       condition01: 0.94,
       powerDraw_W: 600,
       dutyCycle01: 1,
@@ -57,11 +84,11 @@ describe('Tick pipeline — device thermal effects', () => {
     const hvacDeviceId = uuid('20000000-0000-0000-0000-000000000003');
     const hvacDevice: ZoneDeviceInstance = {
       id: hvacDeviceId,
-      slug: 'zone-hvac',
-      name: 'Zone HVAC',
-      blueprintId: uuid('20000000-0000-0000-0000-000000000004'),
+      slug: HVAC_BLUEPRINT.slug,
+      name: HVAC_BLUEPRINT.name,
+      blueprintId: uuid(HVAC_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(hvacDeviceId),
+      quality01: deviceQuality(hvacDeviceId, HVAC_BLUEPRINT),
       condition01: 0.9,
       powerDraw_W: 800,
       dutyCycle01: 1,
@@ -84,14 +111,13 @@ describe('Tick pipeline — device thermal effects', () => {
     const tickSeconds = tickHours * SECONDS_PER_HOUR;
     const airMassKg = zone.airMass_kg;
 
-    const wasteLight_W = lightingDevice.powerDraw_W * (1 - lightingDevice.efficiency01);
-    const wasteHvac_W = hvacDevice.powerDraw_W * (1 - hvacDevice.efficiency01);
-    const additionDeltaC =
-      ((wasteLight_W + wasteHvac_W) * tickSeconds) / (airMassKg * CP_AIR_J_PER_KG_K);
-
-    const removalDeltaC =
-      (hvacDevice.sensibleHeatRemovalCapacity_W * tickSeconds) /
-      (airMassKg * CP_AIR_J_PER_KG_K);
+    const heating_W = lightingDevice.powerDraw_W * (1 - lightingDevice.efficiency01);
+    const hvacCooling_W = Math.min(
+      hvacDevice.powerDraw_W * hvacDevice.dutyCycle01 * hvacDevice.efficiency01,
+      hvacDevice.sensibleHeatRemovalCapacity_W
+    );
+    const additionDeltaC = (heating_W * tickSeconds) / (airMassKg * CP_AIR_J_PER_KG_K);
+    const removalDeltaC = (hvacCooling_W * tickSeconds) / (airMassKg * CP_AIR_J_PER_KG_K);
 
     const expectedTemperatureC = initialTemperatureC + additionDeltaC - removalDeltaC;
 

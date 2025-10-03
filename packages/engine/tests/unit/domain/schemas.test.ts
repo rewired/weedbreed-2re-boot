@@ -9,6 +9,7 @@ import {
   type ParsedCompanyWorld,
   type Uuid
 } from '@wb/engine';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
 
 type DeepMutable<T> = T extends (...args: unknown[]) => unknown
   ? T
@@ -32,8 +33,47 @@ const QUALITY_POLICY: DeviceQualityPolicy = {
 
 const WORLD_SEED = 'schema-world-seed';
 
-function deviceQuality(id: Uuid): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
+const SCHEMA_ZONE_DEVICE_BLUEPRINT: DeviceBlueprint = {
+  id: '00000000-0000-0000-0000-000000000061',
+  slug: 'zone-device',
+  class: 'device.test.zone',
+  name: 'Zone Device',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 450,
+  efficiency01: 0.9,
+  coverage_m2: 30,
+  airflow_m3_per_h: 0
+};
+
+const SCHEMA_ROOM_DEVICE_BLUEPRINT: DeviceBlueprint = {
+  id: '00000000-0000-0000-0000-000000000071',
+  slug: 'room-device',
+  class: 'device.test.room',
+  name: 'Room Device',
+  placementScope: 'room',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 320,
+  efficiency01: 0.85,
+  coverage_m2: 0,
+  airflow_m3_per_h: 0
+};
+
+const SCHEMA_STRUCTURE_DEVICE_BLUEPRINT: DeviceBlueprint = {
+  id: '00000000-0000-0000-0000-000000000081',
+  slug: 'structure-device',
+  class: 'device.test.structure',
+  name: 'Structure Device',
+  placementScope: 'structure',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 500,
+  efficiency01: 0.88,
+  coverage_m2: 0,
+  airflow_m3_per_h: 0
+};
+
+function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
 }
 
 const BASE_WORLD = {
@@ -79,6 +119,8 @@ const BASE_WORLD = {
                 startHour: 0
               },
               photoperiodPhase: 'vegetative',
+              ppfd_umol_m2s: 0,
+              dli_mol_m2d_inc: 0,
               environment: {
                 airTemperatureC: 22
               },
@@ -99,11 +141,14 @@ const BASE_WORLD = {
               devices: [
                 {
                   id: '00000000-0000-0000-0000-000000000060',
-                  slug: 'zone-device',
-                  name: 'Zone Device',
-                  blueprintId: '00000000-0000-0000-0000-000000000061',
+                  slug: SCHEMA_ZONE_DEVICE_BLUEPRINT.slug,
+                  name: SCHEMA_ZONE_DEVICE_BLUEPRINT.name,
+                  blueprintId: SCHEMA_ZONE_DEVICE_BLUEPRINT.id,
                   placementScope: 'zone',
-                  quality01: deviceQuality('00000000-0000-0000-0000-000000000060' as Uuid),
+                  quality01: deviceQuality(
+                    '00000000-0000-0000-0000-000000000060' as Uuid,
+                    SCHEMA_ZONE_DEVICE_BLUEPRINT
+                  ),
                   condition01: 0.97,
                   powerDraw_W: 450,
                   dutyCycle01: 1,
@@ -118,11 +163,14 @@ const BASE_WORLD = {
           devices: [
             {
               id: '00000000-0000-0000-0000-000000000070',
-              slug: 'room-device',
-              name: 'Room Device',
-              blueprintId: '00000000-0000-0000-0000-000000000071',
+              slug: SCHEMA_ROOM_DEVICE_BLUEPRINT.slug,
+              name: SCHEMA_ROOM_DEVICE_BLUEPRINT.name,
+              blueprintId: SCHEMA_ROOM_DEVICE_BLUEPRINT.id,
               placementScope: 'room',
-              quality01: deviceQuality('00000000-0000-0000-0000-000000000070' as Uuid),
+              quality01: deviceQuality(
+                '00000000-0000-0000-0000-000000000070' as Uuid,
+                SCHEMA_ROOM_DEVICE_BLUEPRINT
+              ),
               condition01: 0.91,
               powerDraw_W: 320,
               dutyCycle01: 1,
@@ -133,18 +181,21 @@ const BASE_WORLD = {
             }
           ]
         }
-      ],
-      devices: [
-        {
-          id: '00000000-0000-0000-0000-000000000080',
-          slug: 'structure-device',
-          name: 'Structure Device',
-          blueprintId: '00000000-0000-0000-0000-000000000081',
-          placementScope: 'structure',
-          quality01: deviceQuality('00000000-0000-0000-0000-000000000080' as Uuid),
-          condition01: 0.9,
-          powerDraw_W: 500,
-          dutyCycle01: 1,
+        ],
+        devices: [
+          {
+            id: '00000000-0000-0000-0000-000000000080',
+            slug: SCHEMA_STRUCTURE_DEVICE_BLUEPRINT.slug,
+            name: SCHEMA_STRUCTURE_DEVICE_BLUEPRINT.name,
+            blueprintId: SCHEMA_STRUCTURE_DEVICE_BLUEPRINT.id,
+            placementScope: 'structure',
+            quality01: deviceQuality(
+              '00000000-0000-0000-0000-000000000080' as Uuid,
+              SCHEMA_STRUCTURE_DEVICE_BLUEPRINT
+            ),
+            condition01: 0.9,
+            powerDraw_W: 500,
+            dutyCycle01: 1,
           efficiency01: 0.88,
           coverage_m2: 0,
           airflow_m3_per_h: 0,
