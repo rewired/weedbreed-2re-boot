@@ -161,6 +161,7 @@ describe('deviceBlueprintSchema', () => {
       effects: ['thermal', 'humidity', 'airflow'],
       thermal: { mode: 'cool', max_cool_W: 3_000 },
       humidity: { mode: 'dehumidify', capacity_g_per_h: 600 },
+      airflow: { mode: 'recirculation', airflow_m3_per_h: 300 },
       coverage: { maxArea_m2: 25 },
       limits: { coolingCapacity_kW: 3 },
       settings: {

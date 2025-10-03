@@ -1,5 +1,13 @@
 # Changelog
 
+### #55 WB-048 airflow schema coverage parity
+- Extended the device blueprint schema regression fixture to include the
+  explicit airflow effect block required by the SEC, keeping the multi-effect
+  validation aligned with runtime expectations.
+- Updated the multi-effect pipeline integration fixtures to supply matching
+  airflow configurations so ACH aggregation and logging continue to exercise
+  the enforced schema nuance.
+
 ### #54 WB-047 sensor sampling before environment integration
 - Reordered the Engine tick pipeline so `applySensors` executes immediately after
   `applyDeviceEffects`, capturing zone conditions before `updateEnvironment`
