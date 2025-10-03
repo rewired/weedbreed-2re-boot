@@ -19,6 +19,11 @@ import {
   type ZoneDeviceInstance,
   type Uuid
 } from '@/backend/src/domain/world.js';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
+
+function uuid(value: string): Uuid {
+  return value as Uuid;
+}
 
 const QUALITY_POLICY: DeviceQualityPolicy = {
   sampleQuality01: (rng) => rng()
@@ -26,8 +31,38 @@ const QUALITY_POLICY: DeviceQualityPolicy = {
 
 const WORLD_SEED = 'zone-capacity-seed';
 
-function deviceQuality(id: Uuid): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
+const COVERAGE_HEATER_BLUEPRINT: DeviceBlueprint = {
+  id: '40000000-0000-0000-0000-000000000002',
+  slug: 'coverage-test-heater',
+  class: 'device.test.heater',
+  name: 'Coverage Test Heater',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 1_000,
+  efficiency01: 0.5,
+  coverage_m2: 10,
+  airflow_m3_per_h: 0,
+  effects: ['thermal'],
+  thermal: { mode: 'heat' }
+};
+
+const AIRFLOW_FAN_BLUEPRINT: DeviceBlueprint = {
+  id: '40000000-0000-0000-0000-000000000011',
+  slug: 'airflow-test-fan',
+  class: 'device.test.fan',
+  name: 'Airflow Test Fan',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 200,
+  efficiency01: 0.8,
+  coverage_m2: 10,
+  airflow_m3_per_h: 15,
+  effects: ['airflow'],
+  airflow: { mode: 'circulate' }
+};
+
+function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
 }
 
 describe('Phase 1 zone capacity diagnostics', () => {
@@ -38,14 +73,14 @@ describe('Phase 1 zone capacity diagnostics', () => {
     zone.height_m = ROOM_DEFAULT_HEIGHT_M;
     zone.airMass_kg = zone.floorArea_m2 * zone.height_m * AIR_DENSITY_KG_PER_M3;
 
-    const heaterId = '40000000-0000-0000-0000-000000000001' as Uuid;
+    const heaterId = uuid('40000000-0000-0000-0000-000000000001');
     const heater: ZoneDeviceInstance = {
       id: heaterId,
-      slug: 'coverage-test-heater',
-      name: 'Coverage Test Heater',
-      blueprintId: '40000000-0000-0000-0000-000000000002',
+      slug: COVERAGE_HEATER_BLUEPRINT.slug,
+      name: COVERAGE_HEATER_BLUEPRINT.name,
+      blueprintId: uuid(COVERAGE_HEATER_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(heaterId),
+      quality01: deviceQuality(heaterId, COVERAGE_HEATER_BLUEPRINT),
       condition01: 1,
       powerDraw_W: 1_000,
       dutyCycle01: 1,
@@ -100,14 +135,14 @@ describe('Phase 1 zone capacity diagnostics', () => {
     zone.height_m = ROOM_DEFAULT_HEIGHT_M;
     zone.airMass_kg = zone.floorArea_m2 * zone.height_m * AIR_DENSITY_KG_PER_M3;
 
-    const fanId = '40000000-0000-0000-0000-000000000010' as Uuid;
+    const fanId = uuid('40000000-0000-0000-0000-000000000010');
     const fan: ZoneDeviceInstance = {
       id: fanId,
-      slug: 'airflow-test-fan',
-      name: 'Airflow Test Fan',
-      blueprintId: '40000000-0000-0000-0000-000000000011',
+      slug: AIRFLOW_FAN_BLUEPRINT.slug,
+      name: AIRFLOW_FAN_BLUEPRINT.name,
+      blueprintId: uuid(AIRFLOW_FAN_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(fanId),
+      quality01: deviceQuality(fanId, AIRFLOW_FAN_BLUEPRINT),
       condition01: 1,
       powerDraw_W: 200,
       dutyCycle01: 1,

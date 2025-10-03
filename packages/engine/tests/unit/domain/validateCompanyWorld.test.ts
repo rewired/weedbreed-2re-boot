@@ -23,6 +23,7 @@ import {
   type DeviceQualityPolicy,
   validateCompanyWorld
 } from '@/backend/src/domain/world.js';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
 
 const QUALITY_POLICY: DeviceQualityPolicy = {
   sampleQuality01: (rng) => rng()
@@ -30,8 +31,47 @@ const QUALITY_POLICY: DeviceQualityPolicy = {
 
 const WORLD_SEED = 'validate-company-world-seed';
 
-function deviceQuality(id: Uuid): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id).quality01;
+const ZONE_DEVICE_BLUEPRINT: DeviceBlueprint = {
+  id: '00000000-0000-0000-0000-000000000051',
+  slug: 'zone-device',
+  class: 'device.test.zone',
+  name: 'Zone Device',
+  placementScope: 'zone',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 480,
+  efficiency01: 0.85,
+  coverage_m2: AREA_QUANTUM_M2 * 8,
+  airflow_m3_per_h: 0
+};
+
+const ROOM_DEVICE_BLUEPRINT: DeviceBlueprint = {
+  id: '00000000-0000-0000-0000-000000000071',
+  slug: 'room-dehumidifier',
+  class: 'device.test.room',
+  name: 'Room Dehumidifier',
+  placementScope: 'room',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 250,
+  efficiency01: 0.8,
+  coverage_m2: 0,
+  airflow_m3_per_h: 0
+};
+
+const STRUCTURE_DEVICE_BLUEPRINT: DeviceBlueprint = {
+  id: '00000000-0000-0000-0000-000000000091',
+  slug: 'structure-hvac',
+  class: 'device.test.structure',
+  name: 'Structure HVAC',
+  placementScope: 'structure',
+  allowedRoomPurposes: ['growroom'],
+  power_W: 3_500,
+  efficiency01: 0.9,
+  coverage_m2: 0,
+  airflow_m3_per_h: 0
+};
+
+function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
+  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
 }
 
 function uuid(value: string): Uuid {
@@ -314,11 +354,11 @@ function createCompany(): Company {
   const zoneDeviceId = uuid('00000000-0000-0000-0000-000000000050');
   const zoneDevice: ZoneDeviceInstance = {
     id: zoneDeviceId,
-    slug: 'zone-device',
-    name: 'Zone Device',
-    blueprintId: uuid('00000000-0000-0000-0000-000000000051'),
+    slug: ZONE_DEVICE_BLUEPRINT.slug,
+    name: ZONE_DEVICE_BLUEPRINT.name,
+    blueprintId: uuid(ZONE_DEVICE_BLUEPRINT.id),
     placementScope: 'zone',
-    quality01: deviceQuality(zoneDeviceId),
+    quality01: deviceQuality(zoneDeviceId, ZONE_DEVICE_BLUEPRINT),
     condition01: 0.75,
     powerDraw_W: 480,
     dutyCycle01: 1,
@@ -341,21 +381,24 @@ function createCompany(): Company {
     substrateId: plant.substrateId,
     lightSchedule: { onHours: 18, offHours: 6, startHour: 0 },
     photoperiodPhase: 'vegetative',
+    ppfd_umol_m2s: 0,
+    dli_mol_m2d_inc: 0,
     plants: [plant],
     devices: [zoneDevice],
     environment: {
-      airTemperatureC: 22
+      airTemperatureC: 22,
+      relativeHumidity_pct: 55
     }
   } satisfies Zone;
 
   const roomDeviceId = uuid('00000000-0000-0000-0000-000000000070');
   const roomDevice: RoomDeviceInstance = {
     id: roomDeviceId,
-    slug: 'room-dehumidifier',
-    name: 'Room Dehumidifier',
-    blueprintId: uuid('00000000-0000-0000-0000-000000000071'),
+    slug: ROOM_DEVICE_BLUEPRINT.slug,
+    name: ROOM_DEVICE_BLUEPRINT.name,
+    blueprintId: uuid(ROOM_DEVICE_BLUEPRINT.id),
     placementScope: 'room',
-    quality01: deviceQuality(roomDeviceId),
+    quality01: deviceQuality(roomDeviceId, ROOM_DEVICE_BLUEPRINT),
     condition01: 0.9,
     powerDraw_W: 250,
     dutyCycle01: 1,
@@ -379,11 +422,11 @@ function createCompany(): Company {
   const structureDeviceId = uuid('00000000-0000-0000-0000-000000000090');
   const structureDevice: StructureDeviceInstance = {
     id: structureDeviceId,
-    slug: 'structure-hvac',
-    name: 'Structure HVAC',
-    blueprintId: uuid('00000000-0000-0000-0000-000000000091'),
+    slug: STRUCTURE_DEVICE_BLUEPRINT.slug,
+    name: STRUCTURE_DEVICE_BLUEPRINT.name,
+    blueprintId: uuid(STRUCTURE_DEVICE_BLUEPRINT.id),
     placementScope: 'structure',
-    quality01: deviceQuality(structureDeviceId),
+    quality01: deviceQuality(structureDeviceId, STRUCTURE_DEVICE_BLUEPRINT),
     condition01: 0.88,
     powerDraw_W: 3_500,
     dutyCycle01: 1,
