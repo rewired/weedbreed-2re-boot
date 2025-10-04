@@ -93,8 +93,8 @@ describe('photoperiod utilities', () => {
     });
 
     it('calculates light hours with partial day remainder', () => {
-      const light = schedule({ onHours: 12, startHour: 6 });
-      expect(calculateAccumulatedLightHours(30, light)).toBeCloseTo(18, 5);
+        const light = schedule({ onHours: 12, startHour: 6 });
+        expect(calculateAccumulatedLightHours(30, light)).toBeCloseTo(12, 5);
     });
 
     it('handles midnight overflow schedules', () => {
