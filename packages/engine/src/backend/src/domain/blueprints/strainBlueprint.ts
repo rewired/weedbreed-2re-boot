@@ -39,6 +39,7 @@ const envRangeSchema = z
     yellowLow: finiteNumber,
     yellowHigh: finiteNumber
   })
+  .strict()
   .superRefine((value, ctx) => {
     const [greenMin, greenMax] = value.green;
 
@@ -57,8 +58,7 @@ const envRangeSchema = z
         path: ['yellowHigh']
       });
     }
-  })
-  .strict();
+  });
 
 const envConditionSchema = z
   .object({
@@ -95,6 +95,7 @@ const growthModelTemperatureSchema = z
     min_C: finiteNumber,
     max_C: finiteNumber
   })
+  .strict()
   .superRefine((value, ctx) => {
     if (value.min_C >= value.max_C) {
       ctx.addIssue({
@@ -103,8 +104,7 @@ const growthModelTemperatureSchema = z
         path: ['min_C']
       });
     }
-  })
-  .strict();
+  });
 
 const phaseMultiplierSchema = z
   .object({

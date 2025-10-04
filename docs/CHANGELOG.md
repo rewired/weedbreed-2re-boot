@@ -1,5 +1,12 @@
 # Changelog
 
+### #58 WB-052 Zod compatibility rollback
+- Pinned `@wb/engine` to `zod@3.24.x` to restore `.strict()` and `.superRefine()`
+  behaviours within blueprint schemas so SEC-aligned validation guards run
+  again.
+- Regenerated the workspace lockfile via `pnpm install` to ensure the downgraded
+  Zod release is installed consistently across local and CI environments.
+
 ### #57 WB-050 physiology pipeline scaffolding
 - Introduced a strain blueprint schema with taxonomy validation, deterministic
   slug registry support, and SEC-aligned environmental band constraints to
