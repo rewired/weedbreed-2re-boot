@@ -1,23 +1,23 @@
 {
-  "id": "3f0f15f4-1b75-4196-b3f3-5f6b6b7cf7a7",
-  "slug": "northern_lights",
+  "id": "8b9a0b6c-2d6c-4f58-9c37-7a6c9d4aa5c2",
+  "slug": "sour-diesel",
   "class": "strain.hybrid.sativa-dominant",
-  "name": "Northern Lights",
+  "name": "Sour Diesel",
   "photoperiodic": true,
-  "vegDays": 28,
-  "flowerDays": 50,
+  "vegDays": 36,
+  "flowerDays": 70,
   "autoFlowerDays": null,
   "light": {
-    "ppfdOpt_umol_m2s": 650,
-    "ppfdMax_umol_m2s": 1000,
-    "dliHalfSat_mol_m2d": 18,
-    "dliMax_mol_m2d": 38
+    "ppfdOpt_umol_m2s": 850,
+    "ppfdMax_umol_m2s": 1250,
+    "dliHalfSat_mol_m2d": 27,
+    "dliMax_mol_m2d": 48
   },
   "coeffs": {
-    "budGrowthBase_g_per_day": 1.4,
-    "tempOptC": 25,
-    "tempWidthC": 5.5,
-    "co2HalfSat_ppm": 800
+    "budGrowthBase_g_per_day": 1.9,
+    "tempOptC": 26.5,
+    "tempWidthC": 6.5,
+    "co2HalfSat_ppm": 950
   },
   "lineage": {
     "parents": []
@@ -28,7 +28,7 @@
     "ruderalis": 0.0
   },
   "generalResilience": 0.7,
-  "germinationRate": 0.98,
+  "germinationRate": 0.92,
   "chemotype": {
     "thcContent": 0.2,
     "cbdContent": 0.01
@@ -42,11 +42,53 @@
     "default": {
       "temp_C": {
         "green": [
-          20,
-          26
+          24,
+          28
         ],
-        "yellowLow": 18,
-        "yellowHigh": 28
+        "yellowLow": 22,
+        "yellowHigh": 30
+      },
+      "rh_frac": {
+        "green": [
+          0.45,
+          0.6
+        ],
+        "yellowLow": 0.35,
+        "yellowHigh": 0.7
+      },
+      "co2_ppm": {
+        "green": [
+          900,
+          1350
+        ],
+        "yellowLow": 750,
+        "yellowHigh": 1500
+      },
+      "ppfd_umol_m2s": {
+        "green": [
+          650,
+          950
+        ],
+        "yellowLow": 550,
+        "yellowHigh": 1150
+      },
+      "vpd_kPa": {
+        "green": [
+          1.0,
+          1.5
+        ],
+        "yellowLow": 0.8,
+        "yellowHigh": 1.7
+      }
+    },
+    "veg": {
+      "temp_C": {
+        "green": [
+          23,
+          27
+        ],
+        "yellowLow": 21,
+        "yellowHigh": 29
       },
       "rh_frac": {
         "green": [
@@ -56,105 +98,79 @@
         "yellowLow": 0.4,
         "yellowHigh": 0.75
       },
-      "co2_ppm": {
-        "green": [
-          750,
-          1100
-        ],
-        "yellowLow": 600,
-        "yellowHigh": 1300
-      },
       "ppfd_umol_m2s": {
         "green": [
-          400,
-          650
+          500,
+          750
         ],
-        "yellowLow": 300,
-        "yellowHigh": 800
-      },
-      "vpd_kPa": {
-        "green": [
-          0.8,
-          1.3
-        ],
-        "yellowLow": 0.6,
-        "yellowHigh": 1.5
-      }
-    },
-    "veg": {
-      "temp_C": {
-        "green": [
-          18,
-          24
-        ],
-        "yellowLow": 16,
-        "yellowHigh": 26
-      },
-      "rh_frac": {
-        "green": [
-          0.55,
-          0.7
-        ],
-        "yellowLow": 0.45,
-        "yellowHigh": 0.75
+        "yellowLow": 400,
+        "yellowHigh": 850
       }
     },
     "flower": {
       "temp_C": {
         "green": [
-          20,
-          26
+          25,
+          29
         ],
-        "yellowLow": 18,
-        "yellowHigh": 28
+        "yellowLow": 23,
+        "yellowHigh": 31
       },
       "rh_frac": {
         "green": [
-          0.4,
-          0.55
+          0.35,
+          0.5
         ],
-        "yellowLow": 0.35,
-        "yellowHigh": 0.65
+        "yellowLow": 0.3,
+        "yellowHigh": 0.6
       },
       "co2_ppm": {
         "green": [
-          800,
-          1200
+          950,
+          1400
         ],
-        "yellowLow": 650,
-        "yellowHigh": 1400
+        "yellowLow": 800,
+        "yellowHigh": 1600
+      },
+      "ppfd_umol_m2s": {
+        "green": [
+          700,
+          1000
+        ],
+        "yellowLow": 600,
+        "yellowHigh": 1200
       }
     }
   },
   "stressTolerance": {
-    "temp_C": 2.0,
-    "rh_frac": 0.08,
-    "co2_ppm": 150,
-    "ppfd_umol_m2s": 50,
-    "vpd_kPa": 0.2
+    "temp_C": 1.0,
+    "rh_frac": 0.05,
+    "co2_ppm": 100,
+    "ppfd_umol_m2s": 80,
+    "vpd_kPa": 0.15
   },
   "methodAffinity": {
-    "85cc0916-0e8a-495e-af8f-50291abe6855": 0.9,
-    "659ba4d7-a5fc-482e-98d4-b614341883ac": 0.8,
-    "41229377-ef2d-4723-931f-72eea87d7a62": 0.6
+    "85cc0916-0e8a-495e-af8f-50291abe6855": 0.7,
+    "659ba4d7-a5fc-482e-98d4-b614341883ac": 0.5,
+    "41229377-ef2d-4723-931f-72eea87d7a62": 0.9
   },
   "phaseDurations": {
-    "seedlingDays": 7,
-    "vegDays": 28,
-    "flowerDays": 50,
-    "ripeningDays": 7
+    "seedlingDays": 12,
+    "vegDays": 36,
+    "flowerDays": 70,
+    "ripeningDays": 10
   },
   "yieldModel": {
-    "baseGmPerPlant": 35,
+    "baseGmPerPlant": 55,
     "qualityFactors": {
-      "temp": 0.25,
+      "temp": 0.2,
       "rh": 0.15,
-      "ppfd": 0.35,
-      "vpd": 0.25
+      "ppfd": 0.45,
+      "vpd": 0.2
     },
     "co2Response": {
-      "halfMax_ppm": 800,
-      "saturation_ppm": 1100
+      "halfMax_ppm": 950,
+      "saturation_ppm": 1400
     }
   },
   "growthModel": {
@@ -166,17 +182,17 @@
       "flowering": 0.2
     },
     "harvestIndex": {
-      "targetFlowering": 0.72
+      "targetFlowering": 0.68
     },
     "phaseCapMultiplier": {
       "vegetation": 0.5,
       "flowering": 1.0
     },
     "temperature": {
-      "Q10": 1.92,
-      "T_ref_C": 24,
-      "min_C": 20,
-      "max_C": 26
+      "Q10": 2.18,
+      "T_ref_C": 26,
+      "min_C": 24,
+      "max_C": 28
     }
   },
   "noise": {
@@ -277,8 +293,8 @@
     "fatalityThreshold": 0.95
   },
   "photoperiod": {
-    "vegetationTime": 2419200,
-    "floweringTime": 4320000,
+    "vegetationTime": 3110400,
+    "floweringTime": 6048000,
     "transitionTrigger": 43200
   },
   "stageChangeThresholds": {
@@ -292,8 +308,8 @@
     }
   },
   "harvestWindow": [
-    4147200,
-    5184000
+    5616000,
+    6912000
   ],
   "harvestProperties": {
     "ripeningTime": 172800,
@@ -301,16 +317,16 @@
     "qualityDecayRate": 5.555555555555556e-06
   },
   "meta": {
-    "description": "Northern Lights is a legendary indica strain prized for its resilience and fast flowering time.",
+    "description": "Sour Diesel delivers pungent aromas and energizing effects, popular among sativa enthusiasts.",
     "advantages": [
-      "Compact growth",
-      "Resistant to stress",
-      "Classic indica effects"
+      "High vigor",
+      "Strong aroma",
+      "Excellent for daytime use"
     ],
     "disadvantages": [
-      "Moderate yields",
-      "Prefers stable climates"
+      "Long flowering period",
+      "Requires ample light"
     ],
-    "notes": "Often used as a baseline in breeding projects."
+    "notes": "Originates from the U.S. East Coast underground scene."
   }
 }

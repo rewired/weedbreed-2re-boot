@@ -4,7 +4,9 @@ import {
   calculateBiomassIncrement,
   calculateHealthDecay,
   calculateHealthRecovery,
-  calculateTemperatureGrowthFactor
+  calculateTemperatureGrowthFactor,
+  getDryMatterFraction,
+  getHarvestIndex
 } from '../../../src/backend/src/util/growth.js';
 import type { StrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
 import type { RandomNumberGenerator } from '../../../src/backend/src/util/rng.js';
@@ -131,6 +133,33 @@ describe('growth utilities', () => {
       const twoHour = calculateBiomassIncrement(20, 25, 0, strain, 'vegetative', 10, 2, rng(0.5));
       expect(twoHour).toBeGreaterThan(oneHour);
     });
+
+    it('scales growth by stage-specific dry matter fraction', () => {
+      const strain = mockStrain();
+      strain.growthModel.dryMatterFraction = { vegetation: 0.5, flowering: 0.2 };
+      const vegetativeGrowth = calculateBiomassIncrement(
+        20,
+        25,
+        0,
+        strain,
+        'vegetative',
+        10,
+        1,
+        rng(0.5)
+      );
+      const floweringGrowth = calculateBiomassIncrement(
+        20,
+        25,
+        0,
+        strain,
+        'flowering',
+        10,
+        1,
+        rng(0.5)
+      );
+
+      expect(vegetativeGrowth).toBeGreaterThan(floweringGrowth);
+    });
   });
 
   describe('health modifiers', () => {
@@ -163,6 +192,47 @@ describe('growth utilities', () => {
       const highHealth = calculateHealthRecovery(0.05, 0.8, 1);
       const lowHealth = calculateHealthRecovery(0.05, 0.3, 1);
       expect(lowHealth).toBeGreaterThan(highHealth);
+    });
+  });
+
+  describe('fraction helpers', () => {
+    it('returns numeric dry matter fraction for all stages', () => {
+      const strain = mockStrain();
+      expect(getDryMatterFraction(strain.growthModel, 'seedling')).toBeCloseTo(0.2);
+      expect(getDryMatterFraction(strain.growthModel, 'vegetative')).toBeCloseTo(0.2);
+      expect(getDryMatterFraction(strain.growthModel, 'flowering')).toBeCloseTo(0.2);
+      expect(getDryMatterFraction(strain.growthModel, 'harvest-ready')).toBeCloseTo(0.2);
+    });
+
+    it('returns stage-specific dry matter fraction when configured as object', () => {
+      const strain = mockStrain();
+      strain.growthModel.dryMatterFraction = { vegetation: 0.3, flowering: 0.18 };
+      expect(getDryMatterFraction(strain.growthModel, 'seedling')).toBeCloseTo(0.3);
+      expect(getDryMatterFraction(strain.growthModel, 'vegetative')).toBeCloseTo(0.3);
+      expect(getDryMatterFraction(strain.growthModel, 'flowering')).toBeCloseTo(0.18);
+      expect(getDryMatterFraction(strain.growthModel, 'harvest-ready')).toBeCloseTo(0.18);
+    });
+
+    it('falls back to flowering dry matter fraction when vegetation missing', () => {
+      const strain = mockStrain();
+      strain.growthModel.dryMatterFraction = { flowering: 0.22 };
+      expect(getDryMatterFraction(strain.growthModel, 'vegetative')).toBeCloseTo(0.22);
+    });
+
+    it('returns numeric harvest index across stages', () => {
+      const strain = mockStrain();
+      expect(getHarvestIndex(strain.growthModel, 'seedling')).toBeCloseTo(0.7);
+      expect(getHarvestIndex(strain.growthModel, 'vegetative')).toBeCloseTo(0.7);
+      expect(getHarvestIndex(strain.growthModel, 'flowering')).toBeCloseTo(0.7);
+      expect(getHarvestIndex(strain.growthModel, 'harvest-ready')).toBeCloseTo(0.7);
+    });
+
+    it('returns flowering harvest index when configured as object', () => {
+      const strain = mockStrain();
+      strain.growthModel.harvestIndex = { targetFlowering: 0.74 };
+      expect(getHarvestIndex(strain.growthModel, 'flowering')).toBeCloseTo(0.74);
+      expect(getHarvestIndex(strain.growthModel, 'harvest-ready')).toBeCloseTo(0.74);
+      expect(getHarvestIndex(strain.growthModel, 'vegetative')).toBeCloseTo(0.74);
     });
   });
 });

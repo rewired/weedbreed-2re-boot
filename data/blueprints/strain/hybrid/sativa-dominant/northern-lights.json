@@ -1,23 +1,23 @@
 {
-  "id": "5a6e9e57-0b3a-4f9f-8f19-12f3f8ec3a0e",
-  "slug": "skunk_1",
+  "id": "3f0f15f4-1b75-4196-b3f3-5f6b6b7cf7a7",
+  "slug": "northern-lights",
   "class": "strain.hybrid.sativa-dominant",
-  "name": "Skunk #1",
+  "name": "Northern Lights",
   "photoperiodic": true,
-  "vegDays": 30,
-  "flowerDays": 55,
+  "vegDays": 28,
+  "flowerDays": 50,
   "autoFlowerDays": null,
   "light": {
-    "ppfdOpt_umol_m2s": 700,
-    "ppfdMax_umol_m2s": 1100,
-    "dliHalfSat_mol_m2d": 21,
-    "dliMax_mol_m2d": 41
+    "ppfdOpt_umol_m2s": 650,
+    "ppfdMax_umol_m2s": 1000,
+    "dliHalfSat_mol_m2d": 18,
+    "dliMax_mol_m2d": 38
   },
   "coeffs": {
-    "budGrowthBase_g_per_day": 1.7,
-    "tempOptC": 26,
-    "tempWidthC": 6,
-    "co2HalfSat_ppm": 900
+    "budGrowthBase_g_per_day": 1.4,
+    "tempOptC": 25,
+    "tempWidthC": 5.5,
+    "co2HalfSat_ppm": 800
   },
   "lineage": {
     "parents": []
@@ -28,7 +28,7 @@
     "ruderalis": 0.0
   },
   "generalResilience": 0.7,
-  "germinationRate": 0.96,
+  "germinationRate": 0.98,
   "chemotype": {
     "thcContent": 0.2,
     "cbdContent": 0.01
@@ -42,11 +42,11 @@
     "default": {
       "temp_C": {
         "green": [
-          22,
-          27
+          20,
+          26
         ],
-        "yellowLow": 20,
-        "yellowHigh": 29
+        "yellowLow": 18,
+        "yellowHigh": 28
       },
       "rh_frac": {
         "green": [
@@ -58,37 +58,37 @@
       },
       "co2_ppm": {
         "green": [
-          850,
-          1200
+          750,
+          1100
         ],
-        "yellowLow": 700,
-        "yellowHigh": 1400
+        "yellowLow": 600,
+        "yellowHigh": 1300
       },
       "ppfd_umol_m2s": {
         "green": [
-          500,
-          750
+          400,
+          650
         ],
-        "yellowLow": 400,
-        "yellowHigh": 900
+        "yellowLow": 300,
+        "yellowHigh": 800
       },
       "vpd_kPa": {
         "green": [
-          0.9,
-          1.4
+          0.8,
+          1.3
         ],
-        "yellowLow": 0.7,
-        "yellowHigh": 1.6
+        "yellowLow": 0.6,
+        "yellowHigh": 1.5
       }
     },
     "veg": {
       "temp_C": {
         "green": [
-          21,
-          26
+          18,
+          24
         ],
-        "yellowLow": 19,
-        "yellowHigh": 28
+        "yellowLow": 16,
+        "yellowHigh": 26
       },
       "rh_frac": {
         "green": [
@@ -97,24 +97,16 @@
         ],
         "yellowLow": 0.45,
         "yellowHigh": 0.75
-      },
-      "ppfd_umol_m2s": {
-        "green": [
-          450,
-          650
-        ],
-        "yellowLow": 350,
-        "yellowHigh": 750
       }
     },
     "flower": {
       "temp_C": {
         "green": [
-          23,
-          28
+          20,
+          26
         ],
-        "yellowLow": 21,
-        "yellowHigh": 30
+        "yellowLow": 18,
+        "yellowHigh": 28
       },
       "rh_frac": {
         "green": [
@@ -126,51 +118,43 @@
       },
       "co2_ppm": {
         "green": [
-          900,
-          1300
+          800,
+          1200
         ],
-        "yellowLow": 750,
-        "yellowHigh": 1500
-      },
-      "ppfd_umol_m2s": {
-        "green": [
-          600,
-          850
-        ],
-        "yellowLow": 500,
-        "yellowHigh": 1000
+        "yellowLow": 650,
+        "yellowHigh": 1400
       }
     }
   },
   "stressTolerance": {
-    "temp_C": 1.5,
-    "rh_frac": 0.06,
-    "co2_ppm": 120,
-    "ppfd_umol_m2s": 75,
-    "vpd_kPa": 0.18
+    "temp_C": 2.0,
+    "rh_frac": 0.08,
+    "co2_ppm": 150,
+    "ppfd_umol_m2s": 50,
+    "vpd_kPa": 0.2
   },
   "methodAffinity": {
-    "85cc0916-0e8a-495e-af8f-50291abe6855": 0.8,
-    "659ba4d7-a5fc-482e-98d4-b614341883ac": 0.7,
-    "41229377-ef2d-4723-931f-72eea87d7a62": 0.8
+    "85cc0916-0e8a-495e-af8f-50291abe6855": 0.9,
+    "659ba4d7-a5fc-482e-98d4-b614341883ac": 0.8,
+    "41229377-ef2d-4723-931f-72eea87d7a62": 0.6
   },
   "phaseDurations": {
-    "seedlingDays": 10,
-    "vegDays": 30,
-    "flowerDays": 55,
+    "seedlingDays": 7,
+    "vegDays": 28,
+    "flowerDays": 50,
     "ripeningDays": 7
   },
   "yieldModel": {
-    "baseGmPerPlant": 48,
+    "baseGmPerPlant": 35,
     "qualityFactors": {
       "temp": 0.25,
-      "rh": 0.2,
+      "rh": 0.15,
       "ppfd": 0.35,
-      "vpd": 0.2
+      "vpd": 0.25
     },
     "co2Response": {
-      "halfMax_ppm": 900,
-      "saturation_ppm": 1300
+      "halfMax_ppm": 800,
+      "saturation_ppm": 1100
     }
   },
   "growthModel": {
@@ -182,17 +166,17 @@
       "flowering": 0.2
     },
     "harvestIndex": {
-      "targetFlowering": 0.71
+      "targetFlowering": 0.72
     },
     "phaseCapMultiplier": {
       "vegetation": 0.5,
       "flowering": 1.0
     },
     "temperature": {
-      "Q10": 2.03,
-      "T_ref_C": 25,
-      "min_C": 22,
-      "max_C": 27
+      "Q10": 1.92,
+      "T_ref_C": 24,
+      "min_C": 20,
+      "max_C": 26
     }
   },
   "noise": {
@@ -293,8 +277,8 @@
     "fatalityThreshold": 0.95
   },
   "photoperiod": {
-    "vegetationTime": 2592000,
-    "floweringTime": 4752000,
+    "vegetationTime": 2419200,
+    "floweringTime": 4320000,
     "transitionTrigger": 43200
   },
   "stageChangeThresholds": {
@@ -308,8 +292,8 @@
     }
   },
   "harvestWindow": [
-    4752000,
-    5616000
+    4147200,
+    5184000
   ],
   "harvestProperties": {
     "ripeningTime": 172800,
@@ -317,16 +301,16 @@
     "qualityDecayRate": 5.555555555555556e-06
   },
   "meta": {
-    "description": "Skunk #1 set the standard for modern hybrids with its skunky aroma and balanced growth.",
+    "description": "Northern Lights is a legendary indica strain prized for its resilience and fast flowering time.",
     "advantages": [
-      "Stable genetics",
-      "Fast flowering",
-      "Classic flavor"
+      "Compact growth",
+      "Resistant to stress",
+      "Classic indica effects"
     ],
     "disadvantages": [
-      "Strong odor",
-      "Can stretch in veg"
+      "Moderate yields",
+      "Prefers stable climates"
     ],
-    "notes": "Widely used as a benchmark strain since the 1970s."
+    "notes": "Often used as a baseline in breeding projects."
   }
 }

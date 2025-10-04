@@ -114,17 +114,42 @@ const phaseMultiplierSchema = z
   })
   .strict();
 
+const fraction01Schema = finiteNumber
+  .min(0, 'Value must be >= 0.')
+  .max(1, 'Value must be <= 1.');
+
+const dryMatterFractionSchema = z.union([
+  fraction01Schema,
+  z
+    .object({
+      vegetation: fraction01Schema.optional(),
+      flowering: fraction01Schema.optional()
+    })
+    .strict()
+    .refine((value) => value.vegetation !== undefined || value.flowering !== undefined, {
+      message: 'dryMatterFraction object must provide at least one stage value.'
+    })
+]);
+
+const harvestIndexSchema = z.union([
+  fraction01Schema,
+  z
+    .object({
+      targetFlowering: fraction01Schema.optional()
+    })
+    .strict()
+    .refine((value) => value.targetFlowering !== undefined, {
+      message: 'harvestIndex object must provide targetFlowering.'
+    })
+]);
+
 const growthModelSchema = z
   .object({
     maxBiomassDry: positiveNumber,
     baseLightUseEfficiency: positiveNumber,
     maintenanceFracPerDay: finiteNumber.nonnegative(),
-    dryMatterFraction: finiteNumber
-      .min(0, 'dryMatterFraction must be >= 0.')
-      .max(1, 'dryMatterFraction must be <= 1.'),
-    harvestIndex: finiteNumber
-      .min(0, 'harvestIndex must be >= 0.')
-      .max(1, 'harvestIndex must be <= 1.'),
+    dryMatterFraction: dryMatterFractionSchema,
+    harvestIndex: harvestIndexSchema,
     phaseCapMultiplier: phaseMultiplierSchema.optional(),
     temperature: growthModelTemperatureSchema
   })
@@ -196,6 +221,8 @@ export type EnvConditionBands = z.infer<typeof envConditionSchema>;
 export type EnvBands = z.infer<typeof envBandsSchema>;
 export type StressTolerance = z.infer<typeof stressToleranceSchema>;
 export type GrowthModel = z.infer<typeof growthModelSchema>;
+export type DryMatterFractionConfig = z.infer<typeof dryMatterFractionSchema>;
+export type HarvestIndexConfig = z.infer<typeof harvestIndexSchema>;
 export type PhaseDurations = z.infer<typeof phaseDurationsSchema>;
 export type StageChangeThresholds = z.infer<typeof stageChangeThresholdsSchema>;
 export type NoiseConfig = z.infer<typeof noiseConfigSchema>;
