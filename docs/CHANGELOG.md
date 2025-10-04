@@ -1,5 +1,14 @@
 # Changelog
 
+### #60 Utility consolidation for helper functions
+- Added shared numeric helpers (`clamp`, `clamp01`, `resolveTickHoursValue`) and
+  validation/environment utilities to eliminate divergent inline
+  implementations across stubs, pipeline stages, and domain services.
+- Updated device creation, physiology, and actuator stubs to consume the new
+  helpers while standardising tick duration, airflow, and fraction handling.
+- Introduced a reusable `deviceQuality` test helper and documented the helper
+  catalogue under `/docs/helper-functions.md` to prevent future duplication.
+
 ### #59 Tooling - Node version manager hints
 - Added `.nvmrc` and `.node-version` pointing to Node.js 22 so local environment managers auto-select the target runtime during the LTS migration dry run.
 - Captured the decision in ADR-0012 to document the transitional alignment between local tooling and CI-enforced Node.js 23.

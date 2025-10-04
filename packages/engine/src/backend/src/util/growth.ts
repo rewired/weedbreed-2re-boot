@@ -7,26 +7,7 @@ import type {
   StrainBlueprint
 } from '../domain/blueprints/strainBlueprint.js';
 import type { RandomNumberGenerator } from './rng.js';
-
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  if (value <= min) {
-    return min;
-  }
-
-  if (value >= max) {
-    return max;
-  }
-
-  return value;
-}
-
-function clamp01(value: number): number {
-  return clamp(value, 0, 1);
-}
+import { clamp, clamp01 } from './math.js';
 
 const DEFAULT_DRY_MATTER_FRACTION = 0.2;
 const DEFAULT_HARVEST_INDEX = 0.7;

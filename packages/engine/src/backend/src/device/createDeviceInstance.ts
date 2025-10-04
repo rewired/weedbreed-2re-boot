@@ -8,6 +8,7 @@ import {
   type DeviceBlueprint
 } from '../domain/blueprints/deviceBlueprint.js';
 import { createRng, type RandomNumberGenerator } from '../util/rng.js';
+import { clamp01 } from '../util/math.js';
 
 export interface DeviceQualityPolicy {
   sampleQuality01(rng: RandomNumberGenerator): number;
@@ -35,6 +36,9 @@ export function createDeviceInstance(
 
   const rng = createRng(seed, `device:${id}`);
   const sampledQuality = qualityPolicy.sampleQuality01(rng);
+  if (!Number.isFinite(sampledQuality)) {
+    throw new Error('quality01 sample must be a finite number');
+  }
   const quality01 = clamp01(sampledQuality);
   const { effects, effectConfigs } = toDeviceInstanceEffectConfigs(blueprint);
   const frozenEffects = freezeEffects(effects);
@@ -45,22 +49,6 @@ export function createDeviceInstance(
     effects: frozenEffects,
     effectConfigs: frozenConfigs
   }) as DeviceInstanceSeededAttributes;
-}
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) {
-    throw new Error('quality01 sample must be a finite number');
-  }
-
-  if (value <= 0) {
-    return 0;
-  }
-
-  if (value >= 1) {
-    return 1;
-  }
-
-  return value;
 }
 
 function freezeEffects(effects?: readonly DeviceEffectType[]): readonly DeviceEffectType[] | undefined {

@@ -14,12 +14,12 @@ import { updateEnvironment } from '@/backend/src/engine/pipeline/updateEnvironme
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
 import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat.js';
 import {
-  createDeviceInstance,
   type DeviceQualityPolicy,
   type ZoneDeviceInstance,
   type Uuid
 } from '@/backend/src/domain/world.js';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
+import { deviceQuality } from '../../testUtils/deviceHelpers.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -61,10 +61,6 @@ const AIRFLOW_FAN_BLUEPRINT: DeviceBlueprint = {
   airflow: { mode: 'circulate' }
 };
 
-function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
-}
-
 describe('Phase 1 zone capacity diagnostics', () => {
   it('clamps device effectiveness and emits coverage warnings when undersized', () => {
     const world = createDemoWorld();
@@ -80,7 +76,7 @@ describe('Phase 1 zone capacity diagnostics', () => {
       name: COVERAGE_HEATER_BLUEPRINT.name,
       blueprintId: uuid(COVERAGE_HEATER_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(heaterId, COVERAGE_HEATER_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, heaterId, COVERAGE_HEATER_BLUEPRINT),
       condition01: 1,
       powerDraw_W: 1_000,
       dutyCycle01: 1,
@@ -142,7 +138,7 @@ describe('Phase 1 zone capacity diagnostics', () => {
       name: AIRFLOW_FAN_BLUEPRINT.name,
       blueprintId: uuid(AIRFLOW_FAN_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(fanId, AIRFLOW_FAN_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, fanId, AIRFLOW_FAN_BLUEPRINT),
       condition01: 1,
       powerDraw_W: 200,
       dutyCycle01: 1,

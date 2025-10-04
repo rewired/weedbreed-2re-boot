@@ -22,6 +22,7 @@ import {
 } from '../../stubs/index.js';
 import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
 import { resolveTickHours } from '../resolveTickHours.js';
+import { clamp01 } from '../../util/math.js';
 
 export interface DeviceEffectsRuntime {
   readonly zoneTemperatureDeltaC: Map<Zone['id'], number>;
@@ -79,22 +80,6 @@ export function getDeviceEffectsRuntime(
 
 export function clearDeviceEffectsRuntime(ctx: EngineRunContext): void {
   delete (ctx as DeviceEffectsCarrier)[DEVICE_EFFECTS_CONTEXT_KEY];
-}
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  if (value <= 0) {
-    return 0;
-  }
-
-  if (value >= 1) {
-    return 1;
-  }
-
-  return value;
 }
 
 function accumulateTemperatureDelta(

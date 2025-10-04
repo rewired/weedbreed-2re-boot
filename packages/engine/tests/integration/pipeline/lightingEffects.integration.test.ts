@@ -6,13 +6,9 @@ import {
 } from '@/backend/src/constants/simConstants.js';
 import { runTick } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import {
-  createDeviceInstance,
-  type DeviceQualityPolicy,
-  type Uuid,
-  type ZoneDeviceInstance
-} from '@/backend/src/domain/world.js';
+import { type DeviceQualityPolicy, type Uuid, type ZoneDeviceInstance } from '@/backend/src/domain/world.js';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
+import { deviceQuality } from '../../testUtils/deviceHelpers.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -89,10 +85,6 @@ const INVALID_LIGHT_BLUEPRINT: DeviceBlueprint = {
   airflow_m3_per_h: 0
 };
 
-function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
-}
-
 describe('Tick pipeline — lighting effects', () => {
   it('accumulates PPFD and DLI from lighting devices', () => {
     const world = createDemoWorld();
@@ -107,7 +99,7 @@ describe('Tick pipeline — lighting effects', () => {
       name: LED_VEG_BLUEPRINT.name,
       blueprintId: uuid(LED_VEG_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceId, LED_VEG_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, deviceId, LED_VEG_BLUEPRINT),
       condition01: 0.96,
       powerDraw_W: 600,
       dutyCycle01: 1,
@@ -145,7 +137,7 @@ describe('Tick pipeline — lighting effects', () => {
       name: VEG_LIGHT_A_BLUEPRINT.name,
       blueprintId: uuid(VEG_LIGHT_A_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceAId, VEG_LIGHT_A_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, deviceAId, VEG_LIGHT_A_BLUEPRINT),
       condition01: 0.94,
       powerDraw_W: 500,
       dutyCycle01: 1,
@@ -161,7 +153,7 @@ describe('Tick pipeline — lighting effects', () => {
       name: VEG_LIGHT_B_BLUEPRINT.name,
       blueprintId: uuid(VEG_LIGHT_B_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceBId, VEG_LIGHT_B_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, deviceBId, VEG_LIGHT_B_BLUEPRINT),
       condition01: 0.93,
       powerDraw_W: 450,
       dutyCycle01: 1,
@@ -198,7 +190,7 @@ describe('Tick pipeline — lighting effects', () => {
       name: DIMMED_LIGHT_BLUEPRINT.name,
       blueprintId: uuid(DIMMED_LIGHT_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceId, DIMMED_LIGHT_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, deviceId, DIMMED_LIGHT_BLUEPRINT),
       condition01: 0.91,
       powerDraw_W: 400,
       dutyCycle01: 0.5,
@@ -234,7 +226,7 @@ describe('Tick pipeline — lighting effects', () => {
       name: INVALID_LIGHT_BLUEPRINT.name,
       blueprintId: uuid(INVALID_LIGHT_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceId, INVALID_LIGHT_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, deviceId, INVALID_LIGHT_BLUEPRINT),
       condition01: 0.9,
       powerDraw_W: 500,
       dutyCycle01: 1,

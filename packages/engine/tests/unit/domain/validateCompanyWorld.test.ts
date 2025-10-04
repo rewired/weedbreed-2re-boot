@@ -10,7 +10,6 @@ import {
   DEFAULT_COMPANY_LOCATION_COUNTRY
 } from '@/backend/src/constants/simConstants.js';
 import {
-  createDeviceInstance,
   type Company,
   type Structure,
   type Room,
@@ -24,6 +23,7 @@ import {
   validateCompanyWorld
 } from '@/backend/src/domain/world.js';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
+import { deviceQuality } from '../../testUtils/deviceHelpers.js';
 
 const QUALITY_POLICY: DeviceQualityPolicy = {
   sampleQuality01: (rng) => rng()
@@ -69,10 +69,6 @@ const STRUCTURE_DEVICE_BLUEPRINT: DeviceBlueprint = {
   coverage_m2: 0,
   airflow_m3_per_h: 0
 };
-
-function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
-}
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -358,7 +354,7 @@ function createCompany(): Company {
     name: ZONE_DEVICE_BLUEPRINT.name,
     blueprintId: uuid(ZONE_DEVICE_BLUEPRINT.id),
     placementScope: 'zone',
-    quality01: deviceQuality(zoneDeviceId, ZONE_DEVICE_BLUEPRINT),
+    quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, zoneDeviceId, ZONE_DEVICE_BLUEPRINT),
     condition01: 0.75,
     powerDraw_W: 480,
     dutyCycle01: 1,
@@ -398,7 +394,7 @@ function createCompany(): Company {
     name: ROOM_DEVICE_BLUEPRINT.name,
     blueprintId: uuid(ROOM_DEVICE_BLUEPRINT.id),
     placementScope: 'room',
-    quality01: deviceQuality(roomDeviceId, ROOM_DEVICE_BLUEPRINT),
+    quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, roomDeviceId, ROOM_DEVICE_BLUEPRINT),
     condition01: 0.9,
     powerDraw_W: 250,
     dutyCycle01: 1,
@@ -426,7 +422,12 @@ function createCompany(): Company {
     name: STRUCTURE_DEVICE_BLUEPRINT.name,
     blueprintId: uuid(STRUCTURE_DEVICE_BLUEPRINT.id),
     placementScope: 'structure',
-    quality01: deviceQuality(structureDeviceId, STRUCTURE_DEVICE_BLUEPRINT),
+    quality01: deviceQuality(
+      QUALITY_POLICY,
+      WORLD_SEED,
+      structureDeviceId,
+      STRUCTURE_DEVICE_BLUEPRINT
+    ),
     condition01: 0.88,
     powerDraw_W: 3_500,
     dutyCycle01: 1,

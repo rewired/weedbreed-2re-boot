@@ -1,18 +1,7 @@
 import type { ISensor, SensorInputs, SensorOutputs } from '../domain/interfaces/ISensor.js';
 import type { SensorMeasurementType } from '../domain/entities.js';
 import type { RandomNumberGenerator } from '../util/rng.js';
-
-function clamp(value: number, min: number, max: number): number {
-  if (value < min) {
-    return min;
-  }
-
-  if (value > max) {
-    return max;
-  }
-
-  return value;
-}
+import { clamp } from '../util/math.js';
 
 function boxMullerTransform(rng: RandomNumberGenerator): number {
   let u1 = 0;

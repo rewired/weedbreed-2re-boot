@@ -8,6 +8,8 @@
  * without rewriting call sites.
  */
 
+import { clamp01 } from '../util/math.js';
+
 const BASE_WEAR_RATE01 = 0.01;
 const QUALITY_WEAR_SLOPE = 0.5;
 
@@ -101,18 +103,6 @@ function determineRepairSuccess(
   }
 
   return successChance01 >= 0.5;
-}
-
-function clamp01(value: number): number {
-  if (value <= 0) {
-    return 0;
-  }
-
-  if (value >= 1) {
-    return 1;
-  }
-
-  return value;
 }
 
 function assertFinite(label: string, value: number): void {

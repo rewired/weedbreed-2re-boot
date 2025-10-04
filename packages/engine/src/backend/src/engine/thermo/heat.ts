@@ -4,42 +4,9 @@ import {
   SECONDS_PER_HOUR
 } from '../../constants/simConstants.js';
 import type { Zone, ZoneDeviceInstance } from '../../domain/world.js';
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  if (value <= 0) {
-    return 0;
-  }
-
-  if (value >= 1) {
-    return 1;
-  }
-
-  return value;
-}
-
-function resolveTickHours(tickHours: number | undefined): number {
-  if (typeof tickHours !== 'number') {
-    return HOURS_PER_TICK;
-  }
-
-  if (!Number.isFinite(tickHours) || tickHours <= 0) {
-    return HOURS_PER_TICK;
-  }
-
-  return tickHours;
-}
-
-function resolveAirMassKg(zone: Pick<Zone, 'airMass_kg'>): number {
-  if (!Number.isFinite(zone.airMass_kg) || zone.airMass_kg <= 0) {
-    return 0;
-  }
-
-  return zone.airMass_kg;
-}
+import { clamp01 } from '../../util/math.js';
+import { resolveAirMassKg } from '../../util/environment.js';
+import { resolveTickHoursValue } from '../resolveTickHours.js';
 
 /**
  * @deprecated Heating-only implementation (waste heat).
@@ -73,13 +40,13 @@ export function applyDeviceHeat(
 
   const duty = clamp01(device.dutyCycle01);
   const powerDraw_W = Math.max(0, device.powerDraw_W);
-  const resolvedTickHours = resolveTickHours(tickHours);
+  const resolvedTickHours = resolveTickHoursValue(tickHours);
 
   if (duty === 0 || powerDraw_W === 0 || resolvedTickHours === 0) {
     return 0;
   }
 
-  const airMassKg = resolveAirMassKg(zone);
+  const airMassKg = resolveAirMassKg(zone.airMass_kg);
 
   if (airMassKg === 0) {
     return 0;
