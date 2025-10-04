@@ -1,4 +1,3 @@
-import { HOURS_PER_TICK } from '../constants/simConstants.js';
 import type {
   IIrrigationService,
   IrrigationEvent,
@@ -9,34 +8,8 @@ import type {
   INutrientBuffer,
   NutrientBufferInputs,
 } from '../domain/interfaces/INutrientBuffer.js';
-
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  if (value < min) {
-    return min;
-  }
-
-  if (value > max) {
-    return max;
-  }
-
-  return value;
-}
-
-function resolveTickHours(tickHours: number | undefined): number {
-  if (typeof tickHours !== 'number') {
-    return HOURS_PER_TICK;
-  }
-
-  if (!Number.isFinite(tickHours) || tickHours <= 0) {
-    return HOURS_PER_TICK;
-  }
-
-  return tickHours;
-}
+import { clamp } from '../util/math.js';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
 
 function multiplyNutrientRecord(
   record: Record<string, number>,
@@ -160,7 +133,7 @@ export function createIrrigationServiceStub(
         return zeroOutputs();
       }
 
-      const resolvedDt_h = resolveTickHours(dt_h);
+      const resolvedDt_h = resolveTickHoursValue(dt_h);
 
       if (!Number.isFinite(resolvedDt_h) || resolvedDt_h <= 0) {
         return zeroOutputs();

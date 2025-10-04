@@ -5,12 +5,8 @@ import { getSensorReadingsRuntime } from '@/backend/src/engine/pipeline/applySen
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
 import type { SensorOutputs } from '@/backend/src/domain/interfaces/ISensor.js';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
-import {
-  createDeviceInstance,
-  type DeviceQualityPolicy,
-  type Uuid,
-  type ZoneDeviceInstance
-} from '@/backend/src/domain/world.js';
+import { type DeviceQualityPolicy, type Uuid, type ZoneDeviceInstance } from '@/backend/src/domain/world.js';
+import { deviceQuality } from '../../testUtils/deviceHelpers.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -19,6 +15,8 @@ function uuid(value: string): Uuid {
 const QUALITY_POLICY: DeviceQualityPolicy = {
   sampleQuality01: (rng) => rng()
 };
+
+const WORLD_SEED = 'sensor-seed';
 
 const SENSOR_BLUEPRINT: DeviceBlueprint = {
   id: '40000000-0000-0000-0000-000000000000',
@@ -54,10 +52,6 @@ const HEATER_BLUEPRINT: DeviceBlueprint = {
     mode: 'heat'
   }
 };
-
-function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
-  return createDeviceInstance(QUALITY_POLICY, 'sensor-seed', id, blueprint).quality01;
-}
 
 function runSensorTick(
   world: ReturnType<typeof createDemoWorld>,
@@ -127,7 +121,7 @@ describe('Tick pipeline — sensor readings', () => {
       name: HEATER_BLUEPRINT.name,
       blueprintId: HEATER_BLUEPRINT.id,
       placementScope: 'zone',
-      quality01: deviceQuality(heaterId, HEATER_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, heaterId, HEATER_BLUEPRINT),
       condition01: 1,
       powerDraw_W: HEATER_BLUEPRINT.power_W,
       dutyCycle01: 1,
@@ -146,7 +140,7 @@ describe('Tick pipeline — sensor readings', () => {
       name: SENSOR_BLUEPRINT.name,
       blueprintId: SENSOR_BLUEPRINT.id,
       placementScope: 'zone',
-      quality01: deviceQuality(sensorId, SENSOR_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, sensorId, SENSOR_BLUEPRINT),
       condition01: 1,
       powerDraw_W: 0,
       dutyCycle01: 1,
@@ -202,7 +196,7 @@ describe('Tick pipeline — sensor readings', () => {
       name: 'Temp Sensor',
       blueprintId: SENSOR_BLUEPRINT.id,
       placementScope: 'zone',
-      quality01: deviceQuality(temperatureSensorId, SENSOR_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, temperatureSensorId, SENSOR_BLUEPRINT),
       condition01: 0.9,
       powerDraw_W: 0,
       dutyCycle01: 1,
@@ -222,7 +216,7 @@ describe('Tick pipeline — sensor readings', () => {
       name: 'Humidity Probe',
       blueprintId: SENSOR_BLUEPRINT.id,
       placementScope: 'zone',
-      quality01: deviceQuality(humiditySensorId, SENSOR_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, humiditySensorId, SENSOR_BLUEPRINT),
       condition01: 0.8,
       powerDraw_W: 0,
       dutyCycle01: 1,
@@ -278,7 +272,7 @@ describe('Tick pipeline — sensor readings', () => {
         name: 'Noisy Temp Sensor',
         blueprintId: SENSOR_BLUEPRINT.id,
         placementScope: 'zone',
-        quality01: deviceQuality(sensorId, SENSOR_BLUEPRINT),
+        quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, sensorId, SENSOR_BLUEPRINT),
         condition01: 0.5,
         powerDraw_W: 0,
         dutyCycle01: 1,
@@ -390,7 +384,7 @@ describe('Tick pipeline — sensor readings', () => {
       name: sensorBlueprint.name,
       blueprintId: sensorBlueprint.id,
       placementScope: 'zone',
-      quality01: deviceQuality(id, sensorBlueprint),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, id, sensorBlueprint),
       condition01: 0.7,
       powerDraw_W: 0,
       dutyCycle01: 1,
@@ -440,7 +434,7 @@ describe('Tick pipeline — sensor readings', () => {
       name: sensorBlueprint.name,
       blueprintId: sensorBlueprint.id,
       placementScope: 'zone',
-      quality01: deviceQuality(id, sensorBlueprint),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, id, sensorBlueprint),
       condition01: 0.7,
       powerDraw_W: 0,
       dutyCycle01: 1,

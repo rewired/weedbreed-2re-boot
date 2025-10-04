@@ -1,9 +1,11 @@
-import { HOURS_PER_TICK } from '../constants/simConstants.js';
 import type {
   AirflowActuatorInputs,
   AirflowActuatorOutputs,
   IAirflowActuator
 } from '../domain/interfaces/IAirflowActuator.js';
+import { clamp01 } from '../util/math.js';
+import { resolveAirflow } from '../util/environment.js';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
 
 const ZERO_OUTPUT: AirflowActuatorOutputs = {
   effective_airflow_m3_per_h: 0,
@@ -11,30 +13,6 @@ const ZERO_OUTPUT: AirflowActuatorOutputs = {
   pressure_loss_pa: 0,
   energy_Wh: undefined
 };
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  if (value <= 0) {
-    return 0;
-  }
-
-  if (value >= 1) {
-    return 1;
-  }
-
-  return value;
-}
-
-function resolveAirflow(value: number): number {
-  if (!Number.isFinite(value) || value <= 0) {
-    return 0;
-  }
-
-  return value;
-}
 
 function resolveVolume(value: number): number {
   if (!Number.isFinite(value) || value <= 0) {
@@ -62,8 +40,7 @@ export function createAirflowActuatorStub(): IAirflowActuator {
       const dutyCycle01 = clamp01(inputs.dutyCycle01);
       const airflow_m3_per_h = resolveAirflow(inputs.airflow_m3_per_h);
       const resolvedVolume_m3 = resolveVolume(zoneVolume_m3);
-      const resolvedDt_h =
-        typeof dt_h === 'number' && Number.isFinite(dt_h) ? dt_h : HOURS_PER_TICK;
+      const resolvedDt_h = resolveTickHoursValue(dt_h);
 
       if (resolvedVolume_m3 <= 0 || resolvedDt_h <= 0 || airflow_m3_per_h === 0 || dutyCycle01 === 0) {
         return ZERO_OUTPUT;

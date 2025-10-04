@@ -1,41 +1,10 @@
 import { convertSubstrateVolumeLToMassKg } from '../blueprints/substrateBlueprint.js';
 import type { SubstratePhysicalProfile } from '../blueprints/substrateBlueprint.js';
-
-function assertPositiveFinite(value: number, name: string): void {
-  if (!Number.isFinite(value)) {
-    throw new Error(`${name} must be a finite number.`);
-  }
-
-  if (value <= 0) {
-    throw new Error(`${name} must be greater than zero.`);
-  }
-}
-
-function assertNonNegativeFinite(value: number, name: string): void {
-  if (!Number.isFinite(value)) {
-    throw new Error(`${name} must be a finite number.`);
-  }
-
-  if (value < 0) {
-    throw new Error(`${name} must be greater than or equal to zero.`);
-  }
-}
-
-function clamp01(value: number | undefined, fallback: number, name: string): number {
-  if (value === undefined) {
-    return fallback;
-  }
-
-  if (!Number.isFinite(value)) {
-    throw new Error(`${name} must be a finite number.`);
-  }
-
-  if (value < 0 || value > 1) {
-    throw new Error(`${name} must lie within [0,1].`);
-  }
-
-  return value;
-}
+import {
+  assertPositiveFinite,
+  assertNonNegativeFinite,
+  ensureFraction01
+} from '../../util/validation.js';
 
 export interface IrrigationChargeInput {
   readonly substrate: SubstratePhysicalProfile;
@@ -58,13 +27,13 @@ export function estimateIrrigationCharge(input: IrrigationChargeInput): Irrigati
   assertPositiveFinite(input.containerVolume_L, 'containerVolume_L');
   assertNonNegativeFinite(input.plantCount, 'plantCount');
 
-  const moistureFraction = clamp01(
+  const moistureFraction = ensureFraction01(
     input.targetMoistureFraction01,
     input.targetMoistureFraction01,
     'targetMoistureFraction01'
   );
-  const fillFraction = clamp01(input.fillFraction01, 1, 'fillFraction01');
-  const runoffFraction = clamp01(input.runoffFraction01, 0, 'runoffFraction01');
+  const fillFraction = ensureFraction01(input.fillFraction01, 1, 'fillFraction01');
+  const runoffFraction = ensureFraction01(input.runoffFraction01, 0, 'runoffFraction01');
 
   if (runoffFraction >= 1) {
     throw new Error('runoffFraction01 must be less than 1.');

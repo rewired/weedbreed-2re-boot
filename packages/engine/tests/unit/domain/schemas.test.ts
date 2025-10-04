@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { AIR_DENSITY_KG_PER_M3, ROOM_DEFAULT_HEIGHT_M } from '@/backend/src/constants/simConstants.js';
 import {
   companySchema,
-  createDeviceInstance,
   parseCompanyWorld,
   type DevicePlacementScope,
   type DeviceQualityPolicy,
@@ -10,6 +9,7 @@ import {
   type Uuid
 } from '@wb/engine';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
+import { deviceQuality } from '../../testUtils/deviceHelpers.js';
 
 type DeepMutable<T> = T extends (...args: unknown[]) => unknown
   ? T
@@ -71,10 +71,6 @@ const SCHEMA_STRUCTURE_DEVICE_BLUEPRINT: DeviceBlueprint = {
   coverage_m2: 0,
   airflow_m3_per_h: 0
 };
-
-function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
-}
 
 const BASE_WORLD = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -146,6 +142,8 @@ const BASE_WORLD = {
                   blueprintId: SCHEMA_ZONE_DEVICE_BLUEPRINT.id,
                   placementScope: 'zone',
                   quality01: deviceQuality(
+                    QUALITY_POLICY,
+                    WORLD_SEED,
                     '00000000-0000-0000-0000-000000000060' as Uuid,
                     SCHEMA_ZONE_DEVICE_BLUEPRINT
                   ),
@@ -168,6 +166,8 @@ const BASE_WORLD = {
               blueprintId: SCHEMA_ROOM_DEVICE_BLUEPRINT.id,
               placementScope: 'room',
               quality01: deviceQuality(
+                QUALITY_POLICY,
+                WORLD_SEED,
                 '00000000-0000-0000-0000-000000000070' as Uuid,
                 SCHEMA_ROOM_DEVICE_BLUEPRINT
               ),
@@ -190,6 +190,8 @@ const BASE_WORLD = {
             blueprintId: SCHEMA_STRUCTURE_DEVICE_BLUEPRINT.id,
             placementScope: 'structure',
             quality01: deviceQuality(
+              QUALITY_POLICY,
+              WORLD_SEED,
               '00000000-0000-0000-0000-000000000080' as Uuid,
               SCHEMA_STRUCTURE_DEVICE_BLUEPRINT
             ),

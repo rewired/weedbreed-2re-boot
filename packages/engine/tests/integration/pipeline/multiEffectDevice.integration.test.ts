@@ -9,14 +9,10 @@ import {
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
 import { runTick } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import {
-  createDeviceInstance,
-  type DeviceQualityPolicy,
-  type Uuid,
-  type ZoneDeviceInstance
-} from '@/backend/src/domain/world.js';
+import { type DeviceQualityPolicy, type Uuid, type ZoneDeviceInstance } from '@/backend/src/domain/world.js';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
 import { getDeviceEffectsRuntime } from '@/backend/src/engine/pipeline/applyDeviceEffects.js';
+import { deviceQuality } from '../../testUtils/deviceHelpers.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -136,10 +132,6 @@ const LEGACY_DEHUMIDIFIER_BLUEPRINT: DeviceBlueprint = {
   airflow_m3_per_h: 0
 };
 
-function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
-}
-
 describe('Tick pipeline — multi-effect devices', () => {
   it('integrates thermal cooling and humidity removal in a single tick', () => {
     const world = createDemoWorld();
@@ -168,7 +160,7 @@ describe('Tick pipeline — multi-effect devices', () => {
       name: COOL_AIR_DEHUMIDIFIER_BLUEPRINT.name,
       blueprintId: uuid(COOL_AIR_DEHUMIDIFIER_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceId, COOL_AIR_DEHUMIDIFIER_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, deviceId, COOL_AIR_DEHUMIDIFIER_BLUEPRINT),
       condition01: 0.95,
       powerDraw_W: 1_200,
       dutyCycle01: 1,
@@ -238,7 +230,7 @@ describe('Tick pipeline — multi-effect devices', () => {
       name: RESISTIVE_HEATER_BLUEPRINT.name,
       blueprintId: uuid(RESISTIVE_HEATER_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(heaterId, RESISTIVE_HEATER_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, heaterId, RESISTIVE_HEATER_BLUEPRINT),
       condition01: 0.9,
       powerDraw_W: 900,
       dutyCycle01: 1,
@@ -257,7 +249,7 @@ describe('Tick pipeline — multi-effect devices', () => {
       name: SMART_DEHUMIDIFIER_BLUEPRINT.name,
       blueprintId: uuid(SMART_DEHUMIDIFIER_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(dehumidifierId, SMART_DEHUMIDIFIER_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, dehumidifierId, SMART_DEHUMIDIFIER_BLUEPRINT),
       condition01: 0.92,
       powerDraw_W: 450,
       dutyCycle01: 1,
@@ -325,7 +317,7 @@ describe('Tick pipeline — multi-effect devices', () => {
       name: PARTIAL_HEATER_BLUEPRINT.name,
       blueprintId: uuid(PARTIAL_HEATER_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(heaterId, PARTIAL_HEATER_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, heaterId, PARTIAL_HEATER_BLUEPRINT),
       condition01: 0.88,
       powerDraw_W: 1_000,
       dutyCycle01: 1,
@@ -372,7 +364,7 @@ describe('Tick pipeline — multi-effect devices', () => {
       name: PATTERN_A_SPLIT_AC_BLUEPRINT.name,
       blueprintId: uuid(PATTERN_A_SPLIT_AC_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceId, PATTERN_A_SPLIT_AC_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, deviceId, PATTERN_A_SPLIT_AC_BLUEPRINT),
       condition01: 0.96,
       powerDraw_W: 1_200,
       dutyCycle01: 1,
@@ -457,7 +449,7 @@ describe('Tick pipeline — multi-effect devices', () => {
       name: PATTERN_B_REHEAT_BLUEPRINT.name,
       blueprintId: uuid(PATTERN_B_REHEAT_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(deviceId, PATTERN_B_REHEAT_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, deviceId, PATTERN_B_REHEAT_BLUEPRINT),
       condition01: 0.9,
       powerDraw_W: 300,
       dutyCycle01: 1,
@@ -541,7 +533,7 @@ describe('Tick pipeline — multi-effect devices', () => {
       name: LEGACY_DEHUMIDIFIER_BLUEPRINT.name,
       blueprintId: uuid(LEGACY_DEHUMIDIFIER_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(legacyId, LEGACY_DEHUMIDIFIER_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, legacyId, LEGACY_DEHUMIDIFIER_BLUEPRINT),
       condition01: 0.85,
       powerDraw_W: 400,
       dutyCycle01: 1,

@@ -1,41 +1,11 @@
-import { HOURS_PER_TICK, SECONDS_PER_HOUR } from '../constants/simConstants.js';
+import { SECONDS_PER_HOUR } from '../constants/simConstants.js';
 import type {
   ILightEmitter,
   LightEmitterInputs,
   LightEmitterOutputs
 } from '../domain/interfaces/ILightEmitter.js';
-
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  if (value < min) {
-    return min;
-  }
-
-  if (value > max) {
-    return max;
-  }
-
-  return value;
-}
-
-function clamp01(value: number): number {
-  return clamp(value, 0, 1);
-}
-
-function resolveTickHours(tickHours: number | undefined): number {
-  if (typeof tickHours !== 'number') {
-    return HOURS_PER_TICK;
-  }
-
-  if (!Number.isFinite(tickHours) || tickHours <= 0) {
-    return HOURS_PER_TICK;
-  }
-
-  return tickHours;
-}
+import { clamp, clamp01 } from '../util/math.js';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
 
 function ensureFiniteOutputs(outputs: LightEmitterOutputs): LightEmitterOutputs {
   const { ppfd_effective_umol_m2s, dli_mol_m2d_inc, energy_Wh } = outputs;
@@ -108,7 +78,7 @@ export function createLightEmitterStub(): ILightEmitter {
         return zeroEffect();
       }
 
-      const resolvedDt_h = resolveTickHours(dt_h);
+      const resolvedDt_h = resolveTickHoursValue(dt_h);
 
       if (resolvedDt_h === 0 || coverage_m2 === 0 || ppfd_center_umol_m2s === 0) {
         return zeroEffect();

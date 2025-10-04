@@ -3,30 +3,8 @@ import type {
   FiltrationUnitOutputs,
   IFiltrationUnit
 } from '../domain/interfaces/IFiltrationUnit.js';
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  if (value <= 0) {
-    return 0;
-  }
-
-  if (value >= 1) {
-    return 1;
-  }
-
-  return value;
-}
-
-function resolveAirflow(value: number): number {
-  if (!Number.isFinite(value) || value <= 0) {
-    return 0;
-  }
-
-  return value;
-}
+import { clamp01 } from '../util/math.js';
+import { resolveAirflow } from '../util/environment.js';
 
 function resolveBasePressureDrop(value: number): number {
   if (!Number.isFinite(value) || value <= 0) {

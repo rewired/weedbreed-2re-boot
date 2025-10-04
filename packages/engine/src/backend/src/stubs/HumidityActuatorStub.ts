@@ -1,46 +1,12 @@
-import { HOURS_PER_TICK } from '../constants/simConstants.js';
 import type {
   HumidityActuatorInputs,
   HumidityActuatorOutputs,
   IHumidityActuator
 } from '../domain/interfaces/IHumidityActuator.js';
 import type { ZoneEnvironment } from '../domain/entities.js';
-
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  if (value < min) {
-    return min;
-  }
-
-  if (value > max) {
-    return max;
-  }
-
-  return value;
-}
-
-function resolveTickHours(tickHours: number | undefined): number {
-  if (typeof tickHours !== 'number') {
-    return HOURS_PER_TICK;
-  }
-
-  if (!Number.isFinite(tickHours) || tickHours <= 0) {
-    return HOURS_PER_TICK;
-  }
-
-  return tickHours;
-}
-
-function resolveAirMassKg(airMass_kg: number): number {
-  if (!Number.isFinite(airMass_kg) || airMass_kg <= 0) {
-    return 0;
-  }
-
-  return airMass_kg;
-}
+import { clamp } from '../util/math.js';
+import { resolveAirMassKg } from '../util/environment.js';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
 
 function ensureFiniteOutputs(
   outputs: HumidityActuatorOutputs
@@ -143,7 +109,7 @@ export function createHumidityActuatorStub(): IHumidityActuator {
         return { deltaRH_pct: 0, water_g: 0, energy_Wh: 0 };
       }
 
-      const resolvedDt_h = resolveTickHours(dt_h);
+      const resolvedDt_h = resolveTickHoursValue(dt_h);
       const resolvedAirMass = resolveAirMassKg(airMass_kg);
 
       if (resolvedDt_h === 0 || resolvedAirMass === 0) {

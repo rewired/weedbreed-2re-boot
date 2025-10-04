@@ -21,6 +21,7 @@ import {
   shouldTransitionToVegetative
 } from '../../util/photoperiod.js';
 import { resolveTickHours } from '../resolveTickHours.js';
+import { clamp01 } from '../../util/math.js';
 
 interface PhysiologyRuntime {
   readonly strainBlueprints: Map<Uuid, StrainBlueprint>;
@@ -38,22 +39,6 @@ function getOrLoadStrainBlueprint(
 
   // TODO: Load strain blueprint definitions from the filesystem (separate task).
   return null;
-}
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  if (value <= 0) {
-    return 0;
-  }
-
-  if (value >= 1) {
-    return 1;
-  }
-
-  return value;
 }
 
 function hasNumericChange(previous: number, next: number): boolean {

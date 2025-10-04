@@ -9,58 +9,9 @@ import type {
   ThermalActuatorOutputs
 } from '../domain/interfaces/IThermalActuator.js';
 import type { ZoneEnvironment } from '../domain/entities.js';
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  if (value <= 0) {
-    return 0;
-  }
-
-  if (value >= 1) {
-    return 1;
-  }
-
-  return value;
-}
-
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  if (value < min) {
-    return min;
-  }
-
-  if (value > max) {
-    return max;
-  }
-
-  return value;
-}
-
-function resolveTickHours(tickHours: number | undefined): number {
-  if (typeof tickHours !== 'number') {
-    return HOURS_PER_TICK;
-  }
-
-  if (!Number.isFinite(tickHours) || tickHours <= 0) {
-    return HOURS_PER_TICK;
-  }
-
-  return tickHours;
-}
-
-function resolveAirMassKg(airMass_kg: number): number {
-  if (!Number.isFinite(airMass_kg) || airMass_kg <= 0) {
-    return 0;
-  }
-
-  return airMass_kg;
-}
+import { clamp, clamp01 } from '../util/math.js';
+import { resolveAirMassKg } from '../util/environment.js';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
 
 function ensureFiniteOutputs(outputs: ThermalActuatorOutputs): ThermalActuatorOutputs {
   const { deltaT_K, energy_Wh, used_W } = outputs;
@@ -110,7 +61,7 @@ export function createThermalActuatorStub(): IThermalActuator {
         return { deltaT_K: 0, energy_Wh: 0, used_W: 0 };
       }
 
-      const resolvedDt_h = resolveTickHours(dt_h);
+      const resolvedDt_h = resolveTickHoursValue(dt_h);
       const resolvedAirMass = resolveAirMassKg(airMass_kg);
       const powerDraw_W = Math.max(0, inputs.power_W);
 

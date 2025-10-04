@@ -8,13 +8,9 @@ import {
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
 import { runTick } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import {
-  createDeviceInstance,
-  type DeviceQualityPolicy,
-  type Uuid,
-  type ZoneDeviceInstance
-} from '@/backend/src/domain/world.js';
+import { type DeviceQualityPolicy, type Uuid, type ZoneDeviceInstance } from '@/backend/src/domain/world.js';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
+import { deviceQuality } from '../../testUtils/deviceHelpers.js';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -52,10 +48,6 @@ const HVAC_BLUEPRINT: DeviceBlueprint = {
   airflow_m3_per_h: 0
 };
 
-function deviceQuality(id: Uuid, blueprint: DeviceBlueprint): number {
-  return createDeviceInstance(QUALITY_POLICY, WORLD_SEED, id, blueprint).quality01;
-}
-
 describe('Tick pipeline — device thermal effects', () => {
   it('integrates heat additions and HVAC removals across the first two stages', () => {
     const world = createDemoWorld();
@@ -71,7 +63,7 @@ describe('Tick pipeline — device thermal effects', () => {
       name: LIGHTING_BLUEPRINT.name,
       blueprintId: uuid(LIGHTING_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(lightingDeviceId, LIGHTING_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, lightingDeviceId, LIGHTING_BLUEPRINT),
       condition01: 0.94,
       powerDraw_W: 600,
       dutyCycle01: 1,
@@ -88,7 +80,7 @@ describe('Tick pipeline — device thermal effects', () => {
       name: HVAC_BLUEPRINT.name,
       blueprintId: uuid(HVAC_BLUEPRINT.id),
       placementScope: 'zone',
-      quality01: deviceQuality(hvacDeviceId, HVAC_BLUEPRINT),
+      quality01: deviceQuality(QUALITY_POLICY, WORLD_SEED, hvacDeviceId, HVAC_BLUEPRINT),
       condition01: 0.9,
       powerDraw_W: 800,
       dutyCycle01: 1,
