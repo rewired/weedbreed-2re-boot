@@ -1,5 +1,9 @@
 # Changelog
 
+### #59 Tooling - Node version manager hints
+- Added `.nvmrc` and `.node-version` pointing to Node.js 22 so local environment managers auto-select the target runtime during the LTS migration dry run.
+- Captured the decision in ADR-0012 to document the transitional alignment between local tooling and CI-enforced Node.js 23.
+
 ### #58 WB-052 Zod compatibility rollback
 - Pinned `@wb/engine` to `zod@3.24.x` to restore `.strict()` and `.superRefine()`
   behaviours within blueprint schemas so SEC-aligned validation guards run
