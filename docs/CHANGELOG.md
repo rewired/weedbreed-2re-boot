@@ -1,5 +1,19 @@
 # Changelog
 
+### #57 WB-050 physiology pipeline scaffolding
+- Introduced a strain blueprint schema with taxonomy validation, deterministic
+  slug registry support, and SEC-aligned environmental band constraints to
+  unblock physiology modelling.
+- Added photoperiod, stress, and growth utility modules covering light cycle
+  evaluation, tolerance band stress scoring, and Q10-informed biomass/health
+  updates for downstream pipeline use.
+- Implemented the `advancePhysiology` pipeline stage to age plants, surface
+  diagnostics for missing strain blueprints, and prepare deterministic RNG
+  hooks while preserving world immutability semantics.
+- Expanded Vitest coverage across the new utilities, schema parser, and
+  pipeline integration harness to codify the SEC §8 requirements and guard
+  against regressions.
+
 ### #56 WB-049 DD sync to 8-phase pipeline + order test
 - Updated DD §6 to reflect the 8-phase pipeline with explicit Sensor Sampling (per SEC §4.2).
 - Added an integration test asserting the canonical phase order via the tick trace harness (TDD §7).
