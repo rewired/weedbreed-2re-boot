@@ -14,6 +14,7 @@ const DEMO_WORLD_ID = '00000000-0000-4000-8000-000000000000' as Uuid;
 const DEMO_COMPANY_ID = '00000000-0000-4000-8000-000000000001' as Uuid;
 const DEMO_STRUCTURE_ID = '00000000-0000-4000-8000-000000000002' as Uuid;
 const DEMO_ROOM_ID = '00000000-0000-4000-8000-000000000003' as Uuid;
+const DEMO_STORAGEROOM_ID = '00000000-0000-4000-8000-000000000009' as Uuid;
 const DEMO_ZONE_ID = '00000000-0000-4000-8000-000000000004' as Uuid;
 const DEMO_CONTAINER_ID = '00000000-0000-4000-8000-000000000005' as Uuid;
 const DEMO_SUBSTRATE_ID = '00000000-0000-4000-8000-000000000006' as Uuid;
@@ -86,6 +87,17 @@ const DEMO_WORLD: SimulationWorld = {
                 devices: []
               }
             ]
+          },
+          {
+            id: DEMO_STORAGEROOM_ID,
+            slug: 'storage-room',
+            name: 'Storage Room',
+            purpose: 'storageroom',
+            floorArea_m2: 40,
+            height_m: 3,
+            devices: [],
+            zones: [],
+            harvestLots: []
           }
         ]
       }

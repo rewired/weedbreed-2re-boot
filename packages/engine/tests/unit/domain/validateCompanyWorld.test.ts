@@ -11,6 +11,7 @@ import {
 } from '@/backend/src/constants/simConstants.js';
 import {
   type Company,
+  type HarvestLot,
   type Structure,
   type Room,
   type Zone,
@@ -287,6 +288,36 @@ describe('validateCompanyWorld (unit)', () => {
       'onHours must be a finite number'
     );
   });
+
+  it('rejects harvest lots in non-storagerooms', () => {
+    const company = withRoomOverride(createCompany(), (room) => {
+      if (room.purpose === 'growroom') {
+        return {
+          ...room,
+          harvestLots: [
+            {
+              id: uuid('00000000-0000-0000-0000-000000000120'),
+              name: 'Test Harvest',
+              strainId: uuid('00000000-0000-0000-0000-000000000020'),
+              strainSlug: 'white-widow',
+              quality01: 0.85,
+              dryWeight_g: 500,
+              harvestedAtSimHours: 1000,
+              sourceZoneId: uuid('00000000-0000-0000-0000-000000000060')
+            } satisfies HarvestLot
+          ]
+        } satisfies Room;
+      }
+      return room;
+    });
+
+    const result = validateCompanyWorld(company);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues.map((issue) => issue.message)).toContain(
+      'only storagerooms may contain harvest lots'
+    );
+  });
 });
 
 function withStructureOverride(
@@ -415,6 +446,18 @@ function createCompany(): Company {
     devices: [roomDevice]
   } satisfies Room;
 
+  const storageRoom: Room = {
+    id: uuid('00000000-0000-0000-0000-000000000110'),
+    slug: 'storage-a',
+    name: 'Storage A',
+    purpose: 'storageroom',
+    floorArea_m2: AREA_QUANTUM_M2 * 8,
+    height_m: ROOM_DEFAULT_HEIGHT_M,
+    zones: [],
+    devices: [],
+    harvestLots: []
+  } satisfies Room;
+
   const structureDeviceId = uuid('00000000-0000-0000-0000-000000000090');
   const structureDevice: StructureDeviceInstance = {
     id: structureDeviceId,
@@ -443,7 +486,7 @@ function createCompany(): Company {
     name: 'Warehouse North',
     floorArea_m2: AREA_QUANTUM_M2 * 32,
     height_m: ROOM_DEFAULT_HEIGHT_M,
-    rooms: [room],
+    rooms: [room, storageRoom],
     devices: [structureDevice]
   } satisfies Structure;
 
