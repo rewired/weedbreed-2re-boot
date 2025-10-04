@@ -1,4 +1,4 @@
-import { FLOAT_TOLERANCE, HOURS_PER_TICK } from '../../constants/simConstants.js';
+import { FLOAT_TOLERANCE } from '../../constants/simConstants.js';
 import type {
   Plant,
   PlantLifecycleStage,
@@ -14,33 +14,16 @@ import {
   calculateHealthDecay,
   calculateHealthRecovery
 } from '../../util/growth.js';
-import {
-  calculateCombinedStress
-} from '../../util/stress.js';
+import { calculateCombinedStress } from '../../util/stress.js';
 import {
   shouldTransitionToFlowering,
   shouldTransitionToHarvestReady,
   shouldTransitionToVegetative
 } from '../../util/photoperiod.js';
+import { resolveTickHours } from '../resolveTickHours.js';
 
 interface PhysiologyRuntime {
   readonly strainBlueprints: Map<Uuid, StrainBlueprint>;
-}
-
-function isPositiveFinite(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value) && value > 0;
-}
-
-function resolveTickHours(ctx: EngineRunContext): number {
-  const candidate =
-    (ctx as { tickDurationHours?: unknown }).tickDurationHours ??
-    (ctx as { tickHours?: unknown }).tickHours;
-
-  if (isPositiveFinite(candidate)) {
-    return candidate;
-  }
-
-  return HOURS_PER_TICK;
 }
 
 function getOrLoadStrainBlueprint(

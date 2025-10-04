@@ -1,6 +1,13 @@
 import { AIR_DENSITY_KG_PER_M3 } from '../constants/simConstants.js';
 import type { SimulationWorld, Uuid } from '../domain/world.js';
-import { runTick, type EngineRunContext, type RunTickOptions } from './Engine.js';
+import {
+  resolvePipelineStage,
+  runTick,
+  type EngineRunContext,
+  type RunTickOptions
+} from './Engine.js';
+import { clearSensorReadingsRuntime } from './pipeline/applySensors.js';
+import { clearIrrigationNutrientsRuntime } from './pipeline/applyIrrigationAndNutrients.js';
 import type { StepName, TickTrace } from './trace.js';
 
 const DEMO_WORLD_ID = '00000000-0000-4000-8000-000000000000' as Uuid;
@@ -92,6 +99,31 @@ function cloneSimulationWorld(world: SimulationWorld): SimulationWorld {
 
 export function createDemoWorld(): SimulationWorld {
   return cloneSimulationWorld(DEMO_WORLD);
+}
+
+export function runStages(
+  world: SimulationWorld,
+  ctx: EngineRunContext,
+  stages: readonly StepName[]
+): SimulationWorld {
+  let nextWorld = world;
+
+  for (const stepName of stages) {
+    const stageFn = resolvePipelineStage(stepName);
+    nextWorld = stageFn(nextWorld, ctx);
+
+    ctx.instrumentation?.onStageComplete?.(stepName, nextWorld);
+
+    if (stepName === 'applySensors') {
+      clearSensorReadingsRuntime(ctx);
+    }
+
+    if (stepName === 'applyIrrigationAndNutrients') {
+      clearIrrigationNutrientsRuntime(ctx);
+    }
+  }
+
+  return nextWorld;
 }
 
 export interface RunOneTickOptions {

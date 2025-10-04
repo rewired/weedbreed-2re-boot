@@ -1,14 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
 import { assertBlueprintClassMatchesPath } from '@/backend/src/domain/blueprints/taxonomy.js';
+import { resolveBlueprintPath } from '../../testUtils/paths.js';
 
-const blueprintsRoot = path.resolve(
-  fileURLToPath(new URL('../../../../../data/blueprints/', import.meta.url))
-);
+const blueprintsRoot = path.resolve(resolveBlueprintPath(''));
 
 function collectBlueprintFiles(root: string): readonly string[] {
   const stack = [root];

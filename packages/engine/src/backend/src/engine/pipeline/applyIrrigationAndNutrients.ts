@@ -1,4 +1,4 @@
-import { resolveTickHours } from './applyDeviceEffects.js';
+import { resolveTickHours } from '../resolveTickHours.js';
 import { createIrrigationServiceStub, createNutrientBufferStub } from '../../stubs/index.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
 import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
