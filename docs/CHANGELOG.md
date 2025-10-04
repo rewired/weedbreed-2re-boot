@@ -1,5 +1,9 @@
 # Changelog
 
+### #56 WB-049 DD sync to 8-phase pipeline + order test
+- Updated DD §6 to reflect the 8-phase pipeline with explicit Sensor Sampling (per SEC §4.2).
+- Added an integration test asserting the canonical phase order via the tick trace harness (TDD §7).
+
 ### #55 WB-048 airflow schema coverage parity
 - Extended the device blueprint schema regression fixture to include the
   explicit airflow effect block required by the SEC, keeping the multi-effect
