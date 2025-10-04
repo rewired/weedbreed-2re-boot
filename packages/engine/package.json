@@ -15,7 +15,7 @@
     "dev": "tsx watch src/index.ts"
   },
   "engines": {
-    "node": ">=23.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "zod": "3.24.0"
