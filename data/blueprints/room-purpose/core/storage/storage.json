@@ -1,0 +1,10 @@
+{
+  "id": "84a1f9ff-83ee-4cde-8700-2a9ed933aac0",
+  "slug": "storage",
+  "class": "room-purpose.core.storage",
+  "name": "Storage Room",
+  "description": "A room for storing materials, tools, and harvests.",
+  "economy": {
+    "areaCost": 2.6
+  }
+}
