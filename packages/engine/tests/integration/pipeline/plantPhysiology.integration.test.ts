@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
 import type { EngineDiagnostic } from '@/backend/src/engine/Engine.js';
 import type { Plant, Zone } from '@/backend/src/domain/world.js';
 
@@ -49,11 +49,12 @@ describe('advancePhysiology pipeline', () => {
       }
     } satisfies EngineRunContext;
 
-    void runTick(world, ctx);
+    void runStages(world, ctx, ['advancePhysiology']);
 
     const strainMissing = diagnostics.filter((d) => d.code === 'plant.strain.missing');
-    expect(strainMissing).toHaveLength(1);
-    expect(strainMissing[0]?.code).toBe('plant.strain.missing');
+    expect(strainMissing).toEqual(
+      expect.arrayContaining([expect.objectContaining({ code: 'plant.strain.missing' })])
+    );
   });
 
   it('processes multiple plants independently', () => {

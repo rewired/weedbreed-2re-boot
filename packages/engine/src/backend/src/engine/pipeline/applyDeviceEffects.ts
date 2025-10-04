@@ -1,7 +1,6 @@
 import {
   CP_AIR_J_PER_KG_K,
   FLOAT_TOLERANCE,
-  HOURS_PER_TICK,
   LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG,
   ROOM_DEFAULT_HEIGHT_M
 } from '../../constants/simConstants.js';
@@ -22,6 +21,7 @@ import {
   createThermalActuatorStub
 } from '../../stubs/index.js';
 import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
+import { resolveTickHours } from '../resolveTickHours.js';
 
 export interface DeviceEffectsRuntime {
   readonly zoneTemperatureDeltaC: Map<Zone['id'], number>;
@@ -81,10 +81,6 @@ export function clearDeviceEffectsRuntime(ctx: EngineRunContext): void {
   delete (ctx as DeviceEffectsCarrier)[DEVICE_EFFECTS_CONTEXT_KEY];
 }
 
-function isPositiveFinite(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value) && value > 0;
-}
-
 function clamp01(value: number): number {
   if (!Number.isFinite(value)) {
     return 0;
@@ -99,18 +95,6 @@ function clamp01(value: number): number {
   }
 
   return value;
-}
-
-export function resolveTickHours(ctx: EngineRunContext): number {
-  const candidate =
-    (ctx as { tickDurationHours?: unknown }).tickDurationHours ??
-    (ctx as { tickHours?: unknown }).tickHours;
-
-  if (isPositiveFinite(candidate)) {
-    return candidate;
-  }
-
-  return HOURS_PER_TICK;
 }
 
 function accumulateTemperatureDelta(

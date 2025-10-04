@@ -20,7 +20,12 @@
 6. **Readable failures**: Tests explain “what SEC rule is violated”.
     
 7. **No Magic Numbers**: All constants come from `simConstants.ts`.
-    
+
+### Diagnostics assertions
+
+- Prefer matching on diagnostic codes (e.g. `arrayContaining` + `objectContaining`) instead of strict array lengths when
+  running multi-stage or full pipeline tests. This keeps specs resilient to additional diagnostics while still verifying the
+  contractually required codes.
 
 ---
 

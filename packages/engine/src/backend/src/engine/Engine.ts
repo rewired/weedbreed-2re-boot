@@ -33,6 +33,15 @@ export interface EngineRunContext {
   readonly instrumentation?: EngineInstrumentation;
   readonly diagnostics?: EngineDiagnosticsSink;
   readonly irrigationEvents?: readonly IrrigationEvent[];
+  /**
+   * Preferred tick duration hint in in-game hours.
+   * When omitted the engine defaults to the canonical one-hour tick duration.
+   */
+  readonly tickDurationHours?: number;
+  /**
+   * @deprecated Legacy alias for {@link EngineRunContext.tickDurationHours}. Prefer {@link tickDurationHours}.
+   */
+  readonly tickHours?: number;
   readonly [key: string]: unknown;
 }
 
@@ -90,6 +99,18 @@ const PIPELINE_DEFINITION: ReadonlyArray<readonly [StepName, PipelineStage]> = [
 ];
 
 export const PIPELINE_ORDER: readonly StepName[] = PIPELINE_DEFINITION.map(([name]) => name);
+
+const PIPELINE_STAGE_LOOKUP = new Map<StepName, PipelineStage>(PIPELINE_DEFINITION);
+
+export function resolvePipelineStage(name: StepName): PipelineStage {
+  const stage = PIPELINE_STAGE_LOOKUP.get(name);
+
+  if (!stage) {
+    throw new Error(`Unknown pipeline stage: ${name}`);
+  }
+
+  return stage;
+}
 
 export function runTick(
   world: SimulationWorld,
