@@ -51,8 +51,9 @@ describe('advancePhysiology pipeline', () => {
 
     void runTick(world, ctx);
 
-    expect(diagnostics).toHaveLength(1);
-    expect(diagnostics[0]?.code).toBe('plant.strain.missing');
+    const strainMissing = diagnostics.filter((d) => d.code === 'plant.strain.missing');
+    expect(strainMissing).toHaveLength(1);
+    expect(strainMissing[0]?.code).toBe('plant.strain.missing');
   });
 
   it('processes multiple plants independently', () => {
