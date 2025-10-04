@@ -7,14 +7,18 @@ import { parseStrainBlueprint } from '../../../src/backend/src/domain/blueprints
 import { BlueprintClassMismatchError } from '../../../src/backend/src/domain/blueprints/taxonomy.js';
 import { resolveBlueprintPath } from '../../testUtils/paths.js';
 
-const fixturePath = resolveBlueprintPath('strain/hybrid/balanced/white_widow.json');
+const fixturePath = resolveBlueprintPath('strain/hybrid/balanced/white-widow.json');
+const blueprintsRoot = path.resolve(fixturePath, '..', '..', '..', '..');
 const fixturePayload = JSON.parse(readFileSync(fixturePath, 'utf8'));
 
 describe('strainBlueprintSchema', () => {
   it('parses the white widow blueprint', () => {
-    const blueprint = parseStrainBlueprint(fixturePayload, { filePath: fixturePath });
+    const blueprint = parseStrainBlueprint(fixturePayload, {
+      filePath: fixturePath,
+      blueprintsRoot
+    });
     expect(blueprint.id).toBeDefined();
-    expect(blueprint.slug).toBe('white_widow');
+    expect(blueprint.slug).toBe('white-widow');
     expect(blueprint.envBands.default.temp_C?.green).toEqual([21, 26]);
   });
 
@@ -66,6 +70,62 @@ describe('strainBlueprintSchema', () => {
     ).toThrow();
   });
 
+  it('accepts numeric dryMatterFraction and harvestIndex', () => {
+    const payload = {
+      ...fixturePayload,
+      growthModel: {
+        ...fixturePayload.growthModel,
+        dryMatterFraction: 0.3,
+        harvestIndex: 0.65
+      }
+    };
+
+    expect(() =>
+      parseStrainBlueprint(payload, {
+        filePath: fixturePath,
+        blueprintsRoot
+      })
+    ).not.toThrow();
+  });
+
+  it('accepts stage-specific dryMatterFraction and harvestIndex objects', () => {
+    expect(() =>
+      parseStrainBlueprint(
+        {
+          ...fixturePayload,
+          growthModel: {
+            ...fixturePayload.growthModel,
+            dryMatterFraction: { vegetation: 0.25, flowering: 0.2 },
+            harvestIndex: { targetFlowering: 0.7 }
+          }
+        },
+        { filePath: fixturePath, blueprintsRoot }
+      )
+    ).not.toThrow();
+  });
+
+  it('rejects stage fractions outside of [0, 1]', () => {
+    expect(() =>
+      parseStrainBlueprint({
+        ...fixturePayload,
+        growthModel: {
+          ...fixturePayload.growthModel,
+          dryMatterFraction: { vegetation: 1.2 }
+        }
+      })
+    ).toThrow();
+
+    expect(() =>
+      parseStrainBlueprint({
+        ...fixturePayload,
+        growthModel: {
+          ...fixturePayload.growthModel,
+          harvestIndex: { targetFlowering: -0.1 }
+        }
+      })
+    ).toThrow();
+  });
+
   it('validates phase durations are positive integers', () => {
     expect(() =>
       parseStrainBlueprint({
@@ -86,24 +146,36 @@ describe('strainBlueprintSchema', () => {
 
   it('validates taxonomy when filePath provided', () => {
     expect(() =>
-      parseStrainBlueprint({ ...fixturePayload, class: 'strain.hybrid.balanced' }, { filePath: fixturePath })
+      parseStrainBlueprint(
+        { ...fixturePayload, class: 'strain.hybrid.balanced' },
+        { filePath: fixturePath, blueprintsRoot }
+      )
     ).not.toThrow();
   });
 
   it('throws BlueprintClassMismatchError when path disagrees', () => {
     expect(() =>
       parseStrainBlueprint(fixturePayload, {
-        filePath: path.resolve('data/blueprints/strain/indica/pure/mock.json')
+        filePath: path.join(blueprintsRoot, 'strain/indica/pure/mock.json'),
+        blueprintsRoot
       })
     ).toThrow(BlueprintClassMismatchError);
   });
 
   it('detects duplicate slugs in registry', () => {
     const registry = new Map<string, string>();
-    parseStrainBlueprint(fixturePayload, { slugRegistry: registry, filePath: fixturePath });
+    parseStrainBlueprint(fixturePayload, {
+      slugRegistry: registry,
+      filePath: fixturePath,
+      blueprintsRoot
+    });
 
     expect(() =>
-      parseStrainBlueprint(fixturePayload, { slugRegistry: registry, filePath: fixturePath })
+      parseStrainBlueprint(fixturePayload, {
+        slugRegistry: registry,
+        filePath: fixturePath,
+        blueprintsRoot
+      })
     ).toThrow();
   });
 
@@ -111,13 +183,13 @@ describe('strainBlueprintSchema', () => {
     const registry = new Map<string, string>();
     const strainA = parseStrainBlueprint(
       { ...fixturePayload, class: 'strain.hybrid.balanced', slug: 'duplicate-strain' },
-      { slugRegistry: registry }
+      { slugRegistry: registry, blueprintsRoot }
     );
     expect(strainA.class).toBe('strain.hybrid.balanced');
 
     const strainB = parseStrainBlueprint(
       { ...fixturePayload, class: 'strain.indica.pure', slug: 'duplicate-strain' },
-      { slugRegistry: registry }
+      { slugRegistry: registry, blueprintsRoot }
     );
     expect(strainB.class).toBe('strain.indica.pure');
   });

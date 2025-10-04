@@ -1,6 +1,11 @@
 import { HOURS_PER_DAY } from '../constants/simConstants.js';
 import type { PlantLifecycleStage } from '../domain/entities.js';
-import type { GrowthModel, StrainBlueprint } from '../domain/blueprints/strainBlueprint.js';
+import type {
+  GrowthModel,
+  HarvestIndexConfig,
+  DryMatterFractionConfig,
+  StrainBlueprint
+} from '../domain/blueprints/strainBlueprint.js';
 import type { RandomNumberGenerator } from './rng.js';
 
 function clamp(value: number, min: number, max: number): number {
@@ -21,6 +26,40 @@ function clamp(value: number, min: number, max: number): number {
 
 function clamp01(value: number): number {
   return clamp(value, 0, 1);
+}
+
+const DEFAULT_DRY_MATTER_FRACTION = 0.2;
+const DEFAULT_HARVEST_INDEX = 0.7;
+
+function resolveDryMatterFraction(
+  config: DryMatterFractionConfig,
+  stage: PlantLifecycleStage
+): number {
+  if (typeof config === 'number') {
+    return clamp01(config);
+  }
+
+  const flowering = config.flowering ?? config.vegetation ?? DEFAULT_DRY_MATTER_FRACTION;
+
+  if (stage === 'vegetative' || stage === 'seedling') {
+    return clamp01(config.vegetation ?? flowering);
+  }
+
+  return clamp01(config.flowering ?? flowering);
+}
+
+function resolveHarvestIndex(config: HarvestIndexConfig, stage: PlantLifecycleStage): number {
+  if (typeof config === 'number') {
+    return clamp01(config);
+  }
+
+  const flowering = config.targetFlowering ?? DEFAULT_HARVEST_INDEX;
+
+  if (stage === 'flowering' || stage === 'harvest-ready') {
+    return clamp01(flowering);
+  }
+
+  return clamp01(flowering);
 }
 
 function getPhaseMultiplier(lifecycleStage: PlantLifecycleStage, growthModel: GrowthModel): number {
@@ -45,6 +84,23 @@ function getPhaseMultiplier(lifecycleStage: PlantLifecycleStage, growthModel: Gr
   }
 
   return configured.flowering;
+}
+
+/**
+ * Resolves the dry matter fraction for the specified lifecycle stage.
+ */
+export function getDryMatterFraction(
+  growthModel: GrowthModel,
+  stage: PlantLifecycleStage
+): number {
+  return resolveDryMatterFraction(growthModel.dryMatterFraction, stage);
+}
+
+/**
+ * Resolves the harvest index for the specified lifecycle stage.
+ */
+export function getHarvestIndex(growthModel: GrowthModel, stage: PlantLifecycleStage): number {
+  return resolveHarvestIndex(growthModel.harvestIndex, stage);
 }
 
 /**
@@ -82,9 +138,17 @@ export function calculateBiomassIncrement(
   const tempFactor = calculateTemperatureGrowthFactor(tempC, growthModel);
   const stressReduction = clamp01(1 - stress01);
   const phaseMultiplier = getPhaseMultiplier(lifecycleStage, growthModel);
+  const dryMatterFraction = getDryMatterFraction(growthModel, lifecycleStage);
   const lightUseEfficiency = growthModel.baseLightUseEfficiency;
   const tickFractionOfDay = tickHours / HOURS_PER_DAY;
-  const baseGrowth = dli_mol_m2d_inc * lightUseEfficiency * tempFactor * stressReduction * phaseMultiplier * tickFractionOfDay;
+  const baseGrowth =
+    dli_mol_m2d_inc *
+    lightUseEfficiency *
+    tempFactor *
+    stressReduction *
+    phaseMultiplier *
+    tickFractionOfDay *
+    dryMatterFraction;
   const maintenanceCost = currentBiomass_g * growthModel.maintenanceFracPerDay * tickFractionOfDay;
   let netGrowth = baseGrowth - maintenanceCost;
 

@@ -522,7 +522,15 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 - A **photoperiod light cycle** **SHALL** govern stage behavior: defaults **18/6** (veg) and **12/12** (flower). Changing the cycle **SHALL** cause deterministic transitions per strain rules.
     
 - Per-tick growth, stress, and quality **SHALL** derive from environment × strain tolerance windows.
-    
+
+#### 8.1.1 Growth Fractions (SHALL)
+
+- Strain blueprints **SHALL** expose `growthModel.dryMatterFraction` as either a scalar fraction **∈ [0,1]** or an object with optional `vegetation` and `flowering` keys (each **∈ [0,1]**).
+  - When an object is provided, the engine **SHALL** use the `vegetation` value for both `seedling` and `vegetative` lifecycle stages.
+  - `flowering` values **SHALL** apply to `flowering` and `harvest-ready` stages; if missing the engine **SHALL** fall back to the `vegetation` value and finally to the documented default of **0.2**.
+- `growthModel.harvestIndex` **SHALL** accept either a scalar fraction **∈ [0,1]** or an object `{ targetFlowering }` **∈ [0,1]** that represents the target harvest index for flowering/harvest stages.
+  - When only `targetFlowering` is present, the same value **SHALL** be reused for vegetative stages; if absent the engine **SHALL** fall back to the default of **0.7**.
+- Growth calculations (e.g., `calculateBiomassIncrement`) **SHALL** resolve these unions before use so phase-aware data remains deterministic.
 
 ### 8.2 Light Cycle & DLI (SHOULD)
 
