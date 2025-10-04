@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { devicePriceMapSchema, parseDevicePriceMap } from '@/backend/src/domain/world.js';
 
-import devicePriceMap from '../../../../../data/prices/devicePrices.json' assert { type: 'json' };
+import devicePriceMap from '../../../../../data/prices/devicePrices.json' with { type: 'json' };
 
 describe('devicePriceMapSchema', () => {
   it('parses repository device price map', () => {

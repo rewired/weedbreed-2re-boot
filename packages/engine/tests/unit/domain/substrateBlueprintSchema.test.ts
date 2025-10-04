@@ -10,9 +10,9 @@ import {
   substrateBlueprintSchema
 } from '@/backend/src/domain/world.js';
 
-import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco-coir.json' assert { type: 'json' };
-import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil-multi-cycle.json' assert { type: 'json' };
-import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil-single-cycle.json' assert { type: 'json' };
+import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco-coir.json' with { type: 'json' };
+import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil-multi-cycle.json' with { type: 'json' };
+import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil-single-cycle.json' with { type: 'json' };
 
 const cocoCoirPath = fileURLToPath(
   new URL('../../../../../data/blueprints/substrate/coco/coir/coco-coir.json', import.meta.url)

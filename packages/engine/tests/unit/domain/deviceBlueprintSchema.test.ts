@@ -9,12 +9,12 @@ import {
   toDeviceInstanceCapacity
 } from '@/backend/src/domain/world.js';
 
-import climateUnit from '../../../../../data/blueprints/device/climate/cooling/cool-air-split-3000.json' assert { type: 'json' };
-import co2Injector from '../../../../../data/blueprints/device/climate/co2/co2-pulse.json' assert { type: 'json' };
-import dehumidifier from '../../../../../data/blueprints/device/climate/dehumidifier/drybox-200.json' assert { type: 'json' };
-import exhaustFan from '../../../../../data/blueprints/device/airflow/exhaust/exhaust-fan-4-inch.json' assert { type: 'json' };
-import humidityControl from '../../../../../data/blueprints/device/climate/humidity-controller/humidity-control-unit-l1.json' assert { type: 'json' };
-import vegLight from '../../../../../data/blueprints/device/lighting/vegetative/led-veg-light-600.json' assert { type: 'json' };
+import climateUnit from '../../../../../data/blueprints/device/climate/cooling/cool-air-split-3000.json' with { type: 'json' };
+import co2Injector from '../../../../../data/blueprints/device/climate/co2/co2-pulse.json' with { type: 'json' };
+import dehumidifier from '../../../../../data/blueprints/device/climate/dehumidifier/drybox-200.json' with { type: 'json' };
+import exhaustFan from '../../../../../data/blueprints/device/airflow/exhaust/exhaust-fan-4-inch.json' with { type: 'json' };
+import humidityControl from '../../../../../data/blueprints/device/climate/humidity-controller/humidity-control-unit-l1.json' with { type: 'json' };
+import vegLight from '../../../../../data/blueprints/device/lighting/vegetative/led-veg-light-600.json' with { type: 'json' };
 
 const climateUnitPath = fileURLToPath(
   new URL('../../../../../data/blueprints/device/climate/cooling/cool-air-split-3000.json', import.meta.url)
