@@ -1,13 +1,14 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
 import { parseStrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
 import { BlueprintClassMismatchError } from '../../../src/backend/src/domain/blueprints/taxonomy.js';
 
-const fixturePath = path.resolve(
-  'data/blueprints/strain/hybrid/balanced/white_widow.json'
+const fixturePath = fileURLToPath(
+  new URL('../../../../../data/blueprints/strain/hybrid/balanced/white_widow.json', import.meta.url)
 );
 const fixturePayload = JSON.parse(readFileSync(fixturePath, 'utf8'));
 
