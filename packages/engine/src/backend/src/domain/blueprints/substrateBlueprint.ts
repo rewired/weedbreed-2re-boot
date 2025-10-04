@@ -31,6 +31,7 @@ const reusePolicySchema = z
       .min(1, 'sterilizationInterval_cycles must be at least 1.')
       .optional()
   })
+  .strict()
   .superRefine((policy, ctx) => {
     if (policy.maxCycles > 1 && !policy.sterilizationTaskCode) {
       ctx.addIssue({
@@ -66,6 +67,7 @@ export const substrateBlueprintSchema = z
     reusePolicy: reusePolicySchema,
     meta: z.record(z.unknown()).optional()
   })
+  .strict()
   .superRefine((blueprint, ctx) => {
     if (blueprint.purchaseUnit === 'liter') {
       if (blueprint.unitPrice_per_L === undefined) {
