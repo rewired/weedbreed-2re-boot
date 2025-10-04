@@ -1,24 +1,37 @@
 import { describe, expect, it } from 'vitest';
 
-import { PIPELINE_ORDER } from '@/backend/src/engine/Engine.js';
 import { createRecordingContext, runOneTickWithTrace } from '@/backend/src/engine/testHarness.js';
 import type { StepName } from '@/backend/src/engine/trace.js';
 
-describe('Tick pipeline — SEC §1.5 ordered phases', () => {
-  it('executes the canonical pipeline order for a single tick', () => {
-    const { trace } = runOneTickWithTrace();
-    const stepOrder = trace.steps.map((step) => step.name);
+const EXPECTED_STAGE_ORDER = [
+  'applyDeviceEffects',
+  'applySensors',
+  'updateEnvironment',
+  'applyIrrigationAndNutrients',
+  'advancePhysiology',
+  'applyHarvestAndInventory',
+  'applyEconomyAccrual',
+  'commitAndTelemetry'
+] as const;
 
-    expect(stepOrder).toEqual(PIPELINE_ORDER);
+describe('Engine pipeline — order trace', () => {
+  it('executes exactly the 8 SEC §4.2 phases in canonical order', () => {
+    const { trace } = runOneTickWithTrace();
+    const stageNames = trace.steps.map((step) => step.name);
+
+    expect(stageNames).toEqual(EXPECTED_STAGE_ORDER);
+    expect(stageNames).toHaveLength(EXPECTED_STAGE_ORDER.length);
+    expect(new Set(stageNames).size).toBe(EXPECTED_STAGE_ORDER.length);
   });
 
-  it('invokes stage instrumentation hooks in the same order as the trace', () => {
+  it('invokes stage instrumentation hooks in canonical order', () => {
     const recorded: StepName[] = [];
     const { trace } = runOneTickWithTrace({
       context: createRecordingContext(recorded)
     });
+    const stageNames = trace.steps.map((step) => step.name);
 
-    expect(recorded).toEqual(PIPELINE_ORDER);
-    expect(trace.steps.map((step) => step.name)).toEqual(recorded);
+    expect(recorded).toEqual(EXPECTED_STAGE_ORDER);
+    expect(stageNames).toEqual(EXPECTED_STAGE_ORDER);
   });
 });
