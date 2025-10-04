@@ -223,6 +223,24 @@ export interface Plant extends DomainEntity, SluggedEntity {
 }
 
 /**
+ * Canonical representation of a harvested cannabis lot stored within a facility.
+ */
+export interface HarvestLot extends DomainEntity {
+  /** Identifier of the strain blueprint from which this lot originated. */
+  readonly strainId: Uuid;
+  /** Slug of the strain blueprint from which this lot originated. */
+  readonly strainSlug: string;
+  /** Quality score on the canonical [0,1] scale. */
+  readonly quality01: number;
+  /** Dry weight expressed in grams. */
+  readonly dryWeight_g: number;
+  /** Simulation timestamp (in hours) when the harvest occurred. */
+  readonly harvestedAtSimHours: number;
+  /** Identifier of the zone that produced this harvest lot. */
+  readonly sourceZoneId: Uuid;
+}
+
+/**
  * Canonical representation of a controllable zone inside a growroom.
  */
 export interface Zone extends DomainEntity, SluggedEntity, SpatialEntity {
@@ -294,6 +312,8 @@ export interface Room extends DomainEntity, SluggedEntity, SpatialEntity {
   readonly zones: readonly Zone[];
   /** Device instances mounted at the room scope. */
   readonly devices: readonly RoomDeviceInstance[];
+  /** Harvest lots stored within the room (storagerooms only). */
+  readonly harvestLots?: readonly HarvestLot[];
 }
 
 /**

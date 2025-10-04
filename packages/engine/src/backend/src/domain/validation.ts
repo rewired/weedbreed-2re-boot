@@ -436,6 +436,47 @@ function validateRoom(
       }
     });
   });
+
+  if (room.purpose !== 'storageroom' && room.harvestLots && room.harvestLots.length > 0) {
+    issues.push({
+      path: `${path}.harvestLots`,
+      message: 'only storagerooms may contain harvest lots'
+    });
+  }
+
+  if (room.harvestLots) {
+    room.harvestLots.forEach((lot, lotIndex) => {
+      const lotPath = `${path}.harvestLots[${String(lotIndex)}]`;
+
+      if (!isWithinUnitInterval(lot.quality01)) {
+        issues.push({
+          path: `${lotPath}.quality01`,
+          message: 'harvest lot quality01 must lie within [0,1]'
+        });
+      }
+
+      if (lot.dryWeight_g < 0) {
+        issues.push({
+          path: `${lotPath}.dryWeight_g`,
+          message: 'harvest lot dry weight must be non-negative'
+        });
+      }
+
+      if (lot.harvestedAtSimHours < 0) {
+        issues.push({
+          path: `${lotPath}.harvestedAtSimHours`,
+          message: 'harvest lot timestamp must be non-negative'
+        });
+      }
+
+      if (!lot.strainSlug || lot.strainSlug.trim().length === 0) {
+        issues.push({
+          path: `${lotPath}.strainSlug`,
+          message: 'harvest lot must reference a strain slug'
+        });
+      }
+    });
+  }
 }
 
 /**
