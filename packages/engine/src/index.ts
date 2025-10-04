@@ -1,5 +1,5 @@
-import difficultyConfig from '../../../data/configs/difficulty.json' assert { type: 'json' };
-import utilityPrices from '../../../data/prices/utilityPrices.json' assert { type: 'json' };
+import difficultyConfig from '../../../data/configs/difficulty.json' with { type: 'json' };
+import utilityPrices from '../../../data/prices/utilityPrices.json' with { type: 'json' };
 
 import {
   resolveTariffs,
