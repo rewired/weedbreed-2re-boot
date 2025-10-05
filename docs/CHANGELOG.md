@@ -1,5 +1,18 @@
 # Changelog
 
+### #65 Deterministic seed-to-harvest orchestrator
+
+- Added `seedToHarvest.ts` under the engine backend as a deterministic
+  orchestration entrypoint that seeds demo worlds with strain-configurable
+  seedlings, loops `runTick`, and exposes stop conditions plus vegetative and
+  flowering schedule overrides.
+- The orchestrator promotes zones to flowering when strain light-hour
+  thresholds are met, collects stage-transition instrumentation and harvest
+  telemetry, and returns a summary including elapsed ticks, biomass totals, and
+  harvested inventory lots for downstream tooling.
+- Documented the module’s availability and usage expectations here so
+  simulation consumers know where to bootstrap end-to-end lifecycle runs.
+
 ### #64 Physiology biomass increment unit correction
 
 - Converted the growth model `baseLightUseEfficiency` from kilograms to grams
