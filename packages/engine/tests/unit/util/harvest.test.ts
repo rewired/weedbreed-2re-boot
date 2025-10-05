@@ -73,6 +73,12 @@ describe('harvest utilities', () => {
       expect(quality).toBeCloseTo(0.7, 2);
     });
 
+    it('clamps result to the [0, 1] range for extreme inputs', () => {
+      const quality = calculateHarvestQuality(1.5, -0.5, 2.0);
+      expect(quality).toBeGreaterThanOrEqual(0);
+      expect(quality).toBeLessThanOrEqual(1);
+    });
+
     it('drops quality significantly under poor conditions', () => {
       const quality = calculateHarvestQuality(0.3, 0.8, 0.5);
       expect(quality).toBeLessThan(0.45);
@@ -85,6 +91,15 @@ describe('harvest utilities', () => {
       const betterGenetics = calculateHarvestQuality(0.5, 0.5, 0.7);
       expect(higherHealth - base).toBeGreaterThan(lowerStress - base);
       expect(higherHealth - base).toBeGreaterThan(betterGenetics - base);
+    });
+
+    it('applies method modifier scaling to the computed quality', () => {
+      const base = calculateHarvestQuality(0.85, 0.2, 0.75, 1);
+      const advanced = calculateHarvestQuality(0.85, 0.2, 0.75, 1.1);
+      const basic = calculateHarvestQuality(0.85, 0.2, 0.75, 0.9);
+      expect(advanced).toBeGreaterThan(base);
+      expect(basic).toBeLessThan(base);
+      expect(advanced).toBeCloseTo(base * 1.1, 3);
     });
 
     it('scales quality with the method modifier', () => {
@@ -100,6 +115,13 @@ describe('harvest utilities', () => {
       const quality = calculateHarvestQuality(1, 0, 1, uncapped / 0.995);
       expect(quality).toBeLessThan(0.98);
       expect(quality).toBeCloseTo(0.962437, 5);
+    });
+
+    it('applies diminishing returns above the 0.95 soft cap', () => {
+      const quality = calculateHarvestQuality(1, 0, 1);
+      const overshoot = 1 - 0.95;
+      expect(quality).toBeGreaterThan(0.95);
+      expect(quality - 0.95).toBeCloseTo(0.5 * overshoot, 5);
     });
 
     it('clamps invalid inputs into range', () => {
@@ -121,7 +143,7 @@ describe('harvest utilities', () => {
       expect(yield_g).toBeCloseTo(14, 5);
     });
 
-    it('returns zero when biomass is zero', () => {
+    it('returns zero for zero biomass input', () => {
       const strain = mockStrain();
       const yield_g = calculateHarvestYield(0, strain, 'flowering');
       expect(yield_g).toBe(0);
@@ -231,6 +253,29 @@ describe('harvest utilities', () => {
       );
       spy.mockRestore();
       expect(lot.quality01).toBe(1);
+    });
+
+    it('generates UUID v4 identifiers for each lot', () => {
+      const lotA = createHarvestLot(
+        '22222222-2222-2222-2222-222222222222' as Uuid,
+        'mock',
+        0.8,
+        45,
+        800,
+        '33333333-3333-3333-3333-333333333333' as Uuid
+      );
+      const lotB = createHarvestLot(
+        '22222222-2222-2222-2222-222222222222' as Uuid,
+        'mock',
+        0.75,
+        30,
+        900,
+        '33333333-3333-3333-3333-333333333333' as Uuid
+      );
+      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      expect(lotA.id).not.toEqual(lotB.id);
+      expect(lotA.id).toMatch(uuidPattern);
+      expect(lotB.id).toMatch(uuidPattern);
     });
   });
 });

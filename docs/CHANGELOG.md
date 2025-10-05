@@ -1,5 +1,18 @@
 # Changelog
 
+### #61 Harvest pipeline and storage integration
+
+- Implemented the `applyHarvestAndInventory` pipeline stage to automatically
+  locate harvest-ready plants, compute quality/yield using SEC-weighted
+  formulas, and deposit resulting lots into the first available storageroom.
+- Added comprehensive integration coverage
+  (`harvest.integration.test.ts`) for multi-zone harvesting, diagnostics when
+  prerequisites are missing, and end-to-end lifecycle progression through
+  storage.
+- Expanded harvest utility unit tests to cover extreme input clamping,
+  method modifiers, UUID validation, and soft-cap behaviour, ensuring the
+  mathematical helpers remain stable.
+
 ### #XX WB-XXX Strain Blueprint Loader mit Filesystem-Integration
 
 - Implementiert `strainBlueprintLoader.ts` mit Lazy-Loading-Mechanismus: Scannt `/data/blueprints/strain/**` beim ersten Zugriff, baut In-Memory-Index (`Map<Uuid, StrainBlueprint>`), und cached Blueprints im Modul-Scope.
