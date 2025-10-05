@@ -12,7 +12,8 @@
     "test": "vitest run",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "report:seed-to-harvest": "tsx src/backend/src/engine/reporting/cli.ts"
   },
   "engines": {
     "node": ">=22.0.0"

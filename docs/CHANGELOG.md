@@ -1,5 +1,14 @@
 # Changelog
 
+### #66 Seed-to-harvest reporting pipeline
+
+- Added `reporting/generateSeedToHarvestReport.ts` to compose the lifecycle orchestrator with the perf harness and emit
+  structured JSON (stage transitions, telemetry aggregates, perf traces) for downstream analysis.
+- Published a `tsx` CLI entrypoint and `pnpm --filter @wb/engine report:seed-to-harvest` script that persists artifacts to the
+  repository `/reporting` folder with scenario-aware filenames.
+- Documented the workflow in `docs/engine/simulation-reporting.md` and covered invariants via
+  `tests/integration/reporting/seedToHarvest.report.test.ts`.
+
 ### #65 Deterministic seed-to-harvest orchestrator
 
 - Added `seedToHarvest.ts` under the engine backend as a deterministic

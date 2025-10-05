@@ -180,6 +180,7 @@ it('rejects zone device in non-grow room', () => {
 - `runTick(world, ctx, { trace: true })` returns `{ world, trace }` where `world` is the immutable post-tick snapshot and `trace` is an optional {@link TickTrace} with monotonic `startedAtNs`, `durationNs`, `endedAtNs`, and heap metrics for every stage without feeding wall-clock time into simulation logic.
 - `runOneTickWithTrace()` (engine test harness) clones the deterministic demo world and returns `{ world, context, trace }` for integration/unit assertions.
 - `withPerfHarness({ ticks })` executes repeated traced ticks and reports `{ traces, totalDurationNs, averageDurationNs, maxHeapUsedBytes }` so perf tests can guard throughput (< 5 ms avg/tick) and heap (< 64 MiB).
+- `generateSeedToHarvestReport({ ticks, scenario })` wraps the orchestrator and perf harness to emit JSON artifacts documenting lifecycle transitions + telemetry; see `docs/engine/simulation-reporting.md` for CLI usage and schema.
 - `createRecordingContext(buffer)` attaches the instrumentation hook so specs can assert that stage completions mirror the trace order.
 
 ---
