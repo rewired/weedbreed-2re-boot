@@ -41,6 +41,7 @@ function prepareHarvestReadyPlant(zone: Mutable<Zone>): Plant {
   const basePlant = zone.plants[0] ?? createTestPlant();
   const plant: Plant = {
     ...basePlant,
+    id: '00000000-0000-4000-8000-000000000001' as Plant['id'],
     lifecycleStage: 'harvest-ready',
     biomass_g: 500,
     health01: 0.9,

@@ -1,5 +1,16 @@
 # Changelog
 
+### #64 Physiology biomass increment unit correction
+
+- Converted the growth model `baseLightUseEfficiency` from kilograms to grams
+  during biomass calculations so strain blueprints keep SI unit storage while
+  the physiology util operates in grams.
+- Removed the redundant tick fraction multiplier from light-driven biomass
+  growth because the daily light integral increment is already scoped per tick,
+  preventing underestimation during multi-hour ticks.
+- Documented the expected units on the strain blueprint schema and refreshed
+  the growth utility tests to assert the revised maintenance scaling.
+
 ### #63 AK-47 strain stress tolerance alignment
 
 - Added the missing `ppfd_umol_m2s` tolerance to the AK-47 strain blueprint so it

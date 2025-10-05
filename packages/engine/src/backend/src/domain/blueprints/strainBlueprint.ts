@@ -146,7 +146,9 @@ const harvestIndexSchema = z.union([
 const growthModelSchema = z
   .object({
     maxBiomassDry: positiveNumber,
-    baseLightUseEfficiency: positiveNumber,
+    baseLightUseEfficiency: positiveNumber.describe(
+      'Kilograms of dry matter produced per mol of PAR; converted to grams in growth calculations.'
+    ),
     maintenanceFracPerDay: finiteNumber.nonnegative(),
     dryMatterFraction: dryMatterFractionSchema,
     harvestIndex: harvestIndexSchema,
