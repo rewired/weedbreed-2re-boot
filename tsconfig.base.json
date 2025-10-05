@@ -43,6 +43,9 @@
       ],
       "@/backend/*": [
         "packages/engine/src/backend/*"
+      ],
+      "@/tests/*": [
+        "packages/engine/tests/*"
       ]
     }
   },

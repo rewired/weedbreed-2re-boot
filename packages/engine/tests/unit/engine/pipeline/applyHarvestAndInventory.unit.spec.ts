@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { applyHarvestAndInventory } from '@/backend/src/engine/pipeline/applyHarvestAndInventory.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import { createTestPlant } from '@/tests/testUtils/strainFixtures.js';
+import { createTestPlant } from '@/tests/testUtils/strainFixtures.ts';
 import type { EngineDiagnostic, EngineRunContext } from '@/backend/src/engine/Engine.js';
 import type { Plant, Room, Zone } from '@/backend/src/domain/world.js';
 import {
