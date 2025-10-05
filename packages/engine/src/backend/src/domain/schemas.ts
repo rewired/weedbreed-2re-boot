@@ -162,8 +162,17 @@ export const workforceKpiSnapshotSchema: z.ZodType<WorkforceKpiSnapshot> = z.obj
   tasksCompleted: finiteNumber
     .min(0, 'tasksCompleted cannot be negative.')
     .transform((value) => Math.trunc(value)),
+  queueDepth: finiteNumber
+    .min(0, 'queueDepth cannot be negative.')
+    .transform((value) => Math.trunc(value)),
   laborHoursCommitted: finiteNumber.min(0, 'laborHoursCommitted cannot be negative.'),
   overtimeHoursCommitted: finiteNumber.min(0, 'overtimeHoursCommitted cannot be negative.'),
+  overtimeMinutes: finiteNumber.min(0, 'overtimeMinutes cannot be negative.'),
+  utilization01: zeroToOneNumber,
+  p95WaitTimeHours: finiteNumber.min(0, 'p95WaitTimeHours cannot be negative.'),
+  maintenanceBacklog: finiteNumber
+    .min(0, 'maintenanceBacklog cannot be negative.')
+    .transform((value) => Math.trunc(value)),
   averageMorale01: zeroToOneNumber,
   averageFatigue01: zeroToOneNumber
 });

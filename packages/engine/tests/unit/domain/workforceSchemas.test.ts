@@ -83,8 +83,13 @@ const VALID_WORKFORCE_STATE = {
     {
       simTimeHours: 24,
       tasksCompleted: 5,
+      queueDepth: 3,
       laborHoursCommitted: 12,
       overtimeHoursCommitted: 3,
+      overtimeMinutes: 180,
+      utilization01: 0.7,
+      p95WaitTimeHours: 4,
+      maintenanceBacklog: 1,
       averageMorale01: 0.8,
       averageFatigue01: 0.2
     }
@@ -156,5 +161,6 @@ describe('workforce schemas', () => {
     expect(parsed.roles).toHaveLength(1);
     expect(parsed.employees).toHaveLength(1);
     expect(parsed.taskQueue[0]?.status).toBe('queued');
+    expect(parsed.kpis[0]?.queueDepth).toBe(3);
   });
 });

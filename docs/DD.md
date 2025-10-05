@@ -184,16 +184,17 @@ targets from the same factor to keep unit conversions deterministic.
 
 ## 6) Tick Pipeline (SEC §4.2)
 
-Fixed order per tick (8 phases):
+Fixed order per tick (9 phases):
 
 1. **Device Effects** — compute device outputs (light, heat, airflow, CO₂, dehumidification) subject to capacity & efficiency.
 2. **Sensor Sampling** — record zone state before environmental integration so co-housed actuators observe pre-actuation values.
 3. **Environment Update** — integrate device outputs into zone state (well-mixed model baseline).
 4. **Irrigation & Nutrients** — fulfill zone method (manual enqueues tasks; automated fulfills on schedule).
-5. **Plant Physiology** — update age/phase, biomass, stress, disease risk using strain curves and environment.
-6. **Harvest & Inventory** — create lots when criteria met; move yield to inventory.
-7. **Economy & Cost Accrual** — aggregate consumption/costs; maintenance curves progress.
-8. **Commit & Telemetry** — snapshot state and publish read-only events.
+5. **Workforce Scheduling** — dispatch queued labour, enforce structure-binding, skill minimums, working-hour caps, and update morale/fatigue while emitting KPIs.
+6. **Plant Physiology** — update age/phase, biomass, stress, disease risk using strain curves and environment.
+7. **Harvest & Inventory** — create lots when criteria met; move yield to inventory.
+8. **Economy & Cost Accrual** — aggregate consumption/costs; maintenance curves progress.
+9. **Commit & Telemetry** — snapshot state and publish read-only events.
     
 
 ---

@@ -7,6 +7,7 @@ import {
   applyIrrigationAndNutrients,
   clearIrrigationNutrientsRuntime,
 } from './pipeline/applyIrrigationAndNutrients.js';
+import { applyWorkforce, clearWorkforceRuntime } from './pipeline/applyWorkforce.js';
 import { advancePhysiology } from './pipeline/advancePhysiology.js';
 import { applyHarvestAndInventory } from './pipeline/applyHarvestAndInventory.js';
 import { applyEconomyAccrual } from './pipeline/applyEconomyAccrual.js';
@@ -97,6 +98,7 @@ const PIPELINE_DEFINITION: readonly (readonly [StepName, PipelineStage])[] = [
   ['applySensors', applySensors],
   ['updateEnvironment', updateEnvironment],
   ['applyIrrigationAndNutrients', applyIrrigationAndNutrients],
+  ['applyWorkforce', applyWorkforce],
   ['advancePhysiology', advancePhysiology],
   ['applyHarvestAndInventory', applyHarvestAndInventory],
   ['applyEconomyAccrual', applyEconomyAccrual],
@@ -147,6 +149,10 @@ export function runTick(
 
     if (stepName === 'applyIrrigationAndNutrients') {
       clearIrrigationNutrientsRuntime(ctx);
+    }
+
+    if (stepName === 'applyWorkforce') {
+      clearWorkforceRuntime(ctx);
     }
   }
 

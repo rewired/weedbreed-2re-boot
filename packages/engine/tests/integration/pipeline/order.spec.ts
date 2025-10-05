@@ -8,6 +8,7 @@ const EXPECTED_STAGE_ORDER = [
   'applySensors',
   'updateEnvironment',
   'applyIrrigationAndNutrients',
+  'applyWorkforce',
   'advancePhysiology',
   'applyHarvestAndInventory',
   'applyEconomyAccrual',
@@ -15,7 +16,7 @@ const EXPECTED_STAGE_ORDER = [
 ] as const;
 
 describe('Engine pipeline — order trace', () => {
-  it('executes exactly the 8 SEC §4.2 phases in canonical order', () => {
+  it('executes exactly the 9 SEC §4.2 phases in canonical order', () => {
     const { trace } = runOneTickWithTrace();
     const stageNames = trace.steps.map((step) => step.name);
 

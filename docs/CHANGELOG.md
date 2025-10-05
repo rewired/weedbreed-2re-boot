@@ -1,5 +1,12 @@
 # Changelog
 
+### #71 Workforce scheduling pipeline stage
+
+- Added the `applyWorkforce` pipeline phase between irrigation and economy to dispatch queued tasks per structure, enforce role/skill minimums, honor working-hour limits, and update morale/fatigue (including the breakroom recovery rule).
+- Captured per-tick workforce KPIs (queue depth, throughput, utilisation, p95 wait, overtime minutes, maintenance backlog) in the world snapshot and exposed a runtime context for telemetry consumers.
+- Extended domain schemas/tests to cover the enriched KPI shape and added integration coverage for priority ordering, deterministic tie resolution, and overtime/breakroom effects.
+- Updated TDD/DD documentation to reflect the nine-stage tick pipeline and the new workforce scheduling responsibilities.
+
 ### #70 Workforce identity pseudodata source
 
 - Added a workforce identity service that queries `randomuser.me` with deterministic seeds,
