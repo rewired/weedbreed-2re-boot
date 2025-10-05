@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { parseStrainBlueprint, type StrainBlueprint } from './strainBlueprint.js';
 import type { Uuid } from '../entities.js';
@@ -9,7 +10,10 @@ export interface LoadStrainBlueprintOptions {
   readonly strict?: boolean;
 }
 
-const DEFAULT_BLUEPRINTS_ROOT = path.resolve('data/blueprints');
+const DEFAULT_BLUEPRINTS_ROOT = path.resolve(
+  fileURLToPath(new URL('.', import.meta.url)),
+  '../../../../../../data/blueprints'
+);
 
 let blueprintCache: Map<Uuid, StrainBlueprint> | null = null;
 

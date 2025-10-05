@@ -1,6 +1,10 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const DEFAULT_BLUEPRINTS_ROOT = path.resolve('data/blueprints');
+const DEFAULT_BLUEPRINTS_ROOT = path.resolve(
+  fileURLToPath(new URL('.', import.meta.url)),
+  '../../../../../../data/blueprints'
+);
 const TAXONOMY_SEGMENT_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export interface BlueprintTaxonomyFromPath {
