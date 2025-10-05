@@ -21,7 +21,17 @@ never accidentally committed.
 Additional configuration for the orchestrator (e.g. custom world factories or strain overrides) can be supplied when calling
 `generateSeedToHarvestReport({ seedToHarvest: { … } })` programmatically. The CLI currently targets the demo world baseline.
 
-## 3) CLI usage
+## 3) Prerequisites
+
+Set up the workspace before invoking the report generator:
+
+- Use **Node.js v22 or newer** so the CLI matches the repository engine baseline.
+- Enable pnpm via Corepack with `corepack use pnpm@10.18.0`.
+- Install dependencies from the repository root using `pnpm install`.
+
+The workspace `packageManager` metadata in `package.json` pins pnpm and its integrity checksum, so `npm --filter …` and other npm-specific invocations are unsupported for the reporting command.
+
+## 4) CLI usage
 
 ```
 # Run from repository root. pnpm passes args to the underlying tsx process after --.
@@ -31,7 +41,11 @@ pnpm --filter @wb/engine report:seed-to-harvest -- --ticks 40 --scenario white-w
 The command ensures `/reporting` exists, normalises the tick count, and writes a prettified JSON artifact. The CLI prints the
 absolute path of the generated file on success.
 
-## 4) JSON schema
+### Troubleshooting
+
+If the command fails with `Cannot find module '@npmcli/config'`, npm handled the execution instead of pnpm/Corepack. Reinstall or repair npm so it respects the Corepack shim, or switch to pnpm with `corepack use pnpm@10.18.0` before running the CLI.
+
+## 5) JSON schema
 
 TypeScript-flavoured pseudo schema describing the artifact shape:
 
