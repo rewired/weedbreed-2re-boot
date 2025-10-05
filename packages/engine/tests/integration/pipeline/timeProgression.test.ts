@@ -9,9 +9,12 @@ describe('Tick pipeline — simulation time progression', () => {
   it('only advances simulation time when the pipeline mutates the world', () => {
     let world = createDemoWorld();
 
+    const initialKpiCount = world.workforce.kpis.length;
+
     const idleResult = runTick(world, { irrigationEvents: [] });
-    expect(idleResult.world).toBe(world);
-    expect(idleResult.world.simTimeHours).toBe(world.simTimeHours);
+    expect(idleResult.world).not.toBe(world);
+    expect(idleResult.world.simTimeHours).toBe(world.simTimeHours + HOURS_PER_TICK);
+    expect(idleResult.world.workforce.kpis).toHaveLength(initialKpiCount + 1);
 
     const structure = idleResult.world.company.structures[0];
     const room = structure.rooms[0];

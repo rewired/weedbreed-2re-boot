@@ -154,6 +154,7 @@ describe('workforce payroll accruals', () => {
       kpis: [],
       warnings: [],
       payroll: createPayrollState(0),
+      market: { structures: [] },
     } satisfies WorkforceState;
 
     const ctx: EngineRunContext = {
@@ -234,6 +235,7 @@ describe('workforce payroll accruals', () => {
       kpis: [],
       warnings: [],
       payroll: createPayrollState(0),
+      market: { structures: [] },
     } satisfies WorkforceState;
 
     const ctx: EngineRunContext = {

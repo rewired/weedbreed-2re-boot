@@ -1,27 +1,39 @@
 import { HOURS_PER_DAY } from '../../constants/simConstants.js';
+import { DEFAULT_WORKFORCE_CONFIG, type WorkforceConfig } from '../../config/workforce.js';
 import { bankersRound, clamp01 } from '../../util/math.js';
 import { emitWorkforceKpiSnapshot, emitWorkforceWarnings } from '../../telemetry/workforce.js';
+import {
+  emitHiringEmployeeOnboarded,
+  emitHiringMarketScanCompleted,
+} from '../../telemetry/hiring.js';
 import type {
   CompanyLocation,
   Employee,
   EmployeeRole,
+  HiringMarketHireIntent,
+  HiringMarketScanIntent,
   Room,
   SimulationWorld,
   Structure,
   WorkforceKpiSnapshot,
+  WorkforceMarketCandidate,
+  WorkforceMarketState,
   WorkforcePayrollState,
   WorkforceStructurePayrollTotals,
   WorkforceState,
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
   Zone,
+  WorkforceIntent,
 } from '../../domain/world.js';
 import {
   createEmptyLocationIndexTable,
   resolveLocationIndex,
   type LocationIndexTable,
 } from '../../domain/payroll/locationIndex.js';
+import { performMarketHire, performMarketScan } from '../../services/workforce/market.js';
 import type { EngineRunContext as EngineContext } from '../Engine.js';
+import { deterministicUuid, deterministicUuidV7 } from '../../util/uuid.js';
 
 const SCORE_EPSILON = 1e-6;
 const OVERTIME_MORALE_PENALTY_PER_HOUR = 0.02;
@@ -76,6 +88,18 @@ type PayrollContextCarrier = Mutable<EngineContext> & {
   [WORKFORCE_PAYROLL_CONTEXT_KEY]?: WorkforcePayrollAccrualSnapshot;
 };
 
+const WORKFORCE_MARKET_CHARGES_CONTEXT_KEY = '__wb_workforceMarketCharges' as const;
+
+export interface WorkforceMarketCharge {
+  readonly structureId: Structure['id'];
+  readonly amountCc: number;
+  readonly scanCounter: number;
+}
+
+type WorkforceMarketChargeCarrier = Mutable<EngineContext> & {
+  [WORKFORCE_MARKET_CHARGES_CONTEXT_KEY]?: WorkforceMarketCharge[];
+};
+
 function setWorkforceRuntime(
   ctx: EngineContext,
   runtime: WorkforceRuntimeMutable,
@@ -124,6 +148,88 @@ export function consumeWorkforcePayrollAccrual(
 
 export function clearWorkforcePayrollAccrual(ctx: EngineContext): void {
   delete (ctx as PayrollContextCarrier)[WORKFORCE_PAYROLL_CONTEXT_KEY];
+}
+
+function resolveWorkforceConfig(ctx: EngineContext): WorkforceConfig {
+  return (ctx as EngineContext & { workforceConfig?: WorkforceConfig }).workforceConfig ?? DEFAULT_WORKFORCE_CONFIG;
+}
+
+function extractWorkforceIntents(ctx: EngineContext): readonly WorkforceIntent[] {
+  const carrier = ctx as Mutable<EngineContext> & { workforceIntents?: readonly WorkforceIntent[] };
+  const intents = carrier.workforceIntents ?? [];
+
+  if (carrier.workforceIntents) {
+    delete carrier.workforceIntents;
+  }
+
+  return intents;
+}
+
+function recordWorkforceMarketCharge(ctx: EngineContext, charge: WorkforceMarketCharge): void {
+  const carrier = ctx as WorkforceMarketChargeCarrier;
+  const existing = carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY] ?? [];
+  carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY] = [...existing, charge];
+}
+
+export function consumeWorkforceMarketCharges(
+  ctx: EngineContext,
+): readonly WorkforceMarketCharge[] | undefined {
+  const carrier = ctx as WorkforceMarketChargeCarrier;
+  const charges = carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY];
+
+  if (!charges) {
+    return undefined;
+  }
+
+  delete carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY];
+  return charges;
+}
+
+function createEmployeeFromCandidate(
+  candidate: WorkforceMarketCandidate,
+  roles: readonly EmployeeRole[],
+  structureId: Structure['id'],
+  worldSeed: string,
+): Employee | undefined {
+  const role = roles.find((entry) => entry.slug === candidate.roleSlug);
+
+  if (!role) {
+    return undefined;
+  }
+
+  const employeeId = deterministicUuid(worldSeed, `workforce:employee:${candidate.id}`);
+  const rngSeedUuid = deterministicUuidV7(worldSeed, `workforce:employee-seed:${candidate.id}`);
+
+  const skillMap = new Map<string, number>();
+  skillMap.set(candidate.skills3.main.slug, candidate.skills3.main.value01);
+
+  for (const secondary of candidate.skills3.secondary) {
+    if (!skillMap.has(secondary.slug)) {
+      skillMap.set(secondary.slug, secondary.value01);
+    }
+  }
+
+  const skills = Array.from(skillMap.entries()).map(([skillKey, level01]) => ({
+    skillKey,
+    level01,
+  }));
+
+  return {
+    id: employeeId,
+    name: `${candidate.roleSlug} candidate ${employeeId.slice(0, 8)}`,
+    roleId: role.id,
+    rngSeedUuid,
+    assignedStructureId: structureId,
+    morale01: 0.7,
+    fatigue01: 0.2,
+    skills,
+    schedule: {
+      hoursPerDay: 8,
+      overtimeHoursPerDay: 0,
+      daysPerWeek: 5,
+      shiftStartHour: 8,
+    },
+  } satisfies Employee;
 }
 
 interface CandidateEvaluation {
@@ -612,13 +718,98 @@ function createSnapshot(
 
 export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): SimulationWorld {
   const runtime = ensureWorkforceRuntime(ctx);
-  const workforceState = (world as SimulationWorld & { workforce?: WorkforceState }).workforce;
+  let workforceState = (world as SimulationWorld & { workforce?: WorkforceState }).workforce;
 
   if (!workforceState) {
     runtime.kpiSnapshot = createSnapshot(world.simTimeHours, [], 0, 0, 0, 0, 0, []);
     clearWorkforcePayrollAccrual(ctx);
     return world;
   }
+
+  const workforceConfig = resolveWorkforceConfig(ctx);
+  const intents = extractWorkforceIntents(ctx);
+  let marketState: WorkforceMarketState = workforceState.market;
+  const newEmployees: Employee[] = [];
+  const pendingScanTelemetry: {
+    readonly structureId: Structure['id'];
+    readonly scanCounter: number;
+    readonly poolSize: number;
+  }[] = [];
+  const pendingHireTelemetry: { readonly employeeId: Employee['id']; readonly structureId: Structure['id'] }[] = [];
+  const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
+  const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
+  const worldSeed = world.seed;
+
+  for (const intent of intents) {
+    if (intent.type === 'hiring.market.scan') {
+      const scanIntent = intent as HiringMarketScanIntent;
+      const result = performMarketScan({
+        market: marketState,
+        config: workforceConfig.market,
+        worldSeed,
+        structureId: scanIntent.structureId,
+        currentSimHours,
+        roles: workforceState.roles,
+      });
+
+      marketState = result.market;
+
+      if (result.didScan && result.pool) {
+        const scanCounter = result.scanCounter ?? 0;
+        recordWorkforceMarketCharge(ctx, {
+          structureId: scanIntent.structureId,
+          amountCc: workforceConfig.market.scanCost_cc,
+          scanCounter,
+        });
+        pendingScanTelemetry.push({
+          structureId: scanIntent.structureId,
+          scanCounter,
+          poolSize: result.pool.length,
+        });
+      }
+
+      continue;
+    }
+
+    if (intent.type === 'hiring.market.hire') {
+      const hireIntent = intent as HiringMarketHireIntent;
+      const result = performMarketHire({
+        market: marketState,
+        structureId: hireIntent.candidate.structureId,
+        candidateId: hireIntent.candidate.candidateId,
+      });
+
+      marketState = result.market;
+
+      if (result.candidate) {
+        const employee = createEmployeeFromCandidate(
+          result.candidate,
+          workforceState.roles,
+          hireIntent.candidate.structureId,
+          worldSeed,
+        );
+
+        if (employee) {
+          newEmployees.push(employee);
+          pendingHireTelemetry.push({
+            employeeId: employee.id,
+            structureId: employee.assignedStructureId,
+          });
+        }
+      }
+    }
+  }
+
+  const employeesAfterHire =
+    newEmployees.length > 0
+      ? [...workforceState.employees, ...newEmployees]
+      : workforceState.employees;
+
+  workforceState = {
+    ...workforceState,
+    employees: employeesAfterHire,
+    market: marketState,
+  } satisfies WorkforceState;
 
   const lookups = resolveStructureLookups(world);
   const companyLocation = world.company.location;
@@ -846,6 +1037,20 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
 
   if (workforceState.warnings.length > 0) {
     emitWorkforceWarnings(ctx.telemetry, workforceState.warnings);
+  }
+
+  for (const event of pendingScanTelemetry) {
+    emitHiringMarketScanCompleted(ctx.telemetry, {
+      structureId: event.structureId,
+      simDay: currentSimDay,
+      scanCounter: event.scanCounter,
+      poolSize: event.poolSize,
+      cost_cc: workforceConfig.market.scanCost_cc,
+    });
+  }
+
+  for (const hireEvent of pendingHireTelemetry) {
+    emitHiringEmployeeOnboarded(ctx.telemetry, hireEvent);
   }
 
   return {

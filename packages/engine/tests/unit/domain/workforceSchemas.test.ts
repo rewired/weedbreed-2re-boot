@@ -113,6 +113,35 @@ const VALID_WORKFORCE_STATE = {
       totalLaborCost: 0
     },
     byStructure: []
+  },
+  market: {
+    structures: [
+      {
+        structureId: '00000000-0000-0000-0000-000000003001',
+        lastScanDay: 12,
+        scanCounter: 1,
+        pool: [
+          {
+            id: '00000000-0000-0000-0000-000000006001',
+            structureId: '00000000-0000-0000-0000-000000003001',
+            roleSlug: 'gardener',
+            skills3: {
+              main: { slug: 'gardening', value01: 0.5 },
+              secondary: [
+                { slug: 'maintenance', value01: 0.35 },
+                { slug: 'logistics', value01: 0.3 }
+              ]
+            },
+            traits: [
+              { id: 'trait.focused', strength01: 0.6 }
+            ],
+            expectedBaseRate_per_h: 24,
+            validUntilScanCounter: 2,
+            scanCounter: 1
+          }
+        ]
+      }
+    ]
   }
 };
 

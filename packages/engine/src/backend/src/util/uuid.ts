@@ -27,3 +27,17 @@ export function deterministicUuid(seed: string, streamId: string): Uuid {
 
   return formatUuid(uuidBytes);
 }
+
+export function deterministicUuidV7(seed: string, streamId: string): Uuid {
+  const hash = createHash('sha256');
+  hash.update(seed);
+  hash.update(':');
+  hash.update(streamId);
+  const digest = hash.digest();
+  const uuidBytes = digest.subarray(0, 16);
+
+  uuidBytes[6] = (uuidBytes[6] & 0x0f) | 0x70;
+  uuidBytes[8] = (uuidBytes[8] & 0x3f) | 0x80;
+
+  return formatUuid(uuidBytes);
+}

@@ -8,6 +8,10 @@ import {
   type TariffConfig,
   type TariffDifficultyModifiers
 } from './backend/src/util/tariffs.js';
+import {
+  DEFAULT_WORKFORCE_CONFIG,
+  type WorkforceConfig,
+} from './backend/src/config/workforce.js';
 
 const DEFAULT_DIFFICULTY_ID = 'normal';
 
@@ -106,6 +110,11 @@ export interface EngineBootstrapConfig {
    * Effective electricity and water tariffs resolved at bootstrap time.
    */
   readonly tariffs: ResolvedTariffs;
+
+  /**
+   * Workforce-specific configuration flags driving hiring market behaviour.
+   */
+  readonly workforce: WorkforceConfig;
 }
 
 /**
@@ -128,7 +137,8 @@ export function createEngineBootstrapConfig(
   return {
     scenarioId,
     verbose,
-    tariffs
+    tariffs,
+    workforce: DEFAULT_WORKFORCE_CONFIG,
   } satisfies EngineBootstrapConfig;
 }
 
@@ -137,3 +147,4 @@ export * from './backend/src/domain/world.js';
 export * from './backend/src/util/rng.js';
 export { resolveTariffs } from './backend/src/util/tariffs.js';
 export type { ResolvedTariffs } from './backend/src/util/tariffs.js';
+export type { WorkforceConfig, WorkforceMarketScanConfig } from './backend/src/config/workforce.js';

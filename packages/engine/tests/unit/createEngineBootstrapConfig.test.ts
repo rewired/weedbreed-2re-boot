@@ -11,7 +11,14 @@ describe('createEngineBootstrapConfig', () => {
       tariffs: {
         price_electricity: 0.35,
         price_water: 2
-      }
+      },
+      workforce: {
+        market: {
+          scanCooldown_days: 30,
+          poolSize: 16,
+          scanCost_cc: 1000,
+        },
+      },
     });
   });
 

@@ -209,7 +209,8 @@ describe('createWorkforceView', () => {
           totalLaborCost: 138
         },
         byStructure: []
-      }
+      },
+      market: { structures: [] }
     };
 
     const options: WorkforceViewOptions = {

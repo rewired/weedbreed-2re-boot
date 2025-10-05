@@ -3,3 +3,7 @@ export const TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1 =
   'telemetry.storage.missing_or_ambiguous.v1' as const;
 export const TELEMETRY_WORKFORCE_KPI_V1 = 'telemetry.workforce.kpi.v1' as const;
 export const TELEMETRY_WORKFORCE_WARNING_V1 = 'telemetry.workforce.warning.v1' as const;
+export const TELEMETRY_HIRING_MARKET_SCAN_COMPLETED_V1 =
+  'telemetry.hiring.market_scan.completed.v1' as const;
+export const TELEMETRY_HIRING_EMPLOYEE_ONBOARDED_V1 =
+  'telemetry.hiring.employee.onboarded.v1' as const;
