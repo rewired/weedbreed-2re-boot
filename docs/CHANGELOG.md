@@ -1,5 +1,15 @@
 # Changelog
 
+### #XX WB-XXX Strain Blueprint Loader mit Filesystem-Integration
+
+- Implementiert `strainBlueprintLoader.ts` mit Lazy-Loading-Mechanismus: Scannt `/data/blueprints/strain/**` beim ersten Zugriff, baut In-Memory-Index (`Map<Uuid, StrainBlueprint>`), und cached Blueprints im Modul-Scope.
+- Integriert Loader in `advancePhysiology.ts`: Ersetzt TODO-Block (Zeile 40) mit `loadStrainBlueprint()`-Aufruf; Runtime-Cache verhindert redundante Lookups pro Tick.
+- Fügt Unit-Tests hinzu (`strainBlueprintLoader.test.ts`): Validiert Filesystem-Scan, Index-Build, Cache-Verhalten, und Fehlerbehandlung mit echten JSON-Fixtures.
+- Erweitert Integration-Tests (`plantPhysiology.integration.test.ts`): Testet vollständigen Plant-Lifecycle mit White Widow Blueprint, validiert Stage-Transitions und Biomasse-Wachstum.
+- Erstellt `strainFixtures.ts` Test-Utility: Zentralisiert Strain-IDs (`WHITE_WIDOW_STRAIN_ID`) und Factory-Funktionen für Test-Pflanzen/Zonen.
+- Fügt Blueprint-Barrel-Export (`blueprints/index.ts`) hinzu: Vereinfacht Imports und etabliert API-Grenze für Blueprint-Subsystem.
+- Etabliert Muster für zukünftige Blueprint-Loader (Device, Irrigation, Substrate): Filesystem-Scan + Validation + Caching.
+
 ### #60 Utility consolidation for helper functions
 - Added shared numeric helpers (`clamp`, `clamp01`, `resolveTickHoursValue`) and
   validation/environment utilities to eliminate divergent inline

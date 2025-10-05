@@ -8,6 +8,7 @@ import type {
 } from '../../domain/world.js';
 import type { EngineRunContext } from '../Engine.js';
 import type { StrainBlueprint } from '../../domain/blueprints/strainBlueprint.js';
+import { loadStrainBlueprint } from '../../domain/blueprints/strainBlueprintLoader.js';
 import { createRng } from '../../util/rng.js';
 import {
   calculateBiomassIncrement,
@@ -37,8 +38,13 @@ function getOrLoadStrainBlueprint(
     return cached;
   }
 
-  // TODO: Load strain blueprint definitions from the filesystem (separate task).
-  return null;
+  const blueprint = loadStrainBlueprint(strainId);
+
+  if (blueprint) {
+    runtime.strainBlueprints.set(strainId, blueprint);
+  }
+
+  return blueprint;
 }
 
 function hasNumericChange(previous: number, next: number): boolean {
