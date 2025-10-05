@@ -2,6 +2,7 @@ import type {
   Employee,
   EmployeeRole,
   EmployeeSkillRequirement,
+  WorkforcePayrollState,
   Structure,
   WorkforceKpiSnapshot,
   WorkforceState,
@@ -125,6 +126,7 @@ export interface WorkforceView {
   readonly queue: readonly WorkforceQueueTaskView[];
   readonly latestKpi?: WorkforceKpiView;
   readonly warnings: readonly WorkforceWarningView[];
+  readonly payroll: WorkforcePayrollState;
 }
 
 function resolveEmployeeGender(employee: Employee): WorkforceDirectoryGender {
@@ -324,6 +326,7 @@ export function createWorkforceView(
     employeeDetails,
     queue,
     latestKpi,
-    warnings
+    warnings,
+    payroll: workforce.payroll
   } satisfies WorkforceView;
 }

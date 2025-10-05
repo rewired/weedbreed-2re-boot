@@ -18,6 +18,20 @@ function buildEmployee(partial: Partial<Employee>): Employee {
       overtimeHoursPerDay: 0,
       daysPerWeek: 5,
     },
+    skillTriad: {
+      main: { skillKey: 'general', level01: 0.5 },
+      secondary: [
+        { skillKey: 'secondary_a', level01: 0.3 },
+        { skillKey: 'secondary_b', level01: 0.2 },
+      ],
+    },
+    baseRateMultiplier: 1,
+    experience: { hoursAccrued: 0, level01: 0 },
+    laborMarketFactor: 1,
+    timePremiumMultiplier: 1,
+    employmentStartDay: 0,
+    salaryExpectation_per_h: 15,
+    raise: { cadenceSequence: 0, nextEligibleDay: 180 },
     traits: [],
     ...partial,
   } satisfies Employee;
@@ -82,18 +96,6 @@ describe('createTraitBreakdown', () => {
         focusSkills: ['gardening'],
       },
       {
-        id: 'trait_frugal',
-        name: 'Frugal',
-        type: 'positive',
-        count: 1,
-        averageStrength01: 0.5,
-        averageStrengthPercent: 50,
-        description:
-          'Accepts a slightly lower salary than their skills would normally demand.',
-        economyHint: 'Accepts a lower base salary expectation.',
-        focusSkills: [],
-      },
-      {
         id: 'trait_clumsy',
         name: 'Clumsy',
         type: 'negative',
@@ -103,6 +105,18 @@ describe('createTraitBreakdown', () => {
         description:
           'Slightly increases the chance of minor errors during maintenance tasks.',
         economyHint: undefined,
+        focusSkills: [],
+      },
+      {
+        id: 'trait_frugal',
+        name: 'Frugal',
+        type: 'positive',
+        count: 1,
+        averageStrength01: 0.5,
+        averageStrengthPercent: 50,
+        description:
+          'Accepts a slightly lower salary than their skills would normally demand.',
+        economyHint: 'Accepts a lower base salary expectation.',
         focusSkills: [],
       },
     ]);

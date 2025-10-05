@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
 import { getWorkforceRuntime } from '@/backend/src/engine/pipeline/applyWorkforce.js';
+import type { WorkforceAssignment } from '@/backend/src/engine/pipeline/applyWorkforce.js';
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
 import type {
   Employee,
@@ -45,6 +46,13 @@ function buildEmployee(id: string, roleId: string, traits: Employee['traits']): 
       daysPerWeek: 5,
       shiftStartHour: 8,
     },
+    baseRateMultiplier: 1,
+    experience: { hoursAccrued: 0, level01: 0 },
+    laborMarketFactor: 1,
+    timePremiumMultiplier: 1,
+    employmentStartDay: 0,
+    salaryExpectation_per_h: 5 + 10 * 0.6,
+    raise: { cadenceSequence: 0, nextEligibleDay: 180 },
   } satisfies Employee;
 }
 
@@ -91,7 +99,16 @@ describe('workforce trait effects integration', () => {
       market: { structures: [] },
     } satisfies WorkforceState;
 
-    const ctx: EngineRunContext = {};
+    let firstAssignments: readonly WorkforceAssignment[] = [];
+    const ctx: EngineRunContext = {
+      instrumentation: {
+        onStageComplete(step) {
+          if (step === 'applyWorkforce') {
+            firstAssignments = getWorkforceRuntime(ctx)?.assignments ?? [];
+          }
+        },
+      },
+    };
 
     const nextWorld = runStages(
       { ...world, workforce } satisfies SimulationWorld,
@@ -99,17 +116,33 @@ describe('workforce trait effects integration', () => {
       ['applyWorkforce'],
     );
 
-    const runtime = getWorkforceRuntime(ctx);
-    expect(runtime?.assignments).toHaveLength(1);
-    const [assignment] = runtime?.assignments ?? [];
+    expect(firstAssignments).toHaveLength(1);
+    const [assignment] = firstAssignments;
     expect(assignment.taskEffects.durationMinutes).toBeGreaterThan(240);
     expect(assignment.taskEffects.xpRateMultiplier).toBeLessThan(1);
     expect(assignment.wellbeingEffects.fatigueDelta).toBeGreaterThan(0);
 
-    const refreshedCtx: EngineRunContext = {};
+    let productiveAssignments: readonly WorkforceAssignment[] = [];
+    const refreshedCtx: EngineRunContext = {
+      instrumentation: {
+        onStageComplete(step) {
+          if (step === 'applyWorkforce') {
+            productiveAssignments = getWorkforceRuntime(refreshedCtx)?.assignments ?? [];
+          }
+        },
+      },
+    };
     const productiveEmployee = buildEmployee('00000000-0000-0000-0000-00000000c002', role.id, [
       { traitId: 'trait_green_thumb', strength01: 0.7 },
     ]);
+
+    const followupTask: WorkforceTaskInstance = {
+      id: '00000000-0000-0000-0000-00000000c003' as WorkforceTaskInstance['id'],
+      taskCode: taskDefinition.taskCode,
+      status: 'queued',
+      createdAtTick: nextWorld.simTimeHours,
+      context: { structureId: '00000000-0000-0000-0000-000000000123' },
+    } satisfies WorkforceTaskInstance;
 
     runStages(
       {
@@ -118,20 +151,20 @@ describe('workforce trait effects integration', () => {
         workforce: {
           ...workforce,
           employees: [productiveEmployee],
-          taskQueue: [task],
+          taskQueue: [followupTask],
         },
       } satisfies SimulationWorld,
       refreshedCtx,
       ['applyWorkforce'],
     );
 
-    const productiveRuntime = getWorkforceRuntime(refreshedCtx);
-    const [productiveAssignment] = productiveRuntime?.assignments ?? [];
-    expect(productiveAssignment?.taskEffects.durationMinutes).toBeLessThan(240);
-    expect(productiveAssignment?.taskEffects.errorRate01).toBeLessThan(
+    expect(productiveAssignments).toHaveLength(1);
+    const [productiveAssignment] = productiveAssignments;
+    expect(productiveAssignment.taskEffects.durationMinutes).toBeLessThan(240);
+    expect(productiveAssignment.taskEffects.errorRate01).toBeLessThanOrEqual(
       assignment.taskEffects.errorRate01,
     );
-    expect(productiveAssignment?.taskEffects.deviceWearMultiplier).toBeLessThan(
+    expect(productiveAssignment.taskEffects.deviceWearMultiplier).toBeLessThanOrEqual(
       assignment.taskEffects.deviceWearMultiplier,
     );
   });

@@ -42,7 +42,14 @@ const VALID_EMPLOYEE = {
     daysPerWeek: 5,
     shiftStartHour: 6
   },
-  notes: 'Senior grow technician'
+  notes: 'Senior grow technician',
+  baseRateMultiplier: 1.05,
+  experience: { hoursAccrued: 420, level01: 0.1 },
+  laborMarketFactor: 1.1,
+  timePremiumMultiplier: 1.2,
+  employmentStartDay: 45,
+  salaryExpectation_per_h: 18.5,
+  raise: { cadenceSequence: 2, lastDecisionDay: 200, nextEligibleDay: 380 }
 };
 
 const VALID_WORKFORCE_STATE = {
@@ -57,6 +64,8 @@ const VALID_WORKFORCE_STATE = {
           minSkill01: 0.5
         }
       ]
+    ,
+      baseRateMultiplier: 1.02,
     }
   ],
   employees: [VALID_EMPLOYEE],

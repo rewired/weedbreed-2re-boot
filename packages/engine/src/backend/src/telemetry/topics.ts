@@ -7,3 +7,13 @@ export const TELEMETRY_HIRING_MARKET_SCAN_COMPLETED_V1 =
   'telemetry.hiring.market_scan.completed.v1' as const;
 export const TELEMETRY_HIRING_EMPLOYEE_ONBOARDED_V1 =
   'telemetry.hiring.employee.onboarded.v1' as const;
+export const TELEMETRY_WORKFORCE_PAYROLL_SNAPSHOT_V1 =
+  'telemetry.workforce.payroll_snapshot.v1' as const;
+export const TELEMETRY_WORKFORCE_RAISE_ACCEPTED_V1 =
+  'telemetry.workforce.raise.accepted.v1' as const;
+export const TELEMETRY_WORKFORCE_RAISE_BONUS_V1 =
+  'telemetry.workforce.raise.bonus.v1' as const;
+export const TELEMETRY_WORKFORCE_RAISE_IGNORED_V1 =
+  'telemetry.workforce.raise.ignored.v1' as const;
+export const TELEMETRY_WORKFORCE_EMPLOYEE_TERMINATED_V1 =
+  'telemetry.workforce.employee.terminated.v1' as const;

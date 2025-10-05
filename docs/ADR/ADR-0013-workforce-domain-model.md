@@ -25,6 +25,10 @@ contract to rely on when modelling labour availability or overtime policies.
   single canonical structure.
 - Extend employee records with deterministic trait assignments and the hiring skill triad so behavioural modifiers stay aligned
   with SEC §10.3 trait catalogues and the scheduler can apply trait hooks without ad-hoc randomness.
+- Track compensation multipliers (`EmployeeRole.baseRateMultiplier`, employee-specific base multipliers, labour market factors,
+  shift premiums), career experience, salary expectations, employment start dates, and raise cadence state on employees so the
+  payroll engine can apply the full SEC rate formula while modelling HR flows (raises, bonuses, termination morale ripples)
+  deterministically.
 
 ## Consequences
 
@@ -33,6 +37,8 @@ contract to rely on when modelling labour availability or overtime policies.
 - Workforce data has a deterministic contract that façade validation, schedulers, and read-model projections can share.
 - UUID v7 enforcement on employee RNG seeds eliminates ambiguous randomness sources and keeps trait generation reproducible.
 - Structured task definitions unblock future automation and intent validation because skills/roles share the same canonical keys.
+- Compensation and HR metadata (experience accumulation, raise cadence, salary expectations, morale ripples) remain available to
+  payroll, telemetry, and façade layers without duplicating calculations outside the engine.
 - Documentation (DD/TDD/Changelog) now captures workforce invariants for onboarding and review.
 
 ### Negative

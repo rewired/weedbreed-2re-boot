@@ -20,4 +20,10 @@ export interface EmployeeRole extends DomainEntity, SluggedEntity {
   readonly coreSkills: readonly EmployeeSkillRequirement[];
   /** Optional list of tags that classify the role (e.g. compliance, operations). */
   readonly tags?: readonly string[];
+  /**
+   * Role-wide multiplier applied to the base hourly wage before employee specific
+   * modifiers are evaluated. Defaults to 1 when omitted for backwards
+   * compatibility with existing blueprints.
+   */
+  readonly baseRateMultiplier?: number;
 }

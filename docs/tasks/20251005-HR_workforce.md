@@ -120,11 +120,18 @@ skill[k] ← clamp(skill[k] + 0.01, 0.05, 1.00)
 relevantSkill = avg(skill[k] for k in task.requiredSkills) // sonst avg aller Skills
 base = 5                                     // 5/h
 skillTerm = 10 * relevantSkill               // bis +10/h
-rate = (base + skillTerm) * locationIndex * otMultiplier
-minuteCost = rate / 60
+rate_per_hour = (base + skillTerm)
+               × locationIndex
+               × roleBaseMult
+               × employeeBaseMult
+               × experienceMult              // aus Laufbahnstunden (0..1 ⇒ bis +25 %)
+               × laborMarketFactor
+               × timePremiumMult             // Nachtschicht/Zuschläge
+minuteCost_base = rate_per_hour / 60
+minuteCost_ot   = (rate_per_hour × 1.25) / 60
 ```
 
-* **OT‑Multiplikator:** **1.25×** für alle OT‑Minuten (jenseits Tagesbudget).
+* **Experience:** normalisiert `hoursAccrued` → `level01`, liefert den Multiplier (MVP: 0..+25 %).
 * **Location‑Index:** pro Structure aus `/data/payroll/location_index.json` (Default 1.00).
 * **Aggregation:** per‑Tick/Minute → **täglich**, Banker’s Rounding am Tagesende.
 * **Read‑Model (pro Tag & Structure):** `baseMinutes`, `otMinutes`, `baseCost`, `otCost`, `totalLaborCost`.
@@ -154,7 +161,7 @@ Aktivierbar: Auto‑Replant, Harvest‑Scheduler, Maintenance‑Advisor, Cleanin
 4. **Fallback robust**: Online‑Timeout (≤ 500 ms) → Offline‑Namen; Employee‑Erstellung schlägt nicht fehl.
 5. **Skills‑Bounds**: Bei Einstellung `∀k: 0.05 ≤ skill[k] ≤ 0.5`; LbD: +0.01 pro relevantem Skill/Task, max 1.00.
 6. **OT‑Morale**: −0.02/h, Cap −0.10/Tag; **Breakroom** senkt `fatigue01` um 0.02 je 30 min (proportional).
-7. **Payroll**: `rate = (5 + 10*relevantSkill) * locationIndex * otMultiplier`; OT 1.25× nur jenseits Budget; **tägliche** Aggregation + Banker’s Rounding.
+7. **Payroll**: `rate = (5 + 10×skill) × locationIndex × roleBaseMult × employeeBaseMult × experienceMult × laborMarketFactor × timePremium`; OT 1.25× nur jenseits Budget; **tägliche** Aggregation + Banker’s Rounding.
 8. **KPIs** sichtbar (Tick/Tag): Durchsatz, Backlog, Auslastung, p95‑Wartezeit, OT‑Minuten, Wartungsrückstand.
 9. **Immutability**: Identity‑Felder & `rngSeedUuid` unveränderlich nach Erstellung.
 
