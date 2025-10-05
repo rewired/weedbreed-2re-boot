@@ -13,7 +13,9 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
-    "format": "pnpm -r format"
+    "format": "pnpm -r format",
+    "preinstall": "node ./tools/scripts/ensure-pnpm.mjs",
+    "verify-pnpm": "node ./tools/scripts/ensure-pnpm.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.5.0",
