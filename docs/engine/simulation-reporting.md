@@ -30,6 +30,7 @@ Set up the workspace before invoking the report generator:
 - Install dependencies from the repository root using `pnpm install`.
 
 The workspace `packageManager` metadata in `package.json` pins pnpm and its integrity checksum, so `npm --filter …` and other npm-specific invocations are unsupported for the reporting command.
+A root `preinstall` guard now aborts installs if pnpm 10.18.0 is not in use; run `pnpm run verify-pnpm` to check your environment before installing.
 
 ## 4) CLI usage
 

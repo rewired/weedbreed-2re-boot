@@ -1,5 +1,11 @@
 # Changelog
 
+### #68 Tooling - enforce pnpm 10.18.0 installs
+
+- Added a `preinstall` guard that aborts `pnpm install` when the package manager is not pnpm 10.18.0, relying on the workspace shim metadata.
+- Exposed a `verify-pnpm` script and helper utility so CI and contributors can assert the correct pnpm version without triggering an install.
+
+
 ### #67 Reporting CLI tooling prerequisites
 
 - Documented Node.js/Corepack/pnpm setup prerequisites and troubleshooting guidance for the seed-to-harvest reporting CLI, clarifying that the repository `packageManager` metadata requires pnpm.
