@@ -179,6 +179,7 @@ describe('applyWorkforce integration', () => {
         },
         byStructure: [],
       },
+      market: { structures: [] },
     };
 
     const worldWithWorkforce = createWorldWithWorkforce(workforce);
@@ -276,6 +277,7 @@ describe('applyWorkforce integration', () => {
         },
         byStructure: [],
       },
+      market: { structures: [] },
     };
 
     const worldWithWorkforce = createWorldWithWorkforce(workforce);
@@ -390,6 +392,7 @@ describe('applyWorkforce integration', () => {
         },
         byStructure: [],
       },
+      market: { structures: [] },
     };
 
     const worldWithWorkforce = createWorldWithWorkforce(workforce);

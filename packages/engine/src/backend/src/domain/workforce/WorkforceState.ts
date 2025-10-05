@@ -5,6 +5,46 @@ import type { WorkforceKpiSnapshot } from './kpis.js';
 import type { WorkforceTaskDefinition, WorkforceTaskInstance } from './tasks.js';
 import type { WorkforceWarning } from './warnings.js';
 
+export interface WorkforceMarketCandidateSkill {
+  readonly slug: string;
+  readonly value01: number;
+}
+
+export interface WorkforceMarketCandidateSkills {
+  readonly main: WorkforceMarketCandidateSkill;
+  readonly secondary: readonly [
+    WorkforceMarketCandidateSkill,
+    WorkforceMarketCandidateSkill,
+  ];
+}
+
+export interface WorkforceMarketCandidateTrait {
+  readonly id: string;
+  readonly strength01: number;
+}
+
+export interface WorkforceMarketCandidate {
+  readonly id: Uuid;
+  readonly structureId: Uuid;
+  readonly roleSlug: string;
+  readonly skills3: WorkforceMarketCandidateSkills;
+  readonly traits: readonly WorkforceMarketCandidateTrait[];
+  readonly expectedBaseRate_per_h?: number;
+  readonly validUntilScanCounter: number;
+  readonly scanCounter: number;
+}
+
+export interface WorkforceMarketStructureState {
+  readonly structureId: Uuid;
+  readonly lastScanDay?: number;
+  readonly scanCounter: number;
+  readonly pool: readonly WorkforceMarketCandidate[];
+}
+
+export interface WorkforceMarketState {
+  readonly structures: readonly WorkforceMarketStructureState[];
+}
+
 export interface WorkforcePayrollTotals {
   readonly baseMinutes: number;
   readonly otMinutes: number;
@@ -41,4 +81,6 @@ export interface WorkforceState {
   readonly warnings: readonly WorkforceWarning[];
   /** Daily payroll accumulators capturing labour effort and costs. */
   readonly payroll: WorkforcePayrollState;
+  /** Deterministic hiring market metadata including candidate pools. */
+  readonly market: WorkforceMarketState;
 }

@@ -189,6 +189,13 @@ targets from the same factor to keep unit conversions deterministic.
 - `applyWorkforce` emits read-only telemetry after each tick via `telemetry.workforce.kpi.v1` (latest KPI snapshot) and
   `telemetry.workforce.warning.v1` (batched warnings for the tick). The telemetry bus remains isolated from intents in keeping with
   SEC §1.4.
+- The workforce market cache (`workforce.market.structures[]`) records `lastScanDay`, `scanCounter`, and deterministic candidate
+  pools (main + secondary skills, trait strength, optional base rate hints). Pools persist until the next manual scan and use
+  RNG streams `workforce:scan:<structureId>:<scanCounter>` and
+  `workforce:candidate:<structureId>:<scanCounter>:<index>`.
+- Engine bootstrap configuration now surfaces `workforce.market` defaults (30-day cooldown, pool size 16, scan cost 1000 CC) so
+  façade layers can present consistent hiring controls. Market scans debit the configured cost and emit
+  `telemetry.hiring.market_scan.completed.v1`; successful hires emit `telemetry.hiring.employee.onboarded.v1`.
 - The façade exposes `createWorkforceView` which projects the workforce branch into UI-ready structures:
   - Directory listings with structure/role/skill/gender filter facets and morale/fatigue mapped onto percentages.
   - Live queue entries resolving task metadata (priority, ETA, wait/due times, structure bindings, assigned employees).

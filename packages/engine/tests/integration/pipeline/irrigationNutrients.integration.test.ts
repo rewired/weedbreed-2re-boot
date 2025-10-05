@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants.js';
 import { runTick } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
 import type { IrrigationEvent } from '@/backend/src/domain/interfaces/IIrrigationService.js';
@@ -136,11 +137,12 @@ describe('Tick pipeline — irrigation and nutrients', () => {
     expect(secondZone.nutrientBuffer_mg.N).toBeCloseTo(expectedSecondBuffer, 5);
   });
 
-  it('returns the original world snapshot when no irrigation events are provided', () => {
+  it('preserves irrigation state when no events are provided while still advancing workforce telemetry', () => {
     const world = createDemoWorld();
     setWorldSeed(world, WORLD_SEED);
 
     const initialSimTime = world.simTimeHours;
+    const initialKpiCount = world.workforce.kpis.length;
     const stageMutations: Record<string, boolean> = {};
     let lastWorld: SimulationWorld = world;
 
@@ -154,10 +156,18 @@ describe('Tick pipeline — irrigation and nutrients', () => {
       }
     });
 
-    expect(nextWorld).toBe(world);
-    expect(nextWorld.simTimeHours).toBe(initialSimTime);
-    expect(stageMutations.commitAndTelemetry).toBe(false);
-    expect(Object.values(stageMutations)).not.toContain(true);
+    expect(nextWorld.company).toBe(world.company);
+    expect(nextWorld.simTimeHours).toBe(initialSimTime + HOURS_PER_TICK);
+    expect(nextWorld.workforce.kpis).toHaveLength(initialKpiCount + 1);
+
+    expect(stageMutations.applyWorkforce).toBe(true);
+    expect(stageMutations.commitAndTelemetry).toBe(true);
+
+    const otherStages = { ...stageMutations };
+    delete otherStages.applyWorkforce;
+    delete otherStages.commitAndTelemetry;
+
+    expect(Object.values(otherStages)).not.toContain(true);
   });
 
   it('updates multiple zones independently based on targeted events', () => {

@@ -1,5 +1,17 @@
 # Changelog
 
+### #74 Hiring market scans & intents
+
+- Extended the workforce domain state and Zod schema with deterministic hiring market data: per-structure `lastScanDay`,
+  `scanCounter`, and persisted candidate pools (main + secondary skills, trait draws, base rate hints).
+- Introduced a backend workforce config module exposing default market scan parameters (30-day cooldown, pool size 16, cost
+  1000 CC) and wired the defaults through `createEngineBootstrapConfig` so façade consumers can reference them deterministically.
+- Implemented deterministic candidate pool generation and intent handling in `applyWorkforce`, including RNG stream alignment,
+  market cost recording, new employee creation, and telemetry events (`telemetry.hiring.market_scan.completed.v1`,
+  `telemetry.hiring.employee.onboarded.v1`).
+- Added façade support for the hiring flow via `createHiringMarketView` and transport helpers
+  (`createHiringMarketScanIntent`, `createHiringMarketHireIntent`) alongside targeted unit/integration coverage across engine and façade tests.
+
 ### #73 Workforce telemetry + façade view
 
 - Added workforce warning support to the domain state and zod schemas, ensuring simulations carry deterministic `WorkforceWarning` snapshots alongside KPIs and payroll totals.

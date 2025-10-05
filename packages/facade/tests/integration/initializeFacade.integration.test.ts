@@ -24,6 +24,13 @@ describe('initializeFacade', () => {
       tariffs: {
         price_electricity: 0.35,
         price_water: 2
+      },
+      workforce: {
+        market: {
+          poolSize: 16,
+          scanCooldown_days: 30,
+          scanCost_cc: 1000
+        }
       }
     });
     expect(result.companyWorld).toEqual(world);

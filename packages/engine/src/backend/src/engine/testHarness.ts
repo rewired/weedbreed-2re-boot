@@ -1,5 +1,5 @@
 import { AIR_DENSITY_KG_PER_M3 } from '../constants/simConstants.js';
-import type { SimulationWorld, Uuid } from '../domain/world.js';
+import type { SimulationWorld, Uuid, WorkforceState } from '../domain/world.js';
 import {
   resolvePipelineStage,
   runTick,
@@ -22,6 +22,27 @@ const DEMO_SUBSTRATE_ID = '00000000-0000-4000-8000-000000000006' as Uuid;
 const DEMO_IRRIGATION_ID = '00000000-0000-4000-8000-000000000007' as Uuid;
 const DEMO_CULTIVATION_METHOD_ID = '00000000-0000-4000-8000-000000000008' as Uuid;
 const DEMO_ZONE_AIR_MASS_KG = 60 * 3 * AIR_DENSITY_KG_PER_M3;
+
+const DEMO_WORKFORCE: WorkforceState = {
+  roles: [],
+  employees: [],
+  taskDefinitions: [],
+  taskQueue: [],
+  kpis: [],
+  warnings: [],
+  payroll: {
+    dayIndex: 0,
+    totals: {
+      baseMinutes: 0,
+      otMinutes: 0,
+      baseCost: 0,
+      otCost: 0,
+      totalLaborCost: 0,
+    },
+    byStructure: [],
+  },
+  market: { structures: [] },
+};
 
 const DEMO_WORLD: SimulationWorld = {
   id: DEMO_WORLD_ID,
@@ -105,7 +126,8 @@ const DEMO_WORLD: SimulationWorld = {
         ]
       }
     ]
-  }
+  },
+  workforce: DEMO_WORKFORCE,
 };
 
 function cloneSimulationWorld(world: SimulationWorld): SimulationWorld {

@@ -22,6 +22,20 @@ export {
   type WorkforceViewOptions,
   type WorkforceWarningView
 } from './readModels/workforceView.js';
+export {
+  createHiringMarketView,
+  type HiringMarketCandidateSkillView,
+  type HiringMarketCandidateTraitView,
+  type HiringMarketCandidateView,
+  type HiringMarketConfigView,
+  type HiringMarketStructureView,
+  type HiringMarketView,
+  type HiringMarketViewOptions,
+} from './readModels/hiringMarketView.js';
+export {
+  createHiringMarketHireIntent,
+  createHiringMarketScanIntent,
+} from './intents/hiring.js';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.
