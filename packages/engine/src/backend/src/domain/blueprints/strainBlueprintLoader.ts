@@ -11,8 +11,8 @@ export interface LoadStrainBlueprintOptions {
 }
 
 const DEFAULT_BLUEPRINTS_ROOT = path.resolve(
-  fileURLToPath(new URL('.', import.meta.url)),
-  '../../../../../../data/blueprints'
+  fileURLToPath(new URL('../../../../../../../', import.meta.url)),
+  'data/blueprints'
 );
 
 let blueprintCache: Map<Uuid, StrainBlueprint> | null = null;
