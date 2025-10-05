@@ -167,6 +167,7 @@ describe('applyWorkforce integration', () => {
       taskDefinitions: definitions,
       taskQueue: queue,
       kpis: [],
+      warnings: [],
       payroll: {
         dayIndex: 0,
         totals: {
@@ -263,6 +264,7 @@ describe('applyWorkforce integration', () => {
       taskDefinitions: [definition],
       taskQueue: queue,
       kpis: [],
+      warnings: [],
       payroll: {
         dayIndex: 0,
         totals: {
@@ -283,7 +285,7 @@ describe('applyWorkforce integration', () => {
     const assignments = nextWorld.workforce.taskQueue.filter((task) => task.status === 'completed');
     const assignedEmployees = assignments.map((task) => task.assignedEmployeeId);
 
-    expect(new Set(assignedEmployees)).toHaveSize(2);
+    expect(new Set(assignedEmployees).size).toBe(2);
   });
 
   it('applies overtime morale penalties and breakroom fatigue recovery', () => {
@@ -376,6 +378,7 @@ describe('applyWorkforce integration', () => {
       taskDefinitions: [maintenanceDefinition, breakroomDefinition],
       taskQueue: queue,
       kpis: [],
+      warnings: [],
       payroll: {
         dayIndex: 0,
         totals: {

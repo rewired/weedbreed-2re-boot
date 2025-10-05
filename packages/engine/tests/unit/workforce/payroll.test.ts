@@ -152,6 +152,7 @@ describe('workforce payroll accruals', () => {
       taskDefinitions: [taskDefinition],
       taskQueue: [task],
       kpis: [],
+      warnings: [],
       payroll: createPayrollState(0),
     } satisfies WorkforceState;
 
@@ -231,6 +232,7 @@ describe('workforce payroll accruals', () => {
       taskDefinitions: [taskDefinition],
       taskQueue: [task],
       kpis: [],
+      warnings: [],
       payroll: createPayrollState(0),
     } satisfies WorkforceState;
 
@@ -289,6 +291,7 @@ describe('workforce payroll accruals', () => {
       taskDefinitions: [],
       taskQueue: [],
       kpis: [],
+      warnings: [],
       payroll: priorPayroll,
     } satisfies WorkforceState;
 

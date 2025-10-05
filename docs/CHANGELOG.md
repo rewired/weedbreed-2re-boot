@@ -1,5 +1,12 @@
 # Changelog
 
+### #73 Workforce telemetry + façade view
+
+- Added workforce warning support to the domain state and zod schemas, ensuring simulations carry deterministic `WorkforceWarning` snapshots alongside KPIs and payroll totals.
+- Emitted `telemetry.workforce.kpi.v1` and `telemetry.workforce.warning.v1` from `applyWorkforce` so monitoring layers receive live KPI snapshots and batched alerts without sharing the intent channel.
+- Introduced the façade `createWorkforceView` read-model projecting directory filters (structure/role/skill/gender), live queue metadata, employee detail panels, KPI percentages, and warning decorations for UI consumers.
+- Expanded engine/facade tests to cover the warning schema plus the new read-model projection, and refreshed DD/TDD guidance. Existing ADRs already cover the telemetry/read-model separation—no additional ADR required.
+
 ### #72 Workforce payroll accruals
 
 - Introduced a `/data/payroll/location_index.json` catalogue and zod-backed loader so structures resolve location multipliers

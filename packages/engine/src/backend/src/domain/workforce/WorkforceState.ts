@@ -3,6 +3,7 @@ import type { Employee } from './Employee.js';
 import type { EmployeeRole } from './EmployeeRole.js';
 import type { WorkforceKpiSnapshot } from './kpis.js';
 import type { WorkforceTaskDefinition, WorkforceTaskInstance } from './tasks.js';
+import type { WorkforceWarning } from './warnings.js';
 
 export interface WorkforcePayrollTotals {
   readonly baseMinutes: number;
@@ -36,6 +37,8 @@ export interface WorkforceState {
   readonly taskQueue: readonly WorkforceTaskInstance[];
   /** KPI snapshots aggregated over recent simulation windows. */
   readonly kpis: readonly WorkforceKpiSnapshot[];
+  /** Deterministic warnings emitted by the scheduling pipeline. */
+  readonly warnings: readonly WorkforceWarning[];
   /** Daily payroll accumulators capturing labour effort and costs. */
   readonly payroll: WorkforcePayrollState;
 }
