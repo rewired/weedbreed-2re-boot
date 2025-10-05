@@ -114,7 +114,8 @@
     "vpd_kPa": 0.15,
     "temp_C": 1.0,
     "rh_frac": 0.05,
-    "co2_ppm": 100
+    "co2_ppm": 100,
+    "ppfd_umol_m2s": 65
   },
   "methodAffinity": {
     "85cc0916-0e8a-495e-af8f-50291abe6855": 0.8,
