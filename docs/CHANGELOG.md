@@ -1,5 +1,16 @@
 # Changelog
 
+### #72 Workforce payroll accruals
+
+- Introduced a `/data/payroll/location_index.json` catalogue and zod-backed loader so structures resolve location multipliers
+  deterministically (city overrides > country overrides > default `1.0`).
+- Extended the workforce state with daily payroll accumulators (`baseMinutes`, `otMinutes`, `baseCost`, `otCost`, `totalLaborCost`)
+  plus per-structure breakdowns. The `applyWorkforce` stage now computes minute-level labour costs via
+  `rate_per_minute = ((5 + 10 × relevantSkill) × locationIndex × otMultiplier) / 60`, flips to `otMultiplier = 1.25` for overtime
+  minutes, and finalises each day with Banker’s rounding before handing totals to the economy stage.
+- Updated `applyEconomyAccrual` to ingest the workforce snapshot so downstream finance modules receive both the current-day view
+  and any newly finalised days. Added unit coverage for overtime boundaries, location factors, rounding, and loader validation.
+
 ### #71 Workforce scheduling pipeline stage
 
 - Added the `applyWorkforce` pipeline phase between irrigation and economy to dispatch queued tasks per structure, enforce role/skill minimums, honor working-hour limits, and update morale/fatigue (including the breakroom recovery rule).

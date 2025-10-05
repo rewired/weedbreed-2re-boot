@@ -172,6 +172,13 @@ targets from the same factor to keep unit conversions deterministic.
     deterministic labour cost models, and integer priorities.
   - `taskQueue`: queued/in-progress task instances used by the dispatcher and telemetry.
   - `kpis`: rolling `WorkforceKpiSnapshot` entries summarising throughput, labour hours, overtime, and aggregate morale/fatigue.
+  - `payroll`: day-indexed accumulators capturing `baseMinutes`, `otMinutes`, `baseCost`, `otCost`, and `totalLaborCost` for the
+    entire company as well as per-structure slices. Each minute billed uses
+    `rate_per_minute = ((5 + 10 × relevantSkill) × locationIndex × otMultiplier) / 60` with
+    `relevantSkill = avg(skill[k])` for task-required skills (fallback: average of all employee skills). Overtime minutes switch to
+    `otMultiplier = 1.25` immediately after the base-day allowance is exhausted. Location factors resolve via
+    `/data/payroll/location_index.json` (city overrides beat country overrides; default is `1.0`). Daily totals close with
+    **Banker’s rounding** before the economy stage consumes the snapshot.
 - `Employee.schedule` constrains base hours to **5–16 h per in-game day**, allows overtime up to **+5 h**, and records the number of
   working days per week (`1..7`) with an optional shift start hour (`0..23`). Schema guards reject violations and normalise seeds to UUID v7.
 - `Employee.skills` and `EmployeeRole.coreSkills` share the `EmployeeSkillRequirement` shape (`skillKey`, `minSkill01 ∈ [0,1]`).
