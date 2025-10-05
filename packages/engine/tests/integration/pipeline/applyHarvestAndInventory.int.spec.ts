@@ -6,7 +6,7 @@ import { createTestPlant } from '@/tests/testUtils/strainFixtures.ts';
 import { inventoryByStructure } from '@/backend/src/readmodels/inventory/inventoryByStructure.js';
 import { inventoryByStorageRoom } from '@/backend/src/readmodels/inventory/inventoryByStorageRoom.js';
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
-import type { Room, Zone } from '@/backend/src/domain/world.js';
+import type { Plant, Room, Zone } from '@/backend/src/domain/world.js';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 
@@ -20,6 +20,7 @@ function prepareHarvestScenario() {
   zone.plants = [
     {
       ...basePlant,
+      id: '00000000-0000-4000-8000-000000000001' as Plant['id'],
       lifecycleStage: 'harvest-ready',
       biomass_g: 480,
       health01: 0.88,
@@ -83,10 +84,10 @@ describe('applyHarvestAndInventory integration', () => {
       "roomId": "00000000-0000-4000-8000-000000000009",
       "source": {
         "plantId": "00000000-0000-4000-8000-000000000001",
-        "zoneId": "00000000-0000-4000-8000-000000000004"
+        "zoneId": "00000000-0000-4000-8000-000000000004",
       },
-      "structureId": "00000000-0000-4000-8000-000000000002"
-    }
+      "structureId": "00000000-0000-4000-8000-000000000002",
+    },
   ],
   "storageSummary": {
     "avgMoisture01": 0.6,
@@ -94,15 +95,15 @@ describe('applyHarvestAndInventory integration', () => {
     "roomId": "00000000-0000-4000-8000-000000000009",
     "structureId": "00000000-0000-4000-8000-000000000002",
     "totalFreshWeight_kg": 0.48,
-    "totalLots": 1
+    "totalLots": 1,
   },
   "structureSummary": {
     "avgMoisture01": 0.6,
     "avgQuality01": 0.85,
     "structureId": "00000000-0000-4000-8000-000000000002",
     "totalFreshWeight_kg": 0.48,
-    "totalLots": 1
-  }
+    "totalLots": 1,
+  },
 }`);
   });
 });

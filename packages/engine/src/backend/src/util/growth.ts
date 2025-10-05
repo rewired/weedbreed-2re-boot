@@ -120,15 +120,16 @@ export function calculateBiomassIncrement(
   const stressReduction = clamp01(1 - stress01);
   const phaseMultiplier = getPhaseMultiplier(lifecycleStage, growthModel);
   const dryMatterFraction = getDryMatterFraction(growthModel, lifecycleStage);
-  const lightUseEfficiency = growthModel.baseLightUseEfficiency;
+  // Blueprint stores baseLightUseEfficiency in kilograms of dry matter per mol of PAR.
+  // Convert to grams before applying the daily light integral increment which is already tick-scoped.
+  const lightUseEfficiency_g_per_mol = growthModel.baseLightUseEfficiency * 1_000;
   const tickFractionOfDay = tickHours / HOURS_PER_DAY;
   const baseGrowth =
     dli_mol_m2d_inc *
-    lightUseEfficiency *
+    lightUseEfficiency_g_per_mol *
     tempFactor *
     stressReduction *
     phaseMultiplier *
-    tickFractionOfDay *
     dryMatterFraction;
   const maintenanceCost = currentBiomass_g * growthModel.maintenanceFracPerDay * tickFractionOfDay;
   let netGrowth = baseGrowth - maintenanceCost;

@@ -89,29 +89,29 @@ describe('growth utilities', () => {
   describe('calculateBiomassIncrement', () => {
     it('returns positive growth under optimal conditions', () => {
       const strain = mockStrain();
-      const growth = calculateBiomassIncrement(20, 25, 0, strain, 'vegetative', 10, 1, rng(0.5));
+      const growth = calculateBiomassIncrement(0.5, 25, 0, strain, 'vegetative', 10, 1, rng(0.5));
       expect(growth).toBeGreaterThan(0);
     });
 
     it('reduces growth under high stress', () => {
       const strain = mockStrain();
-      const optimal = calculateBiomassIncrement(20, 25, 0, strain, 'vegetative', 10, 1, rng(0.5));
-      const stressed = calculateBiomassIncrement(20, 25, 0.8, strain, 'vegetative', 10, 1, rng(0.5));
+      const optimal = calculateBiomassIncrement(0.5, 25, 0, strain, 'vegetative', 10, 1, rng(0.5));
+      const stressed = calculateBiomassIncrement(0.5, 25, 0.8, strain, 'vegetative', 10, 1, rng(0.5));
       expect(stressed).toBeLessThan(optimal);
     });
 
     it('accounts for maintenance cost at higher biomass', () => {
       const strain = mockStrain();
-      const low = calculateBiomassIncrement(20, 25, 0, strain, 'vegetative', 10, 1, rng(0.5));
-      const high = calculateBiomassIncrement(20, 25, 0, strain, 'vegetative', 100, 1, rng(0.5));
+      const low = calculateBiomassIncrement(0.5, 25, 0, strain, 'vegetative', 10, 1, rng(0.5));
+      const high = calculateBiomassIncrement(0.5, 25, 0, strain, 'vegetative', 100, 1, rng(0.5));
       expect(high).toBeLessThan(low);
     });
 
     it('applies deterministic noise when enabled', () => {
       const strain = mockStrain();
       strain.noise = { enabled: true, pct: 0.1 };
-      const lower = calculateBiomassIncrement(20, 25, 0, strain, 'vegetative', 10, 1, rng(0));
-      const higher = calculateBiomassIncrement(20, 25, 0, strain, 'vegetative', 10, 1, rng(1));
+      const lower = calculateBiomassIncrement(0.5, 25, 0, strain, 'vegetative', 10, 1, rng(0));
+      const higher = calculateBiomassIncrement(0.5, 25, 0, strain, 'vegetative', 10, 1, rng(1));
       expect(lower).toBeLessThan(higher);
     });
 
@@ -127,18 +127,18 @@ describe('growth utilities', () => {
       expect(growth).toBe(0);
     });
 
-    it('scales with tick duration', () => {
+    it('applies higher maintenance costs over longer ticks', () => {
       const strain = mockStrain();
-      const oneHour = calculateBiomassIncrement(20, 25, 0, strain, 'vegetative', 10, 1, rng(0.5));
-      const twoHour = calculateBiomassIncrement(20, 25, 0, strain, 'vegetative', 10, 2, rng(0.5));
-      expect(twoHour).toBeGreaterThan(oneHour);
+      const oneHour = calculateBiomassIncrement(0.5, 25, 0, strain, 'vegetative', 10, 1, rng(0.5));
+      const twoHour = calculateBiomassIncrement(0.5, 25, 0, strain, 'vegetative', 10, 2, rng(0.5));
+      expect(twoHour).toBeLessThanOrEqual(oneHour);
     });
 
     it('scales growth by stage-specific dry matter fraction', () => {
       const strain = mockStrain();
       strain.growthModel.dryMatterFraction = { vegetation: 0.5, flowering: 0.2 };
       const vegetativeGrowth = calculateBiomassIncrement(
-        20,
+        0.5,
         25,
         0,
         strain,
@@ -148,7 +148,7 @@ describe('growth utilities', () => {
         rng(0.5)
       );
       const floweringGrowth = calculateBiomassIncrement(
-        20,
+        0.5,
         25,
         0,
         strain,
