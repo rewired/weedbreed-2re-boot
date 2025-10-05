@@ -20,3 +20,4 @@ export * from './workforce/tasks.js';
 export * from './workforce/kpis.js';
 export * from './workforce/warnings.js';
 export * from './workforce/intents.js';
+export * from './workforce/traits.js';

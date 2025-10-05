@@ -13,6 +13,7 @@ export {
   type WorkforceDirectoryFilters,
   type WorkforceDirectoryGender,
   type WorkforceEmployeeDetailView,
+  type WorkforceEmployeeTraitView,
   type WorkforceEmployeeSkillView,
   type WorkforceEmployeeSummary,
   type WorkforceFilterOption,
@@ -22,6 +23,12 @@ export {
   type WorkforceViewOptions,
   type WorkforceWarningView
 } from './readModels/workforceView.js';
+export {
+  createTraitBreakdown,
+  type TraitBreakdownEntry,
+  type TraitBreakdownTotals,
+  type TraitBreakdownView,
+} from './readModels/traitBreakdownView.js';
 export {
   createHiringMarketView,
   type HiringMarketCandidateSkillView,

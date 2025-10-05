@@ -1,5 +1,18 @@
 # Changelog
 
+### #75 Workforce trait system & façade exposure
+
+- Added workforce trait metadata (`traits.ts`) describing conflict groups, strength ranges, and effect hooks for task duration,
+  error rates, fatigue, morale, device wear, XP, and salary expectations. Employee records now carry deterministic trait
+  assignments plus the hiring triad (`skillTriad`) so downstream consumers have the full candidate context.
+- Replaced ad-hoc trait draws with deterministic sampling via `sampleTraitSet(createRng(...))` for both identity generation and
+  candidate pools; salary expectations now incorporate trait-driven adjustments (e.g., `trait_frugal`, `trait_demanding`).
+- Integrated `applyTraitEffects` throughout the workforce pipeline so scheduling considers trait multipliers, wellbeing deltas,
+  and runtime assignments expose trait breakdowns for other subsystems (device wear, XP, economy accrual).
+- Extended the façade `createWorkforceView` with employee trait metadata and added a dedicated `createTraitBreakdown` read-model
+  summarising counts/averages plus economy hints. Updated unit/integration coverage for trait assignment, stacking, and
+  scheduling effects, and documented the system in DD/TDD with ADR updates.
+
 ### #74 Hiring market scans & intents
 
 - Extended the workforce domain state and Zod schema with deterministic hiring market data: per-structure `lastScanDay`,

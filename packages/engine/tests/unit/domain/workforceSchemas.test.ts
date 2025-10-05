@@ -20,6 +20,16 @@ const VALID_EMPLOYEE = {
       level01: 0.6
     }
   ],
+  skillTriad: {
+    main: { skillKey: 'gardening', level01: 0.6 },
+    secondary: [
+      { skillKey: 'maintenance', level01: 0.4 },
+      { skillKey: 'cleanliness', level01: 0.3 }
+    ]
+  },
+  traits: [
+    { traitId: 'trait_green_thumb', strength01: 0.6 }
+  ],
   developmentPlan: [
     {
       skillKey: 'maintenance',
@@ -133,7 +143,7 @@ const VALID_WORKFORCE_STATE = {
               ]
             },
             traits: [
-              { id: 'trait.focused', strength01: 0.6 }
+              { id: 'trait_green_thumb', strength01: 0.6 }
             ],
             expectedBaseRate_per_h: 24,
             validUntilScanCounter: 2,

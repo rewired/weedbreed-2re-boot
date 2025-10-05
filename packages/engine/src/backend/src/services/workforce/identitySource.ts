@@ -4,7 +4,7 @@ import type { EmployeeRngSeedUuid } from '../../domain/workforce/Employee.js';
 import firstNamesFemaleJson from '../../../../../../../data/personnel/names/firstNamesFemale.json' assert { type: 'json' };
 import firstNamesMaleJson from '../../../../../../../data/personnel/names/firstNamesMale.json' assert { type: 'json' };
 import lastNamesJson from '../../../../../../../data/personnel/names/lastNames.json' assert { type: 'json' };
-import traitsJson from '../../../../../../../data/personnel/traits.json' assert { type: 'json' };
+import { sampleTraitSet } from '../../domain/workforce/traits.js';
 
 const RANDOM_USER_ENDPOINT = 'https://randomuser.me/api/';
 const RANDOM_USER_TIMEOUT_MS = 500;
@@ -24,8 +24,6 @@ export interface WorkforceIdentityTrait {
   readonly description: string;
   readonly type: 'positive' | 'negative';
 }
-
-const traits = traitsJson as readonly WorkforceIdentityTrait[];
 
 export interface WorkforceIdentity {
   readonly firstName: string;
@@ -189,6 +187,11 @@ function selectLastName(rng: RandomNumberGenerator): string {
 }
 
 function selectTraits(rng: RandomNumberGenerator): readonly WorkforceIdentityTrait[] {
-  const index = Math.floor(rng() * traits.length) % traits.length;
-  return [traits[index]];
+  const selected = sampleTraitSet({ rng });
+  return selected.map((trait) => ({
+    id: trait.id,
+    name: trait.name,
+    description: trait.description,
+    type: trait.type,
+  } satisfies WorkforceIdentityTrait));
 }

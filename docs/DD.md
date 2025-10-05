@@ -200,6 +200,14 @@ targets from the same factor to keep unit conversions deterministic.
   - Directory listings with structure/role/skill/gender filter facets and morale/fatigue mapped onto percentages.
   - Live queue entries resolving task metadata (priority, ETA, wait/due times, structure bindings, assigned employees).
   - Employee detail records (schedule, RNG seed, development plans) and decorated warnings for dashboards.
+- Workforce traits are centralised in `traits.ts` and persisted on employees as `{ traitId, strength01 }` pairs alongside the
+  hiring market skill triad (`skillTriad`). Metadata captures conflict sets, strength ranges, and effect hooks so the scheduler
+  and façade can reason about task duration, error deltas, fatigue/morale shifts, device wear, XP gain, and salary hints without
+  re-deriving random draws.
+- `applyTraitEffects()` is invoked from `applyWorkforce`, the hiring market, and the identity source to ensure deterministic trait
+  behaviour. Assignments now expose `taskEffects`/`wellbeingEffects` so downstream subsystems (economy, maintenance) can reuse the
+  same trait multipliers. A façade `createTraitBreakdown` read-model aggregates counts/strengths with optional economy hints for
+  dashboards.
 
 
 ---

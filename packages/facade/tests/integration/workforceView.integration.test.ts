@@ -37,6 +37,8 @@ function createEmployee(options: {
   hoursPerDay: number;
   overtimeHoursPerDay: number;
   gender?: 'm' | 'f' | 'd';
+  traits?: Employee['traits'];
+  skillTriad?: Employee['skillTriad'];
 }): Employee {
   const employee = {
     id: options.id as Employee['id'],
@@ -52,6 +54,15 @@ function createEmployee(options: {
         level01: options.skillLevel01
       }
     ],
+    skillTriad:
+      options.skillTriad ?? {
+        main: { skillKey: options.skillKey, level01: options.skillLevel01 },
+        secondary: [
+          { skillKey: options.skillKey, level01: options.skillLevel01 },
+          { skillKey: options.skillKey, level01: options.skillLevel01 }
+        ]
+      },
+    traits: options.traits ?? [],
     schedule: {
       hoursPerDay: options.hoursPerDay,
       overtimeHoursPerDay: options.overtimeHoursPerDay,
@@ -99,7 +110,11 @@ describe('createWorkforceView', () => {
       skillLevel01: 0.72,
       hoursPerDay: 8,
       overtimeHoursPerDay: 1,
-      gender: 'm'
+      gender: 'm',
+      traits: [
+        { traitId: 'trait_green_thumb', strength01: 0.68 },
+        { traitId: 'trait_frugal', strength01: 0.45 }
+      ]
     });
 
     const employeeB = createEmployee({
@@ -113,7 +128,8 @@ describe('createWorkforceView', () => {
       skillLevel01: 0.58,
       hoursPerDay: 6,
       overtimeHoursPerDay: 0,
-      gender: 'f'
+      gender: 'f',
+      traits: [{ traitId: 'trait_clumsy', strength01: 0.52 }]
     });
 
     const harvestDefinition: WorkforceTaskDefinition = {
@@ -224,6 +240,29 @@ describe('createWorkforceView', () => {
     const [firstEmployee] = view.directory.employees;
     expect(firstEmployee.moralePercent).toBe(82);
     expect(firstEmployee.fatiguePercent).toBe(18);
+    expect(firstEmployee.traits).toEqual([
+      {
+        id: 'trait_green_thumb',
+        name: 'Green Thumb',
+        description:
+          'Naturally gifted with plants, providing a slight bonus to all gardening tasks.',
+        type: 'positive',
+        strength01: 0.68,
+        strengthPercent: 68,
+        economyHint: undefined,
+        focusSkills: ['gardening']
+      },
+      {
+        id: 'trait_frugal',
+        name: 'Frugal',
+        description: 'Accepts a slightly lower salary than their skills would normally demand.',
+        type: 'positive',
+        strength01: 0.45,
+        strengthPercent: 45,
+        economyHint: 'Accepts a lower base salary expectation.',
+        focusSkills: []
+      }
+    ]);
     expect(view.directory.filters.structures).toEqual([
       { value: structureA.id, label: 'HQ Facility', count: 1 },
       { value: structureB.id, label: 'Satellite', count: 1 }
@@ -264,5 +303,6 @@ describe('createWorkforceView', () => {
     const detail = view.employeeDetails[employeeA.id];
     expect(detail.schedule.hoursPerDay).toBe(8);
     expect(detail.developmentPlan?.[0]?.skillKey).toBe('maintenance');
+    expect(detail.traits).toEqual(firstEmployee.traits);
   });
 });

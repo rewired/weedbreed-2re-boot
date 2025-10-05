@@ -31,8 +31,10 @@ import type {
   Employee,
   EmployeeRngSeedUuid,
   EmployeeSchedule,
-  EmployeeSkillLevel
+  EmployeeSkillLevel,
+  EmployeeSkillTriad,
 } from './workforce/Employee.js';
+import type { EmployeeTraitAssignment } from './workforce/traits.js';
 import type { EmployeeRole, EmployeeSkillRequirement } from './workforce/EmployeeRole.js';
 import type {
   WorkforceMarketCandidate,
@@ -100,6 +102,18 @@ export const employeeSkillLevelSchema: z.ZodType<EmployeeSkillLevel> = z.object(
   level01: zeroToOneNumber
 });
 
+export const employeeSkillTriadSchema: z.ZodType<EmployeeSkillTriad> = z.object({
+  main: employeeSkillLevelSchema,
+  secondary: z
+    .tuple([employeeSkillLevelSchema, employeeSkillLevelSchema])
+    .readonly()
+});
+
+export const employeeTraitAssignmentSchema: z.ZodType<EmployeeTraitAssignment> = z.object({
+  traitId: nonEmptyString,
+  strength01: zeroToOneNumber
+});
+
 export const employeeScheduleSchema: z.ZodType<EmployeeSchedule> = z.object({
   hoursPerDay: finiteNumber
     .min(5, 'hoursPerDay must be at least 5 hours.')
@@ -123,6 +137,8 @@ export const employeeSchema: z.ZodType<Employee> = domainEntitySchema.extend({
   morale01: zeroToOneNumber,
   fatigue01: zeroToOneNumber,
   skills: z.array(employeeSkillLevelSchema).readonly(),
+  skillTriad: employeeSkillTriadSchema.optional(),
+  traits: z.array(employeeTraitAssignmentSchema).readonly().default([]),
   developmentPlan: z.array(employeeSkillRequirementSchema).readonly().optional(),
   schedule: employeeScheduleSchema,
   notes: nonEmptyString.optional()
