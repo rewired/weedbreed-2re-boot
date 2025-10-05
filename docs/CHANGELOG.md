@@ -1,5 +1,15 @@
 # Changelog
 
+### #70 Workforce identity pseudodata source
+
+- Added a workforce identity service that queries `randomuser.me` with deterministic seeds,
+  maps genders onto the engine triad, and enforces a 500 ms timeout before falling back to
+  curated pseudodata lists.
+- Ensured offline pseudodata draws use `createRng` with the documented `employee:<rngSeedUuid>`
+  stream and covered the logic with unit tests for online, timeout, and offline golden seeds.
+- Captured the privacy assumptions in ADR-0014 so reviewers understand that only pseudonymous
+  test data is persisted or emitted.
+
 ### #69 Workforce domain scaffolding
 
 - Introduced dedicated workforce domain modules (`EmployeeRole`, `Employee`, `WorkforceState`, task and KPI structures) and
