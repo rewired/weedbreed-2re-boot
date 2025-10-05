@@ -12,6 +12,9 @@
   harvested inventory lots for downstream tooling.
 - Documented the module’s availability and usage expectations here so
   simulation consumers know where to bootstrap end-to-end lifecycle runs.
+- Added `seedToHarvest.integration.test.ts` covering a full White Widow
+  lifecycle to assert stage transitions, deterministic photoperiod flips, and
+  harvest lot quality/biomass outputs across the pipeline.
 
 ### #64 Physiology biomass increment unit correction
 
