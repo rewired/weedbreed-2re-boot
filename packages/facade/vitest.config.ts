@@ -20,7 +20,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@wb/engine': resolve(currentDir, '../engine/src/index.ts'),
-      '@/backend': resolve(currentDir, '../engine/src/backend')
+      '@/backend': resolve(currentDir, '../engine/src/backend'),
+      '@': resolve(currentDir, 'src')
     }
   }
 });

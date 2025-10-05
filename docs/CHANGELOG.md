@@ -1,5 +1,23 @@
 # Changelog
 
+### #76 Workforce payroll multipliers & HR intents
+
+- Extended `EmployeeRole` and `Employee` domain models with deterministic compensation metadata: role and employee base rate
+  multipliers, labour-market factors, shift time premiums, employment start days, cumulative experience tracking, salary
+  expectations, and persisted raise cadence state. Updated the workforce Zod schemas and schema unit tests accordingly.
+- Updated `applyWorkforce` payroll accruals to evaluate the full SEC formula
+  `rate_per_hour = (5 + 10 × skill) × locationIndex × roleMult × employeeMult × experienceMult × laborMarketFactor`, apply shift
+  premiums, and accrue overtime at `1.25×`. Employees now gain experience hours based on work minutes and trait XP multipliers.
+- Introduced a raise cadence service with a 180-day employment gate, deterministic jittered cooldowns, and Accept/Bonus/Ignore
+  intents that adjust morale, salary multipliers, and next eligibility windows. Emitted new telemetry topics for raises and
+  persisted cadence state on employees.
+- Added termination intent handling to `applyWorkforce` removing employees before scheduling, clearing task assignments,
+  applying optional morale ripples to co-workers, and emitting `telemetry.workforce.employee.terminated.v1` events.
+- Surfaced daily payroll snapshots via `telemetry.workforce.payroll_snapshot.v1` and exposed the current payroll state through
+  the façade `createWorkforceView` read-model.
+- Expanded unit/integration coverage: payroll multiplier scaling, raise cadence eligibility and cooldown resets, termination
+  cleanup with telemetry, and façade view assertions.
+
 ### #75 Workforce trait system & façade exposure
 
 - Added workforce trait metadata (`traits.ts`) describing conflict groups, strength ranges, and effect hooks for task duration,

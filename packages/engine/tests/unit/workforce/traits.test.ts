@@ -24,7 +24,7 @@ describe('workforce trait utilities', () => {
     let index = 0;
     const rng = () => rngValues[index++ % rngValues.length] ?? 0.3;
 
-    const traits = sampleTraitSet({ rng });
+    const traits = sampleTraitSet({ rng, desiredCount: 2 });
 
     expect(traits).toHaveLength(2);
     const conflicts = new Set(traits.flatMap((trait) => trait.conflictsWith));

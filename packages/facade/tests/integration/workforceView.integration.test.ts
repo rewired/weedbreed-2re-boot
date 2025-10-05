@@ -237,6 +237,7 @@ describe('createWorkforceView', () => {
     const view = createWorkforceView(workforce, options);
 
     expect(view.directory.employees).toHaveLength(2);
+    expect(view.payroll).toEqual(workforce.payroll);
     const [firstEmployee] = view.directory.employees;
     expect(firstEmployee.moralePercent).toBe(82);
     expect(firstEmployee.fatiguePercent).toBe(18);

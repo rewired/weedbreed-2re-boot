@@ -1,7 +1,15 @@
 import { HOURS_PER_DAY } from '../../constants/simConstants.js';
 import { DEFAULT_WORKFORCE_CONFIG, type WorkforceConfig } from '../../config/workforce.js';
 import { bankersRound, clamp01 } from '../../util/math.js';
-import { emitWorkforceKpiSnapshot, emitWorkforceWarnings } from '../../telemetry/workforce.js';
+import {
+  emitWorkforceKpiSnapshot,
+  emitWorkforceWarnings,
+  emitWorkforcePayrollSnapshot,
+  emitWorkforceRaiseEvent,
+  emitWorkforceTermination,
+  type WorkforceRaiseTelemetryEvent,
+  type WorkforceTerminationTelemetryEvent,
+} from '../../telemetry/workforce.js';
 import {
   emitHiringEmployeeOnboarded,
   emitHiringMarketScanCompleted,
@@ -25,6 +33,8 @@ import type {
   WorkforceTaskInstance,
   Zone,
   WorkforceIntent,
+  WorkforceRaiseIntent,
+  WorkforceTerminationIntent,
 } from '../../domain/world.js';
 import {
   createEmptyLocationIndexTable,
@@ -32,6 +42,7 @@ import {
   type LocationIndexTable,
 } from '../../domain/payroll/locationIndex.js';
 import { performMarketHire, performMarketScan } from '../../services/workforce/market.js';
+import { applyRaiseIntent, createInitialRaiseState } from '../../services/workforce/raises.js';
 import type { EngineRunContext as EngineContext } from '../Engine.js';
 import { deterministicUuid, deterministicUuidV7 } from '../../util/uuid.js';
 import {
@@ -47,6 +58,8 @@ const BREAKROOM_FATIGUE_RECOVERY_PER_HALF_HOUR = 0.02;
 const BASE_WAGE_PER_HOUR = 5;
 const SKILL_WAGE_RATE_PER_POINT = 10;
 const OVERTIME_RATE_MULTIPLIER = 1.25;
+const EXPERIENCE_CAP_HOURS = 4000;
+const EXPERIENCE_MULTIPLIER_BONUS = 0.25;
 
 interface EmployeeUsage {
   baseMinutes: number;
@@ -201,11 +214,41 @@ export function consumeWorkforceMarketCharges(
   return charges;
 }
 
+function createInitialExperience(): Employee['experience'] {
+  return { hoursAccrued: 0, level01: 0 };
+}
+
+function computeExperienceMultiplier(experience: Employee['experience']): number {
+  return 1 + EXPERIENCE_MULTIPLIER_BONUS * clamp01(experience.level01);
+}
+
+function accrueExperience(
+  experience: Employee['experience'],
+  minutesWorked: number,
+  xpRateMultiplier: number,
+): Employee['experience'] {
+  const hoursWorked = Math.max(0, minutesWorked / 60);
+  const adjustedHours = hoursWorked * Math.max(0, xpRateMultiplier);
+  if (adjustedHours <= 0) {
+    return experience;
+  }
+
+  const hoursAccrued = experience.hoursAccrued + adjustedHours;
+  const level01 = clamp01(hoursAccrued / EXPERIENCE_CAP_HOURS);
+
+  if (hoursAccrued === experience.hoursAccrued && level01 === experience.level01) {
+    return experience;
+  }
+
+  return { hoursAccrued, level01 };
+}
+
 function createEmployeeFromCandidate(
   candidate: WorkforceMarketCandidate,
   roles: readonly EmployeeRole[],
   structureId: Structure['id'],
   worldSeed: string,
+  currentSimDay: number,
 ): Employee | undefined {
   const role = roles.find((entry) => entry.slug === candidate.roleSlug);
 
@@ -252,6 +295,11 @@ function createEmployeeFromCandidate(
     strength01: clamp01(trait.strength01 ?? 0),
   }));
 
+  const baselineRate = BASE_WAGE_PER_HOUR + SKILL_WAGE_RATE_PER_POINT * candidate.skills3.main.value01;
+  const salaryExpectation = Math.max(0, candidate.expectedBaseRate_per_h ?? baselineRate);
+  const laborMarketFactor = baselineRate > 0 ? Math.max(0.1, salaryExpectation / baselineRate) : 1;
+  const employmentStartDay = Math.max(0, Math.trunc(currentSimDay));
+
   return {
     id: employeeId,
     name: `${candidate.roleSlug} candidate ${employeeId.slice(0, 8)}`,
@@ -269,6 +317,13 @@ function createEmployeeFromCandidate(
       daysPerWeek: 5,
       shiftStartHour: 8,
     },
+    baseRateMultiplier: 1,
+    experience: createInitialExperience(),
+    laborMarketFactor,
+    timePremiumMultiplier: 1,
+    employmentStartDay,
+    salaryExpectation_per_h: salaryExpectation,
+    raise: createInitialRaiseState(employmentStartDay),
   } satisfies Employee;
 }
 
@@ -391,6 +446,7 @@ function resolveRelevantSkillLevel(
 
 function computePayrollContribution(
   employee: Employee,
+  role: EmployeeRole | undefined,
   definition: WorkforceTaskDefinition,
   baseMinutes: number,
   overtimeMinutes: number,
@@ -405,9 +461,17 @@ function computePayrollContribution(
 
   const skillLevel = resolveRelevantSkillLevel(employee, definition);
   const normalizedIndex = Math.max(0, Number.isFinite(locationIndex) ? locationIndex : 1);
-  const baseRatePerHour = (BASE_WAGE_PER_HOUR + SKILL_WAGE_RATE_PER_POINT * skillLevel) * normalizedIndex;
-  const baseCost = (baseRatePerHour / 60) * base;
-  const overtimeCost = ((baseRatePerHour * OVERTIME_RATE_MULTIPLIER) / 60) * overtime;
+  const roleMultiplier = Math.max(0.1, role?.baseRateMultiplier ?? 1);
+  const employeeMultiplier = Math.max(0.1, employee.baseRateMultiplier);
+  const laborMarketFactor = Math.max(0.1, employee.laborMarketFactor);
+  const experienceMultiplier = computeExperienceMultiplier(employee.experience);
+  const timePremiumMultiplier = Math.max(0.5, employee.timePremiumMultiplier);
+  const hourlyBase = BASE_WAGE_PER_HOUR + SKILL_WAGE_RATE_PER_POINT * skillLevel;
+  const hourlyRate =
+    hourlyBase * normalizedIndex * roleMultiplier * employeeMultiplier * laborMarketFactor * experienceMultiplier;
+  const premiumRate = hourlyRate * timePremiumMultiplier;
+  const baseCost = (premiumRate / 60) * base;
+  const overtimeCost = ((premiumRate * OVERTIME_RATE_MULTIPLIER) / 60) * overtime;
 
   return {
     baseMinutes: base,
@@ -830,6 +894,8 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     readonly poolSize: number;
   }[] = [];
   const pendingHireTelemetry: { readonly employeeId: Employee['id']; readonly structureId: Structure['id'] }[] = [];
+  const raiseIntents: WorkforceRaiseIntent[] = [];
+  const terminationIntents: WorkforceTerminationIntent[] = [];
   const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
   const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
   const worldSeed = world.seed;
@@ -881,6 +947,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
           workforceState.roles,
           hireIntent.candidate.structureId,
           worldSeed,
+          currentSimDay,
         );
 
         if (employee) {
@@ -892,6 +959,19 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
         }
       }
     }
+
+    if (
+      intent.type === 'workforce.raise.accept' ||
+      intent.type === 'workforce.raise.bonus' ||
+      intent.type === 'workforce.raise.ignore'
+    ) {
+      raiseIntents.push(intent as WorkforceRaiseIntent);
+      continue;
+    }
+
+    if (intent.type === 'workforce.employee.terminate') {
+      terminationIntents.push(intent as WorkforceTerminationIntent);
+    }
   }
 
   const employeesAfterHire =
@@ -899,11 +979,109 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
       ? [...workforceState.employees, ...newEmployees]
       : workforceState.employees;
 
+  const employeeDirectory = new Map<Employee['id'], Employee>();
+  for (const employee of employeesAfterHire) {
+    employeeDirectory.set(employee.id, employee);
+  }
+
+  const pendingRaiseEvents: WorkforceRaiseTelemetryEvent[] = [];
+  for (const raiseIntent of raiseIntents) {
+    const employee = employeeDirectory.get(raiseIntent.employeeId);
+
+    if (!employee) {
+      continue;
+    }
+
+    const outcome = applyRaiseIntent({
+      employee,
+      intent: raiseIntent,
+      currentSimDay,
+    });
+
+    if (!outcome) {
+      continue;
+    }
+
+    employeeDirectory.set(employee.id, outcome.employee);
+
+    pendingRaiseEvents.push({
+      action: outcome.action,
+      employeeId: employee.id,
+      structureId: employee.assignedStructureId,
+      simDay: currentSimDay,
+      rateIncreaseFactor: outcome.rateIncreaseFactor,
+      moraleDelta01: outcome.moraleDelta01,
+      salaryExpectation_per_h: outcome.employee.salaryExpectation_per_h,
+      bonusAmount_cc: outcome.bonusAmount_cc,
+    });
+  }
+
+  const terminatedEmployeeIds = new Set<Employee['id']>();
+  const pendingTerminationEvents: WorkforceTerminationTelemetryEvent[] = [];
+  for (const terminationIntent of terminationIntents) {
+    const employee = employeeDirectory.get(terminationIntent.employeeId);
+
+    if (!employee) {
+      continue;
+    }
+
+    employeeDirectory.delete(employee.id);
+    terminatedEmployeeIds.add(employee.id);
+
+    pendingTerminationEvents.push({
+      employeeId: employee.id,
+      structureId: employee.assignedStructureId,
+      simDay: currentSimDay,
+      reasonSlug: terminationIntent.reasonSlug,
+      severanceCc: terminationIntent.severanceCc,
+    });
+
+    const ripple = terminationIntent.moraleRipple01 ?? -0.02;
+
+    if (ripple !== 0) {
+      for (const [otherId, otherEmployee] of employeeDirectory.entries()) {
+        if (otherEmployee.assignedStructureId !== employee.assignedStructureId || otherId === employee.id) {
+          continue;
+        }
+
+        const adjustedMorale = clamp01(otherEmployee.morale01 + ripple);
+        if (adjustedMorale !== otherEmployee.morale01) {
+          employeeDirectory.set(otherId, { ...otherEmployee, morale01: adjustedMorale } satisfies Employee);
+        }
+      }
+    }
+  }
+
+  const employeesAfterHrEvents = employeesAfterHire
+    .map((employee) => employeeDirectory.get(employee.id))
+    .filter((employee): employee is Employee => Boolean(employee));
+
   workforceState = {
     ...workforceState,
-    employees: employeesAfterHire,
+    employees: employeesAfterHrEvents,
     market: marketState,
   } satisfies WorkforceState;
+
+  let taskQueue = workforceState.taskQueue;
+
+  if (terminatedEmployeeIds.size > 0) {
+    taskQueue = workforceState.taskQueue.map((task) => {
+      if (!task.assignedEmployeeId || !terminatedEmployeeIds.has(task.assignedEmployeeId)) {
+        return task;
+      }
+
+      return {
+        ...task,
+        status: task.status === 'completed' ? task.status : 'queued',
+        assignedEmployeeId: undefined,
+      } satisfies WorkforceTaskInstance;
+    });
+  }
+
+  const roleById = new Map<EmployeeRole['id'], EmployeeRole>();
+  for (const role of workforceState.roles) {
+    roleById.set(role.id, role);
+  }
 
   const lookups = resolveStructureLookups(world);
   const companyLocation = world.company.location;
@@ -952,7 +1130,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
 
   const schedulingEntries: SchedulingEntry[] = [];
 
-  workforceState.taskQueue.forEach((task, index) => {
+  taskQueue.forEach((task, index) => {
     if (task.status !== 'queued') {
       return;
     }
@@ -1049,7 +1227,20 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
       definition,
       world.simTimeHours,
     );
-    updatedEmployees.set(selected.employee.id, adjustment.employee);
+    const totalMinutesWorked = selected.baseMinutes + selected.overtimeMinutes;
+    const updatedExperience = accrueExperience(
+      adjustment.employee.experience,
+      totalMinutesWorked,
+      selected.taskEffects.xpRateMultiplier,
+    );
+    const experiencedEmployee =
+      updatedExperience === adjustment.employee.experience
+        ? adjustment.employee
+        : ({
+            ...adjustment.employee,
+            experience: updatedExperience,
+          } satisfies Employee);
+    updatedEmployees.set(selected.employee.id, experiencedEmployee);
 
     const waitTimeHours = Math.max(0, world.simTimeHours - task.createdAtTick);
     assignments.push({
@@ -1081,8 +1272,10 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     const structure = structureById.get(structureId);
     const structureLocation = resolveStructureLocation(structure, companyLocation);
     const locationIndex = resolveLocationIndex(locationIndexTable, structureLocation);
+    const role = roleById.get(selected.employee.roleId);
     const contribution = computePayrollContribution(
       selected.employee,
+      role,
       definition,
       selected.baseMinutes,
       selected.overtimeMinutes,
@@ -1102,7 +1295,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
   const nextEmployees = workforceState.employees.map(
     (employee) => updatedEmployees.get(employee.id) ?? employee,
   );
-  const updatedTasks = workforceState.taskQueue.map((task) => taskUpdates.get(task.id) ?? task);
+  const updatedTasks = taskQueue.map((task) => taskUpdates.get(task.id) ?? task);
   const queueDepth = updatedTasks.reduce(
     (count, item) => (item.status === 'queued' ? count + 1 : count),
     0,
@@ -1148,6 +1341,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
   } satisfies WorkforceState;
 
   emitWorkforceKpiSnapshot(ctx.telemetry, snapshot);
+  emitWorkforcePayrollSnapshot(ctx.telemetry, currentPayrollState);
 
   if (workforceState.warnings.length > 0) {
     emitWorkforceWarnings(ctx.telemetry, workforceState.warnings);
@@ -1165,6 +1359,14 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
 
   for (const hireEvent of pendingHireTelemetry) {
     emitHiringEmployeeOnboarded(ctx.telemetry, hireEvent);
+  }
+
+  for (const raiseEvent of pendingRaiseEvents) {
+    emitWorkforceRaiseEvent(ctx.telemetry, raiseEvent);
+  }
+
+  for (const terminationEvent of pendingTerminationEvents) {
+    emitWorkforceTermination(ctx.telemetry, terminationEvent);
   }
 
   return {

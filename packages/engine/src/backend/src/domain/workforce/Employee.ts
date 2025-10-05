@@ -39,6 +39,32 @@ export interface EmployeeSchedule {
 }
 
 /**
+ * Tracks cumulative workforce experience for an employee.
+ */
+export interface EmployeeExperience {
+  /** Total labour hours accrued over the employee's career. */
+  readonly hoursAccrued: number;
+  /** Normalised experience level on the inclusive range [0, 1]. */
+  readonly level01: number;
+}
+
+/**
+ * Raise cadence metadata recorded per employee so eligibility can be evaluated
+ * deterministically.
+ */
+export interface EmployeeRaiseState {
+  /** Sim day of the most recent raise decision when available. */
+  readonly lastDecisionDay?: number;
+  /** Next sim day when the employee becomes eligible for a new raise. */
+  readonly nextEligibleDay?: number;
+  /**
+   * Sequential counter consumed by the cadence jitter stream to ensure stable
+   * pseudo-random offsets.
+   */
+  readonly cadenceSequence: number;
+}
+
+/**
  * Canonical representation of an employee in the simulation workforce directory.
  */
 export interface Employee extends DomainEntity, TraitSubject {
@@ -64,4 +90,18 @@ export interface Employee extends DomainEntity, TraitSubject {
   readonly schedule: EmployeeSchedule;
   /** Optional free-form notes aiding HR diagnostics. */
   readonly notes?: string;
+  /** Base multiplier applied on top of the role baseline for hourly compensation. */
+  readonly baseRateMultiplier: number;
+  /** Experience tracking metadata (total hours + normalised level). */
+  readonly experience: EmployeeExperience;
+  /** Labour market factor describing negotiated rate adjustments. */
+  readonly laborMarketFactor: number;
+  /** Multiplier applied for shift premiums such as night or weekend work. */
+  readonly timePremiumMultiplier: number;
+  /** Sim day (floor) when the employee started employment. */
+  readonly employmentStartDay: number;
+  /** Expected base hourly salary agreed with the employee. */
+  readonly salaryExpectation_per_h: number;
+  /** Raise cadence metadata ensuring deterministic cooldown progression. */
+  readonly raise: EmployeeRaiseState;
 }

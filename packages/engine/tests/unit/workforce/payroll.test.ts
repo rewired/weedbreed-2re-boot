@@ -12,7 +12,13 @@ import type {
   WorkforcePayrollState,
 } from '@/backend/src/domain/world.js';
 
-function buildRole(id: string, slug: string, skillKey: string, minSkill01: number): EmployeeRole {
+function buildRole(
+  id: string,
+  slug: string,
+  skillKey: string,
+  minSkill01: number,
+  baseRateMultiplier = 1,
+): EmployeeRole {
   return {
     id: id as EmployeeRole['id'],
     slug,
@@ -23,6 +29,7 @@ function buildRole(id: string, slug: string, skillKey: string, minSkill01: numbe
         minSkill01,
       },
     ],
+    baseRateMultiplier,
   } satisfies EmployeeRole;
 }
 
@@ -66,6 +73,13 @@ function buildEmployee(options: {
       daysPerWeek: 5,
       shiftStartHour: 6,
     },
+    baseRateMultiplier: 1,
+    experience: { hoursAccrued: 0, level01: 0 },
+    laborMarketFactor: 1,
+    timePremiumMultiplier: 1,
+    employmentStartDay: 0,
+    salaryExpectation_per_h: 5 + 10 * options.skillLevel01,
+    raise: { cadenceSequence: 0, nextEligibleDay: 180 },
   } satisfies Employee;
 }
 
@@ -267,6 +281,96 @@ describe('workforce payroll accruals', () => {
     const totals = nextWorld.workforce.payroll.totals;
     // base rate: (5 + 10 * 0.6) = 11 -> * 1.4 => 15.4 per hour.
     expect(totals.baseCost).toBeCloseTo((15.4 / 60) * 180, 4);
+  });
+
+  it('scales payroll with role, experience, labor market, and premium multipliers', () => {
+    const world = createDemoWorld() as SimulationWorld;
+    const structureId = world.company.structures[0].id;
+    world.simTimeHours = 20;
+
+    const specialistRole = buildRole(
+      '00000000-0000-0000-0000-000000010099',
+      'specialist',
+      'analysis',
+      0.5,
+      1.2,
+    );
+
+    const employee = buildEmployee({
+      id: '00000000-0000-0000-0000-000000020099',
+      name: 'Morgan Specialist',
+      roleId: specialistRole.id,
+      structureId,
+      morale01: 0.9,
+      fatigue01: 0.1,
+      skillKey: 'analysis',
+      skillLevel01: 0.6,
+      hoursPerDay: 6,
+      overtimeHoursPerDay: 2,
+    });
+
+    const experiencedEmployee: Employee = {
+      ...employee,
+      baseRateMultiplier: 1.1,
+      laborMarketFactor: 1.15,
+      timePremiumMultiplier: 1.5,
+      experience: { hoursAccrued: 2000, level01: 0.5 },
+      employmentStartDay: 120,
+      salaryExpectation_per_h: 28.18,
+      raise: { cadenceSequence: 3, lastDecisionDay: 250, nextEligibleDay: 430 },
+    };
+
+    const taskDefinition = buildDefinition({
+      taskCode: 'deep_dive',
+      description: 'Analytical deep dive',
+      requiredRoleSlug: 'specialist',
+      requiredSkillKey: 'analysis',
+      minSkill01: 0.5,
+      priority: 95,
+      laborMinutes: 180,
+    });
+
+    const task: WorkforceTaskInstance = {
+      id: '00000000-0000-0000-0000-000000030099' as WorkforceTaskInstance['id'],
+      taskCode: 'deep_dive',
+      status: 'queued',
+      createdAtTick: 12,
+      context: { structureId },
+    };
+
+    const workforce: WorkforceState = {
+      roles: [specialistRole],
+      employees: [experiencedEmployee],
+      taskDefinitions: [taskDefinition],
+      taskQueue: [task],
+      kpis: [],
+      warnings: [],
+      payroll: createPayrollState(0),
+      market: { structures: [] },
+    } satisfies WorkforceState;
+
+    const ctx: EngineRunContext = {
+      payroll: {
+        locationIndexTable: {
+          defaultIndex: 1,
+          overrides: [],
+        },
+      },
+    };
+
+    const nextWorld = runStages(
+      { ...world, workforce } satisfies SimulationWorld,
+      ctx,
+      ['applyWorkforce', 'applyEconomyAccrual'],
+    );
+
+    const totals = nextWorld.workforce.payroll.totals;
+
+    expect(totals.baseMinutes).toBe(180);
+    expect(totals.otMinutes).toBe(0);
+    expect(totals.baseCost).toBeCloseTo(84.533625, 4);
+    expect(totals.otCost).toBeCloseTo(0, 4);
+    expect(totals.totalLaborCost).toBeCloseTo(84.533625, 4);
   });
 
   it('finalizes previous day payroll with banker rounding when day rolls over', () => {

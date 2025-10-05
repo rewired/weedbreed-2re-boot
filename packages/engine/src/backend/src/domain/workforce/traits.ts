@@ -1,4 +1,4 @@
-import traitsJson from '../../../../../../data/personnel/traits.json' assert { type: 'json' };
+import traitsJson from '../../../../../../../data/personnel/traits.json' assert { type: 'json' };
 
 import { clamp01 } from '../../util/math.js';
 import type { RandomNumberGenerator } from '../../util/rng.js';

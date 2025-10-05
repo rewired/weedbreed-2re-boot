@@ -29,6 +29,8 @@ import {
 import { InventorySchema } from './schemas/InventorySchema.js';
 import type {
   Employee,
+  EmployeeExperience,
+  EmployeeRaiseState,
   EmployeeRngSeedUuid,
   EmployeeSchedule,
   EmployeeSkillLevel,
@@ -94,7 +96,11 @@ export const employeeRoleSchema: z.ZodType<EmployeeRole> = domainEntitySchema
   .extend({
     description: nonEmptyString.optional(),
     coreSkills: z.array(employeeSkillRequirementSchema).readonly().default([]),
-    tags: z.array(nonEmptyString).readonly().optional()
+    tags: z.array(nonEmptyString).readonly().optional(),
+    baseRateMultiplier: finiteNumber
+      .min(0.1, 'baseRateMultiplier must be positive when provided.')
+      .max(10, 'baseRateMultiplier must not exceed 10.')
+      .optional()
   });
 
 export const employeeSkillLevelSchema: z.ZodType<EmployeeSkillLevel> = z.object({
@@ -130,6 +136,30 @@ export const employeeScheduleSchema: z.ZodType<EmployeeSchedule> = z.object({
     .optional()
 });
 
+const employeeExperienceSchema: z.ZodType<EmployeeExperience> = z
+  .object({
+    hoursAccrued: finiteNumber.min(0, 'hoursAccrued cannot be negative.'),
+    level01: zeroToOneNumber,
+  })
+  .strict();
+
+const employeeRaiseStateSchema: z.ZodType<EmployeeRaiseState> = z
+  .object({
+    lastDecisionDay: finiteNumber
+      .min(0, 'lastDecisionDay cannot be negative.')
+      .transform((value) => Math.trunc(value))
+      .optional(),
+    nextEligibleDay: finiteNumber
+      .min(0, 'nextEligibleDay cannot be negative.')
+      .transform((value) => Math.trunc(value))
+      .optional(),
+    cadenceSequence: z
+      .number()
+      .int('cadenceSequence must be an integer.')
+      .min(0, 'cadenceSequence cannot be negative.'),
+  })
+  .strict();
+
 export const employeeSchema: z.ZodType<Employee> = domainEntitySchema.extend({
   roleId: uuidSchema,
   rngSeedUuid: uuidV7Schema,
@@ -141,7 +171,25 @@ export const employeeSchema: z.ZodType<Employee> = domainEntitySchema.extend({
   traits: z.array(employeeTraitAssignmentSchema).readonly().default([]),
   developmentPlan: z.array(employeeSkillRequirementSchema).readonly().optional(),
   schedule: employeeScheduleSchema,
-  notes: nonEmptyString.optional()
+  notes: nonEmptyString.optional(),
+  baseRateMultiplier: finiteNumber
+    .min(0.1, 'baseRateMultiplier must be at least 0.1.')
+    .max(10, 'baseRateMultiplier must not exceed 10.'),
+  experience: employeeExperienceSchema,
+  laborMarketFactor: finiteNumber
+    .min(0.1, 'laborMarketFactor must be at least 0.1.')
+    .max(10, 'laborMarketFactor must not exceed 10.'),
+  timePremiumMultiplier: finiteNumber
+    .min(0.5, 'timePremiumMultiplier must be at least 0.5.')
+    .max(5, 'timePremiumMultiplier must not exceed 5.'),
+  employmentStartDay: finiteNumber
+    .min(0, 'employmentStartDay cannot be negative.')
+    .transform((value) => Math.trunc(value)),
+  salaryExpectation_per_h: finiteNumber.min(
+    0,
+    'salaryExpectation_per_h cannot be negative.',
+  ),
+  raise: employeeRaiseStateSchema,
 });
 
 export const employeeCollectionSchema = z.array(employeeSchema).readonly();

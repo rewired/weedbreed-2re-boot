@@ -174,21 +174,26 @@ targets from the same factor to keep unit conversions deterministic.
   - `kpis`: rolling `WorkforceKpiSnapshot` entries summarising throughput, labour hours, overtime, and aggregate morale/fatigue.
   - `warnings`: deterministic `WorkforceWarning` entries carrying `code`, `severity`, `message`, optional `structureId`/`employeeId`/`taskId`, plus metadata for diagnostics and the façade.
   - `payroll`: day-indexed accumulators capturing `baseMinutes`, `otMinutes`, `baseCost`, `otCost`, and `totalLaborCost` for the
-    entire company as well as per-structure slices. Each minute billed uses
-    `rate_per_minute = ((5 + 10 × relevantSkill) × locationIndex × otMultiplier) / 60` with
-    `relevantSkill = avg(skill[k])` for task-required skills (fallback: average of all employee skills). Overtime minutes switch to
-    `otMultiplier = 1.25` immediately after the base-day allowance is exhausted. Location factors resolve via
-    `/data/payroll/location_index.json` (city overrides beat country overrides; default is `1.0`). Daily totals close with
-    **Banker’s rounding** before the economy stage consumes the snapshot.
+    entire company as well as per-structure slices. Hourly rates follow the SEC 10.3 formula
+    `rate_per_hour = (5 + 10 × relevantSkill) × locationIndex × roleBaseMult × employeeBaseMult × experienceMult × laborMarketFactor`,
+    with shift premiums applied multiplicatively and overtime billed at `1.25×`. `relevantSkill` averages the required task
+    skills (fallback: average of the employee’s full skill set). Location factors resolve via `/data/payroll/location_index.json`
+    (city overrides beat country overrides; default is `1.0`). Daily totals close with **Banker’s rounding** before the economy
+    stage consumes the snapshot.
+- `Employee` records now persist compensation context: `baseRateMultiplier`, `laborMarketFactor`, `timePremiumMultiplier`,
+  `employmentStartDay`, `salaryExpectation_per_h`, cumulative `experience` (`hoursAccrued` + `level01` driving the experience
+  multiplier), and a deterministic `raise` cadence (`cadenceSequence`, `lastDecisionDay`, `nextEligibleDay`). Experience accrues
+  from minutes worked and trait XP multipliers during scheduling.
 - `Employee.schedule` constrains base hours to **5–16 h per in-game day**, allows overtime up to **+5 h**, and records the number of
   working days per week (`1..7`) with an optional shift start hour (`0..23`). Schema guards reject violations and normalise seeds to UUID v7.
 - `Employee.skills` and `EmployeeRole.coreSkills` share the `EmployeeSkillRequirement` shape (`skillKey`, `minSkill01 ∈ [0,1]`).
 - Task definitions in `/data/configs/task_definitions.json` now store deterministic `requiredRoleSlug` values and structured
   `requiredSkills` arrays. Legacy integer skill levels were mapped onto `minSkill01 = level/5` to preserve intent while aligning to
   the canonical [0,1] skill scale referenced by SEC §10.
-- `applyWorkforce` emits read-only telemetry after each tick via `telemetry.workforce.kpi.v1` (latest KPI snapshot) and
-  `telemetry.workforce.warning.v1` (batched warnings for the tick). The telemetry bus remains isolated from intents in keeping with
-  SEC §1.4.
+- `applyWorkforce` emits read-only telemetry after each tick via `telemetry.workforce.kpi.v1` (latest KPI snapshot),
+  `telemetry.workforce.warning.v1` (batched warnings), `telemetry.workforce.payroll_snapshot.v1` (current-day payroll accrual),
+  `telemetry.workforce.raise.accepted|bonus|ignored.v1`, and `telemetry.workforce.employee.terminated.v1`. The telemetry bus
+  remains isolated from intents in keeping with SEC §1.4.
 - The workforce market cache (`workforce.market.structures[]`) records `lastScanDay`, `scanCounter`, and deterministic candidate
   pools (main + secondary skills, trait strength, optional base rate hints). Pools persist until the next manual scan and use
   RNG streams `workforce:scan:<structureId>:<scanCounter>` and
@@ -200,6 +205,7 @@ targets from the same factor to keep unit conversions deterministic.
   - Directory listings with structure/role/skill/gender filter facets and morale/fatigue mapped onto percentages.
   - Live queue entries resolving task metadata (priority, ETA, wait/due times, structure bindings, assigned employees).
   - Employee detail records (schedule, RNG seed, development plans) and decorated warnings for dashboards.
+  - Payroll snapshot mirroring the engine state so dashboards can surface the latest labour totals per day/structure.
 - Workforce traits are centralised in `traits.ts` and persisted on employees as `{ traitId, strength01 }` pairs alongside the
   hiring market skill triad (`skillTriad`). Metadata captures conflict sets, strength ranges, and effect hooks so the scheduler
   and façade can reason about task duration, error deltas, fatigue/morale shifts, device wear, XP gain, and salary hints without

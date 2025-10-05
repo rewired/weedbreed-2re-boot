@@ -66,6 +66,13 @@ function buildEmployee(options: {
       daysPerWeek: 5,
       shiftStartHour: 6,
     },
+    baseRateMultiplier: 1,
+    experience: { hoursAccrued: 0, level01: 0 },
+    laborMarketFactor: 1,
+    timePremiumMultiplier: 1,
+    employmentStartDay: 0,
+    salaryExpectation_per_h: 5 + 10 * options.skillLevel01,
+    raise: { cadenceSequence: 0, nextEligibleDay: 180 },
   } satisfies Employee;
 }
 
@@ -414,5 +421,125 @@ describe('applyWorkforce integration', () => {
     expect(updatedTechnician?.morale01).toBeCloseTo(0.88, 5);
     expect(updatedGardener?.fatigue01).toBeLessThan(gardener.fatigue01);
     expect(nextWorld.workforce.kpis.at(-1)?.overtimeMinutes).toBe(60);
+  });
+
+  it('handles termination intents with morale ripple and telemetry emission', () => {
+    const world = createDemoWorld() as Mutable<SimulationWorld>;
+    const structureId = world.company.structures[0].id;
+
+    const gardenerRole = buildRole(
+      '00000000-0000-0000-0000-000000010201',
+      'gardener',
+      'gardening',
+      0.4,
+    );
+    const janitorRole = buildRole(
+      '00000000-0000-0000-0000-000000010202',
+      'janitor',
+      'cleanliness',
+      0.3,
+    );
+
+    const gardener = buildEmployee({
+      id: '00000000-0000-0000-0000-000000020201',
+      name: 'Avery Gardener',
+      roleId: gardenerRole.id,
+      structureId,
+      morale01: 0.65,
+      fatigue01: 0.1,
+      skillKey: 'gardening',
+      skillLevel01: 0.7,
+      hoursPerDay: 8,
+      overtimeHoursPerDay: 1,
+    });
+
+    const janitor = buildEmployee({
+      id: '00000000-0000-0000-0000-000000020202',
+      name: 'Jamie Janitor',
+      roleId: janitorRole.id,
+      structureId,
+      morale01: 0.6,
+      fatigue01: 0.1,
+      skillKey: 'cleanliness',
+      skillLevel01: 0.55,
+      hoursPerDay: 8,
+      overtimeHoursPerDay: 0,
+    });
+
+    const cleaningTask = buildDefinition({
+      taskCode: 'daily_cleaning',
+      description: 'Routine cleaning shift',
+      requiredRoleSlug: 'janitor',
+      requiredSkillKey: 'cleanliness',
+      minSkill01: 0.5,
+      priority: 40,
+      laborMinutes: 180,
+    });
+
+    const task: WorkforceTaskInstance = {
+      id: '00000000-0000-0000-0000-000000030201' as WorkforceTaskInstance['id'],
+      taskCode: 'daily_cleaning',
+      status: 'queued',
+      createdAtTick: 5,
+      context: { structureId },
+      assignedEmployeeId: janitor.id,
+    } satisfies WorkforceTaskInstance;
+
+    const workforce: WorkforceState = {
+      roles: [gardenerRole, janitorRole],
+      employees: [gardener, janitor],
+      taskDefinitions: [cleaningTask],
+      taskQueue: [task],
+      kpis: [],
+      warnings: [],
+      payroll: {
+        dayIndex: 0,
+        totals: { baseMinutes: 0, otMinutes: 0, baseCost: 0, otCost: 0, totalLaborCost: 0 },
+        byStructure: [],
+      },
+      market: { structures: [] },
+    } satisfies WorkforceState;
+
+    const telemetryEvents: { topic: string; payload: any }[] = [];
+    const ctx: EngineRunContext = {
+      telemetry: {
+        emit: (topic: string, payload: any) => {
+          telemetryEvents.push({ topic, payload });
+        },
+      },
+      workforceIntents: [
+        {
+          type: 'workforce.employee.terminate',
+          employeeId: janitor.id,
+          moraleRipple01: -0.05,
+          reasonSlug: 'restructure',
+          severanceCc: 2000,
+        },
+      ],
+    } satisfies EngineRunContext;
+
+    const nextWorld = runStages(
+      createWorldWithWorkforce(workforce),
+      ctx,
+      ['applyWorkforce'],
+    );
+
+    const remainingEmployees = nextWorld.workforce.employees;
+    expect(remainingEmployees).toHaveLength(1);
+    expect(remainingEmployees[0]?.id).toBe(gardener.id);
+    expect(remainingEmployees[0]?.morale01).toBeCloseTo(0.6, 5);
+
+    const nextQueue = nextWorld.workforce.taskQueue;
+    expect(nextQueue[0]?.assignedEmployeeId).toBeUndefined();
+    expect(nextQueue[0]?.status).toBe('queued');
+
+    const terminationEvent = telemetryEvents.find(
+      (entry) => entry.topic === 'telemetry.workforce.employee.terminated.v1',
+    );
+    expect(terminationEvent).toBeDefined();
+    expect(terminationEvent?.payload.event.employeeId).toBe(janitor.id);
+    expect(
+      telemetryEvents.some((entry) => entry.topic === 'telemetry.workforce.payroll_snapshot.v1'),
+    ).toBe(true);
   });
 });

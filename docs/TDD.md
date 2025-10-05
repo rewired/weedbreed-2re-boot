@@ -156,6 +156,10 @@ describe('Light schedule — SEC §8', () => {
 - `workforceStateSchema` validates the full branch (`roles`, `employees`, `taskDefinitions`, `taskQueue`, `kpis`, `warnings`, `payroll`) embedded in the world snapshot to guard deterministic scheduling inputs. `workforceWarningSchema` clamps severity to `'info' | 'warning' | 'critical'` and requires deterministic codes/messages plus optional structure/employee/task anchors.
 - Unit coverage: `tests/unit/domain/workforceSchemas.test.ts` exercises the above constraints (including warnings) and snapshot parsing.
 - Façade integration coverage: `packages/facade/tests/integration/workforceView.integration.test.ts` projects a simulated workforce state into directory filters, live queue entries, KPI percentages, and decorated warnings via `createWorkforceView`.
+- Payroll scaling, raise cadence, and termination handling are covered by `packages/engine/tests/unit/workforce/payroll.test.ts`,
+  `packages/engine/tests/unit/services/workforce/raises.test.ts`, and
+  `packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts`, respectively. These suites assert the
+  new rate multipliers, cooldown resets, morale adjustments, task cleanup, and telemetry emission introduced for HR flows.
 - Trait coverage: `packages/engine/tests/unit/workforce/traits.test.ts` validates trait sampling conflicts, stacking modifiers, and salary deltas; `packages/engine/tests/integration/pipeline/workforceTraits.integration.test.ts` asserts runtime assignments expose trait-adjusted duration/error/fatigue data for downstream subsystems; `packages/facade/tests/unit/readModels/traitBreakdownView.test.ts` covers the façade aggregation.
 
 ---
