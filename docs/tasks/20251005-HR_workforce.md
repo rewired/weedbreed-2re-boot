@@ -53,7 +53,7 @@
 
 **Primär (online):** randomuser.me mit `seed={rngSeedUuid}`; Mapping `male→'m'`, `female→'f'`, sonst `'d'`; Timeout 500 ms.
 
-**Fallback (offline, garantiert):** `/data/personnel/first_names.json`, `/data/personnel/last_names.json`, `/data/personnel/traits.json` (Traits **Flavor‑only**). Ziehung deterministisch via Personen‑RNG.
+**Fallback (offline, garantiert):** `/data/personnel/names/firstNamesFemale.json`, `/data/personnel/names/firstNamesMale.json`, `/data/personnel/names/lastNames.json`, `/data/personnel/traits.json` (Traits **Flavor‑only**). Ziehung deterministisch via Personen‑RNG.
 **Default Gender‑Verteilung:** `{ m: 0.49, f: 0.49, d: 0.02 }`.
 
 ---
@@ -146,14 +146,7 @@ Aktivierbar: Auto‑Replant, Harvest‑Scheduler, Maintenance‑Advisor, Cleanin
 
 ---
 
-## 13) Files to Add
-
-* `/data/personnel/first_names.json`, `/data/personnel/last_names.json`, `/data/personnel/traits.json`
-* `/data/payroll/location_index.json`
-
----
-
-## 14) Acceptance Criteria (MVP)
+## 13) Acceptance Criteria (MVP)
 
 1. **Deterministische Zuweisung** gemäß Priorität/Skills unter Last.
 2. **Structure‑Binding**: keine Cross‑Site‑Einsätze im Tick.
@@ -167,7 +160,7 @@ Aktivierbar: Auto‑Replant, Harvest‑Scheduler, Maintenance‑Advisor, Cleanin
 
 ---
 
-## 15) Test Plan (High‑Level)
+## 14) Test Plan (High‑Level)
 
 * **Golden**: feste v7‑Seeds → identische Identitäten (online/offline via `forceOffline`).
 * **Bounds/Distribution**: Property‑Test für Skill‑Bounds; deterministische Wiederholbarkeit pro Seed.
@@ -178,7 +171,7 @@ Aktivierbar: Auto‑Replant, Harvest‑Scheduler, Maintenance‑Advisor, Cleanin
 
 ---
 
-## 16) Open Questions / Future
+## 15) Open Questions / Future
 
 * Bewerbungsprozess / Hiring‑Pipeline, Senioritätsbänder, Schichtdifferenziale (Nacht), weitere Payroll‑Parameter.
 * Traits mit Gameplay‑Einfluss (optional), Supervisor‑Logik, 3‑Schicht‑Betrieb.
