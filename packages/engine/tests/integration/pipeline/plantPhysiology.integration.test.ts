@@ -84,7 +84,8 @@ describe('advancePhysiology pipeline', () => {
     const targetZone = zone(world);
     targetZone.environment = { airTemperatureC: 23, relativeHumidity_pct: 55 } as Zone['environment'];
     targetZone.ppfd_umol_m2s = 500;
-    targetZone.dli_mol_m2d_inc = 0.5;
+    targetZone.lightSchedule = { onHours: 18, offHours: 6, startHour: 0 };
+    targetZone.dli_mol_m2d_inc = 1.5;
     targetZone.plants = [
       createPlant({
         strainId: WHITE_WIDOW_STRAIN_ID,
@@ -123,7 +124,8 @@ describe('advancePhysiology pipeline', () => {
     const targetZone = zone(world);
     targetZone.environment = { airTemperatureC: 24, relativeHumidity_pct: 55 } as Zone['environment'];
     targetZone.ppfd_umol_m2s = 550;
-    targetZone.dli_mol_m2d_inc = 0.6;
+    targetZone.lightSchedule = { onHours: 24, offHours: 0, startHour: 0 };
+    targetZone.dli_mol_m2d_inc = 1.5;
     targetZone.plants = [
       createPlant({
         strainId: WHITE_WIDOW_STRAIN_ID,
