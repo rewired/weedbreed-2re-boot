@@ -5,6 +5,7 @@ export type StepName =
   | 'updateEnvironment'
   | 'applySensors'
   | 'applyIrrigationAndNutrients'
+  | 'applyWorkforce'
   | 'advancePhysiology'
   | 'applyHarvestAndInventory'
   | 'applyEconomyAccrual'

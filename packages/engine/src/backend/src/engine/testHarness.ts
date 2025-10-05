@@ -8,6 +8,7 @@ import {
 } from './Engine.js';
 import { clearSensorReadingsRuntime } from './pipeline/applySensors.js';
 import { clearIrrigationNutrientsRuntime } from './pipeline/applyIrrigationAndNutrients.js';
+import { clearWorkforceRuntime } from './pipeline/applyWorkforce.js';
 import type { StepName, TickTrace } from './trace.js';
 
 const DEMO_WORLD_ID = '00000000-0000-4000-8000-000000000000' as Uuid;
@@ -134,6 +135,10 @@ export function runStages(
 
     if (stepName === 'applyIrrigationAndNutrients') {
       clearIrrigationNutrientsRuntime(ctx);
+    }
+
+    if (stepName === 'applyWorkforce') {
+      clearWorkforceRuntime(ctx);
     }
   }
 

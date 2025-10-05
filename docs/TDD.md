@@ -180,10 +180,10 @@ it('rejects zone device in non-grow room', () => {
 
 ## 7) Tick trace instrumentation & perf harness (Engine)
 
-- Canonical order: `applyDeviceEffects → applySensors → updateEnvironment → applyIrrigationAndNutrients → advancePhysiology → applyHarvestAndInventory → applyEconomyAccrual → commitAndTelemetry` (mirrors SEC §4.2).
+- Canonical order: `applyDeviceEffects → applySensors → updateEnvironment → applyIrrigationAndNutrients → applyWorkforce → advancePhysiology → applyHarvestAndInventory → applyEconomyAccrual → commitAndTelemetry` (mirrors SEC §4.2).
 
 **Checklist (order trace):**
-- [ ] runTick(..., { trace: true }) yields exactly 8 phases
+- [ ] runTick(..., { trace: true }) yields exactly 9 phases
 - [ ] Second item is "applySensors" (before environment integration)
 - [ ] No extra or missing phases; names match public stage symbols
 - `runTick(world, ctx, { trace: true })` returns `{ world, trace }` where `world` is the immutable post-tick snapshot and `trace` is an optional {@link TickTrace} with monotonic `startedAtNs`, `durationNs`, `endedAtNs`, and heap metrics for every stage without feeding wall-clock time into simulation logic.
