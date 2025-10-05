@@ -1,5 +1,15 @@
 # Changelog
 
+### #69 Workforce domain scaffolding
+
+- Introduced dedicated workforce domain modules (`EmployeeRole`, `Employee`, `WorkforceState`, task and KPI structures) and
+  exposed them through the engine world barrel so simulation snapshots embed deterministic workforce data.
+- Extended the shared domain schemas with workforce collections, UUID v7 validation for employee RNG seeds, 0..1 skill/morale/fatigue
+  clamps, and working-hour limits (base 5–16 h, overtime ≤ 5 h) accompanied by unit coverage in `workforceSchemas.test.ts`.
+- Normalised `/data/configs/task_definitions.json` to use `requiredRoleSlug` plus structured `requiredSkills` entries (`skillKey`,
+  `minSkill01`) keeping thresholds aligned to the SEC skill scale.
+- Documented the workforce branch in `docs/DD.md` and added schema coverage guidance to `docs/TDD.md`.
+
 ### #68 Tooling - enforce pnpm 10.18.0 installs
 
 - Added a `preinstall` guard that aborts `pnpm install` when the package manager is not pnpm 10.18.0, relying on the workspace shim metadata.

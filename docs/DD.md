@@ -158,9 +158,27 @@ targets from the same factor to keep unit conversions deterministic.
 **Derived costs**
 
 - Electricity: `kWh = (powerW / 1000) * hoursOn`; `cost = kWh * tariff.kWh`.
-    
+
 - Water: `m3 = liters / 1000`; `cost = m3 * tariff.m3`.
-    
+
+
+## 5a) Workforce Domain (SEC §10)
+
+- `SimulationWorld` embeds a deterministic `workforce` branch alongside the company tree. The branch collects:
+  - `roles`: immutable catalogue of `EmployeeRole` records with SEC-aligned slugs and optional descriptions.
+  - `employees`: directory of `Employee` entities carrying morale/fatigue (`0..1` scale), role assignment, structure assignment, and
+    a deterministic `rngSeedUuid` (UUID v7) for stochastic trait streams.
+  - `taskDefinitions`: scheduling templates that expose `requiredRoleSlug`, structured `requiredSkills` (`skillKey` + `minSkill01`),
+    deterministic labour cost models, and integer priorities.
+  - `taskQueue`: queued/in-progress task instances used by the dispatcher and telemetry.
+  - `kpis`: rolling `WorkforceKpiSnapshot` entries summarising throughput, labour hours, overtime, and aggregate morale/fatigue.
+- `Employee.schedule` constrains base hours to **5–16 h per in-game day**, allows overtime up to **+5 h**, and records the number of
+  working days per week (`1..7`) with an optional shift start hour (`0..23`). Schema guards reject violations and normalise seeds to UUID v7.
+- `Employee.skills` and `EmployeeRole.coreSkills` share the `EmployeeSkillRequirement` shape (`skillKey`, `minSkill01 ∈ [0,1]`).
+- Task definitions in `/data/configs/task_definitions.json` now store deterministic `requiredRoleSlug` values and structured
+  `requiredSkills` arrays. Legacy integer skill levels were mapped onto `minSkill01 = level/5` to preserve intent while aligning to
+  the canonical [0,1] skill scale referenced by SEC §10.
+
 
 ---
 

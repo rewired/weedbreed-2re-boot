@@ -1,4 +1,5 @@
 import type { Inventory } from './types/Inventory.js';
+import type { WorkforceState } from './workforce/WorkforceState.js';
 
 /**
  * Branded string type representing a UUID v4 identifier.
@@ -350,4 +351,6 @@ export interface SimulationWorld {
   readonly simTimeHours: number;
   /** Company-centric world tree. */
   readonly company: Company;
+  /** Workforce directory, task queue, and KPI snapshots. */
+  readonly workforce: WorkforceState;
 }
