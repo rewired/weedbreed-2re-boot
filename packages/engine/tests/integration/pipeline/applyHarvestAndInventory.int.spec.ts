@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { runTick } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import { createTestPlant } from '@/tests/testUtils/strainFixtures.js';
 import { inventoryByStructure } from '@/backend/src/readmodels/inventory/inventoryByStructure.js';
 import { inventoryByStorageRoom } from '@/backend/src/readmodels/inventory/inventoryByStorageRoom.js';
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
@@ -14,11 +15,11 @@ function prepareHarvestScenario() {
   const structure = world.company.structures[0] as Mutable<typeof world.company.structures[0]>;
   const growRoom = structure.rooms.find((room) => room.purpose === 'growroom') as Mutable<Room>;
   const zone = growRoom.zones[0] as Mutable<Zone>;
-  const plant = zone.plants[0];
+  const basePlant = zone.plants[0] ?? createTestPlant();
 
   zone.plants = [
     {
-      ...plant,
+      ...basePlant,
       lifecycleStage: 'harvest-ready',
       biomass_g: 480,
       health01: 0.88,
