@@ -27,15 +27,38 @@ import {
   type ZoneEnvironment
 } from './entities.js';
 import { InventorySchema } from './schemas/InventorySchema.js';
+import type {
+  Employee,
+  EmployeeRngSeedUuid,
+  EmployeeSchedule,
+  EmployeeSkillLevel
+} from './workforce/Employee.js';
+import type { EmployeeRole, EmployeeSkillRequirement } from './workforce/EmployeeRole.js';
+import type { WorkforceState } from './workforce/WorkforceState.js';
+import type { WorkforceKpiSnapshot } from './workforce/kpis.js';
+import type {
+  WorkforceTaskCostModel,
+  WorkforceTaskDefinition,
+  WorkforceTaskInstance
+} from './workforce/tasks.js';
 
 const [STRUCTURE_SCOPE, ROOM_SCOPE, ZONE_SCOPE] = DEVICE_PLACEMENT_SCOPES;
 
 const uuidSchema = z.string().uuid('Expected a UUID v4 identifier.').brand<'Uuid'>();
+const uuidV7Pattern = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const uuidV7Schema: z.ZodBranded<string, EmployeeRngSeedUuid> = z
+  .string()
+  .regex(uuidV7Pattern, 'Expected a UUID v7 identifier.')
+  .brand<EmployeeRngSeedUuid>();
 const nonEmptyString = z
   .string()
   .trim()
   .min(1, 'String fields must not be empty.');
 const finiteNumber = z.number().finite('Value must be a finite number.');
+
+const zeroToOneNumber = finiteNumber
+  .min(0, 'Value must be >= 0.')
+  .max(1, 'Value must be <= 1.');
 
 const domainEntitySchema = z.object({
   id: uuidSchema,
@@ -49,6 +72,108 @@ const sluggedEntitySchema = z.object({
 const spatialEntitySchema = z.object({
   floorArea_m2: finiteNumber.positive('floorArea_m2 must be positive.'),
   height_m: finiteNumber.positive('height_m must be positive.').default(ROOM_DEFAULT_HEIGHT_M)
+});
+
+export const employeeSkillRequirementSchema: z.ZodType<EmployeeSkillRequirement> = z.object({
+  skillKey: nonEmptyString,
+  minSkill01: zeroToOneNumber
+});
+
+export const employeeRoleSchema: z.ZodType<EmployeeRole> = domainEntitySchema
+  .merge(sluggedEntitySchema)
+  .extend({
+    description: nonEmptyString.optional(),
+    coreSkills: z.array(employeeSkillRequirementSchema).readonly().default([]),
+    tags: z.array(nonEmptyString).readonly().optional()
+  });
+
+export const employeeSkillLevelSchema: z.ZodType<EmployeeSkillLevel> = z.object({
+  skillKey: nonEmptyString,
+  level01: zeroToOneNumber
+});
+
+export const employeeScheduleSchema: z.ZodType<EmployeeSchedule> = z.object({
+  hoursPerDay: finiteNumber
+    .min(5, 'hoursPerDay must be at least 5 hours.')
+    .max(16, 'hoursPerDay must not exceed 16 hours.'),
+  overtimeHoursPerDay: finiteNumber
+    .min(0, 'overtimeHoursPerDay cannot be negative.')
+    .max(5, 'overtimeHoursPerDay must not exceed 5 hours.'),
+  daysPerWeek: finiteNumber
+    .min(1, 'daysPerWeek must be at least 1.')
+    .max(7, 'daysPerWeek must not exceed 7.'),
+  shiftStartHour: finiteNumber
+    .min(0, 'shiftStartHour cannot be negative.')
+    .max(HOURS_PER_DAY - 1, `shiftStartHour must be < ${String(HOURS_PER_DAY)}.`)
+    .optional()
+});
+
+export const employeeSchema: z.ZodType<Employee> = domainEntitySchema.extend({
+  roleId: uuidSchema,
+  rngSeedUuid: uuidV7Schema,
+  assignedStructureId: uuidSchema,
+  morale01: zeroToOneNumber,
+  fatigue01: zeroToOneNumber,
+  skills: z.array(employeeSkillLevelSchema).readonly(),
+  developmentPlan: z.array(employeeSkillRequirementSchema).readonly().optional(),
+  schedule: employeeScheduleSchema,
+  notes: nonEmptyString.optional()
+});
+
+export const employeeCollectionSchema = z.array(employeeSchema).readonly();
+
+export const employeeRoleCollectionSchema = z.array(employeeRoleSchema).readonly();
+
+export const workforceTaskCostBasisSchema = z.enum(['perAction', 'perPlant', 'perSquareMeter']);
+
+export const workforceTaskCostModelSchema: z.ZodType<WorkforceTaskCostModel> = z.object({
+  basis: workforceTaskCostBasisSchema,
+  laborMinutes: finiteNumber.min(0, 'laborMinutes cannot be negative.')
+});
+
+export const workforceTaskDefinitionSchema: z.ZodType<WorkforceTaskDefinition> = z.object({
+  taskCode: nonEmptyString,
+  description: nonEmptyString,
+  requiredRoleSlug: nonEmptyString,
+  requiredSkills: z.array(employeeSkillRequirementSchema).readonly().default([]),
+  priority: finiteNumber,
+  costModel: workforceTaskCostModelSchema
+});
+
+export const workforceTaskInstanceSchema: z.ZodType<WorkforceTaskInstance> = z.object({
+  id: uuidSchema,
+  taskCode: nonEmptyString,
+  status: z.enum(['queued', 'in-progress', 'completed', 'cancelled']),
+  createdAtTick: finiteNumber
+    .min(0, 'createdAtTick cannot be negative.')
+    .transform((value) => Math.trunc(value)),
+  dueTick: finiteNumber
+    .min(0, 'dueTick cannot be negative.')
+    .transform((value) => Math.trunc(value))
+    .optional(),
+  assignedEmployeeId: uuidSchema.optional(),
+  context: z.record(z.string(), z.unknown()).optional()
+});
+
+export const workforceKpiSnapshotSchema: z.ZodType<WorkforceKpiSnapshot> = z.object({
+  simTimeHours: finiteNumber
+    .min(0, 'simTimeHours cannot be negative.')
+    .transform((value) => Math.trunc(value)),
+  tasksCompleted: finiteNumber
+    .min(0, 'tasksCompleted cannot be negative.')
+    .transform((value) => Math.trunc(value)),
+  laborHoursCommitted: finiteNumber.min(0, 'laborHoursCommitted cannot be negative.'),
+  overtimeHoursCommitted: finiteNumber.min(0, 'overtimeHoursCommitted cannot be negative.'),
+  averageMorale01: zeroToOneNumber,
+  averageFatigue01: zeroToOneNumber
+});
+
+export const workforceStateSchema: z.ZodType<WorkforceState> = z.object({
+  roles: employeeRoleCollectionSchema,
+  employees: employeeCollectionSchema,
+  taskDefinitions: z.array(workforceTaskDefinitionSchema).readonly(),
+  taskQueue: z.array(workforceTaskInstanceSchema).readonly(),
+  kpis: z.array(workforceKpiSnapshotSchema).readonly()
 });
 
 export const companyLocationSchema: z.ZodType<CompanyLocation> = z.object({

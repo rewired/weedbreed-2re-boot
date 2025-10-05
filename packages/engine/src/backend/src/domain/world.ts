@@ -13,3 +13,8 @@ export * from './irrigation/waterUsage.js';
 export * from './interfaces/index.js';
 export * from './types/HarvestLot.js';
 export * from './types/Inventory.js';
+export * from './workforce/Employee.js';
+export * from './workforce/EmployeeRole.js';
+export * from './workforce/WorkforceState.js';
+export * from './workforce/tasks.js';
+export * from './workforce/kpis.js';

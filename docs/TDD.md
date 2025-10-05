@@ -124,7 +124,7 @@ it('stable sequences per stream', () => {
 ## 5) Light Schedule Contract (SEC §8)
 
 - Domains: `onHours ∈ [0,24]`, `offHours ∈ [0,24]`, integer or **0.25h** grid.
-    
+
 - Constraint: `onHours + offHours = 24`.
     
 - Optional: `startHour ∈ [0,24)`.
@@ -146,6 +146,15 @@ describe('Light schedule — SEC §8', () => {
   });
 });
 ```
+
+---
+
+## 5a) Workforce Schema Coverage (SEC §10)
+
+- `employeeSchema` enforces UUID v7 seeds, morale/fatigue bounds (`0..1`), and working-hour policy: base hours **5–16**, overtime **≤ 5**, `daysPerWeek ∈ [1,7]`.
+- `workforceTaskDefinitionSchema` rejects skill thresholds outside `[0,1]` and mandates structured `requiredSkills` entries.
+- `workforceStateSchema` validates the full branch (`roles`, `employees`, `taskDefinitions`, `taskQueue`, `kpis`) embedded in the world snapshot to guard deterministic scheduling inputs.
+- Unit coverage: `tests/unit/domain/workforceSchemas.test.ts` exercises the above constraints and snapshot parsing.
 
 ---
 
