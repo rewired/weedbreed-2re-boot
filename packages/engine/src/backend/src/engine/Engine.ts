@@ -17,6 +17,10 @@ export interface EngineInstrumentation {
   readonly onStageComplete?: (stage: StepName, world: SimulationWorld) => void;
 }
 
+export interface TelemetryBus {
+  emit(topic: string, payload: Record<string, unknown>): void;
+}
+
 export interface EngineDiagnostic {
   readonly scope: 'zone';
   readonly code: string;
@@ -33,6 +37,7 @@ export interface EngineRunContext {
   readonly instrumentation?: EngineInstrumentation;
   readonly diagnostics?: EngineDiagnosticsSink;
   readonly irrigationEvents?: readonly IrrigationEvent[];
+  readonly telemetry?: TelemetryBus;
   /**
    * Preferred tick duration hint in in-game hours.
    * When omitted the engine defaults to the canonical one-hour tick duration.
@@ -87,7 +92,7 @@ export type PipelineStage = (
   ctx: EngineRunContext
 ) => SimulationWorld;
 
-const PIPELINE_DEFINITION: ReadonlyArray<readonly [StepName, PipelineStage]> = [
+const PIPELINE_DEFINITION: readonly (readonly [StepName, PipelineStage])[] = [
   ['applyDeviceEffects', applyDeviceEffects],
   ['applySensors', applySensors],
   ['updateEnvironment', updateEnvironment],

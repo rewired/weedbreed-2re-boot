@@ -325,65 +325,7 @@ describe('companySchema', () => {
     ]);
   });
 
-  it('rejects rooms with harvestLots when purpose is not storageroom', () => {
-    const invalidWorld = cloneWorld();
-    const targetRoom = invalidWorld.structures[0].rooms[0] as typeof invalidWorld.structures[0]['rooms'][number] & {
-      harvestLots?: unknown;
-    };
-    targetRoom.harvestLots = [
-      {
-        id: '00000000-0000-0000-0000-000000000999',
-        name: 'Invalid Harvest',
-        strainId: '00000000-0000-0000-0000-000000000020',
-        strainSlug: 'white-widow',
-        quality01: 0.8,
-        dryWeight_g: 100,
-        harvestedAtSimHours: 500,
-        sourceZoneId: '00000000-0000-0000-0000-000000000004'
-      }
-    ];
 
-    const result = companySchema.safeParse(invalidWorld);
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(
-        result.error.issues.some((issue) =>
-          issue.message.includes('Only storagerooms may contain harvestLots')
-        )
-      ).toBe(true);
-    }
-  });
-
-  it('accepts storagerooms with valid harvestLots', () => {
-    const validWorld = cloneWorld();
-    validWorld.structures[0].rooms.push({
-      id: '00000000-0000-0000-0000-000000000888',
-      slug: 'storage',
-      name: 'Storage Room',
-      purpose: 'storageroom',
-      floorArea_m2: 40,
-      height_m: 3,
-      devices: [],
-      zones: [],
-      harvestLots: [
-        {
-          id: '00000000-0000-0000-0000-000000000777',
-          name: 'Harvest Lot 1',
-          strainId: '00000000-0000-0000-0000-000000000020',
-          strainSlug: 'white-widow',
-          quality01: 0.92,
-          dryWeight_g: 850.5,
-          harvestedAtSimHours: 1200,
-          sourceZoneId: '00000000-0000-0000-0000-000000000004'
-        }
-      ]
-    } as typeof validWorld.structures[0]['rooms'][number]);
-
-    const result = companySchema.safeParse(validWorld);
-
-    expect(result.success).toBe(true);
-  });
 
   it('rejects companies missing location metadata', () => {
     const invalidWorld = cloneWorld();

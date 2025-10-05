@@ -1,3 +1,5 @@
+import type { Inventory } from './types/Inventory.js';
+
 /**
  * Branded string type representing a UUID v4 identifier.
  */
@@ -205,6 +207,8 @@ export type ZoneDeviceInstance = DeviceInstance & {
 /**
  * Canonical representation of a plant instance within a zone.
  */
+import type { Inventory } from './types/Inventory.js';
+
 export interface Plant extends DomainEntity, SluggedEntity {
   /** Identifier of the strain blueprint driving this plant. */
   readonly strainId: Uuid;
@@ -220,24 +224,16 @@ export interface Plant extends DomainEntity, SluggedEntity {
   readonly containerId: Uuid;
   /** Identifier of the selected substrate blueprint. */
   readonly substrateId: Uuid;
-}
-
-/**
- * Canonical representation of a harvested cannabis lot stored within a facility.
- */
-export interface HarvestLot extends DomainEntity {
-  /** Identifier of the strain blueprint from which this lot originated. */
-  readonly strainId: Uuid;
-  /** Slug of the strain blueprint from which this lot originated. */
-  readonly strainSlug: string;
-  /** Quality score on the canonical [0,1] scale. */
-  readonly quality01: number;
-  /** Dry weight expressed in grams. */
-  readonly dryWeight_g: number;
-  /** Simulation timestamp (in hours) when the harvest occurred. */
-  readonly harvestedAtSimHours: number;
-  /** Identifier of the zone that produced this harvest lot. */
-  readonly sourceZoneId: Uuid;
+  /** Flag indicating the plant is ready to be harvested during the harvest phase. */
+  readonly readyForHarvest?: boolean;
+  /** Tick when the plant was harvested; undefined when not yet harvested. */
+  readonly harvestedAt_tick?: number;
+  /** Terminal status to prevent double harvesting within the same lifecycle. */
+  readonly status?: 'active' | 'harvested';
+  /** Plant-specific moisture proxy on the canonical [0,1] scale. */
+  readonly moisture01?: number;
+  /** Plant-specific quality indicator on the canonical [0,1] scale. */
+  readonly quality01?: number;
 }
 
 /**
@@ -310,10 +306,14 @@ export interface Room extends DomainEntity, SluggedEntity, SpatialEntity {
   readonly purpose: RoomPurpose;
   /** Zones contained within the room. */
   readonly zones: readonly Zone[];
-  /** Device instances mounted at the room scope. */
+ /** Device instances mounted at the room scope. */
   readonly devices: readonly RoomDeviceInstance[];
-  /** Harvest lots stored within the room (storagerooms only). */
-  readonly harvestLots?: readonly HarvestLot[];
+  /** Optional classifier describing semantic room class (e.g. room.storage). */
+  readonly class?: string;
+  /** Free-form tags describing the room. */
+  readonly tags?: readonly string[];
+  /** Inventory information when the room acts as a storage space. */
+  readonly inventory?: Inventory;
 }
 
 /**

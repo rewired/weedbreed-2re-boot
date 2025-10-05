@@ -16,7 +16,6 @@ import {
   ROOM_PURPOSES,
   type Company,
   type CompanyLocation,
-  type HarvestLot,
   type LightSchedule,
   type Plant,
   type Room,
@@ -27,6 +26,7 @@ import {
   type ZoneDeviceInstance,
   type ZoneEnvironment
 } from './entities.js';
+import { InventorySchema } from './schemas/InventorySchema.js';
 
 const [STRUCTURE_SCOPE, ROOM_SCOPE, ZONE_SCOPE] = DEVICE_PLACEMENT_SCOPES;
 
@@ -126,17 +126,22 @@ const plantSchema: z.ZodType<Plant> = domainEntitySchema
     health01: finiteNumber.min(0, 'health01 must be >= 0.').max(1, 'health01 must be <= 1.'),
     biomass_g: finiteNumber.min(0, 'biomass_g cannot be negative.'),
     containerId: uuidSchema,
-    substrateId: uuidSchema
+    substrateId: uuidSchema,
+    readyForHarvest: z.boolean().optional(),
+    harvestedAt_tick: finiteNumber
+      .min(0, 'harvestedAt_tick cannot be negative.')
+      .transform((value) => Math.trunc(value))
+      .optional(),
+    status: z.enum(['active', 'harvested']).optional(),
+    moisture01: finiteNumber
+      .min(0, 'moisture01 must be >= 0.')
+      .max(1, 'moisture01 must be <= 1.')
+      .optional(),
+    quality01: finiteNumber
+      .min(0, 'quality01 must be >= 0.')
+      .max(1, 'quality01 must be <= 1.')
+      .optional()
   });
-
-const harvestLotSchema: z.ZodType<HarvestLot> = domainEntitySchema.extend({
-  strainId: uuidSchema,
-  strainSlug: nonEmptyString,
-  quality01: finiteNumber.min(0, 'quality01 must be >= 0.').max(1, 'quality01 must be <= 1.'),
-  dryWeight_g: finiteNumber.min(0, 'dryWeight_g cannot be negative.'),
-  harvestedAtSimHours: finiteNumber.min(0, 'harvestedAtSimHours cannot be negative.'),
-  sourceZoneId: uuidSchema
-});
 
 const zoneEnvironmentSchema: z.ZodType<ZoneEnvironment> = z.object({
   airTemperatureC: finiteNumber,
@@ -189,7 +194,9 @@ export const roomSchema: z.ZodType<Room> = domainEntitySchema
     purpose: z.enum([...ROOM_PURPOSES]),
     zones: z.array(zoneSchema).readonly(),
     devices: z.array(roomDeviceSchema).readonly(),
-    harvestLots: z.array(harvestLotSchema).readonly().optional()
+    class: nonEmptyString.optional(),
+    tags: z.array(nonEmptyString).readonly().optional(),
+    inventory: InventorySchema.optional()
   })
   .superRefine((room, ctx) => {
     if (room.purpose !== 'growroom' && room.zones.length > 0) {
@@ -207,14 +214,18 @@ export const roomSchema: z.ZodType<Room> = domainEntitySchema
         path: ['zones']
       });
     }
+  })
+  .transform((room) => {
+    const tags = room.tags ?? [];
+    const isStorageClass = room.class === 'room.storage';
+    const hasStorageTag = tags.includes('storage');
+    const isStoragePurpose = room.purpose === 'storageroom';
+    const shouldHaveInventory = isStorageClass || hasStorageTag || isStoragePurpose;
 
-    if (room.purpose !== 'storageroom' && room.harvestLots && room.harvestLots.length > 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Only storagerooms may contain harvestLots.',
-        path: ['harvestLots']
-      });
-    }
+    return {
+      ...room,
+      inventory: shouldHaveInventory ? room.inventory ?? { lots: [] } : room.inventory
+    } satisfies Room;
   });
 
 export const structureSchema: z.ZodType<Structure> = domainEntitySchema

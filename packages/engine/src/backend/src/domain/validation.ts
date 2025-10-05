@@ -19,6 +19,7 @@ import {
   PLANT_LIFECYCLE_STAGES,
   ROOM_PURPOSES
 } from './entities.js';
+import { isHarvestLot } from './schemas/HarvestLotSchema.js';
 
 const VALID_ROOM_PURPOSES = new Set(ROOM_PURPOSES);
 const VALID_PHOTOPERIOD_PHASES = new Set<PhotoperiodPhase>([
@@ -434,47 +435,125 @@ function validateRoom(
           message: 'plants must reference a substrate id'
         });
       }
+
+      if (plant.readyForHarvest !== undefined && typeof plant.readyForHarvest !== 'boolean') {
+        issues.push({
+          path: `${plantPath}.readyForHarvest`,
+          message: 'readyForHarvest must be a boolean when provided'
+        });
+      }
+
+      if (plant.harvestedAt_tick !== undefined) {
+        if (!Number.isFinite(plant.harvestedAt_tick)) {
+          issues.push({
+            path: `${plantPath}.harvestedAt_tick`,
+            message: 'harvestedAt_tick must be a finite number'
+          });
+        } else if (plant.harvestedAt_tick < 0) {
+          issues.push({
+            path: `${plantPath}.harvestedAt_tick`,
+            message: 'harvestedAt_tick must be non-negative'
+          });
+        }
+      }
+
+      const status: unknown = plant.status;
+
+      if (status !== undefined) {
+        if (typeof status !== 'string' || (status !== 'active' && status !== 'harvested')) {
+          issues.push({
+            path: `${plantPath}.status`,
+            message: 'plant status must be either "active" or "harvested"'
+          });
+        }
+      }
+
+      if (typeof plant.moisture01 === 'number' && !isWithinUnitInterval(plant.moisture01)) {
+        issues.push({
+          path: `${plantPath}.moisture01`,
+          message: 'plant moisture01 must lie within [0,1]'
+        });
+      }
+
+      if (typeof plant.quality01 === 'number' && !isWithinUnitInterval(plant.quality01)) {
+        issues.push({
+          path: `${plantPath}.quality01`,
+          message: 'plant quality01 must lie within [0,1]'
+        });
+      }
     });
   });
+  const tags = room.tags ?? [];
+  const isStorageClass = room.class === 'room.storage';
+  const hasStorageTag = tags.includes('storage');
+  const isStoragePurpose = room.purpose === 'storageroom';
+  const isStorageRoom = isStorageClass || hasStorageTag || isStoragePurpose;
 
-  if (room.purpose !== 'storageroom' && room.harvestLots && room.harvestLots.length > 0) {
+  if (room.inventory) {
+    if (!Array.isArray(room.inventory.lots)) {
+      issues.push({
+        path: `${path}.inventory.lots`,
+        message: 'inventory.lots must be an array'
+      });
+    } else {
+      room.inventory.lots.forEach((lot, lotIndex) => {
+        const lotPath = `${path}.inventory.lots[${String(lotIndex)}]`;
+
+        if (!isHarvestLot(lot)) {
+          issues.push({
+            path: lotPath,
+            message: 'inventory lot is not a valid HarvestLot'
+          });
+          return;
+        }
+
+        if (lot.freshWeight_kg < 0) {
+          issues.push({
+            path: `${lotPath}.freshWeight_kg`,
+            message: 'harvest lot fresh weight must be non-negative'
+          });
+        }
+
+        if (!isWithinUnitInterval(lot.moisture01)) {
+          issues.push({
+            path: `${lotPath}.moisture01`,
+            message: 'harvest lot moisture01 must lie within [0,1]'
+          });
+        }
+
+        if (!isWithinUnitInterval(lot.quality01)) {
+          issues.push({
+            path: `${lotPath}.quality01`,
+            message: 'harvest lot quality01 must lie within [0,1]'
+          });
+        }
+
+        if (!Number.isInteger(lot.createdAt_tick) || lot.createdAt_tick < 0) {
+          issues.push({
+            path: `${lotPath}.createdAt_tick`,
+            message: 'harvest lot createdAt_tick must be a non-negative integer'
+          });
+        }
+      });
+    }
+  }
+
+  const inventoryLots = room.inventory?.lots;
+  const inventoryLotsArray: readonly unknown[] = Array.isArray(inventoryLots)
+    ? inventoryLots
+    : [];
+
+  if (!isStorageRoom && inventoryLotsArray.length > 0) {
     issues.push({
-      path: `${path}.harvestLots`,
-      message: 'only storagerooms may contain harvest lots'
+      path: `${path}.inventory`,
+      message: 'only storage rooms may contain harvest inventory'
     });
   }
 
-  if (room.harvestLots) {
-    room.harvestLots.forEach((lot, lotIndex) => {
-      const lotPath = `${path}.harvestLots[${String(lotIndex)}]`;
-
-      if (!isWithinUnitInterval(lot.quality01)) {
-        issues.push({
-          path: `${lotPath}.quality01`,
-          message: 'harvest lot quality01 must lie within [0,1]'
-        });
-      }
-
-      if (lot.dryWeight_g < 0) {
-        issues.push({
-          path: `${lotPath}.dryWeight_g`,
-          message: 'harvest lot dry weight must be non-negative'
-        });
-      }
-
-      if (lot.harvestedAtSimHours < 0) {
-        issues.push({
-          path: `${lotPath}.harvestedAtSimHours`,
-          message: 'harvest lot timestamp must be non-negative'
-        });
-      }
-
-      if (!lot.strainSlug || lot.strainSlug.trim().length === 0) {
-        issues.push({
-          path: `${lotPath}.strainSlug`,
-          message: 'harvest lot must reference a strain slug'
-        });
-      }
+  if (isStorageRoom && room.inventory === undefined) {
+    issues.push({
+      path: `${path}.inventory`,
+      message: 'storage rooms must initialise an inventory'
     });
   }
 }
@@ -490,13 +569,15 @@ export function validateCompanyWorld(
 ): WorldValidationResult {
   const issues: WorldValidationIssue[] = [];
 
-  if (!company.location) {
+  const location = (company as Partial<Company>).location;
+
+  if (!location) {
     issues.push({
       path: 'company.location',
       message: 'company must define a location'
     });
   } else {
-    const { lon, lat, cityName, countryName } = company.location;
+    const { lon, lat, cityName, countryName } = location;
 
     if (!Number.isFinite(lon)) {
       issues.push({
