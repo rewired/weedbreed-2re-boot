@@ -9,7 +9,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@wb/engine': path.resolve(packageDir, 'src/index.ts'),
-      '@/backend': path.resolve(packageDir, 'src/backend')
+      '@/backend': path.resolve(packageDir, 'src/backend'),
+      '@/tests': path.resolve(packageDir, 'tests')
     }
   },
   test: {
