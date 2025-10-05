@@ -23,6 +23,8 @@ contract to rely on when modelling labour availability or overtime policies.
   `minSkill01`), deriving the normalised threshold by mapping the former integer level (`0..5`) onto the SEC skill scale (`level/5`).
 - Embed the workforce branch into `SimulationWorld` so savegame snapshots, telemetry, and downstream analytics can evolve against a
   single canonical structure.
+- Extend employee records with deterministic trait assignments and the hiring skill triad so behavioural modifiers stay aligned
+  with SEC §10.3 trait catalogues and the scheduler can apply trait hooks without ad-hoc randomness.
 
 ## Consequences
 

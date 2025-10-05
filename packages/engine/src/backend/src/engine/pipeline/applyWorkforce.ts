@@ -34,6 +34,10 @@ import {
 import { performMarketHire, performMarketScan } from '../../services/workforce/market.js';
 import type { EngineRunContext as EngineContext } from '../Engine.js';
 import { deterministicUuid, deterministicUuidV7 } from '../../util/uuid.js';
+import {
+  applyTraitEffects,
+  type TraitEffectBreakdownEntry,
+} from '../../domain/workforce/traits.js';
 
 const SCORE_EPSILON = 1e-6;
 const OVERTIME_MORALE_PENALTY_PER_HOUR = 0.02;
@@ -57,6 +61,18 @@ export interface WorkforceAssignment {
   readonly overtimeMinutes: number;
   readonly waitTimeHours: number;
   readonly structureId: Structure['id'];
+  readonly taskEffects: {
+    readonly durationMinutes: number;
+    readonly errorRate01: number;
+    readonly deviceWearMultiplier: number;
+    readonly xpRateMultiplier: number;
+    readonly breakdown: readonly TraitEffectBreakdownEntry[];
+  };
+  readonly wellbeingEffects: {
+    readonly fatigueDelta: number;
+    readonly moraleDelta: number;
+    readonly breakdown: readonly TraitEffectBreakdownEntry[];
+  };
 }
 
 export interface WorkforceRuntime {
@@ -214,6 +230,28 @@ function createEmployeeFromCandidate(
     level01,
   }));
 
+  const skillTriad = {
+    main: {
+      skillKey: candidate.skills3.main.slug,
+      level01: candidate.skills3.main.value01,
+    },
+    secondary: [
+      {
+        skillKey: candidate.skills3.secondary[0]?.slug ?? candidate.skills3.main.slug,
+        level01: candidate.skills3.secondary[0]?.value01 ?? 0,
+      },
+      {
+        skillKey: candidate.skills3.secondary[1]?.slug ?? candidate.skills3.main.slug,
+        level01: candidate.skills3.secondary[1]?.value01 ?? 0,
+      },
+    ],
+  } as const;
+
+  const traits = candidate.traits.map((trait) => ({
+    traitId: trait.id,
+    strength01: clamp01(trait.strength01 ?? 0),
+  }));
+
   return {
     id: employeeId,
     name: `${candidate.roleSlug} candidate ${employeeId.slice(0, 8)}`,
@@ -223,6 +261,8 @@ function createEmployeeFromCandidate(
     morale01: 0.7,
     fatigue01: 0.2,
     skills,
+    skillTriad,
+    traits,
     schedule: {
       hoursPerDay: 8,
       overtimeHoursPerDay: 0,
@@ -237,6 +277,13 @@ interface CandidateEvaluation {
   score: number;
   baseMinutes: number;
   overtimeMinutes: number;
+  taskEffects: {
+    readonly durationMinutes: number;
+    readonly errorRate01: number;
+    readonly deviceWearMultiplier: number;
+    readonly xpRateMultiplier: number;
+    readonly breakdown: readonly TraitEffectBreakdownEntry[];
+  };
 }
 
 function resolveRoleSlug(roleId: EmployeeRole['id'], roles: readonly EmployeeRole[]): string | null {
@@ -542,12 +589,30 @@ function evaluateCandidate(
   definition: WorkforceTaskDefinition,
   demandMinutes: number,
   usage: EmployeeUsage,
+  simTimeHours: number,
 ): CandidateEvaluation | null {
   const { valid, score: skillScore } = computeSkillScore(employee, definition);
 
   if (!valid) {
     return null;
   }
+
+  const hourOfDay = ((Math.trunc(simTimeHours) % HOURS_PER_DAY) + HOURS_PER_DAY) % HOURS_PER_DAY;
+  const traitEffect = applyTraitEffects(
+    employee,
+    {
+      taskDurationMinutes: demandMinutes,
+      taskErrorRate01: 0,
+      deviceWearMultiplier: 1,
+      xpRateMultiplier: 1,
+    },
+    { taskDefinition: definition, hourOfDay },
+  );
+
+  const effectiveDemand = Math.max(0, traitEffect.values.taskDurationMinutes ?? demandMinutes);
+  const errorRate01 = traitEffect.values.taskErrorRate01 ?? 0;
+  const deviceWearMultiplier = traitEffect.values.deviceWearMultiplier ?? 1;
+  const xpRateMultiplier = traitEffect.values.xpRateMultiplier ?? 1;
 
   const schedule = employee.schedule;
   const baseCapacity = Math.max(0, schedule.hoursPerDay) * 60;
@@ -559,8 +624,8 @@ function evaluateCandidate(
   }
 
   const remainingBase = Math.max(0, baseCapacity - usage.baseMinutes);
-  const baseMinutes = Math.min(remainingBase, demandMinutes);
-  const remainingDemand = demandMinutes - baseMinutes;
+  const baseMinutes = Math.min(remainingBase, effectiveDemand);
+  const remainingDemand = effectiveDemand - baseMinutes;
   const remainingOvertime = Math.max(0, overtimeCapacity - usage.overtimeMinutes);
 
   if (remainingDemand > remainingOvertime) {
@@ -576,6 +641,13 @@ function evaluateCandidate(
     score,
     baseMinutes,
     overtimeMinutes,
+    taskEffects: {
+      durationMinutes: effectiveDemand,
+      errorRate01: clamp01(errorRate01),
+      deviceWearMultiplier,
+      xpRateMultiplier,
+      breakdown: traitEffect.breakdown,
+    },
   } satisfies CandidateEvaluation;
 }
 
@@ -641,7 +713,14 @@ function applyEmployeeAdjustments(
   usage: EmployeeUsage,
   evaluation: CandidateEvaluation,
   task: WorkforceTaskInstance,
-): Employee {
+  definition: WorkforceTaskDefinition,
+  simTimeHours: number,
+): {
+  readonly employee: Employee;
+  readonly fatigueDelta: number;
+  readonly moraleDelta: number;
+  readonly breakdown: readonly TraitEffectBreakdownEntry[];
+} {
   const totalMinutes = evaluation.baseMinutes + evaluation.overtimeMinutes;
   const isBreak = isBreakroomTask(task);
   let fatigueDelta = 0;
@@ -663,18 +742,33 @@ function applyEmployeeAdjustments(
     moraleDelta -= appliedPenalty;
   }
 
-  const nextMorale = clamp01(employee.morale01 + moraleDelta);
-  const nextFatigue = clamp01(Math.max(0, employee.fatigue01 + fatigueDelta));
+  const hourOfDay = ((Math.trunc(simTimeHours) % HOURS_PER_DAY) + HOURS_PER_DAY) % HOURS_PER_DAY;
+  const wellbeingEffect = applyTraitEffects(
+    employee,
+    { fatigueDelta, moraleDelta },
+    { taskDefinition: definition, hourOfDay, isBreakTask: isBreak },
+  );
+
+  const adjustedFatigue = wellbeingEffect.values.fatigueDelta ?? fatigueDelta;
+  const adjustedMorale = wellbeingEffect.values.moraleDelta ?? moraleDelta;
+
+  const nextMorale = clamp01(employee.morale01 + adjustedMorale);
+  const nextFatigue = clamp01(Math.max(0, employee.fatigue01 + adjustedFatigue));
 
   if (nextMorale === employee.morale01 && nextFatigue === employee.fatigue01) {
-    return employee;
+    return { employee, fatigueDelta: adjustedFatigue, moraleDelta: adjustedMorale, breakdown: wellbeingEffect.breakdown };
   }
 
   return {
-    ...employee,
-    morale01: nextMorale,
-    fatigue01: nextFatigue,
-  } satisfies Employee;
+    employee: {
+      ...employee,
+      morale01: nextMorale,
+      fatigue01: nextFatigue,
+    } satisfies Employee,
+    fatigueDelta: adjustedFatigue,
+    moraleDelta: adjustedMorale,
+    breakdown: wellbeingEffect.breakdown,
+  };
 }
 
 function createSnapshot(
@@ -922,7 +1016,13 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
       }
 
       const usage = ensureUsage(employeeUsage, employee.id);
-      const evaluation = evaluateCandidate(employee, definition, demandMinutes, usage);
+      const evaluation = evaluateCandidate(
+        employee,
+        definition,
+        demandMinutes,
+        usage,
+        world.simTimeHours,
+      );
 
       if (!evaluation) {
         continue;
@@ -941,13 +1041,15 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     usage.baseMinutes += selected.baseMinutes;
     usage.overtimeMinutes += selected.overtimeMinutes;
 
-    const nextEmployee = applyEmployeeAdjustments(
+    const adjustment = applyEmployeeAdjustments(
       updatedEmployees.get(selected.employee.id) ?? selected.employee,
       usage,
       selected,
       task,
+      definition,
+      world.simTimeHours,
     );
-    updatedEmployees.set(selected.employee.id, nextEmployee);
+    updatedEmployees.set(selected.employee.id, adjustment.employee);
 
     const waitTimeHours = Math.max(0, world.simTimeHours - task.createdAtTick);
     assignments.push({
@@ -957,6 +1059,18 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
       overtimeMinutes: selected.overtimeMinutes,
       waitTimeHours,
       structureId,
+      taskEffects: {
+        durationMinutes: selected.taskEffects.durationMinutes,
+        errorRate01: selected.taskEffects.errorRate01,
+        deviceWearMultiplier: selected.taskEffects.deviceWearMultiplier,
+        xpRateMultiplier: selected.taskEffects.xpRateMultiplier,
+        breakdown: selected.taskEffects.breakdown,
+      },
+      wellbeingEffects: {
+        fatigueDelta: adjustment.fatigueDelta,
+        moraleDelta: adjustment.moraleDelta,
+        breakdown: adjustment.breakdown,
+      },
     });
     waitTimes.push(waitTimeHours);
 

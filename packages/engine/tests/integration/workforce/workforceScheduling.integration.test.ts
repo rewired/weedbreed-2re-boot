@@ -52,6 +52,14 @@ function buildEmployee(options: {
         level01: options.skillLevel01,
       },
     ],
+    skillTriad: {
+      main: { skillKey: options.skillKey, level01: options.skillLevel01 },
+      secondary: [
+        { skillKey: options.skillKey, level01: options.skillLevel01 },
+        { skillKey: options.skillKey, level01: options.skillLevel01 },
+      ],
+    },
+    traits: [],
     schedule: {
       hoursPerDay: options.hoursPerDay,
       overtimeHoursPerDay: options.overtimeHoursPerDay,

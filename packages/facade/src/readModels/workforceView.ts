@@ -7,8 +7,10 @@ import type {
   WorkforceState,
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
-  WorkforceWarning
+  WorkforceWarning,
+  WorkforceTraitKind
 } from '@wb/engine';
+import { getTraitMetadata } from '@wb/engine';
 
 function normalisePercent(value01: number): number {
   return Math.round(value01 * 100);
@@ -60,6 +62,7 @@ export interface WorkforceEmployeeSummary {
   readonly fatiguePercent: number;
   readonly gender: WorkforceDirectoryGender;
   readonly skills: readonly WorkforceEmployeeSkillView[];
+  readonly traits: readonly WorkforceEmployeeTraitView[];
 }
 
 export interface WorkforceEmployeeDetailView extends WorkforceEmployeeSummary {
@@ -67,6 +70,17 @@ export interface WorkforceEmployeeDetailView extends WorkforceEmployeeSummary {
   readonly schedule: Employee['schedule'];
   readonly developmentPlan?: readonly EmployeeSkillRequirement[];
   readonly notes?: string;
+}
+
+export interface WorkforceEmployeeTraitView {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly type: WorkforceTraitKind;
+  readonly strength01: number;
+  readonly strengthPercent: number;
+  readonly economyHint?: string;
+  readonly focusSkills: readonly string[];
 }
 
 export interface WorkforceQueueTaskView {
@@ -181,6 +195,21 @@ export function createWorkforceView(
       } satisfies WorkforceEmployeeSkillView;
     });
 
+    const traits = (employee.traits ?? []).map((assignment) => {
+      const metadata = getTraitMetadata(assignment.traitId);
+
+      return {
+        id: assignment.traitId,
+        name: metadata?.name ?? assignment.traitId,
+        description: metadata?.description ?? '',
+        type: metadata?.type ?? 'positive',
+        strength01: assignment.strength01,
+        strengthPercent: normalisePercent(assignment.strength01),
+        economyHint: metadata?.economyHint,
+        focusSkills: metadata?.focusSkills ?? [],
+      } satisfies WorkforceEmployeeTraitView;
+    });
+
     const summary: WorkforceEmployeeSummary = {
       id: employee.id,
       name: employee.name,
@@ -194,7 +223,8 @@ export function createWorkforceView(
       fatigue01: employee.fatigue01,
       fatiguePercent,
       gender,
-      skills
+      skills,
+      traits
     } satisfies WorkforceEmployeeSummary;
 
     employees.push(summary);

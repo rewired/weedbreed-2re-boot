@@ -14,6 +14,7 @@ SEC §10 also mandates that any stochastic employee attributes (names, pronouns,
 
 - Introduce a dedicated workforce identity source that first queries `randomuser.me` using an explicit seed and a strict 500 ms timeout. The remote response is mapped onto the engine's gender triad (`m|f|d`) and combined with deterministically sampled traits.
 - When the remote API fails or times out the engine deterministically falls back to curated pseudodata lists under `/data/personnel/**`, selecting gender, first and last names, and traits via `createRng(rngSeedUuid, "employee:<rngSeedUuid>")`.
+- Trait draws use the shared workforce metadata (`traits.ts`) and the `sampleTraitSet(createRng(...))` helper so conflict rules stay consistent with the hiring market and scheduling pipelines.
 - Document in code comments and this ADR that only pseudodata is stored or emitted, and that the RNG stream naming isolates employee identity draws from other simulation randomness.
 
 ## Consequences

@@ -1,5 +1,3 @@
-import traitsJson from '../../../../../../../data/personnel/traits.json' assert { type: 'json' };
-
 import type {
   EmployeeRole,
   Uuid,
@@ -13,6 +11,14 @@ import { HOURS_PER_DAY } from '../../constants/simConstants.js';
 import type { WorkforceMarketScanConfig } from '../../config/workforce.js';
 import { createRng, type RandomNumberGenerator } from '../../util/rng.js';
 import { deterministicUuid } from '../../util/uuid.js';
+import {
+  assignTraitStrength,
+  applyTraitEffects,
+  sampleTraitSet,
+  type EmployeeTraitAssignment,
+  type TraitSubject,
+} from '../../domain/workforce/traits.js';
+import type { EmployeeSkillLevel, EmployeeSkillTriad } from '../../domain/workforce/Employee.js';
 
 const FALLBACK_SKILLS = [
   'gardening',
@@ -21,12 +27,6 @@ const FALLBACK_SKILLS = [
   'administration',
   'cleanliness',
 ] as const;
-
-interface TraitDefinition {
-  readonly id: string;
-}
-
-const TRAITS = traitsJson as readonly TraitDefinition[];
 
 function toSortedStructures(
   structures: Iterable<WorkforceMarketStructureState>,
@@ -177,25 +177,59 @@ function buildSkillBundle(
 }
 
 function buildTraitSet(rng: RandomNumberGenerator): readonly WorkforceMarketCandidateTrait[] {
-  if (TRAITS.length === 0) {
+  const metadata = sampleTraitSet({ rng });
+  if (metadata.length === 0) {
     return [];
   }
 
-  const traitCount = rng() < 0.5 ? 1 : 2;
-  const pool = TRAITS.map((trait) => trait.id);
-  const selected: WorkforceMarketCandidateTrait[] = [];
+  const assignments = metadata.map((entry) => ({
+    id: entry.id,
+    strength01: assignTraitStrength(rng, entry),
+  } satisfies WorkforceMarketCandidateTrait));
 
-  for (let i = 0; i < traitCount && pool.length > 0; i += 1) {
-    const id = pickAndRemove(pool, rng);
-    const strength = 0.3 + rng() * 0.4;
+  return assignments.sort((a, b) => a.id.localeCompare(b.id));
+}
 
-    selected.push({
-      id,
-      strength01: strength,
-    });
+function toSkillLevels(skills3: WorkforceMarketCandidate['skills3']): EmployeeSkillLevel[] {
+  const map = new Map<string, number>();
+  map.set(skills3.main.slug, skills3.main.value01);
+  for (const secondary of skills3.secondary) {
+    if (!map.has(secondary.slug)) {
+      map.set(secondary.slug, secondary.value01);
+    }
   }
+  return Array.from(map.entries()).map(([skillKey, level01]) => ({
+    skillKey,
+    level01,
+  } satisfies EmployeeSkillLevel));
+}
 
-  return selected.sort((a, b) => a.id.localeCompare(b.id));
+function toSkillTriad(skills3: WorkforceMarketCandidate['skills3']): EmployeeSkillTriad {
+  return {
+    main: { skillKey: skills3.main.slug, level01: skills3.main.value01 },
+    secondary: [
+      { skillKey: skills3.secondary[0]?.slug ?? skills3.main.slug, level01: skills3.secondary[0]?.value01 ?? 0 },
+      { skillKey: skills3.secondary[1]?.slug ?? skills3.main.slug, level01: skills3.secondary[1]?.value01 ?? 0 },
+    ],
+  } satisfies EmployeeSkillTriad;
+}
+
+function createTraitSubject(
+  skills3: WorkforceMarketCandidate['skills3'],
+  traits: readonly WorkforceMarketCandidateTrait[],
+): TraitSubject {
+  const assignments: EmployeeTraitAssignment[] = traits.map((trait) => ({
+    traitId: trait.id,
+    strength01: trait.strength01,
+  }));
+
+  const skillTriad = toSkillTriad(skills3);
+
+  return {
+    traits: assignments,
+    skills: toSkillLevels(skills3),
+    skillTriad,
+  } satisfies TraitSubject;
 }
 
 export interface GenerateCandidatePoolOptions {
@@ -221,7 +255,13 @@ export function generateCandidatePool(
     const rng = createRng(worldSeed, candidateStreamId);
     const skills3 = buildSkillBundle(role, skillUniverse, rng);
     const traits = buildTraitSet(rng);
-    const expectedBaseRate_per_h = 5 + 10 * skills3.main.value01;
+    const baseSalary_per_h = 5 + 10 * skills3.main.value01;
+    const subject = createTraitSubject(skills3, traits);
+    const salaryEffect = applyTraitEffects(subject, {
+      salaryExpectation_per_h: baseSalary_per_h,
+    });
+    const expectedBaseRate_per_h =
+      salaryEffect.values.salaryExpectation_per_h ?? baseSalary_per_h;
 
     candidates.push({
       id: deterministicUuid(worldSeed, candidateStreamId),

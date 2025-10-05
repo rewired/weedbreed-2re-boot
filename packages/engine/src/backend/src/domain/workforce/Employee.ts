@@ -1,5 +1,6 @@
 import type { DomainEntity, Uuid } from '../entities.js';
 import type { EmployeeSkillRequirement } from './EmployeeRole.js';
+import type { EmployeeTraitAssignment, TraitSubject } from './traits.js';
 
 /**
  * Brand describing UUID v7 identifiers that seed RNG streams.
@@ -14,6 +15,13 @@ export interface EmployeeSkillLevel {
   readonly skillKey: string;
   /** Normalised skill level in the inclusive range [0, 1]. */
   readonly level01: number;
+}
+
+export interface EmployeeSkillTriad {
+  /** Primary skill focus carried over from the hiring market triad. */
+  readonly main: EmployeeSkillLevel;
+  /** Secondary proficiencies represented by the triad. */
+  readonly secondary: readonly [EmployeeSkillLevel, EmployeeSkillLevel];
 }
 
 /**
@@ -33,7 +41,7 @@ export interface EmployeeSchedule {
 /**
  * Canonical representation of an employee in the simulation workforce directory.
  */
-export interface Employee extends DomainEntity {
+export interface Employee extends DomainEntity, TraitSubject {
   /** Identifier of the role describing this employee's responsibilities. */
   readonly roleId: Uuid;
   /** Deterministic RNG seed (UUID v7) used for stochastic employee traits. */
@@ -46,6 +54,10 @@ export interface Employee extends DomainEntity {
   readonly fatigue01: number;
   /** Skill proficiencies mastered by the employee. */
   readonly skills: readonly EmployeeSkillLevel[];
+  /** Optional skill triad captured from the hiring market bundle. */
+  readonly skillTriad?: EmployeeSkillTriad;
+  /** Trait assignments influencing behaviour and modifiers. */
+  readonly traits: readonly EmployeeTraitAssignment[];
   /** Optional skill requirements tracked for employee development. */
   readonly developmentPlan?: readonly EmployeeSkillRequirement[];
   /** Working hour policy applied to the employee. */
