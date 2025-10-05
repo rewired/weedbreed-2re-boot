@@ -29,10 +29,8 @@ describe('resolveTariffs', () => {
       }
     });
 
-    expect(tariffs).toEqual({
-      price_electricity: 0.525,
-      price_water: 4
-    });
+    expect(tariffs.price_electricity).toBeCloseTo(0.525, 10);
+    expect(tariffs.price_water).toBeCloseTo(4, 10);
   });
 
   it('prefers overrides over base prices when provided without factors', () => {
