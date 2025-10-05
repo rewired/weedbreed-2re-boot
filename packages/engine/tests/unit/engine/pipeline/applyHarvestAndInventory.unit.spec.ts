@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { applyHarvestAndInventory } from '@/backend/src/engine/pipeline/applyHarvestAndInventory.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import { createTestPlant } from '@/tests/testUtils/strainFixtures.js';
 import type { EngineDiagnostic, EngineRunContext } from '@/backend/src/engine/Engine.js';
 import type { Plant, Room, Zone } from '@/backend/src/domain/world.js';
 import {
@@ -37,7 +38,7 @@ function createDiagnosticsRecorder() {
 }
 
 function prepareHarvestReadyPlant(zone: Mutable<Zone>): Plant {
-  const basePlant = zone.plants[0];
+  const basePlant = zone.plants[0] ?? createTestPlant();
   const plant: Plant = {
     ...basePlant,
     lifecycleStage: 'harvest-ready',
