@@ -93,7 +93,18 @@ const VALID_WORKFORCE_STATE = {
       averageMorale01: 0.8,
       averageFatigue01: 0.2
     }
-  ]
+  ],
+  payroll: {
+    dayIndex: 0,
+    totals: {
+      baseMinutes: 0,
+      otMinutes: 0,
+      baseCost: 0,
+      otCost: 0,
+      totalLaborCost: 0
+    },
+    byStructure: []
+  }
 };
 
 describe('workforce schemas', () => {

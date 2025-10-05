@@ -1,16 +1,25 @@
-import { clamp01 } from '../../util/math.js';
+import { HOURS_PER_DAY } from '../../constants/simConstants.js';
+import { bankersRound, clamp01 } from '../../util/math.js';
 import type {
+  CompanyLocation,
   Employee,
   EmployeeRole,
   Room,
   SimulationWorld,
   Structure,
   WorkforceKpiSnapshot,
+  WorkforcePayrollState,
+  WorkforceStructurePayrollTotals,
   WorkforceState,
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
   Zone,
 } from '../../domain/world.js';
+import {
+  createEmptyLocationIndexTable,
+  resolveLocationIndex,
+  type LocationIndexTable,
+} from '../../domain/payroll/locationIndex.js';
 import type { EngineRunContext as EngineContext } from '../Engine.js';
 
 const SCORE_EPSILON = 1e-6;
@@ -18,6 +27,9 @@ const OVERTIME_MORALE_PENALTY_PER_HOUR = 0.02;
 const MAX_DAILY_MORALE_PENALTY = 0.1;
 const FATIGUE_GAIN_PER_HOUR = 0.01;
 const BREAKROOM_FATIGUE_RECOVERY_PER_HALF_HOUR = 0.02;
+const BASE_WAGE_PER_HOUR = 5;
+const SKILL_WAGE_RATE_PER_POINT = 10;
+const OVERTIME_RATE_MULTIPLIER = 1.25;
 
 interface EmployeeUsage {
   baseMinutes: number;
@@ -31,6 +43,7 @@ export interface WorkforceAssignment {
   readonly baseMinutes: number;
   readonly overtimeMinutes: number;
   readonly waitTimeHours: number;
+  readonly structureId: Structure['id'];
 }
 
 export interface WorkforceRuntime {
@@ -43,6 +56,11 @@ type WorkforceRuntimeMutable = {
   kpiSnapshot?: WorkforceKpiSnapshot;
 };
 
+export interface WorkforcePayrollAccrualSnapshot {
+  readonly current: WorkforcePayrollState;
+  readonly finalized?: WorkforcePayrollState;
+}
+
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 
 type WorkforceRuntimeCarrier = Mutable<EngineContext> & {
@@ -50,6 +68,12 @@ type WorkforceRuntimeCarrier = Mutable<EngineContext> & {
 };
 
 const WORKFORCE_RUNTIME_CONTEXT_KEY = '__wb_workforceRuntime' as const;
+const WORKFORCE_PAYROLL_CONTEXT_KEY = '__wb_workforcePayrollAccrual' as const;
+
+type PayrollContextCarrier = Mutable<EngineContext> & {
+  payroll?: { locationIndexTable?: LocationIndexTable };
+  [WORKFORCE_PAYROLL_CONTEXT_KEY]?: WorkforcePayrollAccrualSnapshot;
+};
 
 function setWorkforceRuntime(
   ctx: EngineContext,
@@ -69,6 +93,36 @@ export function getWorkforceRuntime(ctx: EngineContext): WorkforceRuntime | unde
 
 export function clearWorkforceRuntime(ctx: EngineContext): void {
   delete (ctx as WorkforceRuntimeCarrier)[WORKFORCE_RUNTIME_CONTEXT_KEY];
+}
+
+function resolveLocationIndexTable(ctx: EngineContext): LocationIndexTable {
+  const carrier = ctx as PayrollContextCarrier;
+  return carrier.payroll?.locationIndexTable ?? createEmptyLocationIndexTable();
+}
+
+function setWorkforcePayrollAccrual(
+  ctx: EngineContext,
+  snapshot: WorkforcePayrollAccrualSnapshot,
+): void {
+  (ctx as PayrollContextCarrier)[WORKFORCE_PAYROLL_CONTEXT_KEY] = snapshot;
+}
+
+export function consumeWorkforcePayrollAccrual(
+  ctx: EngineContext,
+): WorkforcePayrollAccrualSnapshot | undefined {
+  const carrier = ctx as PayrollContextCarrier;
+  const snapshot = carrier[WORKFORCE_PAYROLL_CONTEXT_KEY];
+
+  if (snapshot) {
+    delete carrier[WORKFORCE_PAYROLL_CONTEXT_KEY];
+    return snapshot;
+  }
+
+  return undefined;
+}
+
+export function clearWorkforcePayrollAccrual(ctx: EngineContext): void {
+  delete (ctx as PayrollContextCarrier)[WORKFORCE_PAYROLL_CONTEXT_KEY];
 }
 
 interface CandidateEvaluation {
@@ -97,6 +151,179 @@ function ensureUsage(map: Map<Employee['id'], EmployeeUsage>, employeeId: Employ
   };
   map.set(employeeId, usage);
   return usage;
+}
+
+type PayrollAccumulator = {
+  baseMinutes: number;
+  otMinutes: number;
+  baseCost: number;
+  otCost: number;
+  totalLaborCost: number;
+};
+
+function createEmptyPayrollTotals(): PayrollAccumulator {
+  return { baseMinutes: 0, otMinutes: 0, baseCost: 0, otCost: 0, totalLaborCost: 0 };
+}
+
+function createEmptyStructurePayrollTotals(
+  structureId: Structure['id'],
+): WorkforceStructurePayrollTotals {
+  return { structureId, ...createEmptyPayrollTotals() };
+}
+
+function clonePayrollTotals(totals: PayrollAccumulator): PayrollAccumulator {
+  return { ...totals };
+}
+
+function cloneStructurePayroll(
+  entries: readonly WorkforceStructurePayrollTotals[],
+): Map<Structure['id'], WorkforceStructurePayrollTotals> {
+  const map = new Map<Structure['id'], WorkforceStructurePayrollTotals>();
+
+  for (const entry of entries) {
+    map.set(entry.structureId, { ...entry });
+  }
+
+  return map;
+}
+
+function ensureStructurePayroll(
+  map: Map<Structure['id'], WorkforceStructurePayrollTotals>,
+  structureId: Structure['id'],
+): WorkforceStructurePayrollTotals {
+  const current = map.get(structureId);
+
+  if (current) {
+    return current;
+  }
+
+  const created = createEmptyStructurePayrollTotals(structureId);
+  map.set(structureId, created);
+  return created;
+}
+
+function applyPayrollContribution(target: PayrollAccumulator, contribution: PayrollAccumulator): void {
+  target.baseMinutes += contribution.baseMinutes;
+  target.otMinutes += contribution.otMinutes;
+  target.baseCost += contribution.baseCost;
+  target.otCost += contribution.otCost;
+  target.totalLaborCost = target.baseCost + target.otCost;
+}
+
+function resolveRelevantSkillLevel(
+  employee: Employee,
+  definition: WorkforceTaskDefinition,
+): number {
+  if (definition.requiredSkills.length === 0) {
+    if (employee.skills.length === 0) {
+      return 0.5;
+    }
+
+    const sum = employee.skills.reduce((acc, skill) => acc + clamp01(skill.level01), 0);
+    return clamp01(sum / employee.skills.length);
+  }
+
+  let total = 0;
+
+  for (const requirement of definition.requiredSkills) {
+    const skill = employee.skills.find((entry) => entry.skillKey === requirement.skillKey);
+    total += clamp01(skill?.level01 ?? 0);
+  }
+
+  return definition.requiredSkills.length > 0
+    ? clamp01(total / definition.requiredSkills.length)
+    : 0.5;
+}
+
+function computePayrollContribution(
+  employee: Employee,
+  definition: WorkforceTaskDefinition,
+  baseMinutes: number,
+  overtimeMinutes: number,
+  locationIndex: number,
+): PayrollAccumulator {
+  const base = Math.max(0, baseMinutes);
+  const overtime = Math.max(0, overtimeMinutes);
+
+  if (base <= 0 && overtime <= 0) {
+    return createEmptyPayrollTotals();
+  }
+
+  const skillLevel = resolveRelevantSkillLevel(employee, definition);
+  const normalizedIndex = Math.max(0, Number.isFinite(locationIndex) ? locationIndex : 1);
+  const baseRatePerHour = (BASE_WAGE_PER_HOUR + SKILL_WAGE_RATE_PER_POINT * skillLevel) * normalizedIndex;
+  const baseCost = (baseRatePerHour / 60) * base;
+  const overtimeCost = ((baseRatePerHour * OVERTIME_RATE_MULTIPLIER) / 60) * overtime;
+
+  return {
+    baseMinutes: base,
+    otMinutes: overtime,
+    baseCost,
+    otCost: overtimeCost,
+    totalLaborCost: baseCost + overtimeCost,
+  } satisfies PayrollAccumulator;
+}
+
+function resolveStructureLocation(
+  structure: Structure | undefined,
+  companyLocation: CompanyLocation,
+): CompanyLocation {
+  const candidate = (structure as Structure & { location?: CompanyLocation })?.location;
+
+  if (candidate && candidate.cityName && candidate.countryName) {
+    return candidate;
+  }
+
+  return companyLocation;
+}
+
+function materializeStructurePayroll(
+  map: Map<Structure['id'], WorkforceStructurePayrollTotals>,
+): WorkforceStructurePayrollTotals[] {
+  return [...map.values()]
+    .map((entry) => ({ ...entry }))
+    .sort((a, b) => a.structureId.localeCompare(b.structureId));
+}
+
+function createEmptyPayrollState(dayIndex: number): WorkforcePayrollState {
+  return {
+    dayIndex,
+    totals: createEmptyPayrollTotals(),
+    byStructure: [],
+  } satisfies WorkforcePayrollState;
+}
+
+function finalizePayrollState(state: WorkforcePayrollState): WorkforcePayrollState {
+  const roundedTotals = {
+    baseMinutes: Math.trunc(Math.max(0, state.totals.baseMinutes)),
+    otMinutes: Math.trunc(Math.max(0, state.totals.otMinutes)),
+    baseCost: bankersRound(state.totals.baseCost),
+    otCost: bankersRound(state.totals.otCost),
+    totalLaborCost: 0,
+  } satisfies PayrollAccumulator;
+  roundedTotals.totalLaborCost = bankersRound(roundedTotals.baseCost + roundedTotals.otCost);
+
+  const roundedStructures = state.byStructure
+    .map((entry) => {
+      const baseCost = bankersRound(entry.baseCost);
+      const otCost = bankersRound(entry.otCost);
+      const totalLaborCost = bankersRound(baseCost + otCost);
+      return {
+        structureId: entry.structureId,
+        baseMinutes: Math.trunc(Math.max(0, entry.baseMinutes)),
+        otMinutes: Math.trunc(Math.max(0, entry.otMinutes)),
+        baseCost,
+        otCost,
+        totalLaborCost,
+      } satisfies WorkforceStructurePayrollTotals;
+    })
+    .sort((a, b) => a.structureId.localeCompare(b.structureId));
+
+  return {
+    dayIndex: Math.trunc(Math.max(0, state.dayIndex)),
+    totals: roundedTotals,
+    byStructure: roundedStructures,
+  } satisfies WorkforcePayrollState;
 }
 
 function resolveStructureLookups(world: SimulationWorld): {
@@ -388,17 +615,36 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
 
   if (!workforceState) {
     runtime.kpiSnapshot = createSnapshot(world.simTimeHours, [], 0, 0, 0, 0, 0, []);
+    clearWorkforcePayrollAccrual(ctx);
     return world;
   }
 
   const lookups = resolveStructureLookups(world);
+  const companyLocation = world.company.location;
+  const locationIndexTable = resolveLocationIndexTable(ctx);
   const definitions = new Map<WorkforceTaskDefinition['taskCode'], WorkforceTaskDefinition>(
     workforceState.taskDefinitions.map((definition) => [definition.taskCode, definition]),
   );
   const structureIndexLookup = new Map<Structure['id'], number>();
+  const structureById = new Map<Structure['id'], Structure>();
   world.company.structures.forEach((structure, index) => {
     structureIndexLookup.set(structure.id, index);
+    structureById.set(structure.id, structure);
   });
+
+  const currentDayIndex = Math.max(0, Math.trunc(world.simTimeHours / HOURS_PER_DAY));
+  const previousPayroll = workforceState.payroll ?? createEmptyPayrollState(currentDayIndex);
+  let payrollDayIndex = previousPayroll.dayIndex;
+  let payrollTotals = clonePayrollTotals(previousPayroll.totals);
+  let structurePayroll = cloneStructurePayroll(previousPayroll.byStructure);
+  let finalizedPayroll: WorkforcePayrollState | undefined;
+
+  if (previousPayroll.dayIndex !== currentDayIndex) {
+    finalizedPayroll = finalizePayrollState(previousPayroll);
+    payrollDayIndex = currentDayIndex;
+    payrollTotals = createEmptyPayrollTotals();
+    structurePayroll = new Map<Structure['id'], WorkforceStructurePayrollTotals>();
+  }
 
   const employeeUsage = new Map<Employee['id'], EmployeeUsage>();
   const updatedEmployees = new Map<Employee['id'], Employee>();
@@ -518,12 +764,27 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
       baseMinutes: selected.baseMinutes,
       overtimeMinutes: selected.overtimeMinutes,
       waitTimeHours,
+      structureId,
     });
     waitTimes.push(waitTimeHours);
 
     totalBaseMinutes += selected.baseMinutes;
     totalOvertimeMinutes += selected.overtimeMinutes;
     tasksCompleted += 1;
+
+    const structure = structureById.get(structureId);
+    const structureLocation = resolveStructureLocation(structure, companyLocation);
+    const locationIndex = resolveLocationIndex(locationIndexTable, structureLocation);
+    const contribution = computePayrollContribution(
+      selected.employee,
+      definition,
+      selected.baseMinutes,
+      selected.overtimeMinutes,
+      locationIndex,
+    );
+    applyPayrollContribution(payrollTotals, contribution);
+    const structureTotals = ensureStructurePayroll(structurePayroll, structureId);
+    applyPayrollContribution(structureTotals, contribution);
 
     taskUpdates.set(task.id, {
       ...task,
@@ -545,6 +806,18 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     0,
   );
 
+  payrollTotals.totalLaborCost = payrollTotals.baseCost + payrollTotals.otCost;
+  const currentPayrollState: WorkforcePayrollState = {
+    dayIndex: payrollDayIndex,
+    totals: { ...payrollTotals },
+    byStructure: materializeStructurePayroll(structurePayroll),
+  } satisfies WorkforcePayrollState;
+
+  setWorkforcePayrollAccrual(ctx, {
+    current: currentPayrollState,
+    finalized: finalizedPayroll,
+  });
+
   const snapshot = createSnapshot(
     world.simTimeHours,
     nextEmployees,
@@ -564,6 +837,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     employees: nextEmployees,
     taskQueue: updatedTasks,
     kpis: [...workforceState.kpis, snapshot],
+    payroll: currentPayrollState,
   } satisfies WorkforceState;
 
   return {

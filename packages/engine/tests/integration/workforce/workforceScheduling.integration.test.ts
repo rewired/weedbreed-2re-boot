@@ -167,6 +167,17 @@ describe('applyWorkforce integration', () => {
       taskDefinitions: definitions,
       taskQueue: queue,
       kpis: [],
+      payroll: {
+        dayIndex: 0,
+        totals: {
+          baseMinutes: 0,
+          otMinutes: 0,
+          baseCost: 0,
+          otCost: 0,
+          totalLaborCost: 0,
+        },
+        byStructure: [],
+      },
     };
 
     const worldWithWorkforce = createWorldWithWorkforce(workforce);
@@ -252,6 +263,17 @@ describe('applyWorkforce integration', () => {
       taskDefinitions: [definition],
       taskQueue: queue,
       kpis: [],
+      payroll: {
+        dayIndex: 0,
+        totals: {
+          baseMinutes: 0,
+          otMinutes: 0,
+          baseCost: 0,
+          otCost: 0,
+          totalLaborCost: 0,
+        },
+        byStructure: [],
+      },
     };
 
     const worldWithWorkforce = createWorldWithWorkforce(workforce);
@@ -354,6 +376,17 @@ describe('applyWorkforce integration', () => {
       taskDefinitions: [maintenanceDefinition, breakroomDefinition],
       taskQueue: queue,
       kpis: [],
+      payroll: {
+        dayIndex: 0,
+        totals: {
+          baseMinutes: 0,
+          otMinutes: 0,
+          baseCost: 0,
+          otCost: 0,
+          totalLaborCost: 0,
+        },
+        byStructure: [],
+      },
     };
 
     const worldWithWorkforce = createWorldWithWorkforce(workforce);

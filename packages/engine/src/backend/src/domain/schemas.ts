@@ -177,12 +177,37 @@ export const workforceKpiSnapshotSchema: z.ZodType<WorkforceKpiSnapshot> = z.obj
   averageFatigue01: zeroToOneNumber
 });
 
+const workforcePayrollTotalsSchema = z
+  .object({
+    baseMinutes: finiteNumber.min(0, 'baseMinutes cannot be negative.'),
+    otMinutes: finiteNumber.min(0, 'otMinutes cannot be negative.'),
+    baseCost: finiteNumber.min(0, 'baseCost cannot be negative.'),
+    otCost: finiteNumber.min(0, 'otCost cannot be negative.'),
+    totalLaborCost: finiteNumber.min(0, 'totalLaborCost cannot be negative.'),
+  })
+  .strict();
+
+const workforceStructurePayrollTotalsSchema = workforcePayrollTotalsSchema.extend({
+  structureId: uuidSchema,
+});
+
+const workforcePayrollStateSchema = z
+  .object({
+    dayIndex: finiteNumber
+      .min(0, 'dayIndex cannot be negative.')
+      .transform((value) => Math.trunc(value)),
+    totals: workforcePayrollTotalsSchema,
+    byStructure: z.array(workforceStructurePayrollTotalsSchema).readonly(),
+  })
+  .strict();
+
 export const workforceStateSchema: z.ZodType<WorkforceState> = z.object({
   roles: employeeRoleCollectionSchema,
   employees: employeeCollectionSchema,
   taskDefinitions: z.array(workforceTaskDefinitionSchema).readonly(),
   taskQueue: z.array(workforceTaskInstanceSchema).readonly(),
-  kpis: z.array(workforceKpiSnapshotSchema).readonly()
+  kpis: z.array(workforceKpiSnapshotSchema).readonly(),
+  payroll: workforcePayrollStateSchema,
 });
 
 export const companyLocationSchema: z.ZodType<CompanyLocation> = z.object({
