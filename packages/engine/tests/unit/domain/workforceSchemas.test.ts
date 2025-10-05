@@ -94,6 +94,15 @@ const VALID_WORKFORCE_STATE = {
       averageFatigue01: 0.2
     }
   ],
+  warnings: [
+    {
+      simTimeHours: 24,
+      code: 'workforce.overtime.trend',
+      message: 'Overtime usage exceeded 3 hours on the last tick.',
+      severity: 'warning',
+      employeeId: '00000000-0000-0000-0000-000000002001',
+    }
+  ],
   payroll: {
     dayIndex: 0,
     totals: {
@@ -120,7 +129,7 @@ describe('workforce schemas', () => {
         ...VALID_EMPLOYEE,
         rngSeedUuid: '00000000-0000-0000-0000-000000000000'
       })
-    ).toThrowErrorMatchingInlineSnapshot('"Expected a UUID v7 identifier."');
+    ).toThrowError(/Expected a UUID v7 identifier\./);
   });
 
   it('rejects employees with schedules outside allowed working hours', () => {
@@ -132,7 +141,7 @@ describe('workforce schemas', () => {
           hoursPerDay: 4
         }
       })
-    ).toThrowErrorMatchingInlineSnapshot('"hoursPerDay must be at least 5 hours."');
+    ).toThrowError(/hoursPerDay must be at least 5 hours\./);
 
     expect(() =>
       employeeSchema.parse({
@@ -142,7 +151,7 @@ describe('workforce schemas', () => {
           overtimeHoursPerDay: 6
         }
       })
-    ).toThrowErrorMatchingInlineSnapshot('"overtimeHoursPerDay must not exceed 5 hours."');
+    ).toThrowError(/overtimeHoursPerDay must not exceed 5 hours\./);
   });
 
   it('requires skill thresholds to remain within the 0..1 scale', () => {

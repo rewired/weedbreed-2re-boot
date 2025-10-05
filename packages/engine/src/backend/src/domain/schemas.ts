@@ -36,6 +36,7 @@ import type {
 import type { EmployeeRole, EmployeeSkillRequirement } from './workforce/EmployeeRole.js';
 import type { WorkforceState } from './workforce/WorkforceState.js';
 import type { WorkforceKpiSnapshot } from './workforce/kpis.js';
+import type { WorkforceWarning } from './workforce/warnings.js';
 import type {
   WorkforceTaskCostModel,
   WorkforceTaskDefinition,
@@ -177,6 +178,23 @@ export const workforceKpiSnapshotSchema: z.ZodType<WorkforceKpiSnapshot> = z.obj
   averageFatigue01: zeroToOneNumber
 });
 
+const workforceWarningSeveritySchema = z.enum(['info', 'warning', 'critical']);
+
+export const workforceWarningSchema: z.ZodType<WorkforceWarning> = z
+  .object({
+    simTimeHours: finiteNumber
+      .min(0, 'simTimeHours cannot be negative.')
+      .transform((value) => Math.trunc(value)),
+    code: nonEmptyString,
+    message: nonEmptyString,
+    severity: workforceWarningSeveritySchema,
+    structureId: uuidSchema.optional(),
+    employeeId: uuidSchema.optional(),
+    taskId: uuidSchema.optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+  })
+  .strict();
+
 const workforcePayrollTotalsSchema = z
   .object({
     baseMinutes: finiteNumber.min(0, 'baseMinutes cannot be negative.'),
@@ -207,6 +225,7 @@ export const workforceStateSchema: z.ZodType<WorkforceState> = z.object({
   taskDefinitions: z.array(workforceTaskDefinitionSchema).readonly(),
   taskQueue: z.array(workforceTaskInstanceSchema).readonly(),
   kpis: z.array(workforceKpiSnapshotSchema).readonly(),
+  warnings: z.array(workforceWarningSchema).readonly(),
   payroll: workforcePayrollStateSchema,
 });
 

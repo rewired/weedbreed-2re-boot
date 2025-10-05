@@ -18,3 +18,4 @@ export * from './workforce/EmployeeRole.js';
 export * from './workforce/WorkforceState.js';
 export * from './workforce/tasks.js';
 export * from './workforce/kpis.js';
+export * from './workforce/warnings.js';

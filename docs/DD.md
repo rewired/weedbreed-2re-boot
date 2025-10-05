@@ -172,6 +172,7 @@ targets from the same factor to keep unit conversions deterministic.
     deterministic labour cost models, and integer priorities.
   - `taskQueue`: queued/in-progress task instances used by the dispatcher and telemetry.
   - `kpis`: rolling `WorkforceKpiSnapshot` entries summarising throughput, labour hours, overtime, and aggregate morale/fatigue.
+  - `warnings`: deterministic `WorkforceWarning` entries carrying `code`, `severity`, `message`, optional `structureId`/`employeeId`/`taskId`, plus metadata for diagnostics and the façade.
   - `payroll`: day-indexed accumulators capturing `baseMinutes`, `otMinutes`, `baseCost`, `otCost`, and `totalLaborCost` for the
     entire company as well as per-structure slices. Each minute billed uses
     `rate_per_minute = ((5 + 10 × relevantSkill) × locationIndex × otMultiplier) / 60` with
@@ -185,6 +186,13 @@ targets from the same factor to keep unit conversions deterministic.
 - Task definitions in `/data/configs/task_definitions.json` now store deterministic `requiredRoleSlug` values and structured
   `requiredSkills` arrays. Legacy integer skill levels were mapped onto `minSkill01 = level/5` to preserve intent while aligning to
   the canonical [0,1] skill scale referenced by SEC §10.
+- `applyWorkforce` emits read-only telemetry after each tick via `telemetry.workforce.kpi.v1` (latest KPI snapshot) and
+  `telemetry.workforce.warning.v1` (batched warnings for the tick). The telemetry bus remains isolated from intents in keeping with
+  SEC §1.4.
+- The façade exposes `createWorkforceView` which projects the workforce branch into UI-ready structures:
+  - Directory listings with structure/role/skill/gender filter facets and morale/fatigue mapped onto percentages.
+  - Live queue entries resolving task metadata (priority, ETA, wait/due times, structure bindings, assigned employees).
+  - Employee detail records (schedule, RNG seed, development plans) and decorated warnings for dashboards.
 
 
 ---

@@ -153,8 +153,9 @@ describe('Light schedule — SEC §8', () => {
 
 - `employeeSchema` enforces UUID v7 seeds, morale/fatigue bounds (`0..1`), and working-hour policy: base hours **5–16**, overtime **≤ 5**, `daysPerWeek ∈ [1,7]`.
 - `workforceTaskDefinitionSchema` rejects skill thresholds outside `[0,1]` and mandates structured `requiredSkills` entries.
-- `workforceStateSchema` validates the full branch (`roles`, `employees`, `taskDefinitions`, `taskQueue`, `kpis`) embedded in the world snapshot to guard deterministic scheduling inputs.
-- Unit coverage: `tests/unit/domain/workforceSchemas.test.ts` exercises the above constraints and snapshot parsing.
+- `workforceStateSchema` validates the full branch (`roles`, `employees`, `taskDefinitions`, `taskQueue`, `kpis`, `warnings`, `payroll`) embedded in the world snapshot to guard deterministic scheduling inputs. `workforceWarningSchema` clamps severity to `'info' | 'warning' | 'critical'` and requires deterministic codes/messages plus optional structure/employee/task anchors.
+- Unit coverage: `tests/unit/domain/workforceSchemas.test.ts` exercises the above constraints (including warnings) and snapshot parsing.
+- Façade integration coverage: `packages/facade/tests/integration/workforceView.integration.test.ts` projects a simulated workforce state into directory filters, live queue entries, KPI percentages, and decorated warnings via `createWorkforceView`.
 
 ---
 

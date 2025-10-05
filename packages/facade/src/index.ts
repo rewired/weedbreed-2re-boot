@@ -8,6 +8,20 @@ import {
 export type { ParsedCompanyWorld } from '@wb/engine';
 export { parseCompanyWorld } from '@wb/engine';
 export { mapDeviceToView, type DeviceView } from './readModels/deviceView.js';
+export {
+  createWorkforceView,
+  type WorkforceDirectoryFilters,
+  type WorkforceDirectoryGender,
+  type WorkforceEmployeeDetailView,
+  type WorkforceEmployeeSkillView,
+  type WorkforceEmployeeSummary,
+  type WorkforceFilterOption,
+  type WorkforceKpiView,
+  type WorkforceQueueTaskView,
+  type WorkforceView,
+  type WorkforceViewOptions,
+  type WorkforceWarningView
+} from './readModels/workforceView.js';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.

@@ -1,5 +1,6 @@
 import { HOURS_PER_DAY } from '../../constants/simConstants.js';
 import { bankersRound, clamp01 } from '../../util/math.js';
+import { emitWorkforceKpiSnapshot, emitWorkforceWarnings } from '../../telemetry/workforce.js';
 import type {
   CompanyLocation,
   Employee,
@@ -837,8 +838,15 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     employees: nextEmployees,
     taskQueue: updatedTasks,
     kpis: [...workforceState.kpis, snapshot],
+    warnings: workforceState.warnings,
     payroll: currentPayrollState,
   } satisfies WorkforceState;
+
+  emitWorkforceKpiSnapshot(ctx.telemetry, snapshot);
+
+  if (workforceState.warnings.length > 0) {
+    emitWorkforceWarnings(ctx.telemetry, workforceState.warnings);
+  }
 
   return {
     ...world,
