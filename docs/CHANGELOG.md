@@ -1,5 +1,11 @@
 # Changelog
 
+### #63 AK-47 strain stress tolerance alignment
+
+- Added the missing `ppfd_umol_m2s` tolerance to the AK-47 strain blueprint so it
+  conforms to the strain schema and can load alongside the other hybrid
+  blueprints during physiology integration tests.
+
 ### #62 Harvest storage inventory MVP
 
 - Added deterministic `HarvestLot` and `Inventory` domain models with strict Zod
