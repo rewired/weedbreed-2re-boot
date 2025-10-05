@@ -289,23 +289,28 @@ describe('validateCompanyWorld (unit)', () => {
     );
   });
 
-  it('rejects harvest lots in non-storagerooms', () => {
+  it('rejects inventory lots in non-storagerooms', () => {
     const company = withRoomOverride(createCompany(), (room) => {
       if (room.purpose === 'growroom') {
         return {
           ...room,
-          harvestLots: [
-            {
-              id: uuid('00000000-0000-0000-0000-000000000120'),
-              name: 'Test Harvest',
-              strainId: uuid('00000000-0000-0000-0000-000000000020'),
-              strainSlug: 'white-widow',
-              quality01: 0.85,
-              dryWeight_g: 500,
-              harvestedAtSimHours: 1000,
-              sourceZoneId: uuid('00000000-0000-0000-0000-000000000060')
-            } satisfies HarvestLot
-          ]
+          inventory: {
+            lots: [
+              {
+                id: uuid('00000000-0000-0000-0000-000000000120'),
+                structureId: uuid('00000000-0000-0000-0000-000000000100'),
+                roomId: room.id,
+                source: {
+                  plantId: uuid('00000000-0000-0000-0000-000000000010'),
+                  zoneId: uuid('00000000-0000-0000-0000-000000000060')
+                },
+                freshWeight_kg: 0.75,
+                moisture01: 0.72,
+                quality01: 0.88,
+                createdAt_tick: 42
+              } satisfies HarvestLot
+            ]
+          }
         } satisfies Room;
       }
       return room;
@@ -315,7 +320,7 @@ describe('validateCompanyWorld (unit)', () => {
 
     expect(result.ok).toBe(false);
     expect(result.issues.map((issue) => issue.message)).toContain(
-      'only storagerooms may contain harvest lots'
+      'only storage rooms may contain harvest inventory'
     );
   });
 });
@@ -455,7 +460,9 @@ function createCompany(): Company {
     height_m: ROOM_DEFAULT_HEIGHT_M,
     zones: [],
     devices: [],
-    harvestLots: []
+    class: 'room.storage',
+    tags: ['storage'],
+    inventory: { lots: [] }
   } satisfies Room;
 
   const structureDeviceId = uuid('00000000-0000-0000-0000-000000000090');

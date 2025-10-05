@@ -97,7 +97,9 @@ const DEMO_WORLD: SimulationWorld = {
             height_m: 3,
             devices: [],
             zones: [],
-            harvestLots: []
+            class: 'room.storage',
+            tags: ['storage'],
+            inventory: { lots: [] }
           }
         ]
       }

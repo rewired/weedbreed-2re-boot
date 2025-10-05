@@ -1,5 +1,14 @@
 # Changelog
 
+### #62 Harvest storage inventory MVP
+
+- Added deterministic `HarvestLot` and `Inventory` domain models with strict Zod
+  schemas and UUID-safe parsing for storage tracking.
+- Introduced the `applyHarvestAndInventory` phase with storage room resolution,
+  deterministic lot creation, telemetry hooks, and plant lifecycle finalisation.
+- Implemented inventory read-model projections per structure and per storage room
+  alongside documentation of phase behaviour and telemetry topics.
+
 ### #61 Harvest pipeline and storage integration
 
 - Implemented the `applyHarvestAndInventory` pipeline stage to automatically

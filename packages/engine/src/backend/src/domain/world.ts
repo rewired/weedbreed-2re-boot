@@ -11,3 +11,5 @@ export * from '../device/condition.js';
 export * from './cultivation/substrateUsage.js';
 export * from './irrigation/waterUsage.js';
 export * from './interfaces/index.js';
+export * from './types/HarvestLot.js';
+export * from './types/Inventory.js';

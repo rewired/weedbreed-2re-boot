@@ -2,7 +2,9 @@ import { FLOAT_TOLERANCE } from '../../constants/simConstants.js';
 import type {
   Plant,
   PlantLifecycleStage,
+  Room,
   SimulationWorld,
+  Structure,
   Uuid,
   Zone
 } from '../../domain/world.js';
@@ -58,6 +60,10 @@ function updatePlantPhysiology(
   tickHours: number,
   worldSeed: string
 ): Plant {
+  if (plant.status === 'harvested') {
+    return plant;
+  }
+
   const rng = createRng(worldSeed, `plant:${plant.id}`);
   const nextAge = plant.ageHours + tickHours;
   const stress01 = calculateCombinedStress(zone.environment, zone.ppfd_umol_m2s, strain, plant.lifecycleStage);
@@ -118,8 +124,11 @@ function updatePlantPhysiology(
   const ageChanged = hasNumericChange(plant.ageHours, nextAge);
   const biomassChanged = hasNumericChange(plant.biomass_g, nextBiomass);
   const healthChanged = hasNumericChange(plant.health01, nextHealth);
+  const readyForHarvest = nextStage === 'harvest-ready';
+  const readyChanged = (plant.readyForHarvest === true) !== readyForHarvest;
+  const nextStatus = plant.status ?? 'active';
 
-  if (!stageChanged && !ageChanged && !biomassChanged && !healthChanged) {
+  if (!stageChanged && !ageChanged && !biomassChanged && !healthChanged && !readyChanged) {
     return plant;
   }
 
@@ -128,7 +137,9 @@ function updatePlantPhysiology(
     ageHours: nextAge,
     biomass_g: nextBiomass,
     health01: nextHealth,
-    lifecycleStage: nextStage
+    lifecycleStage: nextStage,
+    readyForHarvest,
+    status: nextStatus
   } satisfies Plant;
 }
 
@@ -138,13 +149,13 @@ export function advancePhysiology(world: SimulationWorld, ctx: EngineRunContext)
     strainBlueprints: new Map()
   };
 
-  let structuresChanged = false;
+  let structuresChangedFlag = 0;
 
   const nextStructures = world.company.structures.map((structure) => {
-    let roomsChanged = false;
+    let roomsChangedFlag = 0;
 
     const nextRooms = structure.rooms.map((room) => {
-      let zonesChanged = false;
+      let zonesChangedFlag = 0;
 
       const nextZones = room.zones.map((zone) => {
         let plantsChanged = false;
@@ -194,36 +205,36 @@ export function advancePhysiology(world: SimulationWorld, ctx: EngineRunContext)
           return zone;
         }
 
-        zonesChanged = true;
+        zonesChangedFlag = 1;
         return {
           ...zone,
           plants: nextPlants
         } satisfies Zone;
       });
 
-      if (!zonesChanged) {
+      if (zonesChangedFlag === 0) {
         return room;
       }
 
-      roomsChanged = true;
+      roomsChangedFlag = 1;
       return {
         ...room,
         zones: nextZones
-      };
+      } satisfies Room;
     });
 
-    if (!roomsChanged) {
+    if (roomsChangedFlag === 0) {
       return structure;
     }
 
-    structuresChanged = true;
+    structuresChangedFlag = 1;
     return {
       ...structure,
       rooms: nextRooms
-    };
+    } satisfies Structure;
   });
 
-  if (!structuresChanged) {
+  if (structuresChangedFlag === 0) {
     return world;
   }
 

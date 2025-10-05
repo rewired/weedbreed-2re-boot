@@ -1,146 +1,180 @@
+import { clamp01 } from '../../util/math.js';
+import { deterministicUuid } from '../../util/uuid.js';
+import { HarvestLotSchema } from '../../domain/schemas/HarvestLotSchema.js';
+import { InventorySchema } from '../../domain/schemas/InventorySchema.js';
+import { resolveStorageRoomForStructure } from '../../services/storage/resolveStorageRoom.js';
+import {
+  TELEMETRY_HARVEST_CREATED_V1,
+  TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1
+} from '../../telemetry/topics.js';
 import type {
   HarvestLot,
   Plant,
   Room,
   SimulationWorld,
   Structure,
-  Uuid,
-  Zone
+  Zone,
+  Uuid
 } from '../../domain/world.js';
 import type { EngineRunContext } from '../Engine.js';
-import type { StrainBlueprint } from '../../domain/blueprints/strainBlueprint.js';
-import { loadStrainBlueprint } from '../../domain/blueprints/strainBlueprintLoader.js';
-import {
-  calculateHarvestQuality,
-  calculateHarvestYield,
-  createHarvestLot
-} from '../../util/harvest.js';
-import { calculateCombinedStress } from '../../util/stress.js';
-import { resolveTickHours } from '../resolveTickHours.js';
 
-interface HarvestRuntime {
-  readonly strainBlueprints: Map<Uuid, StrainBlueprint>;
+interface HarvestComputationContext {
+  readonly world: SimulationWorld;
+  readonly structure: Structure;
+  readonly storageResolution:
+    | { ok: true; room: Room }
+    | { ok: false; reason: 'not_found' | 'ambiguous'; candidates: readonly Uuid[] };
+  storageTelemetryEmitted: boolean;
 }
 
-interface StorageroomPath {
-  readonly structureIndex: number;
-  readonly roomIndex: number;
-  readonly room: Room;
-}
-
-function getOrLoadStrainBlueprint(strainId: Uuid, runtime: HarvestRuntime): StrainBlueprint | null {
-  const cached = runtime.strainBlueprints.get(strainId);
-
-  if (cached) {
-    return cached;
+function emitStorageResolutionWarning(
+  ctx: HarvestComputationContext,
+  engineCtx: EngineRunContext,
+  zone: Zone,
+  plant: Plant
+): void {
+  if (ctx.storageResolution.ok) {
+    return;
   }
 
-  const blueprint = loadStrainBlueprint(strainId);
-
-  if (blueprint) {
-    runtime.strainBlueprints.set(strainId, blueprint);
+  if (!ctx.storageTelemetryEmitted) {
+    engineCtx.telemetry?.emit(TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1, {
+      structureId: ctx.structure.id,
+      candidateRoomIds: ctx.storageResolution.candidates,
+      reason: ctx.storageResolution.reason
+    });
+    ctx.storageTelemetryEmitted = true;
   }
 
-  return blueprint;
-}
-
-function findFirstStorageroom(structures: readonly Structure[]): StorageroomPath | null {
-  for (let structureIndex = 0; structureIndex < structures.length; structureIndex += 1) {
-    const structure = structures[structureIndex];
-
-    for (let roomIndex = 0; roomIndex < structure.rooms.length; roomIndex += 1) {
-      const room = structure.rooms[roomIndex];
-
-      if (room.purpose === 'storageroom') {
-        return { structureIndex, roomIndex, room };
-      }
+  engineCtx.diagnostics?.emit({
+    scope: 'zone',
+    code: `storage.resolve.${ctx.storageResolution.reason}`,
+    zoneId: zone.id,
+    message: 'Unable to resolve a storage room for harvest.',
+    metadata: {
+      plantId: plant.id,
+      structureId: ctx.structure.id,
+      candidateRoomIds: ctx.storageResolution.candidates,
+      reason: ctx.storageResolution.reason
     }
+  });
+}
+
+function computeLotForPlant(
+  ctx: HarvestComputationContext,
+  zone: Zone,
+  plant: Plant,
+  worldTick: number,
+  lotIndex: number
+): HarvestLot | null {
+  if (!ctx.storageResolution.ok) {
+    return null;
   }
 
-  return null;
+  const storageRoom = ctx.storageResolution.room;
+  const moistureSource =
+    typeof plant.moisture01 === 'number' ? plant.moisture01 : zone.moisture01;
+  const qualitySource =
+    typeof plant.quality01 === 'number' ? plant.quality01 : plant.health01;
+  const freshWeight_kg = Math.max(0, plant.biomass_g) / 1000;
+  const moisture01 = clamp01(moistureSource);
+  const quality01 = clamp01(qualitySource);
+
+  const lotCandidate = {
+    id: deterministicUuid(
+      ctx.world.seed,
+      `harvest:${ctx.structure.id}:${storageRoom.id}:${plant.id}:${String(worldTick)}:${String(lotIndex)}`
+    ),
+    structureId: ctx.structure.id,
+    roomId: storageRoom.id,
+    source: {
+      plantId: plant.id,
+      zoneId: zone.id
+    },
+    freshWeight_kg,
+    moisture01,
+    quality01,
+    createdAt_tick: worldTick
+  } satisfies HarvestLot;
+
+  return HarvestLotSchema.parse(lotCandidate);
+}
+
+function updatePlantAfterHarvest(plant: Plant, harvestedAtTick: number): Plant {
+  return {
+    ...plant,
+    readyForHarvest: false,
+    harvestedAt_tick: harvestedAtTick,
+    status: 'harvested'
+  } satisfies Plant;
 }
 
 export function applyHarvestAndInventory(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
-  const tickHours = resolveTickHours(ctx);
-  const runtime: HarvestRuntime = {
-    strainBlueprints: new Map()
-  };
-
-  const storageroomPath = findFirstStorageroom(world.company.structures);
-
-  const pendingHarvestLots: HarvestLot[] = [];
-
   let structuresChanged = false;
+  const worldTick = Math.trunc(world.simTimeHours);
 
   const nextStructures = world.company.structures.map((structure) => {
-    let roomsChanged = false;
+    const storageResolution = resolveStorageRoomForStructure(structure.id, world);
+    const computationCtx: HarvestComputationContext = {
+      world,
+      structure,
+      storageResolution,
+      storageTelemetryEmitted: false
+    };
+    const pendingLots: HarvestLot[] = [];
+    let structureChanged = false;
 
     const nextRooms = structure.rooms.map((room) => {
+      let roomChangedFlag = 0;
+
       if (room.zones.length === 0) {
         return room;
       }
 
-      let zonesChanged = false;
-
       const nextZones = room.zones.map((zone) => {
         let plantsChanged = false;
-        const remainingPlants: Plant[] = [];
+        const nextPlants: Plant[] = [];
 
         for (const plant of zone.plants) {
-          if (plant.lifecycleStage !== 'harvest-ready') {
-            remainingPlants.push(plant);
+          if (plant.readyForHarvest !== true || plant.status === 'harvested') {
+            nextPlants.push(plant);
             continue;
           }
 
-          if (!storageroomPath) {
-            ctx.diagnostics?.emit({
-              scope: 'zone',
-              code: 'harvest.storageroom.missing',
-              zoneId: zone.id,
-              message: 'No storageroom available for harvest storage.',
-              metadata: { plantId: plant.id }
-            });
-            remainingPlants.push(plant);
+          if (!storageResolution.ok) {
+            emitStorageResolutionWarning(computationCtx, ctx, zone, plant);
+            nextPlants.push(plant);
             continue;
           }
 
-          const strain = getOrLoadStrainBlueprint(plant.strainId, runtime);
+          const lot = computeLotForPlant(
+            computationCtx,
+            zone,
+            plant,
+            worldTick,
+            pendingLots.length
+          );
 
-          if (!strain) {
-            ctx.diagnostics?.emit({
-              scope: 'zone',
-              code: 'plant.strain.missing',
-              zoneId: zone.id,
-              message: 'Strain blueprint not found for plant.',
-              metadata: { plantId: plant.id, strainId: plant.strainId }
-            });
-            remainingPlants.push(plant);
+          if (!lot) {
+            nextPlants.push(plant);
             continue;
           }
 
-          const stress01 = calculateCombinedStress(
-            zone.environment,
-            zone.ppfd_umol_m2s,
-            strain,
-            plant.lifecycleStage
-          );
-          const quality01 = calculateHarvestQuality(
-            plant.health01,
-            stress01,
-            strain.generalResilience
-          );
-          const dryWeight_g = calculateHarvestYield(plant.biomass_g, strain, plant.lifecycleStage);
-          const harvestedAtSimHours = world.simTimeHours + tickHours;
-          const lot = createHarvestLot(
-            plant.strainId,
-            plant.slug,
-            quality01,
-            dryWeight_g,
-            harvestedAtSimHours,
-            zone.id
-          );
+          pendingLots.push(lot);
+          ctx.telemetry?.emit(TELEMETRY_HARVEST_CREATED_V1, {
+            structureId: lot.structureId,
+            roomId: lot.roomId,
+            plantId: plant.id,
+            zoneId: zone.id,
+            lotId: lot.id,
+            createdAt_tick: lot.createdAt_tick,
+            freshWeight_kg: lot.freshWeight_kg,
+            moisture01: lot.moisture01,
+            quality01: lot.quality01
+          });
 
-          pendingHarvestLots.push(lot);
+          const harvestedPlant = updatePlantAfterHarvest(plant, lot.createdAt_tick);
+          nextPlants.push(harvestedPlant);
           plantsChanged = true;
         }
 
@@ -148,73 +182,72 @@ export function applyHarvestAndInventory(world: SimulationWorld, ctx: EngineRunC
           return zone;
         }
 
-        zonesChanged = true;
+        roomChangedFlag = 1;
+        structureChanged = true;
         return {
           ...zone,
-          plants: remainingPlants
+          plants: nextPlants
         } satisfies Zone;
       });
 
-      if (!zonesChanged) {
+      if (roomChangedFlag === 0) {
         return room;
       }
 
-      roomsChanged = true;
       return {
         ...room,
         zones: nextZones
       } satisfies Room;
     });
 
-    if (!roomsChanged) {
+    let roomsSnapshot = nextRooms;
+
+    if (storageResolution.ok && pendingLots.length > 0) {
+      const storageIndex = nextRooms.findIndex((room) => room.id === storageResolution.room.id);
+
+      if (storageIndex >= 0) {
+        const storageRoom = nextRooms[storageIndex];
+        const existingLots = storageRoom.inventory?.lots ?? [];
+        const inventory = InventorySchema.parse({
+          lots: [...existingLots, ...pendingLots]
+        });
+        const updatedRoom: Room = {
+          ...storageRoom,
+          inventory
+        };
+        const roomsWithInventory = nextRooms.slice();
+        roomsWithInventory[storageIndex] = updatedRoom;
+        structureChanged = true;
+        roomsSnapshot = roomsWithInventory;
+      }
+    }
+
+    if (!structureChanged) {
       return structure;
     }
 
-    structuresChanged = true;
     return {
       ...structure,
-      rooms: nextRooms
+      rooms: roomsSnapshot
     } satisfies Structure;
   });
 
-  if (pendingHarvestLots.length === 0) {
-    return structuresChanged
-      ? {
-          ...world,
-          company: {
-            ...world.company,
-            structures: nextStructures
-          }
-        }
-      : world;
+  for (let i = 0; i < nextStructures.length; i += 1) {
+    if (nextStructures[i] !== world.company.structures[i]) {
+      structuresChanged = true;
+      break;
+    }
   }
 
-  if (!storageroomPath) {
+  if (!structuresChanged) {
     return world;
   }
-
-  const { structureIndex, roomIndex } = storageroomPath;
-  const targetStructure = nextStructures[structureIndex] ?? world.company.structures[structureIndex];
-  const targetRooms = targetStructure.rooms.slice();
-  const targetRoom = targetRooms[roomIndex] ?? storageroomPath.room;
-  const existingLots = targetRoom.harvestLots ?? [];
-  const updatedRoom: Room = {
-    ...targetRoom,
-    harvestLots: [...existingLots, ...pendingHarvestLots]
-  };
-  targetRooms[roomIndex] = updatedRoom;
-  const updatedStructure: Structure = {
-    ...targetStructure,
-    rooms: targetRooms
-  };
-  const finalStructures = nextStructures.slice();
-  finalStructures[structureIndex] = updatedStructure;
 
   return {
     ...world,
     company: {
       ...world.company,
-      structures: finalStructures
+      structures: nextStructures
     }
   } satisfies SimulationWorld;
 }
