@@ -1,5 +1,9 @@
 # Changelog
 
+### #67 Reporting CLI tooling prerequisites
+
+- Documented Node.js/Corepack/pnpm setup prerequisites and troubleshooting guidance for the seed-to-harvest reporting CLI, clarifying that the repository `packageManager` metadata requires pnpm.
+
 ### #66 Seed-to-harvest reporting pipeline
 
 - Added `reporting/generateSeedToHarvestReport.ts` to compose the lifecycle orchestrator with the perf harness and emit
