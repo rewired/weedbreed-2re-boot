@@ -7,7 +7,8 @@
 `generateSeedToHarvestReport()` composes the deterministic seed-to-harvest orchestrator with the performance harness so teams can
 produce shareable JSON artifacts that capture lifecycle stage transitions, perf traces, and harvest telemetry in a single
 package. The CLI wrapper writes these reports to `/reporting` at the repository root so downstream analysis tools have a stable
-pickup location.
+pickup location. The `/reporting` directory is tracked in the root `.gitignore`, ensuring generated artifacts remain local and are
+never accidentally committed.
 
 ## 2) Inputs & configuration
 
