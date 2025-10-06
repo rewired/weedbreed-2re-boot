@@ -92,15 +92,15 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
 
 - **Blueprint taxonomy:** All blueprints expose `class` values using a domain-level
   identifier (`strain`, `cultivation-method`, `device.climate`, `room.purpose.growroom`,
-  etc.) plus a kebab-case `slug` unique within that class. Directory layout is flattened
-  to two levels—`/data/blueprints/<domain>/<file>.json`—so loaders can map files to
-  domains without parsing subtype folders. JSON stays authoritative for metadata; the
-  filesystem only provides expectations. When the folder taxonomy and JSON `class`
-  disagree, the loader throws a `BlueprintTaxonomyMismatchError` and rejects the
-  payload. Subtype information (device climate mode, airflow subtype, cultivation
-  family/technique, pathogen, taxon, substrate material/cycle, irrigation
+  etc.) plus a kebab-case `slug` unique within that class. JSON stays authoritative for
+  metadata; the filesystem only provides expectations. When the folder taxonomy and
+  JSON `class` disagree, the loader throws a `BlueprintTaxonomyMismatchError` and
+  rejects the payload. Subtype information (device climate mode, airflow subtype,
+  cultivation family/technique, pathogen, taxon, substrate material/cycle, irrigation
   method/control, etc.) is expressed by explicit fields within the JSON payload instead
   of being inferred from paths.
+
+Blueprint directory rule: All blueprints are auto-discovered under /data/blueprints/<domain>/<file>.json with a maximum depth of two segments (domain + file). Devices are /data/blueprints/device/<category>.json or /data/blueprints/device/<category>/<file>.json limited to two levels; no deeper subfolders are allowed.
 
 ### 4.2 Price Maps
 
@@ -226,17 +226,17 @@ targets from the same factor to keep unit conversions deterministic.
 
 ## 6) Tick Pipeline (SEC §4.2)
 
-Fixed order per tick (9 phases):
+### Tick Pipeline (Canonical, 9 Phases)
 
-1. **Device Effects** — compute device outputs (light, heat, airflow, CO₂, dehumidification) subject to capacity & efficiency.
-2. **Sensor Sampling** — record zone state before environmental integration so co-housed actuators observe pre-actuation values.
-3. **Environment Update** — integrate device outputs into zone state (well-mixed model baseline).
-4. **Irrigation & Nutrients** — fulfill zone method (manual enqueues tasks; automated fulfills on schedule).
-5. **Workforce Scheduling** — dispatch queued labour, enforce structure-binding, skill minimums, working-hour caps, and update morale/fatigue while emitting KPIs.
-6. **Plant Physiology** — update age/phase, biomass, stress, disease risk using strain curves and environment.
-7. **Harvest & Inventory** — create lots when criteria met; move yield to inventory.
-8. **Economy & Cost Accrual** — aggregate consumption/costs; maintenance curves progress.
-9. **Commit & Telemetry** — snapshot state and publish read-only events.
+1) Device Effects  
+2) Sensor Sampling  
+3) Environment Update  
+4) Irrigation & Nutrients  
+5) Workforce Scheduling  
+6) Plant Physiology  
+7) Harvest & Inventory  
+8) Economy & Cost Accrual  
+9) Commit & Telemetry
     
 
 ---

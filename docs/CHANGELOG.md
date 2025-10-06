@@ -2,6 +2,7 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Docs: standardized blueprint folders to max two levels under /data/blueprints (no deeper subfolders).
 - Flattened `/data/blueprints` to domain-level folders (`device/<category>/*.json`,
   `cultivation-method/*.json`, `room/purpose/*.json`, etc.) and aligned all JSON `class`
   values to domain identifiers (`strain`, `device.climate`, `room.purpose.<slug>`, ...).

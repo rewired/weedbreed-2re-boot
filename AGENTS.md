@@ -83,7 +83,9 @@ Steer implementation so the codebase **conforms to SEC v0.2.1** while remaining 
 
 - **Blueprints** live under `/data/blueprints/**` (strains, devices, cultivationMethods, substrates, containers, …). **Never embed prices** in device blueprints.
     
-- **Contributors guardrail:** Blueprint JSON is the source of truth. Keep each file inside the taxonomy folder that mirrors its `class` (`device/climate/cooling/**`, etc.). The loader fails fast (`BlueprintTaxonomyMismatchError`) whenever the directory and JSON diverge.
+- **Contributors guardrail:** Blueprint JSON is the source of truth. Keep each file inside the taxonomy folder that mirrors its `class` (`device/climate/*.json`, `device/lighting/*.json`, etc.). The loader fails fast (`BlueprintTaxonomyMismatchError`) whenever the directory and JSON diverge.
+
+Blueprint directory rule: All blueprints are auto-discovered under /data/blueprints/<domain>/<file>.json with a maximum depth of two segments (domain + file). Devices are /data/blueprints/device/<category>.json or /data/blueprints/device/<category>/<file>.json limited to two levels; no deeper subfolders are allowed.
 
 - **Price maps** live under `/data/prices/**`.
     
@@ -154,22 +156,18 @@ Every **Zone MUST reference exactly one `cultivationMethod`** (blueprint id). Th
 
 ## 7) Tick Pipeline (SEC §4.2)
 
-Implement the fixed order:
+### Tick Pipeline (Canonical, 9 Phases)
 
-1. **Device Effects**
-    
-2. **Environment Update**
-    
-3. **Irrigation & Nutrients**
-    
-4. **Plant Physiology**
-    
-5. **Harvest & Inventory**
-    
-6. **Economy & Cost Accrual**
-    
-7. **Commit & Telemetry**
-    
+1) Device Effects  
+2) Sensor Sampling  
+3) Environment Update  
+4) Irrigation & Nutrients  
+5) Workforce Scheduling  
+6) Plant Physiology  
+7) Harvest & Inventory  
+8) Economy & Cost Accrual  
+9) Commit & Telemetry
+
 
 > Implement as a small state machine to support pause/step.
 
