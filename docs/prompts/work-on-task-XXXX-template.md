@@ -1,58 +1,33 @@
-# PROMPT: Execute One Task End-to-End
+# PROMPT: Execute Task XXXX end-to-end (SEC/TDD/DD aligned)
 
-**You are Codex.** Execute the referenced task **verbatim**. Do **not** add scope beyond the task; do **not** omit any step. If the task text contradicts the contracts below, prefer the contracts and note the deviation in the PR description.
+You are Codex. Execute the task EXACTLY as written in this file:
+- TASK_FILE: /docs/tasks/XXXX-yyy.md
+- Out of scope: anything not explicitly in TASK_FILE.
 
-## 1) Task to execute
+Contracts to honor (no re-interpretation):
+- SEC v0.2.1, TDD.md, DD.md, CHANGELOG.md, AGENTS.md.
+- Node 22 LTS, ESM, pnpm workspaces. No Math.random (use createRng(seed, streamId)).
+- Economy uses per-hour units; derive per-tick from hours.
+- Zones only in growrooms; devices obey placement & room purpose eligibility.
+- Tick pipeline: 9 phases in canonical order (TDD §7).
 
-* **TASK_FILE:** `/docs/tasks/0004-pest-disease-system-mvp.md`
-* **Out of scope:** anything not explicitly in the task file.
+Do this, in order:
+1) Read TASK_FILE. Extract acceptance criteria & deliverables.
+2) Implement the minimal code/data changes to satisfy the task (no scope creep).
+3) Add/adjust tests (unit/module/integration/conformance) per TDD to encode behavior.
+4) Run locally and make green:
+   pnpm i
+   pnpm -r lint && pnpm -r build
+   pnpm -r test
+5) Update docs if the task requests it + CHANGELOG entry (human-readable).
+6) Open a single PR titled: feat(task:XXXX): <short title>
+   - Include: summary, list of touched SEC/TDD sections, test evidence (commands + pass counts),
+     and any necessary deviations (with reason tied to the contracts above).
 
-## 2) Canonical contracts (must follow)
-
-* **SEC v0.2.1** (engine semantics, invariants, placement, units, RNG, golden master). 
-* **TDD (tests, layout, conformance, per-hour units, pipelines).** 
-* **DD (design & data flows; SEC wins on conflicts).** 
-* **CHANGELOG (keep-a-changelog; record changes).** 
-* **AGENTS (guardrails for Codex: Node 22 LTS, ESM, pnpm workspaces, UI stack notes).** 
-* **Don't** call anything *.mvp
-
-## 3) Ground rules
-
-* **No scope creep.** Implement exactly what the task prescribes.
-* **Determinism:** use `createRng(seed, streamId)` only; never `Math.random`. 
-* **Per-hour economy units; derive per-tick via hours.** 
-* **Placement rules & zone/cultivation constraints enforced.** 
-* **1 tick = 1 in-game hour; pipeline has 9 Phases (enforced by tests).** 
-* **Node 22 (LTS), ESM, pnpm workspaces.** 
-
-## 4) Steps (do in order)
-
-1. **Read the task** in `TASK_FILE`. Extract acceptance criteria and deliverables.
-2. **Plan the minimal changes** (files to add/modify, tests to write/adjust). Keep the plan inside the PR description.
-3. **Implement code & data updates** exactly per task. Respect blueprint taxonomy, schemas, and units. 
-4. **Add/adjust tests** (unit/module/integration/conformance) to encode the task’s behavior per TDD. 
-5. **Run quality gates locally**:
-
-   * `pnpm i`
-   * `pnpm -r lint && pnpm -r build`
-   * `pnpm -r test` (ensure conformance/golden if task requires). 
-6. **Docs**: update the task file with status/results if it requests it; update **CHANGELOG** summarizing the change. 
-7. **Create a PR** titled: `feat(task:<ID>): <short title>` with:
-
-   * Summary of what changed & why.
-   * Exactly which SEC/TDD sections were touched (bulleted refs).
-   * Test evidence (commands + pass summary).
-   * Any deviations from the task (and why), tied to contracts above.
-
-## 5) Acceptance checklist (must be true before PR)
-
-* [ ] All changes align with **SEC v0.2.1** semantics (sections referenced in PR). 
-* [ ] Tests exist and pass for the new/changed behavior (unit→integration→conformance as relevant). 
-* [ ] Economy uses **per-hour** rates only; tariffs resolved once at sim start. 
-* [ ] Device placement & room purpose eligibility enforced; zones only in growrooms; zones have cultivation methods. 
-* [ ] No `Math.random`; RNG via `createRng`. 
-* [ ] **CHANGELOG** updated with human-readable entry. 
-
-## 6) Output
-
-* A **single PR** implementing the task end-to-end, with passing checks and updated docs/tests.
+Acceptance before PR:
+- [ ] Aligns with SEC v0.2.1 semantics.
+- [ ] Tests exist and pass for new/changed behavior.
+- [ ] Per-hour economy only; tariffs resolved once at sim start.
+- [ ] Placement & room-purpose rules enforced; zones have cultivationMethod.
+- [ ] No Math.random; only createRng.
+- [ ] CHANGELOG updated.
