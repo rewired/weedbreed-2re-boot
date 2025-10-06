@@ -4,8 +4,7 @@
 
 ## 1) Task to execute
 
-* **TASK_FILE:** `/docs/tasks/0003-golden-master-conformance-suite.md`
-* **GOAL (copy the task’s goal here 1–3 lines):** …
+* **TASK_FILE:** `/docs/tasks/0004-pest-disease-system-mvp.md`
 * **Out of scope:** anything not explicitly in the task file.
 
 ## 2) Canonical contracts (must follow)
