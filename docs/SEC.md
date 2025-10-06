@@ -485,6 +485,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 - **Risk accumulation:** Pests/diseases accumulate deterministic **risk scores** from environment and hygiene signals; no random outbreaks without RNG stream use.
 - **Inspections & treatments:** Represented as tasks with deterministic effects and cooldowns; successful treatments reduce risk and may impose quarantine intervals.
 - **Biosecurity hooks:** Room purposes and workflows may reduce cross-contamination via scheduled sanitation tasks. Telemetry surfaces warnings when risk exceeds thresholds.
+- **MVP implementation:** Zones track risk tiers (`low`/`moderate`/`high`) derived from environment + hygiene inputs. Moderate risk emits inspection tasks; high risk emits treatment tasks and applies a 72 h quarantine suppressing conflicting work. Telemetry publishes `telemetry.health.pest_disease.risk.v1` and `telemetry.health.pest_disease.task_emitted.v1` events so read-models/UI surface warnings.
 
 ---
 

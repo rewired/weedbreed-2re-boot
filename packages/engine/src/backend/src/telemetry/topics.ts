@@ -17,3 +17,7 @@ export const TELEMETRY_WORKFORCE_RAISE_IGNORED_V1 =
   'telemetry.workforce.raise.ignored.v1' as const;
 export const TELEMETRY_WORKFORCE_EMPLOYEE_TERMINATED_V1 =
   'telemetry.workforce.employee.terminated.v1' as const;
+export const TELEMETRY_HEALTH_PEST_DISEASE_RISK_V1 =
+  'telemetry.health.pest_disease.risk.v1' as const;
+export const TELEMETRY_HEALTH_PEST_DISEASE_TASK_V1 =
+  'telemetry.health.pest_disease.task_emitted.v1' as const;

@@ -1,4 +1,5 @@
 import type { Inventory } from './types/Inventory.js';
+import type { HealthState } from './health/pestDisease.js';
 import type { WorkforceState } from './workforce/WorkforceState.js';
 
 /**
@@ -372,4 +373,6 @@ export interface SimulationWorld {
   readonly company: Company;
   /** Workforce directory, task queue, and KPI snapshots. */
   readonly workforce: WorkforceState;
+  /** Aggregated health state including pest and disease risk signals. */
+  readonly health?: HealthState;
 }
