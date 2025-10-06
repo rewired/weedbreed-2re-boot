@@ -10,18 +10,18 @@ import {
   substrateBlueprintSchema
 } from '@/backend/src/domain/world.js';
 
-import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco-coir.json' with { type: 'json' };
-import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil-multi-cycle.json' with { type: 'json' };
-import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil-single-cycle.json' with { type: 'json' };
+import cocoCoir from '../../../../../data/blueprints/substrate/coco-coir.json' with { type: 'json' };
+import soilMulti from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };
+import soilSingle from '../../../../../data/blueprints/substrate/soil-single-cycle.json' with { type: 'json' };
 
 const cocoCoirPath = fileURLToPath(
-  new URL('../../../../../data/blueprints/substrate/coco/coir/coco-coir.json', import.meta.url)
+  new URL('../../../../../data/blueprints/substrate/coco-coir.json', import.meta.url)
 );
 const soilMultiPath = fileURLToPath(
-  new URL('../../../../../data/blueprints/substrate/soil/multi-cycle/soil-multi-cycle.json', import.meta.url)
+  new URL('../../../../../data/blueprints/substrate/soil-multi-cycle.json', import.meta.url)
 );
 const soilSinglePath = fileURLToPath(
-  new URL('../../../../../data/blueprints/substrate/soil/single-cycle/soil-single-cycle.json', import.meta.url)
+  new URL('../../../../../data/blueprints/substrate/soil-single-cycle.json', import.meta.url)
 );
 
 const blueprintsRoot = path.resolve(
@@ -81,6 +81,28 @@ describe('substrateBlueprintSchema', () => {
     if (!result.success) {
       const messages = result.error.issues.map((issue) => issue.message);
       expect(messages).toContain('unitPrice_per_L is required when purchaseUnit is "liter".');
+    }
+  });
+
+  it('requires material and cycle descriptors', () => {
+    const invalidMaterial = { ...cocoCoir } as Record<string, unknown>;
+    delete invalidMaterial.material;
+
+    const invalidCycle = { ...cocoCoir } as Record<string, unknown>;
+    delete invalidCycle.cycle;
+
+    const missingMaterial = substrateBlueprintSchema.safeParse(invalidMaterial);
+    expect(missingMaterial.success).toBe(false);
+    if (!missingMaterial.success) {
+      const paths = missingMaterial.error.issues.map((issue) => issue.path.join('.'));
+      expect(paths).toContain('material');
+    }
+
+    const missingCycle = substrateBlueprintSchema.safeParse(invalidCycle);
+    expect(missingCycle.success).toBe(false);
+    if (!missingCycle.success) {
+      const paths = missingCycle.error.issues.map((issue) => issue.path.join('.'));
+      expect(paths).toContain('cycle');
     }
   });
 

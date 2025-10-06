@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
-import {
-  BlueprintClassMismatchError,
-  type BlueprintPathOptions,
-  deriveBlueprintClassFromPath
-} from './taxonomy.js';
+import { assertBlueprintClassMatchesPath, type BlueprintPathOptions, deriveBlueprintClassFromPath } from './taxonomy.js';
 
 const finiteNumber = z.number().finite('Value must be a finite number.');
 const positiveNumber = finiteNumber.gt(0, 'Value must be greater than zero.');
@@ -13,13 +9,10 @@ const slugString = z
   .string({ required_error: 'slug is required.' })
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case (lowercase, digits, hyphen).');
 
-const strainClassSchema = z
-  .string({ required_error: 'class is required.' })
-  .regex(
-    /^[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)*$/,
-    'class must follow the strain taxonomy (<domain>.<effect>[.<variant>]).'
-  )
-  .refine((value) => value.startsWith('strain.'), 'class must start with the "strain." namespace.');
+const strainClassSchema = z.literal('strain', {
+  required_error: 'class is required.',
+  invalid_type_error: 'class must be the canonical "strain" domain value.'
+});
 
 const envRangeSchema = z
   .object({
@@ -247,10 +240,7 @@ export function parseStrainBlueprint(
   if (options.filePath) {
     const derived = deriveBlueprintClassFromPath(options.filePath, options);
     relativePath = derived.relativePath;
-
-    if (derived.className !== blueprint.class) {
-      throw new BlueprintClassMismatchError(derived.relativePath, derived.className, blueprint.class);
-    }
+    assertBlueprintClassMatchesPath(blueprint.class, options.filePath, options);
   }
 
   if (options.slugRegistry) {

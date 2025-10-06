@@ -7,8 +7,8 @@ import { parseStrainBlueprint } from '../../../src/backend/src/domain/blueprints
 import { BlueprintClassMismatchError } from '../../../src/backend/src/domain/blueprints/taxonomy.js';
 import { resolveBlueprintPath } from '../../testUtils/paths.js';
 
-const fixturePath = resolveBlueprintPath('strain/hybrid/balanced/white-widow.json');
-const blueprintsRoot = path.resolve(fixturePath, '..', '..', '..', '..');
+const fixturePath = resolveBlueprintPath('strain/white-widow.json');
+const blueprintsRoot = path.resolve(fixturePath, '..', '..');
 const fixturePayload = JSON.parse(readFileSync(fixturePath, 'utf8'));
 
 describe('strainBlueprintSchema', () => {
@@ -30,7 +30,10 @@ describe('strainBlueprintSchema', () => {
 
   it('rejects invalid class formats', () => {
     expect(() =>
-      parseStrainBlueprint({ ...fixturePayload, class: 'strain' }, { filePath: fixturePath })
+      parseStrainBlueprint(
+        { ...fixturePayload, class: 'strain.hybrid' },
+        { filePath: fixturePath }
+      )
     ).toThrow();
     expect(() =>
       parseStrainBlueprint(
@@ -147,7 +150,7 @@ describe('strainBlueprintSchema', () => {
   it('validates taxonomy when filePath provided', () => {
     expect(() =>
       parseStrainBlueprint(
-        { ...fixturePayload, class: 'strain.hybrid.balanced' },
+        { ...fixturePayload, class: 'strain' },
         { filePath: fixturePath, blueprintsRoot }
       )
     ).not.toThrow();
@@ -156,7 +159,7 @@ describe('strainBlueprintSchema', () => {
   it('throws BlueprintClassMismatchError when path disagrees', () => {
     expect(() =>
       parseStrainBlueprint(fixturePayload, {
-        filePath: path.join(blueprintsRoot, 'strain/indica/pure/mock.json'),
+        filePath: path.join(blueprintsRoot, 'device/climate/cool-air-split-3000.json'),
         blueprintsRoot
       })
     ).toThrow(BlueprintClassMismatchError);
@@ -179,18 +182,11 @@ describe('strainBlueprintSchema', () => {
     ).toThrow();
   });
 
-  it('allows same slug across different classes', () => {
+  it('accepts unique slugs across multiple parses', () => {
     const registry = new Map<string, string>();
-    const strainA = parseStrainBlueprint(
-      { ...fixturePayload, class: 'strain.hybrid.balanced', slug: 'duplicate-strain' },
-      { slugRegistry: registry, blueprintsRoot }
-    );
-    expect(strainA.class).toBe('strain.hybrid.balanced');
-
-    const strainB = parseStrainBlueprint(
-      { ...fixturePayload, class: 'strain.indica.pure', slug: 'duplicate-strain' },
-      { slugRegistry: registry, blueprintsRoot }
-    );
-    expect(strainB.class).toBe('strain.indica.pure');
+    parseStrainBlueprint({ ...fixturePayload, slug: 'strain-a' }, { slugRegistry: registry, blueprintsRoot });
+    expect(() =>
+      parseStrainBlueprint({ ...fixturePayload, slug: 'strain-b' }, { slugRegistry: registry, blueprintsRoot })
+    ).not.toThrow();
   });
 });

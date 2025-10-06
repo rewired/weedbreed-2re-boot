@@ -3,16 +3,16 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
-import dripInline from '../../../../../data/blueprints/irrigation/drip/inline-fertigation/drip-inline-fertigation-basic.json' with { type: 'json' };
-import ebbFlow from '../../../../../data/blueprints/irrigation/ebb-flow/table/ebb-flow-table-small.json' with { type: 'json' };
-import manualCan from '../../../../../data/blueprints/irrigation/manual/can/manual-watering-can.json' with { type: 'json' };
-import topFeed from '../../../../../data/blueprints/irrigation/top-feed/timer/top-feed-pump-timer.json' with { type: 'json' };
-import cocoCoir from '../../../../../data/blueprints/substrate/coco/coir/coco-coir.json' with { type: 'json' };
-import soilMulti from '../../../../../data/blueprints/substrate/soil/multi-cycle/soil-multi-cycle.json' with { type: 'json' };
-import soilSingle from '../../../../../data/blueprints/substrate/soil/single-cycle/soil-single-cycle.json' with { type: 'json' };
-import basicSoilPot from '../../../../../data/blueprints/cultivation-method/soil/basic-pot/basic-soil-pot.json' with { type: 'json' };
-import scrog from '../../../../../data/blueprints/cultivation-method/training/scrog/screen-of-green.json' with { type: 'json' };
-import sog from '../../../../../data/blueprints/cultivation-method/training/sog/sea-of-green.json' with { type: 'json' };
+import dripInline from '../../../../../data/blueprints/irrigation/drip-inline-fertigation-basic.json' with { type: 'json' };
+import ebbFlow from '../../../../../data/blueprints/irrigation/ebb-flow-table-small.json' with { type: 'json' };
+import manualCan from '../../../../../data/blueprints/irrigation/manual-watering-can.json' with { type: 'json' };
+import topFeed from '../../../../../data/blueprints/irrigation/top-feed-pump-timer.json' with { type: 'json' };
+import cocoCoir from '../../../../../data/blueprints/substrate/coco-coir.json' with { type: 'json' };
+import soilMulti from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };
+import soilSingle from '../../../../../data/blueprints/substrate/soil-single-cycle.json' with { type: 'json' };
+import basicSoilPot from '../../../../../data/blueprints/cultivation-method/basic-soil-pot.json' with { type: 'json' };
+import scrog from '../../../../../data/blueprints/cultivation-method/screen-of-green.json' with { type: 'json' };
+import sog from '../../../../../data/blueprints/cultivation-method/sea-of-green.json' with { type: 'json' };
 
 import { parseIrrigationBlueprint, type IrrigationBlueprint } from '@/backend/src/domain/world.js';
 
@@ -29,38 +29,26 @@ const irrigationFixtures = [
   {
     data: dripInline,
     path: fileURLToPath(
-      new URL(
-        '../../../../../data/blueprints/irrigation/drip/inline-fertigation/drip-inline-fertigation-basic.json',
-        import.meta.url
-      )
+      new URL('../../../../../data/blueprints/irrigation/drip-inline-fertigation-basic.json', import.meta.url)
     )
   },
-    {
-      data: ebbFlow,
-      path: fileURLToPath(
-        new URL(
-          '../../../../../data/blueprints/irrigation/ebb-flow/table/ebb-flow-table-small.json',
-          import.meta.url
-        )
-      )
-    },
-    {
-      data: manualCan,
-      path: fileURLToPath(
-        new URL(
-          '../../../../../data/blueprints/irrigation/manual/can/manual-watering-can.json',
-          import.meta.url
-        )
-      )
-    },
-    {
-      data: topFeed,
-      path: fileURLToPath(
-        new URL(
-          '../../../../../data/blueprints/irrigation/top-feed/timer/top-feed-pump-timer.json',
-          import.meta.url
-        )
-      )
+  {
+    data: ebbFlow,
+    path: fileURLToPath(
+      new URL('../../../../../data/blueprints/irrigation/ebb-flow-table-small.json', import.meta.url)
+    )
+  },
+  {
+    data: manualCan,
+    path: fileURLToPath(
+      new URL('../../../../../data/blueprints/irrigation/manual-watering-can.json', import.meta.url)
+    )
+  },
+  {
+    data: topFeed,
+    path: fileURLToPath(
+      new URL('../../../../../data/blueprints/irrigation/top-feed-pump-timer.json', import.meta.url)
+    )
   }
 ] as const;
 const blueprintsRoot = path.resolve(

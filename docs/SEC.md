@@ -234,27 +234,39 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 ### 3.0.1 Blueprint Taxonomy (STRICT)
 
-- Every blueprint under `/data/blueprints/**` **MUST** publish a `class` field in the
-  `<domain>.<effect>[.<variant>]` format plus a kebab-case `slug` that remains unique per
-  class. The taxonomy binds fixtures, runtime loaders, and documentation to the same
-  capability vocabulary.
-- Directory segments under `/data/blueprints/**` **SHALL** mirror the declared `class`
-  segments (`device/climate/cooling/foo.json` ⇒ `class = "device.climate.cooling"`).
-  Contributors **MUST NOT** invent bespoke folder names; taxonomy folders are the only
-  acceptable location for blueprints.
+- Every blueprint under `/data/blueprints/**` **MUST** publish a `class` field with a
+  domain-level value plus a kebab-case `slug` that remains unique per class. Valid
+  domains are:
+  - `strain`, `structure`, `cultivation-method`, `substrate`, `container`, `irrigation`,
+    `disease`, `pest`
+  - `device.climate`, `device.airflow`, `device.lighting`, `device.filtration`
+  - `room.purpose.<slug>` for room purposes (slug preserved in the class)
+  - `personnel.role.<slug>` / `personnel.skill.<slug>` when workforce blueprints are in
+    play
+- Directory layout is **two levels maximum**: `data/blueprints/<domain>/<file>.json`.
+  Devices use `data/blueprints/device/<category>/<file>.json`; room purposes use
+  `data/blueprints/room/purpose/<file>.json`. Nested folders beyond this structure are
+  forbidden.
 - JSON remains the **single source of truth** for blueprint metadata. Loaders **SHALL**
   trust the JSON payload first, using the filesystem only to derive expectations and to
   surface mismatches when contributors misplace files.
 - Loaders **MUST** raise a hard failure (e.g. `BlueprintTaxonomyMismatchError`) when the
-  path-derived taxonomy and the JSON `class` diverge, preventing silent drift between
-  fixtures and runtime logic.
-- Legacy `kind`/`type` identifiers are **removed**; integrations **MUST** read the new
-  `class` discriminator.
-- Device blueprint classes **drive validation**: cooling units declare cooling capacity
-  and temperature targets, dehumidifiers expose latent removal rates, CO₂ injectors
-  specify enrichment ranges, humidity controllers provide humidify/dehumidify rates,
-  airflow devices publish steady airflow, and grow lights define PPFD and spectrum
-  coverage.
+  domain inferred from the path and the JSON `class` diverge, preventing silent drift
+  between fixtures and runtime logic.
+- Subtype semantics move to explicit fields:
+  - `device.climate` declares `mode` (`thermal`, `dehumidifier`, `humidity-controller`,
+    `co2`, ...)
+  - `device.airflow` declares `subtype` (`exhaust`, `intake`, `recirculation`, ...)
+  - `device.lighting` declares `stage` (e.g. `vegetative`, `flowering`)
+  - `device.filtration` declares `media` (e.g. `carbon`, `hepa`)
+  - `cultivation-method` declares `family` and `technique`
+  - `disease` declares `pathogen` and `syndrome`; `pest` declares `taxon` and
+    `speciesGroup`
+  - `substrate` declares `material` and `cycle`; `irrigation` declares `method` and
+    `control`
+  - `structure` declares `structureType`
+- Legacy `kind`/`type` identifiers are **removed**; integrations **MUST** read the
+  `class` discriminator and the explicit subtype fields noted above.
 
 ### 3.1 Device Placement & Eligibility (STRICT)
 
@@ -478,7 +490,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 ### 7.5 **Cultivation Methods (Zone Requirement) (STRICT)**
 
-- **Zone Requirement (SHALL):** Every **Zone** **SHALL** reference exactly one **`cultivationMethod`** (blueprint id), selected from `/data/blueprints/cultivation-method/**`.
+- **Zone Requirement (SHALL):** Every **Zone** **SHALL** reference exactly one **`cultivationMethod`** (blueprint id), selected from `/data/blueprints/cultivation-method/*.json`.
     
 - **Method Contents (SHALL):** A cultivation method blueprint **SHALL** specify at minimum:
     

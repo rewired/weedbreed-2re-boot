@@ -1,5 +1,18 @@
 # Changelog
 
+### Unreleased — Blueprint Taxonomy v2
+
+- Flattened `/data/blueprints` to domain-level folders (`device/<category>/*.json`,
+  `cultivation-method/*.json`, `room/purpose/*.json`, etc.) and aligned all JSON `class`
+  values to domain identifiers (`strain`, `device.climate`, `room.purpose.<slug>`, ...).
+- Added explicit subtype metadata fields to blueprints (`mode`, `subtype`, `stage`,
+  `media`, `family`, `technique`, `pathogen`, `speciesGroup`, `material`, `cycle`,
+  `method`, `control`, `structureType`) and tightened Zod schemas/tests accordingly.
+- Updated loaders to guard domain↔class alignment only, refreshed fixtures/tests to the
+  new layout, introduced migration scripts (`npm run migrate:folders`, `npm run
+  migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy update in
+  SEC/DD/TDD plus a dedicated ADR.
+
 ### #77 Demo harness humidity baseline
 
 - Updated the engine test harness demo zone to include a representative

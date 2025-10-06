@@ -8,11 +8,9 @@ const DEFAULT_BLUEPRINTS_ROOT = path.resolve(
 const TAXONOMY_SEGMENT_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export interface BlueprintTaxonomyFromPath {
-  readonly className: string;
-  readonly domain: string;
-  readonly effect: string;
-  readonly variants: readonly string[];
+  readonly expectedClass: string;
   readonly relativePath: string;
+  readonly allowNamespaceSuffix: boolean;
 }
 
 export interface BlueprintPathOptions {
@@ -84,34 +82,52 @@ export function deriveBlueprintClassFromPath(
   const root = normaliseBlueprintRoot(options?.blueprintsRoot);
   const relativePath = toRelativeBlueprintPath(absolutePath, root);
   const segments = relativePath.split('/');
-
-  if (segments.length < 3) {
-    throw new BlueprintPathError(
-      `Blueprint path "${relativePath}" must include at least <domain>/<effect>/<file>.`
-    );
-  }
-
   const directorySegments = segments.slice(0, -1);
 
-  if (directorySegments.length < 2) {
+  if (directorySegments.length === 0) {
     throw new BlueprintPathError(
-      `Blueprint path "${relativePath}" must declare both domain and effect folders.`
+      `Blueprint path "${relativePath}" must include at least <domain>/<file>.`
     );
   }
 
-  const [domainSegment, effectSegment, ...rest] = directorySegments;
-  const domain = toTaxonomySegment(domainSegment);
-  const effect = toTaxonomySegment(effectSegment);
-  const variants = rest.map(toTaxonomySegment);
-  const className = [domain, effect, ...variants].join('.');
+  if (directorySegments.length > 2) {
+    throw new BlueprintPathError(
+      `Blueprint path "${relativePath}" must not exceed two directories under the blueprints root.`
+    );
+  }
 
-  return {
-    className,
-    domain,
-    effect,
-    variants,
-    relativePath
-  } satisfies BlueprintTaxonomyFromPath;
+  const [domainSegment, nestedSegment] = directorySegments;
+  const domain = toTaxonomySegment(domainSegment);
+
+  if (!nestedSegment) {
+    return {
+      expectedClass: domain,
+      allowNamespaceSuffix: false,
+      relativePath
+    } satisfies BlueprintTaxonomyFromPath;
+  }
+
+  const nested = toTaxonomySegment(nestedSegment);
+
+  if (domain === 'device') {
+    return {
+      expectedClass: `${domain}.${nested}`,
+      allowNamespaceSuffix: false,
+      relativePath
+    } satisfies BlueprintTaxonomyFromPath;
+  }
+
+  if (domain === 'room' || domain === 'personnel') {
+    return {
+      expectedClass: `${domain}.${nested}`,
+      allowNamespaceSuffix: true,
+      relativePath
+    } satisfies BlueprintTaxonomyFromPath;
+  }
+
+  throw new BlueprintPathError(
+    `Blueprint path "${relativePath}" contains unsupported nested directory "${nested}" under domain "${domain}".`
+  );
 }
 
 export function assertBlueprintClassMatchesPath(
@@ -120,8 +136,16 @@ export function assertBlueprintClassMatchesPath(
   options?: BlueprintPathOptions
 ): void {
   const derived = deriveBlueprintClassFromPath(filePath, options);
+  const expected = derived.expectedClass;
 
-  if (declaredClass !== derived.className) {
-    throw new BlueprintClassMismatchError(derived.relativePath, derived.className, declaredClass);
+  if (derived.allowNamespaceSuffix) {
+    if (declaredClass !== expected && !declaredClass.startsWith(`${expected}.`)) {
+      throw new BlueprintClassMismatchError(derived.relativePath, expected, declaredClass);
+    }
+    return;
+  }
+
+  if (declaredClass !== expected) {
+    throw new BlueprintClassMismatchError(derived.relativePath, expected, declaredClass);
   }
 }

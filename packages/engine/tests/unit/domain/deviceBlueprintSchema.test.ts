@@ -9,33 +9,30 @@ import {
   toDeviceInstanceCapacity
 } from '@/backend/src/domain/world.js';
 
-import climateUnit from '../../../../../data/blueprints/device/climate/cooling/cool-air-split-3000.json' with { type: 'json' };
-import co2Injector from '../../../../../data/blueprints/device/climate/co2/co2-pulse.json' with { type: 'json' };
-import dehumidifier from '../../../../../data/blueprints/device/climate/dehumidifier/drybox-200.json' with { type: 'json' };
-import exhaustFan from '../../../../../data/blueprints/device/airflow/exhaust/exhaust-fan-4-inch.json' with { type: 'json' };
-import humidityControl from '../../../../../data/blueprints/device/climate/humidity-controller/humidity-control-unit-l1.json' with { type: 'json' };
-import vegLight from '../../../../../data/blueprints/device/lighting/vegetative/led-veg-light-600.json' with { type: 'json' };
+import climateUnit from '../../../../../data/blueprints/device/climate/cool-air-split-3000.json' with { type: 'json' };
+import co2Injector from '../../../../../data/blueprints/device/climate/co2-pulse.json' with { type: 'json' };
+import dehumidifier from '../../../../../data/blueprints/device/climate/drybox-200.json' with { type: 'json' };
+import exhaustFan from '../../../../../data/blueprints/device/airflow/exhaust-fan-4-inch.json' with { type: 'json' };
+import humidityControl from '../../../../../data/blueprints/device/climate/humidity-control-unit-l1.json' with { type: 'json' };
+import vegLight from '../../../../../data/blueprints/device/lighting/led-veg-light-600.json' with { type: 'json' };
 
 const climateUnitPath = fileURLToPath(
-  new URL('../../../../../data/blueprints/device/climate/cooling/cool-air-split-3000.json', import.meta.url)
+  new URL('../../../../../data/blueprints/device/climate/cool-air-split-3000.json', import.meta.url)
 );
 const co2InjectorPath = fileURLToPath(
-  new URL('../../../../../data/blueprints/device/climate/co2/co2-pulse.json', import.meta.url)
+  new URL('../../../../../data/blueprints/device/climate/co2-pulse.json', import.meta.url)
 );
 const dehumidifierPath = fileURLToPath(
-  new URL('../../../../../data/blueprints/device/climate/dehumidifier/drybox-200.json', import.meta.url)
+  new URL('../../../../../data/blueprints/device/climate/drybox-200.json', import.meta.url)
 );
 const exhaustFanPath = fileURLToPath(
-  new URL('../../../../../data/blueprints/device/airflow/exhaust/exhaust-fan-4-inch.json', import.meta.url)
+  new URL('../../../../../data/blueprints/device/airflow/exhaust-fan-4-inch.json', import.meta.url)
 );
 const humidityControlPath = fileURLToPath(
-  new URL(
-    '../../../../../data/blueprints/device/climate/humidity-controller/humidity-control-unit-l1.json',
-    import.meta.url
-  )
+  new URL('../../../../../data/blueprints/device/climate/humidity-control-unit-l1.json', import.meta.url)
 );
 const vegLightPath = fileURLToPath(
-  new URL('../../../../../data/blueprints/device/lighting/vegetative/led-veg-light-600.json', import.meta.url)
+  new URL('../../../../../data/blueprints/device/lighting/led-veg-light-600.json', import.meta.url)
 );
 
 const blueprintsRoot = path.resolve(
@@ -55,7 +52,7 @@ describe('deviceBlueprintSchema', () => {
   it('accepts canonical blueprint payloads', () => {
     const base = {
       id: '00000000-0000-4000-8000-000000000000',
-      class: 'device.climate.cooling',
+      class: 'device.climate',
       name: 'Test Device',
       slug: 'test-device',
       placementScope: 'zone',
@@ -73,7 +70,8 @@ describe('deviceBlueprintSchema', () => {
         coolingCapacity: 0.5,
         targetTemperature: 24,
         targetTemperatureRange: [20, 26]
-      }
+      },
+      mode: 'thermal'
     };
 
     expect(() => deviceBlueprintSchema.parse(base)).not.toThrow();
@@ -82,7 +80,7 @@ describe('deviceBlueprintSchema', () => {
   it('accepts blueprint with effects array and thermal config', () => {
     const blueprint = {
       id: '00000000-0000-4000-8000-000000000010',
-      class: 'device.climate.cooling',
+      class: 'device.climate',
       name: 'Thermal Effects Device',
       slug: 'thermal-effects-device',
       placementScope: 'zone',
@@ -98,7 +96,8 @@ describe('deviceBlueprintSchema', () => {
         coolingCapacity: 2,
         targetTemperature: 24,
         targetTemperatureRange: [20, 26]
-      }
+      },
+      mode: 'thermal'
     };
 
     expect(() => deviceBlueprintSchema.parse(blueprint)).not.toThrow();
@@ -107,7 +106,7 @@ describe('deviceBlueprintSchema', () => {
   it('accepts blueprint with effects array and humidity config', () => {
     const blueprint = {
       id: '00000000-0000-4000-8000-000000000011',
-      class: 'device.climate.dehumidifier',
+      class: 'device.climate',
       name: 'Humidity Effects Device',
       slug: 'humidity-effects-device',
       placementScope: 'zone',
@@ -119,7 +118,8 @@ describe('deviceBlueprintSchema', () => {
       humidity: { mode: 'dehumidify', capacity_g_per_h: 900 },
       coverage: { maxVolume_m3: 20 },
       limits: { removalRate_kg_h: 0.9 },
-      settings: { latentRemovalKgPerTick: 0.025 }
+      settings: { latentRemovalKgPerTick: 0.025 },
+      mode: 'dehumidifier'
     };
 
     expect(() => deviceBlueprintSchema.parse(blueprint)).not.toThrow();
@@ -128,7 +128,7 @@ describe('deviceBlueprintSchema', () => {
   it('accepts blueprint with effects array and lighting config', () => {
     const blueprint = {
       id: '00000000-0000-4000-8000-000000000012',
-      class: 'device.lighting.vegetative',
+      class: 'device.lighting',
       name: 'Lighting Effects Device',
       slug: 'lighting-effects-device',
       placementScope: 'zone',
@@ -140,7 +140,8 @@ describe('deviceBlueprintSchema', () => {
       lighting: { ppfd_center_umol_m2s: 700, photonEfficacy_umol_per_J: 2.3 },
       coverage: { maxArea_m2: 1.2, effectivePPFD_at_m: 0.6, beamProfile: 'wide' },
       limits: { power_W: 600, maxPPFD: 1_200, minPPFD: 200 },
-      settings: { ppfd: 700, power: 0.6, spectralRange: [400, 700], heatFraction: 0.3 }
+      settings: { ppfd: 700, power: 0.6, spectralRange: [400, 700], heatFraction: 0.3 },
+      stage: 'vegetative'
     } as const;
 
     expect(() => deviceBlueprintSchema.parse(blueprint)).not.toThrow();
@@ -149,7 +150,7 @@ describe('deviceBlueprintSchema', () => {
   it('accepts blueprint with multiple effects and configs', () => {
     const blueprint = {
       id: '00000000-0000-4000-8000-000000000013',
-      class: 'device.climate.cooling',
+      class: 'device.climate',
       name: 'Multi-Effect Device',
       slug: 'multi-effect-device',
       placementScope: 'zone',
@@ -168,7 +169,8 @@ describe('deviceBlueprintSchema', () => {
         coolingCapacity: 2.4,
         targetTemperature: 24,
         targetTemperatureRange: [20, 26]
-      }
+      },
+      mode: 'thermal'
     };
 
     expect(() => deviceBlueprintSchema.parse(blueprint)).not.toThrow();
@@ -177,13 +179,14 @@ describe('deviceBlueprintSchema', () => {
   it('rejects blueprints missing both coverage and airflow', () => {
     const invalid = {
       id: '00000000-0000-4000-8000-000000000001',
-      class: 'device.climate.cooling',
+      class: 'device.climate',
       name: 'Invalid Device',
       slug: 'invalid-device',
       placementScope: 'zone',
       allowedRoomPurposes: ['growroom'],
       power_W: 200,
-      efficiency01: 0.5
+      efficiency01: 0.5,
+      mode: 'thermal'
     };
 
     const result = deviceBlueprintSchema.safeParse(invalid);
@@ -197,13 +200,14 @@ describe('deviceBlueprintSchema', () => {
   it('rejects efficiency values outside the unit interval', () => {
     const invalid = {
       id: '00000000-0000-4000-8000-000000000002',
-      class: 'device.climate.cooling',
+      class: 'device.climate',
       name: 'Invalid Efficiency',
       placementScope: 'zone',
       allowedRoomPurposes: ['growroom'],
       power_W: 200,
       efficiency01: 1.5,
-      coverage_m2: 5
+      coverage_m2: 5,
+      mode: 'thermal'
     };
 
     const result = deviceBlueprintSchema.safeParse(invalid);
@@ -275,27 +279,28 @@ describe('deviceBlueprintSchema', () => {
     const parsed = parseDeviceBlueprint(
       {
         id: '00000000-0000-4000-8000-000000000003',
-        class: 'device.climate.cooling',
-        name: 'Mapper Device',
-        slug: 'mapper-device',
-        placementScope: 'zone',
-        allowedRoomPurposes: ['growroom'],
-        power_W: 420,
-        efficiency01: 0.6,
-        coverage_m2: 8,
-        airflow_m3_per_h: 120,
-        coverage: {
-          maxArea_m2: 8
-        },
-        limits: {
-          coolingCapacity_kW: 2
-        },
-        settings: {
-          coolingCapacity: 1,
-          targetTemperature: 22,
-          targetTemperatureRange: [18, 26]
-        }
+      class: 'device.climate',
+      name: 'Mapper Device',
+      slug: 'mapper-device',
+      placementScope: 'zone',
+      allowedRoomPurposes: ['growroom'],
+      power_W: 420,
+      efficiency01: 0.6,
+      coverage_m2: 8,
+      airflow_m3_per_h: 120,
+      coverage: {
+        maxArea_m2: 8
       },
+      limits: {
+        coolingCapacity_kW: 2
+      },
+      settings: {
+        coolingCapacity: 1,
+        targetTemperature: 22,
+        targetTemperatureRange: [18, 26]
+      },
+      mode: 'thermal'
+    },
       { filePath: climateUnitPath, blueprintsRoot }
     );
 
@@ -310,7 +315,7 @@ describe('deviceBlueprintSchema', () => {
   it('rejects blueprint with effects array but missing config', () => {
     const invalid = {
       id: '00000000-0000-4000-8000-000000000014',
-      class: 'device.climate.cooling',
+      class: 'device.climate',
       name: 'Missing Thermal Config',
       slug: 'missing-thermal-config',
       placementScope: 'zone',
@@ -325,7 +330,8 @@ describe('deviceBlueprintSchema', () => {
         coolingCapacity: 1,
         targetTemperature: 24,
         targetTemperatureRange: [20, 26]
-      }
+      },
+      mode: 'thermal'
     };
 
     const result = deviceBlueprintSchema.safeParse(invalid);
@@ -340,7 +346,7 @@ describe('deviceBlueprintSchema', () => {
   it('accepts blueprint without effects array for backward compatibility', () => {
     const legacy = {
       id: '00000000-0000-4000-8000-000000000015',
-      class: 'device.airflow.exhaust',
+      class: 'device.airflow',
       name: 'Legacy Exhaust',
       slug: 'legacy-exhaust',
       placementScope: 'zone',
@@ -351,7 +357,8 @@ describe('deviceBlueprintSchema', () => {
       coverage_m2: 5,
       coverage: { maxVolume_m3: 12, ventilationPattern: 'exhaust' },
       limits: { power_W: 40, airflow_m3_h: 180, minAirflow_m3_h: 100, maxStaticPressure_Pa: 120 },
-      settings: { airflow: 150, power: 0.04 }
+      settings: { airflow: 150, power: 0.04 },
+      subtype: 'exhaust'
     } as const;
 
     expect(() => deviceBlueprintSchema.parse(legacy)).not.toThrow();
@@ -360,7 +367,7 @@ describe('deviceBlueprintSchema', () => {
   it('rejects invalid effect names in effects array', () => {
     const invalid = {
       id: '00000000-0000-4000-8000-000000000016',
-      class: 'device.climate.cooling',
+      class: 'device.climate',
       name: 'Invalid Effect Device',
       slug: 'invalid-effect-device',
       placementScope: 'zone',
@@ -375,7 +382,8 @@ describe('deviceBlueprintSchema', () => {
         coolingCapacity: 1,
         targetTemperature: 24,
         targetTemperatureRange: [20, 26]
-      }
+      },
+      mode: 'thermal'
     };
 
     const result = deviceBlueprintSchema.safeParse(invalid);
