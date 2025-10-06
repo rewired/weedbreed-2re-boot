@@ -17,6 +17,9 @@ import {
   ROOM_PURPOSES,
   type Company,
   type CompanyLocation,
+  type DeviceMaintenancePolicy,
+  type DeviceMaintenanceState,
+  type DeviceMaintenanceWindow,
   type LightSchedule,
   type Plant,
   type Room,
@@ -421,6 +424,88 @@ export const lightScheduleSchema: z.ZodType<LightSchedule> = z
     }
   });
 
+const deviceEffectLiteralSchema = z.enum(['thermal', 'humidity', 'lighting', 'airflow', 'filtration', 'sensor', 'co2']);
+
+const deviceMaintenancePolicySchema: z.ZodType<DeviceMaintenancePolicy> = z
+  .object({
+    lifetimeHours: finiteNumber
+      .min(1, 'maintenance.policy.lifetimeHours must be positive.')
+      .default(1),
+    maintenanceIntervalHours: finiteNumber
+      .min(0, 'maintenance.policy.maintenanceIntervalHours cannot be negative.')
+      .default(0),
+    serviceHours: finiteNumber
+      .min(0, 'maintenance.policy.serviceHours cannot be negative.')
+      .default(0),
+    restoreAmount01: finiteNumber
+      .min(0, 'maintenance.policy.restoreAmount01 must be >= 0.')
+      .max(1, 'maintenance.policy.restoreAmount01 must be <= 1.')
+      .default(0),
+    baseCostPerHourCc: finiteNumber
+      .min(0, 'maintenance.policy.baseCostPerHourCc cannot be negative.')
+      .default(0),
+    costIncreasePer1000HoursCc: finiteNumber
+      .min(0, 'maintenance.policy.costIncreasePer1000HoursCc cannot be negative.')
+      .default(0),
+    serviceVisitCostCc: finiteNumber
+      .min(0, 'maintenance.policy.serviceVisitCostCc cannot be negative.')
+      .default(0),
+    replacementCostCc: finiteNumber
+      .min(0, 'maintenance.policy.replacementCostCc cannot be negative.')
+      .default(0),
+    maintenanceConditionThreshold01: finiteNumber
+      .min(0, 'maintenance.policy.maintenanceConditionThreshold01 must be >= 0.')
+      .max(1, 'maintenance.policy.maintenanceConditionThreshold01 must be <= 1.')
+      .default(0.5),
+  })
+  .strict();
+
+const deviceMaintenanceWindowSchema: z.ZodType<DeviceMaintenanceWindow> = z
+  .object({
+    startTick: finiteNumber
+      .min(0, 'maintenance.window.startTick cannot be negative.')
+      .transform((value) => Math.trunc(value)),
+    endTick: finiteNumber
+      .min(0, 'maintenance.window.endTick cannot be negative.')
+      .transform((value) => Math.trunc(value)),
+    taskId: uuidSchema,
+    reason: z.enum(['interval', 'condition']),
+  })
+  .superRefine((window, ctx) => {
+    if (window.endTick <= window.startTick) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['endTick'],
+        message: 'maintenance.window.endTick must be greater than startTick.',
+      });
+    }
+  });
+
+const deviceMaintenanceStateSchema: z.ZodType<DeviceMaintenanceState> = z
+  .object({
+    runtimeHours: finiteNumber.min(0, 'maintenance.runtimeHours cannot be negative.'),
+    hoursSinceService: finiteNumber.min(0, 'maintenance.hoursSinceService cannot be negative.'),
+    totalMaintenanceCostCc: finiteNumber.min(
+      0,
+      'maintenance.totalMaintenanceCostCc cannot be negative.',
+    ),
+    completedServiceCount: finiteNumber
+      .min(0, 'maintenance.completedServiceCount cannot be negative.')
+      .transform((value) => Math.trunc(value)),
+    lastServiceScheduledTick: finiteNumber
+      .min(0, 'maintenance.lastServiceScheduledTick cannot be negative.')
+      .transform((value) => Math.trunc(value))
+      .optional(),
+    lastServiceCompletedTick: finiteNumber
+      .min(0, 'maintenance.lastServiceCompletedTick cannot be negative.')
+      .transform((value) => Math.trunc(value))
+      .optional(),
+    maintenanceWindow: deviceMaintenanceWindowSchema.optional(),
+    recommendedReplacement: z.boolean().default(false),
+    policy: deviceMaintenancePolicySchema.optional(),
+  })
+  .strict();
+
 const baseDeviceSchema = domainEntitySchema
   .merge(sluggedEntitySchema)
   .extend({
@@ -437,7 +522,10 @@ const baseDeviceSchema = domainEntitySchema
     sensibleHeatRemovalCapacity_W: finiteNumber.min(
       0,
       'sensibleHeatRemovalCapacity_W cannot be negative.'
-    )
+    ),
+    effects: z.array(deviceEffectLiteralSchema).readonly().optional(),
+    effectConfigs: z.record(z.string(), z.unknown()).optional(),
+    maintenance: deviceMaintenanceStateSchema.optional(),
   });
 
 const structureDeviceSchema: z.ZodType<StructureDeviceInstance> = baseDeviceSchema.extend({

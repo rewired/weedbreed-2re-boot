@@ -174,6 +174,59 @@ export interface DeviceEffectConfigs {
   readonly co2?: Co2EffectConfig;
 }
 
+export interface DeviceMaintenancePolicy {
+  /** Total service life in operating hours before the device reaches end-of-life. */
+  readonly lifetimeHours: number;
+  /** Planned maintenance interval expressed in operating hours. */
+  readonly maintenanceIntervalHours: number;
+  /** Deterministic labour demand for a maintenance visit expressed in hours. */
+  readonly serviceHours: number;
+  /** Deterministic restoration applied to condition01 once service completes. */
+  readonly restoreAmount01: number;
+  /** Base maintenance cost recognised per operating hour (company credits). */
+  readonly baseCostPerHourCc: number;
+  /** Incremental maintenance cost per additional 1000 operating hours. */
+  readonly costIncreasePer1000HoursCc: number;
+  /** Dispatch cost for executing a maintenance visit (company credits). */
+  readonly serviceVisitCostCc: number;
+  /** Replacement cost sourced from the device price map (company credits). */
+  readonly replacementCostCc: number;
+  /** Condition threshold that forces an immediate maintenance window. */
+  readonly maintenanceConditionThreshold01: number;
+}
+
+export interface DeviceMaintenanceWindow {
+  /** Inclusive simulation tick when the maintenance window opens. */
+  readonly startTick: number;
+  /** Exclusive simulation tick when the maintenance window closes. */
+  readonly endTick: number;
+  /** Deterministic identifier referencing the scheduled maintenance task. */
+  readonly taskId: Uuid;
+  /** Reason describing why the maintenance window was opened. */
+  readonly reason: 'interval' | 'condition';
+}
+
+export interface DeviceMaintenanceState {
+  /** Total cumulative operating hours accrued by the device. */
+  readonly runtimeHours: number;
+  /** Operating hours elapsed since the most recent completed maintenance visit. */
+  readonly hoursSinceService: number;
+  /** Aggregate maintenance expenditure booked against the device (credits). */
+  readonly totalMaintenanceCostCc: number;
+  /** Number of successfully completed maintenance visits. */
+  readonly completedServiceCount: number;
+  /** Simulation tick when maintenance was most recently scheduled. */
+  readonly lastServiceScheduledTick?: number;
+  /** Simulation tick when maintenance most recently completed. */
+  readonly lastServiceCompletedTick?: number;
+  /** Active maintenance window awaiting execution. */
+  readonly maintenanceWindow?: DeviceMaintenanceWindow;
+  /** Flag indicating whether replacement is now more economical than maintenance. */
+  readonly recommendedReplacement: boolean;
+  /** Deterministic policy parameters derived from blueprints + price maps. */
+  readonly policy?: DeviceMaintenancePolicy;
+}
+
 /**
  * Canonical device instance model shared across placement scopes.
  */
@@ -202,6 +255,8 @@ export interface DeviceInstance extends DomainEntity, SluggedEntity {
   readonly effects?: readonly DeviceEffectType[];
   /** Effect-specific configuration payloads copied from the originating blueprint, when available. */
   readonly effectConfigs?: DeviceEffectConfigs;
+  /** Deterministic lifecycle state covering degradation, maintenance, and economics. */
+  readonly maintenance?: DeviceMaintenanceState;
 }
 
 /**

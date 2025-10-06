@@ -21,3 +21,7 @@ export const TELEMETRY_HEALTH_PEST_DISEASE_RISK_V1 =
   'telemetry.health.pest_disease.risk.v1' as const;
 export const TELEMETRY_HEALTH_PEST_DISEASE_TASK_V1 =
   'telemetry.health.pest_disease.task_emitted.v1' as const;
+export const TELEMETRY_DEVICE_MAINTENANCE_SCHEDULED_V1 =
+  'telemetry.device.maintenance.scheduled.v1' as const;
+export const TELEMETRY_DEVICE_REPLACEMENT_RECOMMENDED_V1 =
+  'telemetry.device.replacement.recommended.v1' as const;

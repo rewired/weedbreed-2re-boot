@@ -1,6 +1,11 @@
 import type { SimulationWorld, WorkforcePayrollState } from '../../domain/world.js';
 import type { EngineRunContext } from '../Engine.js';
 import { consumeWorkforcePayrollAccrual } from './applyWorkforce.js';
+import {
+  consumeDeviceMaintenanceAccrual,
+  type DeviceMaintenanceAccrualState,
+  type DeviceMaintenanceAccrualSnapshot,
+} from '../../device/maintenanceRuntime.js';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 
@@ -9,9 +14,15 @@ interface WorkforceEconomyAccrualState {
   readonly finalizedDays: readonly WorkforcePayrollState[];
 }
 
+interface DeviceMaintenanceEconomyAccrualState {
+  readonly current?: DeviceMaintenanceAccrualState;
+  readonly finalizedDays: readonly DeviceMaintenanceAccrualState[];
+}
+
 interface EconomyAccrualCarrier extends Mutable<EngineRunContext> {
   economyAccruals?: {
     workforce?: WorkforceEconomyAccrualState;
+    deviceMaintenance?: DeviceMaintenanceEconomyAccrualState;
   };
 }
 
@@ -28,26 +39,65 @@ function mergeFinalizedDays(
   return filtered.sort((a, b) => a.dayIndex - b.dayIndex);
 }
 
+function mergeMaintenanceFinalizedDays(
+  existing: readonly DeviceMaintenanceAccrualState[],
+  finalized?: DeviceMaintenanceAccrualSnapshot['finalized']
+): DeviceMaintenanceAccrualState[] {
+  if (!finalized || finalized.length === 0) {
+    return [...existing];
+  }
+
+  const merged = [...existing];
+
+  for (const entry of finalized) {
+    const filtered = merged.filter((item) => item.dayIndex !== entry.dayIndex);
+    filtered.push(entry);
+    merged.splice(0, merged.length, ...filtered.sort((a, b) => a.dayIndex - b.dayIndex));
+  }
+
+  return merged;
+}
+
 export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
   const payrollSnapshot = consumeWorkforcePayrollAccrual(ctx);
+  const maintenanceSnapshot = consumeDeviceMaintenanceAccrual(ctx);
 
-  if (!payrollSnapshot) {
+  if (!payrollSnapshot && !maintenanceSnapshot) {
     return world;
   }
 
   const carrier = ctx as EconomyAccrualCarrier;
-  const existing = carrier.economyAccruals?.workforce ?? { finalizedDays: [] };
-  const finalizedDays = mergeFinalizedDays(existing.finalizedDays ?? [], payrollSnapshot.finalized);
+  const economyAccruals = (carrier.economyAccruals ?? {}) as NonNullable<
+    EconomyAccrualCarrier['economyAccruals']
+  >;
 
-  const nextWorkforceAccrual: WorkforceEconomyAccrualState = {
-    current: payrollSnapshot.current,
-    finalizedDays,
-  };
+  if (payrollSnapshot) {
+    const existingWorkforce = economyAccruals.workforce ?? { finalizedDays: [] };
+    const workforceFinalized = mergeFinalizedDays(
+      existingWorkforce.finalizedDays ?? [],
+      payrollSnapshot.finalized,
+    );
 
-  carrier.economyAccruals = {
-    ...carrier.economyAccruals,
-    workforce: nextWorkforceAccrual,
-  };
+    economyAccruals.workforce = {
+      current: payrollSnapshot.current,
+      finalizedDays: workforceFinalized,
+    } satisfies WorkforceEconomyAccrualState;
+  }
+
+  if (maintenanceSnapshot) {
+    const existingMaintenance = economyAccruals.deviceMaintenance ?? { finalizedDays: [] };
+    const finalizedDays = mergeMaintenanceFinalizedDays(
+      existingMaintenance.finalizedDays ?? [],
+      maintenanceSnapshot.finalized,
+    );
+
+    economyAccruals.deviceMaintenance = {
+      current: maintenanceSnapshot.current,
+      finalizedDays,
+    } satisfies DeviceMaintenanceEconomyAccrualState;
+  }
+
+  carrier.economyAccruals = economyAccruals;
 
   return world;
 }
