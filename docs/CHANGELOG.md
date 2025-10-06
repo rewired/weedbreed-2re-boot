@@ -10,7 +10,7 @@
 - Required `company.location` metadata with Hamburg defaults and coordinate clamps during validation (ADR-0008).
 - Extended zone state and the light emitter stub with PPFD/DLI telemetry plus guard tests (ADR-0010).
 - Propagated blueprint-declared `effects`/config blocks onto device instances before pipeline evaluation (ADR-0011).
-- Added `.nvmrc`/`.node-version` markers pinning Node.js 22 locally while CI enforces Node.js 23 (ADR-0012).
+- Added `.nvmrc`/`.node-version` markers pinning Node.js 22 (LTS) locally while CI uses Node.js 22 (LTS) (ADR-0012).
 - Embedded the deterministic workforce branch (roles, employees, tasks, KPIs, payroll) into world snapshots (ADR-0013).
 - Implemented seeded workforce identity sourcing with a 500 ms randomuser.me timeout and pseudodata fallback (ADR-0014).
 - Flattened blueprint taxonomy to domain-level folders with explicit subtype metadata and migration tooling (ADR-0015).
@@ -218,8 +218,8 @@ migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy upd
 
 ### #59 Tooling - Node version manager hints
 
-- Added `.nvmrc` and `.node-version` pointing to Node.js 22 so local environment managers auto-select the target runtime during the LTS migration dry run.
-- Captured the decision in ADR-0012 to document the transitional alignment between local tooling and CI-enforced Node.js 23.
+- Added `.nvmrc` and `.node-version` pointing to Node.js 22 (LTS) so local environment managers auto-select the target runtime.
+- Captured the decision in ADR-0012 to document the unified Node.js 22 (LTS) runtime across local tooling and CI.
 
 ### #58 WB-052 Zod compatibility rollback
 
@@ -746,7 +746,7 @@ migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy upd
 ### #07 WB-001 pnpm workspace bootstrap
 
 - Initialised pnpm workspaces with shared TypeScript configuration and path aliases for engine, façade, transport, and monitoring packages.
-- Added base linting, formatting, and testing toolchain aligned with Node 23+ ESM requirements.
+- Added base linting, formatting, and testing toolchain aligned with Node.js 22 (LTS) ESM requirements.
 - Provisioned CI workflow executing lint, test, and build stages to guarantee green pipelines.
 
 All notable changes to this repository will be documented in this file.

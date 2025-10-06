@@ -25,7 +25,7 @@ Additional configuration for the orchestrator (e.g. custom world factories or st
 
 Set up the workspace before invoking the report generator:
 
-- Use **Node.js v22 or newer** so the CLI matches the repository engine baseline.
+- Use **Node.js 22 (LTS)** so the CLI matches the repository engine baseline.
 - Enable pnpm via Corepack with `corepack use pnpm@10.18.0`.
 - Install dependencies from the repository root using `pnpm install`.
 

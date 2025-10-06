@@ -18,9 +18,9 @@ This document describes **what the simulation is and should be** at the core lev
 
 We start **fresh**: no external document references; prior proposals are folded in **high-level**. The platform standardizes integration surfaces without constraining the core model.
 
-- **Node.js (v23+, ESM)** — Backend and façade **SHALL** use modern ECMAScript modules.
+- **Node.js 22 (LTS), ESM** — Backend and façade **SHALL** use modern ECMAScript modules.
 
-- **Local version markers** — `.nvmrc` and `.node-version` pin **Node.js 22** for migration dry-runs while CI stays on Node.js 23 until the follow-up runtime migration lands ([ADR-0012](ADR/ADR-0012-node-version-tooling-alignment.md)). Contributors **SHALL** honour the markers locally but verify changes against the enforced Node.js 23 toolchain before release.
+- **Local & CI runtime** — `.nvmrc` and `.node-version` pin **Node.js 22 (LTS)**. Contributors **SHALL** adopt Node.js 22 (LTS) locally and CI runs the same runtime ([ADR-0012](ADR/ADR-0012-node-version-tooling-alignment.md)).
 
 - **TypeScript** — The codebase **SHOULD** use TypeScript for type safety and clearer contracts.
 - **Monorepo with pnpm workspaces** — The repository **SHALL** be a pnpm monorepo (engine, façade, UI, tools).
@@ -673,7 +673,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 | ADR-0015 | Blueprint taxonomy flattened to domain-level folders with explicit subtype metadata                                    | §3.0.1         |
 | ADR-0014 | Workforce identities sourced via deterministic randomuser.me call with pseudodata fallback                             | §10.4          |
 | ADR-0013 | Workforce branch embedded in `SimulationWorld` with structured roles, employees, tasks, KPIs, warnings, payroll        | §3.3, §10      |
-| ADR-0012 | `.nvmrc`/`.node-version` pin Node.js 22 locally while CI enforces Node.js 23                                           | §0.1           |
+| ADR-0012 | `.nvmrc`/`.node-version` pin Node.js 22 (LTS) locally and CI uses Node.js 22 (LTS)                                           | §0.1           |
 | ADR-0011 | Device blueprints declare `effects`/config blocks copied to instances before pipeline evaluation                       | §3.0.1, §6.3   |
 | ADR-0010 | Zones persist PPFD/DLI telemetry updated by the canonical light emitter stub                                           | §6             |
 | ADR-0008 | Company metadata mandates location object with Hamburg defaults and coordinate clamps                                  | §1.2, §2       |
