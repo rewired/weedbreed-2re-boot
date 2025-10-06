@@ -9,6 +9,8 @@
 
 Weed Breed is a deterministic, tick‑driven cultivation & economy simulator. The **headless engine** advances a world tree (**Company → Structure → Room → Zone → Plant → Device**) in **fixed one‑hour ticks**. The **façade** validates intents, computes read‑models, and emits **read‑only telemetry** via a transport adapter (Socket.IO default). This DD specifies structure, data flows, invariants, performance budgets, and integration points **exactly aligned** to SEC v0.2.1.
 
+UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; icons via lucide-react; micro-animations via Framer Motion. Charts via Recharts, optionally Tremor for dashboard presets. Components are in-repo (shadcn “copy-in” model) to avoid vendor lock and keep them themable with Tailwind.
+
 ---
 
 ## 1) Goals / Non‑Goals

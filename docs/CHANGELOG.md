@@ -13,6 +13,7 @@
   new layout, introduced migration scripts (`npm run migrate:folders`, `npm run
   migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy update in
   SEC/DD/TDD plus a dedicated ADR.
+- Docs/ADR: Adopted Tailwind + shadcn/ui (on Radix) as the UI component stack; updated SEC/DD/AGENTS/VISION_SCOPE and recorded decision in ADR-0016.
 
 ### #77 Demo harness humidity baseline
 

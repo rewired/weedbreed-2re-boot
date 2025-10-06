@@ -20,6 +20,8 @@ Steer implementation so the codebase **conforms to SEC v0.2.1** while remaining 
 - **pnpm workspaces** monorepo: engine (headless), façade (integration/transport), UI (React+Vite), tools (monitoring/validation).
     
 - **UI:** React + Vite + Tailwind. "Dumb UI": read‑models in, intents out.
+
+UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; icons via lucide-react; micro-animations via Framer Motion. Charts via Recharts, optionally Tremor for dashboard presets. Components are in-repo (shadcn “copy-in” model) to avoid vendor lock and keep them themable with Tailwind.
     
 - **Terminal monitor:** neo‑blessed (read‑only telemetry). **MUST NOT** send commands over telemetry.
     
