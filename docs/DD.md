@@ -20,7 +20,7 @@ Local version markers (`.nvmrc`, `.node-version`) pin Node.js 22 (LTS) for both 
 **Goals**
 
 - Deterministic simulation with reproducible seeds and stream‑scoped RNG.
-- Test-only determinism scaffolds (`hashCanonicalJson`, `newV7`) live under `packages/engine/src/shared/determinism` until an ADR approves runtime adoption (see docs/tasks/0002A).
+- Test-only determinism scaffolds (`hashCanonicalJson`, `newV7`) live under `packages/engine/src/shared/determinism` until an ADR approves runtime adoption (see [docs/tasks/0007-determinism-helper-scaffolds.md](docs/tasks/0007-determinism-helper-scaffolds.md)).
 - Strict conformance to **per‑hour** economic units; tick derives from hours.
 - Clean separation of **engine** (no I/O) and **façade/transport**.
 - Enforce **roomPurpose**, **device placement**, and **zone cultivationMethod** rules.
@@ -30,7 +30,7 @@ Local version markers (`.nvmrc`, `.node-version`) pin Node.js 22 (LTS) for both 
 
 - No dynamic energy/water market modelling (tariffs fixed at sim start unless a scenario explicitly overrides policy).
 - No 3D geometry or CFD; we use lumped‑parameter environment models.
-- Psychrometric helper (`computeVpd_kPa`) is test-only until docs/tasks/0003A greenlights pipeline integration and `psychrolib` ships the ^2 release.
+- Psychrometric helper (`computeVpd_kPa`) is test-only until [docs/tasks/0009-psychrometric-wiring-plan.md](docs/tasks/0009-psychrometric-wiring-plan.md) greenlights pipeline integration and `psychrolib` ships the ^2 release.
 
 ---
 
