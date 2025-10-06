@@ -220,11 +220,29 @@ The world is a tree with typed nodes and bounded geometry.
 
 ### 2.2 Structure Ownership & Tenure
 
-(unchanged)
+**Ownership & Tenure (SHALL):**
+
+- Ownership model: Each structure records an owner (company-controlled) and optional tenure metadata (freehold/leasehold/sublease). Tenure does not change simulation physics; it governs economy hooks (lease accruals, deposits).
+
+- Lease terms: Lease contracts define effective start day, base lease rate per hour, and optional indexation rules captured in scenario config. Indexation, if enabled by a scenario, is deterministic and evaluated once per day.
+
+- Deterministic IDs: Ownership and lease records carry immutable structure IDs; changes produce a new record with a new audit entry and preserve prior records for reporting.
+
+- Scope: Real-estate pricing inputs are used by economy modules only; device placement and growth logic remain tenure-agnostic.
 
 ### 2.3 Entity Lifecycle — Clone / Rename / Delete / Move (Normative)
 
-(unchanged; aligned to roomPurpose; devices movable within same structure only)
+**Lifecycle rules (SHALL):**
+
+- Clone: Creates a new entity with a new UUID and deep-copied configuration; references are rewired deterministically. Cloning MUST NOT duplicate derived state.
+
+- Rename: Changes human-readable labels only; IDs remain stable; rename events are audit-only and do not affect hashes.
+
+- Delete: Disallowed when it would violate invariants (e.g., deleting a growroom with zones). Deletion occurs through intents at tick boundaries and is reversible only via scenario/restore, not in-run undo.
+
+- Move: Devices may move within the same structure only and must pass placement validation (allowedRoomPurposes, placementScope). Zones cannot be moved outside growrooms. Plants may be reassigned within the same zone family when a method explicitly permits (e.g., re-pot tasks).
+
+- Auditability: All lifecycle changes emit post-commit telemetry and are reflected in read-models with prior↔next references.
 
 ---
 
@@ -270,23 +288,38 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 ### 3.1 Device Placement & Eligibility (STRICT)
 
-(unchanged; uses `allowedRoomPurposes` and `placementScope`)
+**Policy (SHALL):**
+
+* Device blueprints declare **`placementScope ∈ { 'zone' | 'room' | 'structure' }`** and an **`allowedRoomPurposes`** whitelist.
+* At **install/move** time, placement is validated against the current room purpose + scope. Zone-scoped devices are valid **only** in growrooms. Violations fail fast.
+* Capacity metadata (`coverage_m2`, `airflow_m3_per_h`, `max_*`) is part of the blueprint contract and used for effectiveness scaling and diagnostics.
 
 ### 3.2 Room–Device Policy Matrix (Orientation)
 
-(unchanged)
+**Orientation (SHOULD):**
+
+* Provide a reference matrix mapping **roomPurpose → eligible device classes** (e.g., growroom: lighting, climate, airflow; storageroom: none affecting biology; laboratory: lab-only devices).
+* The matrix is **informative**; enforcement derives from blueprint `allowedRoomPurposes` and scope rules.
 
 ### 3.3 Task & Treatment Catalogs (Data-Driven)
 
-(unchanged)
+**Catalogs (SHALL):**
+
+* Task definitions live under `/data/configs/task_definitions.json` with deterministic **codes**, **requiredRoleSlug**, **requiredSkills** (`{ skillKey, minSkill01 }`), **base durations**, and **cost hooks**.
+* Treatments (e.g., pest control, substrate sterilization) are modelled as **tasks** with materials/equipment references.
+* Schedulers consume catalog entries deterministically; façade validation rejects unknown codes or malformed thresholds.
 
 ### 3.4 Namespaces & Naming Conventions (STRICT)
 
-(unchanged)
+* **Blueprint taxonomy:** JSON `class` values use domain identifiers (`strain`, `cultivation-method`, `device.climate`, `room.purpose.<slug>`, …). Slugs are **kebab-case**, unique **per class**.
+* **Filesystem alignment:** Blueprint files reside under `/data/blueprints/<domain>/<file>.json` (or sanctioned subfolders) and **MUST** mirror the JSON `class`. Mismatches are loader errors.
+* **Identifiers:** Entity IDs are UUIDs. Human-facing names are free text but **not** used for referential integrity.
 
 ### 3.5 Identity & UUID Policy (Traceability)
 
-(unchanged)
+* **Entities:** UUID v4 for world entities (company/structure/room/zone/plant/device).
+* **RNG seeds:** Where RNG streams require persisted seeds (e.g., workforce identities), **UUID v7** is used to brand deterministic seeds without leaking wall-clock into logic.
+* **Stability:** IDs are immutable; renames do not affect IDs; move/clone produce new IDs where required and retain cross-references for audit.
 
 ### 3.6 Economy Units & Rates (STRICT)
 
@@ -569,7 +602,11 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 ### 8.5 Pests & Diseases (Health & Biosecurity)
 
-(unchanged; deterministic risk progress, inspection/treatment tasks, quarantine options)
+**Policy (SHALL/SHOULD):**
+
+* **Risk accumulation:** Pests/diseases accumulate deterministic **risk scores** from environment and hygiene signals; no random outbreaks without RNG stream use.
+* **Inspections & treatments:** Represented as tasks with deterministic effects and cooldowns; successful treatments reduce risk and may impose quarantine intervals.
+* **Biosecurity hooks:** Room purposes and workflows may reduce cross-contamination via scheduled sanitation tasks. Telemetry surfaces warnings when risk exceeds thresholds.
 
 ---
 
@@ -601,7 +638,19 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 ## 10. Workforce & HR (Employees, Job Market, Agents)
 
-(unchanged core; added explicit probability bound)
+**Scope (SHALL):**
+
+* Company-scoped employees with deterministic identities and trait assignments. Employees are **assigned to exactly one structure** at a time; they perform tasks only within that structure.
+* Deterministic hiring market with manual scans, candidate pools, and onboarding intents. Telemetry exposes KPIs, warnings, payroll snapshots, and hiring events.
+
+**Outcomes (SHALL):**
+
+* Reproducible scheduling, morale/fatigue updates, overtime accruals, and payroll calculations given the same seed and inputs.
+
+**Responsibilities (SHOULD):**
+
+* Façade provides intents for hiring, scheduling, raises/termination, and manual tasks.
+* Engine enforces working-hour caps and deterministic cooldowns for raises; emits telemetry post-commit.
 
 ### 10.0 Employment Model (SHALL)
 
@@ -634,15 +683,25 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 ### 10.5 Work Hours & Overtime Policies
 
-(unchanged)
+**Working-time contract (SHALL):**
+
+* Base working hours per in-game day **5–16 h**;
+* Overtime **≤ 5 h** per day, applied after base hours;
+* Working days per week **1..7**; optional shift start hour **0..23**;
+* Overtime billed at **1.25×**; daily payrolls close with **Banker’s rounding**.
 
 ### 10.6 Traits, Morale & Skills
 
-(unchanged; skills via data catalog, task requirements reference skills)
+**Deterministic effects (SHOULD):**
+
+* Employees carry **traits** with strengths in **[0,1]** affecting task duration, error rate, fatigue/morale deltas, device wear, XP, and salary expectations. Conflicts are resolved deterministically.
+* **Skills** live on the **[0,1]** scale; task definitions specify structured `requiredSkills`. Learning-by-doing **MAY** raise skills via deterministic increments.
 
 ### 10.7 Real-Estate Pricing & Lease Terms (SHALL)
 
-(unchanged; deterministic class A–F, variance `v ∈ [−0.5, 1.75]`, upfront lease payment rule)
+**Deterministic pricing:**
+
+* Structures classify into **A–F** classes with deterministic **variance `v ∈ [−0.5, 1.75]`** applied to baseline lease rates to produce site-specific lease expectations. Upfront lease payment rules are scenario-defined and deterministic.
 
 ---
 
