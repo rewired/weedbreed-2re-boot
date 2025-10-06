@@ -48,3 +48,6 @@ SEC migration guidance requires that every historical proposal from `/docs/task/
 - **Risk:** Missing hidden legacy proposals. **Mitigation:** Use repository search to ensure complete coverage and add a regression test enumerating `/docs/task/**`.
 - **Risk:** Broken anchors when sections rename. **Mitigation:** Cross-check generated anchors after editing; include doc lint in CI.
 - **Risk:** Appendix table becomes unwieldy. **Mitigation:** Keep summaries concise and leverage notes column for extended context with links rather than inline prose.
+
+## Implementation Notes / Done
+- Populated `docs/SEC.md` Appendix B with links for every legacy `/docs/tasks/**` entry and the three proposals, added `docs/re-reboot/contradictions.md`, and recorded the change in `docs/CHANGELOG.md`.
