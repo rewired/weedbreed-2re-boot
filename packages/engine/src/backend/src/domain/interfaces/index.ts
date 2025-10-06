@@ -19,6 +19,7 @@ export * from './IIrrigationService.js';
 export * from './IAirflowActuator.js';
 export * from './IFiltrationUnit.js';
 export * from './ISensor.js';
+export * from './ICo2Injector.js';
 
 export type {
   IThermalActuator,
@@ -35,3 +36,8 @@ export type {
   LightEmitterInputs,
   LightEmitterOutputs
 } from './ILightEmitter.js';
+export type {
+  ICo2Injector,
+  Co2InjectorInputs,
+  Co2InjectorOutputs
+} from './ICo2Injector.js';

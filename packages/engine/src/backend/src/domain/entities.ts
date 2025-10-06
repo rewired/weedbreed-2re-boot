@@ -108,7 +108,14 @@ export interface CompanyLocation {
   readonly countryName: string;
 }
 
-export type DeviceEffectType = 'thermal' | 'humidity' | 'lighting' | 'airflow' | 'filtration' | 'sensor';
+export type DeviceEffectType =
+  | 'thermal'
+  | 'humidity'
+  | 'lighting'
+  | 'airflow'
+  | 'filtration'
+  | 'sensor'
+  | 'co2';
 
 export interface ThermalEffectConfig {
   readonly mode: 'heat' | 'cool' | 'auto';
@@ -127,7 +134,16 @@ export interface LightingEffectConfig {
   readonly photonEfficacy_umol_per_J?: number;
 }
 
-export type SensorMeasurementType = 'temperature' | 'humidity' | 'ppfd';
+export interface Co2EffectConfig {
+  readonly target_ppm: number;
+  readonly pulse_ppm_per_tick: number;
+  readonly safetyMax_ppm: number;
+  readonly min_ppm?: number;
+  readonly ambient_ppm?: number;
+  readonly hysteresis_ppm?: number;
+}
+
+export type SensorMeasurementType = 'temperature' | 'humidity' | 'ppfd' | 'co2';
 
 export interface SensorEffectConfig {
   readonly measurementType: SensorMeasurementType;
@@ -152,6 +168,7 @@ export interface DeviceEffectConfigs {
   readonly airflow?: AirflowEffectConfig;
   readonly filtration?: FiltrationEffectConfig;
   readonly sensor?: SensorEffectConfig;
+  readonly co2?: Co2EffectConfig;
 }
 
 /**
@@ -297,6 +314,8 @@ export interface ZoneEnvironment {
   readonly airTemperatureC: number;
   /** Relative humidity expressed as a percentage on the canonical [0,100] scale. */
   readonly relativeHumidity_pct: number;
+  /** Carbon dioxide concentration expressed in parts per million. */
+  readonly co2_ppm: number;
 }
 
 /**

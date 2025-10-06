@@ -52,6 +52,10 @@ function resolveMeasurement(measurementType: SensorMeasurementType, zone: Zone):
         : 0;
     case 'ppfd':
       return Number.isFinite(zone.ppfd_umol_m2s) ? zone.ppfd_umol_m2s : 0;
+    case 'co2':
+      return Number.isFinite(zone.environment.co2_ppm)
+        ? zone.environment.co2_ppm
+        : 0;
     default:
       return null;
   }

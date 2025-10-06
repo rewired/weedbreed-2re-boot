@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   AIR_DENSITY_KG_PER_M3,
+  AMBIENT_CO2_PPM,
   HOURS_PER_TICK
 } from '@/backend/src/constants/simConstants.js';
 import { createHumidityActuatorStub } from '@/backend/src/stubs/HumidityActuatorStub.js';
@@ -12,7 +13,8 @@ const ZONE_VOLUME_M3 = 50;
 const AIR_MASS_KG = ZONE_VOLUME_M3 * AIR_DENSITY_KG_PER_M3;
 const BASE_ENV_STATE: ZoneEnvironment = {
   airTemperatureC: 25,
-  relativeHumidity_pct: 60
+  relativeHumidity_pct: 60,
+  co2_ppm: AMBIENT_CO2_PPM
 };
 
 function createInputs(

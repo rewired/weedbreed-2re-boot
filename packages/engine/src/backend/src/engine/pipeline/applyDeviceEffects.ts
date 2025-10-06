@@ -6,6 +6,7 @@ import {
 } from '../../constants/simConstants.js';
 import type {
   AirflowActuatorInputs,
+  Co2InjectorInputs,
   FiltrationUnitInputs,
   HumidityActuatorInputs,
   LightEmitterInputs,
@@ -15,6 +16,7 @@ import type { ZoneDeviceInstance } from '../../domain/entities.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
 import {
   createAirflowActuatorStub,
+  createCo2InjectorStub,
   createFiltrationStub,
   createHumidityActuatorStub,
   createLightEmitterStub,
@@ -29,6 +31,7 @@ export interface DeviceEffectsRuntime {
   readonly zoneHumidityDeltaPct: Map<Zone['id'], number>;
   readonly zonePPFD_umol_m2s: Map<Zone['id'], number>;
   readonly zoneDLI_mol_m2d_inc: Map<Zone['id'], number>;
+  readonly zoneCo2Delta_ppm: Map<Zone['id'], number>;
   readonly zoneCoverageTotals_m2: Map<Zone['id'], number>;
   readonly zoneAirflowTotals_m3_per_h: Map<Zone['id'], number>;
   readonly zoneCoverageEffectiveness01: Map<Zone['id'], number>;
@@ -62,6 +65,7 @@ export function ensureDeviceEffectsRuntime(ctx: EngineRunContext): DeviceEffects
     zoneHumidityDeltaPct: new Map(),
     zonePPFD_umol_m2s: new Map(),
     zoneDLI_mol_m2d_inc: new Map(),
+    zoneCo2Delta_ppm: new Map(),
     zoneCoverageTotals_m2: new Map(),
     zoneAirflowTotals_m3_per_h: new Map(),
     zoneCoverageEffectiveness01: new Map(),
@@ -177,6 +181,19 @@ function accumulateHumidityDelta(
 
   const current = runtime.zoneHumidityDeltaPct.get(zoneId) ?? 0;
   runtime.zoneHumidityDeltaPct.set(zoneId, current + deltaPct);
+}
+
+function accumulateCo2Delta(
+  runtime: DeviceEffectsRuntime,
+  zoneId: Zone['id'],
+  delta_ppm: number
+): void {
+  if (!Number.isFinite(delta_ppm) || delta_ppm === 0) {
+    return;
+  }
+
+  const current = runtime.zoneCo2Delta_ppm.get(zoneId) ?? 0;
+  runtime.zoneCo2Delta_ppm.set(zoneId, current + delta_ppm);
 }
 
 /**
@@ -519,6 +536,37 @@ function deriveAirflowInputs(device: ZoneDeviceInstance): AirflowActuatorInputs 
   } satisfies AirflowActuatorInputs;
 }
 
+function deriveCo2Inputs(device: ZoneDeviceInstance): Co2InjectorInputs | null {
+  const effects = device.effects ?? [];
+
+  if (!effects.includes('co2') || !device.effectConfigs?.co2) {
+    return null;
+  }
+
+  const config = device.effectConfigs.co2;
+  const dutyCycle01 = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 0);
+  const power_W = Number.isFinite(device.powerDraw_W) ? Math.max(0, device.powerDraw_W) : 0;
+
+  if (!Number.isFinite(config.target_ppm) || !Number.isFinite(config.pulse_ppm_per_tick)) {
+    return null;
+  }
+
+  if (!Number.isFinite(config.safetyMax_ppm)) {
+    return null;
+  }
+
+  return {
+    power_W,
+    dutyCycle01,
+    target_ppm: config.target_ppm,
+    safetyMax_ppm: config.safetyMax_ppm,
+    pulse_ppm_per_tick: config.pulse_ppm_per_tick,
+    min_ppm: config.min_ppm,
+    ambient_ppm: config.ambient_ppm,
+    hysteresis_ppm: config.hysteresis_ppm
+  } satisfies Co2InjectorInputs;
+}
+
 function deriveFiltrationInputs(
   device: ZoneDeviceInstance,
   upstreamAirflow_m3_per_h: number
@@ -614,6 +662,14 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
               lightingStub.computeEffect(lightingInputs, tickHours);
             accumulatePPFD(runtime, zone.id, ppfd_effective_umol_m2s);
             accumulateDLI(runtime, zone.id, dli_mol_m2d_inc);
+          }
+
+          const co2Inputs = deriveCo2Inputs(device);
+
+          if (co2Inputs) {
+            const co2Stub = createCo2InjectorStub();
+            const { delta_ppm } = co2Stub.computeEffect(co2Inputs, zone.environment, tickHours);
+            accumulateCo2Delta(runtime, zone.id, delta_ppm);
           }
 
           const airflowInputs = deriveAirflowInputs(device);

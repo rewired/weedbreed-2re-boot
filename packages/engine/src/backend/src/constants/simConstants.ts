@@ -41,6 +41,11 @@ export interface SimulationConstants {
    */
   readonly AIR_DENSITY_KG_PER_M3: number;
   /**
+   * Baseline ambient CO₂ concentration used when a zone lacks explicit state,
+   * expressed in parts per million.
+   */
+  readonly AMBIENT_CO2_PPM: number;
+  /**
    * Number of in-game hours contained in a single simulation tick.
    */
   readonly HOURS_PER_TICK: number;
@@ -151,6 +156,12 @@ export const LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG = 2_260_000 as const;
 export const AIR_DENSITY_KG_PER_M3 = 1.2041 as const;
 
 /**
+ * Canonical constant describing the default ambient CO₂ concentration used
+ * when zones have no explicit reading, expressed in parts per million.
+ */
+export const AMBIENT_CO2_PPM = 420 as const;
+
+/**
  * Canonical constant describing the number of in-game hours represented by a
  * single simulation tick.
  */
@@ -245,6 +256,7 @@ export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
   CP_AIR_J_PER_KG_K,
   LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG,
   AIR_DENSITY_KG_PER_M3,
+  AMBIENT_CO2_PPM,
   HOURS_PER_TICK,
   HOURS_PER_DAY,
   DAYS_PER_MONTH,

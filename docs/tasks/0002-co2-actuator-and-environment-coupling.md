@@ -1,8 +1,8 @@
 ID: 0002
 # CO₂ Actuator and Environment Coupling
 
-**ID:** 0004  
-**Status:** Planned  
+**ID:** 0002
+**Status:** In Progress
 **Owner:** unassigned  
 **Priority:** P0  
 **Tags:** backend, simulation, environment, tests

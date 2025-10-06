@@ -10,6 +10,7 @@
 - Required `company.location` metadata with Hamburg defaults and coordinate clamps during validation (ADR-0008).
 - Extended zone state and the light emitter stub with PPFD/DLI telemetry plus guard tests (ADR-0010).
 - Propagated blueprint-declared `effects`/config blocks onto device instances before pipeline evaluation (ADR-0011).
+- Added `ICo2Injector`/`Co2InjectorStub`, enriched zone environment state with `co2_ppm`, and covered steady-state/ramp scenarios via `Co2InjectorStub.test.ts` and `co2Coupling.integration.test.ts`.
 - Added `.nvmrc`/`.node-version` markers pinning Node.js 22 (LTS) locally while CI uses Node.js 22 (LTS) (ADR-0012).
 - Embedded the deterministic workforce branch (roles, employees, tasks, KPIs, payroll) into world snapshots (ADR-0013).
 - Implemented seeded workforce identity sourcing with a 500 ms randomuser.me timeout and pseudodata fallback (ADR-0014).

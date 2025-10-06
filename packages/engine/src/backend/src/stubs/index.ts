@@ -14,6 +14,7 @@ export * from './IrrigationServiceStub.js';
 export * from './SensorStub.js';
 export * from './AirflowActuatorStub.js';
 export * from './FiltrationStub.js';
+export * from './Co2InjectorStub.js';
 
 export { createThermalActuatorStub } from './ThermalActuatorStub.js';
 export { createHumidityActuatorStub } from './HumidityActuatorStub.js';
@@ -21,3 +22,4 @@ export { createLightEmitterStub } from './LightEmitterStub.js';
 export { createSensorStub } from './SensorStub.js';
 export { createAirflowActuatorStub } from './AirflowActuatorStub.js';
 export { createFiltrationStub } from './FiltrationStub.js';
+export { createCo2InjectorStub } from './Co2InjectorStub.js';

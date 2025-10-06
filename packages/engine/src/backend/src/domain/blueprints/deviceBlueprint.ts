@@ -29,7 +29,15 @@ const deviceClassSchema = z.enum(DEVICE_CLASS_VALUES, {
 /**
  * Canonical device blueprint contract enforced for JSON payloads.
  */
-const deviceEffectSchema = z.enum(['thermal', 'humidity', 'lighting', 'airflow', 'filtration', 'sensor']);
+const deviceEffectSchema = z.enum([
+  'thermal',
+  'humidity',
+  'lighting',
+  'airflow',
+  'filtration',
+  'sensor',
+  'co2'
+]);
 
 const thermalConfigObjectSchema = z.object({
   mode: z.enum(['heat', 'cool', 'auto']),
@@ -63,7 +71,7 @@ const filtrationConfigObjectSchema = z.object({
   basePressureDrop_pa: finiteNumber.min(0, 'basePressureDrop_pa must be non-negative.')
 });
 
-const sensorMeasurementTypeSchema = z.enum(['temperature', 'humidity', 'ppfd']);
+const sensorMeasurementTypeSchema = z.enum(['temperature', 'humidity', 'ppfd', 'co2']);
 
 const sensorConfigObjectSchema = z.object({
   measurementType: sensorMeasurementTypeSchema,
@@ -73,12 +81,22 @@ const sensorConfigObjectSchema = z.object({
     .default(0.05)
 });
 
+const co2ConfigObjectSchema = z.object({
+  target_ppm: finiteNumber.min(0, 'co2.target_ppm must be non-negative.'),
+  pulse_ppm_per_tick: finiteNumber.min(0, 'co2.pulse_ppm_per_tick must be non-negative.'),
+  safetyMax_ppm: finiteNumber.min(0, 'co2.safetyMax_ppm must be non-negative.'),
+  min_ppm: finiteNumber.min(0, 'co2.min_ppm must be non-negative.').optional(),
+  ambient_ppm: finiteNumber.min(0, 'co2.ambient_ppm must be non-negative.').optional(),
+  hysteresis_ppm: finiteNumber.min(0, 'co2.hysteresis_ppm must be non-negative.').optional()
+});
+
 const thermalConfigSchema = thermalConfigObjectSchema.optional();
 const humidityConfigSchema = humidityConfigObjectSchema.optional();
 const lightingConfigSchema = lightingConfigObjectSchema.optional();
 const airflowConfigSchema = airflowConfigObjectSchema.optional();
 const filtrationConfigSchema = filtrationConfigObjectSchema.optional();
 const sensorConfigSchema = sensorConfigObjectSchema.optional();
+const co2ConfigSchema = co2ConfigObjectSchema.optional();
 
 const climateModeSchema = z.enum(['thermal', 'dehumidifier', 'humidity-controller', 'co2']);
 const airflowSubtypeSchema = z.enum(['exhaust', 'intake', 'recirculation', 'oscillating']);
@@ -112,6 +130,7 @@ const deviceBlueprintObjectSchema = z
     airflow: airflowConfigSchema,
     filtration: filtrationConfigSchema,
     sensor: sensorConfigSchema,
+    co2: co2ConfigSchema,
     mode: z.string().optional(),
     subtype: z.string().optional(),
     stage: z.string().optional(),
@@ -422,6 +441,7 @@ export type DeviceEffect = z.infer<typeof deviceEffectSchema>;
 export type ThermalConfig = z.infer<typeof thermalConfigObjectSchema>;
 export type HumidityConfig = z.infer<typeof humidityConfigObjectSchema>;
 export type LightingConfig = z.infer<typeof lightingConfigObjectSchema>;
+export type Co2Config = z.infer<typeof co2ConfigObjectSchema>;
 export type AirflowConfig = z.infer<typeof airflowConfigObjectSchema>;
 export type FiltrationConfig = z.infer<typeof filtrationConfigObjectSchema>;
 export type SensorConfig = z.infer<typeof sensorConfigObjectSchema>;
@@ -487,6 +507,7 @@ export interface DeviceEffectConfigs {
   readonly airflow?: AirflowConfig;
   readonly filtration?: FiltrationConfig;
   readonly sensor?: SensorConfig;
+  readonly co2?: Co2Config;
 }
 
 export interface DeviceInstanceEffectConfigProjection {
@@ -552,14 +573,65 @@ function deriveSensorConfig(blueprint: DeviceBlueprint): SensorConfig | undefine
   } satisfies SensorConfig;
 }
 
+function toFiniteNumber(value: unknown): number | null {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return null;
+  }
+
+  return value;
+}
+
+function deriveCo2Config(blueprint: DeviceBlueprint): Co2Config | null {
+  if (blueprint.co2) {
+    return { ...blueprint.co2 } satisfies Co2Config;
+  }
+
+  const settings = (blueprint as Record<string, unknown>).settings as Record<string, unknown> | undefined;
+  const limits = (blueprint as Record<string, unknown>).limits as Record<string, unknown> | undefined;
+
+  const target = toFiniteNumber(settings?.targetCO2);
+  const pulse = toFiniteNumber(settings?.pulsePpmPerTick);
+  const safetyMax =
+    toFiniteNumber(limits?.maxCO2_ppm) ??
+    (Array.isArray(settings?.targetCO2Range) ? toFiniteNumber(settings?.targetCO2Range[1]) : null);
+
+  if (target === null || pulse === null || safetyMax === null) {
+    return null;
+  }
+
+  const config: Co2Config = {
+    target_ppm: target,
+    pulse_ppm_per_tick: pulse,
+    safetyMax_ppm: safetyMax
+  } satisfies Co2Config;
+
+  const minCandidate =
+    toFiniteNumber(limits?.minCO2_ppm) ??
+    (Array.isArray(settings?.targetCO2Range) ? toFiniteNumber(settings?.targetCO2Range[0]) : null);
+
+  if (minCandidate !== null) {
+    config.min_ppm = minCandidate;
+  }
+
+  const ambientCandidate = toFiniteNumber(limits?.ambientCO2_ppm ?? settings?.ambientCO2);
+
+  if (ambientCandidate !== null) {
+    config.ambient_ppm = ambientCandidate;
+  }
+
+  const hysteresisCandidate = toFiniteNumber(settings?.hysteresis ?? settings?.hysteresis_ppm);
+
+  if (hysteresisCandidate !== null) {
+    config.hysteresis_ppm = hysteresisCandidate;
+  }
+
+  return config;
+}
+
 export function toDeviceInstanceEffectConfigs(
   blueprint: DeviceBlueprint
 ): DeviceInstanceEffectConfigProjection {
-  if (!blueprint.effects || blueprint.effects.length === 0) {
-    return { effects: undefined, effectConfigs: undefined };
-  }
-
-  const effects = [...blueprint.effects] as readonly DeviceEffect[];
+  const effects: DeviceEffect[] = blueprint.effects ? [...blueprint.effects] : [];
   const configs: DeviceEffectConfigs = {};
   let hasConfig = false;
 
@@ -597,8 +669,26 @@ export function toDeviceInstanceEffectConfigs(
     }
   }
 
+  const hasCo2Mode = blueprint.mode === 'co2';
+  const existingCo2 = effects.includes('co2');
+
+  if (hasCo2Mode && !existingCo2) {
+    effects.push('co2');
+  }
+
+  if ((existingCo2 || hasCo2Mode) && !configs.co2) {
+    const co2Config = deriveCo2Config(blueprint);
+
+    if (co2Config) {
+      configs.co2 = co2Config;
+      hasConfig = true;
+    }
+  }
+
+  const nextEffects = effects.length > 0 ? (effects as readonly DeviceEffect[]) : undefined;
+
   return {
-    effects,
+    effects: nextEffects,
     effectConfigs: hasConfig ? configs : undefined
   } satisfies DeviceInstanceEffectConfigProjection;
 }

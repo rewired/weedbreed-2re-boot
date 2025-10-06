@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   AIR_DENSITY_KG_PER_M3,
+  AMBIENT_CO2_PPM,
   CP_AIR_J_PER_KG_K,
   HOURS_PER_TICK,
   SECONDS_PER_HOUR
@@ -12,7 +13,11 @@ import type { ZoneEnvironment } from '@/backend/src/domain/entities.js';
 
 const ZONE_VOLUME_M3 = 50;
 const AIR_MASS_KG = ZONE_VOLUME_M3 * AIR_DENSITY_KG_PER_M3;
-const BASE_ENV_STATE: ZoneEnvironment = { airTemperatureC: 22 };
+const BASE_ENV_STATE: ZoneEnvironment = {
+  airTemperatureC: 22,
+  relativeHumidity_pct: 55,
+  co2_ppm: AMBIENT_CO2_PPM
+};
 
 function createInputs(overrides: Partial<ThermalActuatorInputs> = {}): ThermalActuatorInputs {
   return {

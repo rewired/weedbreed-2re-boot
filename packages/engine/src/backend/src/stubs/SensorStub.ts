@@ -27,6 +27,8 @@ function clampMeasuredValue(measurementType: SensorMeasurementType, value: numbe
       return clamp(value, -50, 150);
     case 'humidity':
       return clamp(value, 0, 100);
+    case 'co2':
+      return clamp(value, 0, 5_000);
     case 'ppfd':
     default:
       return Math.max(0, value);
