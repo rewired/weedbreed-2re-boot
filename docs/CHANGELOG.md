@@ -2,6 +2,7 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Rebuilt the Golden Master conformance suite (Task 0003): generated deterministic 30d/200d fixtures via `generateGoldenScenarioRun`, updated `runDeterministic` to validate fixtures or emit artifacts, expanded conformance specs to assert topology coverage/ACH, inventory transfer, workforce breaks/janitorial cadence, and documented artifact paths in SEC/TDD/task notes.
 - Locked canonical geometry, calendar, thermodynamic, and HQ defaults in `simConstants.ts` with documented precedence flow (ADR-0001).
 - Anchored irrigation/substrate compatibility to irrigation method blueprints and removed substrate-level lists (ADR-0003).
 - Normalised price maps to per-hour maintenance curves and electricity/water tariffs only (ADR-0004).

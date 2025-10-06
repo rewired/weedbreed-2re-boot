@@ -113,7 +113,7 @@ Rebuild the canonical golden master so every release can be validated against th
 
 ## Completion Notes
 
-- 2024-???: Established placeholder conformance harness replaying committed fixtures via `runDeterministic`. Current artifacts encode deterministic stub data pending full scenario build-out.
+- 2024-12-05: Rebuilt the golden master world with deterministic topology/device provisioning, refreshed 30d/200d fixtures via `runDeterministic`, and extended the conformance specs to enforce coverage, ACH, inventory transfer, break compliance, janitorial cadence, and replant evidence while emitting artifacts to `./reporting/<days>d`.
 
 ## Tests
 
@@ -121,8 +121,7 @@ Rebuild the canonical golden master so every release can be validated against th
 * Integration tests:
 
   * `packages/engine/tests/integration/pipeline/runTick.trace.integration.test.ts` ensuring pipeline order.
-  * Conformance specs: `packages/engine/tests/conformance/goldenMaster.30d.spec.ts` and `.../goldenMaster.200d.spec.ts` per [TDD §12](../TDD.md#12-golden-master-sec-15).
-  * **Inventory & Breakroom assertions:** verify post-harvest lot transfer into **storage** and **break start/stop** events recorded in **breakroom** only.
+* Conformance specs: `packages/engine/tests/conformance/goldenMaster.30d.spec.ts` and `.../goldenMaster.200d.spec.ts` per [TDD §12](../TDD.md#12-golden-master-sec-15); the 30d suite enforces topology, coverage ≥ 1, ACH ≥ 1, storage-only lots, breakroom-only breaks, janitorial cadence, and artifact emission; the 200d soak enforces 200-day hash stability, harvest → storage → replant sequencing with new plant UUIDs, and artifact emission.
 * CI gates: `test:conf:30d` on PR; `test:conf:200d` nightly/triggered. Ensure runtime stays within perf harness bounds recorded in `docs/engine/simulation-reporting.md` (5 ms avg/tick, <64 MiB heap per TDD guidance).
 
 ## Affected Files (indicative)
