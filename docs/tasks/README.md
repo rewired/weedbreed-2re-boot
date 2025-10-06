@@ -3,8 +3,8 @@
 | ID   | Title | Priority | Status | Owner | Links | Resolved |
 | ---- | ----- | -------- | ------ | ----- | ----- | -------- |
 | 0001 | Appendix B Crosswalk Fill | P0 | Planned | unassigned | [task](./0001-appendix-b-crosswalk-fill.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [x] |
-| 0002 | CO₂ Actuator and Environment Coupling | P0 | In Progress | unassigned | [task](./0002-co2-actuator-and-environment-coupling.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
-| 0003 | Golden Master & Conformance Suite | P0 | Planned | unassigned | [task](./0003-golden-master-conformance-suite.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
+| 0002 | CO₂ Actuator and Environment Coupling | P0 | In Progress | unassigned | [task](./0002-co2-actuator-and-environment-coupling.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [x] |
+| 0003 | Golden Master & Conformance Suite | P0 | Planned | unassigned | [task](./0003-golden-master-conformance-suite.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [x] |
 | 0004 | Pest & Disease System MVP | P0 | Planned | unassigned | [task](./0004-pest-disease-system-mvp.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
 | 0005 | Save/Load and Migrations | P0 | Planned | unassigned | [task](./0005-save-load-and-migrations.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
 | 0006 | Sensors Stage Content and Noise Model | P0 | Planned | unassigned | [task](./0006-sensors-stage-content-and-noise-model.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
