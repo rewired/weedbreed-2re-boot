@@ -2,6 +2,10 @@ import { HOURS_PER_DAY } from '../../constants/simConstants.js';
 import { DEFAULT_WORKFORCE_CONFIG, type WorkforceConfig } from '../../config/workforce.js';
 import { bankersRound, clamp01 } from '../../util/math.js';
 import {
+  calculatePestDiseaseRisk,
+  accumulateRisk,
+} from '../../health/pestDiseaseRisk.js';
+import {
   emitWorkforceKpiSnapshot,
   emitWorkforceWarnings,
   emitWorkforcePayrollSnapshot,
@@ -874,14 +878,100 @@ function createSnapshot(
   } satisfies WorkforceKpiSnapshot;
 }
 
+function isInspectionTaskQueued(taskQueue: readonly WorkforceTaskInstance[], zoneId: string): boolean {
+  return taskQueue.some(
+    (task) =>
+      task.context?.zoneId === zoneId &&
+      task.taskCode === 'inspect-zone' &&
+      task.status === 'queued'
+  );
+}
+
+function findZone(world: SimulationWorld, zoneId: string): Zone | undefined {
+    for (const structure of world.company.structures) {
+        for (const room of structure.rooms) {
+            for (const zone of room.zones) {
+                if (zone.id === zoneId) {
+                    return zone;
+                }
+            }
+        }
+    }
+    return undefined;
+}
+
 export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): SimulationWorld {
   const runtime = ensureWorkforceRuntime(ctx);
   let workforceState = (world as SimulationWorld & { workforce?: WorkforceState }).workforce;
 
+  const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
+  const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
+
+  // Pest & Disease Risk Calculation
+  const newStructures = world.company.structures.map((structure) => {
+    const newRooms = structure.rooms.map((room) => {
+      const newZones = room.zones.map((zone) => {
+        const hygiene = 0.8; // Placeholder for hygiene score
+        const currentRisk = zone.pestDisease?.risk01 ?? 0;
+        const riskFactors = calculatePestDiseaseRisk(zone.environment, hygiene);
+        const newRisk = accumulateRisk(currentRisk, riskFactors);
+
+        let newTasks: WorkforceTaskInstance[] = [];
+        if (newRisk > 0.5 && (!workforceState || !isInspectionTaskQueued(workforceState.taskQueue, zone.id))) {
+          const newTask: WorkforceTaskInstance = {
+            id: deterministicUuid(world.seed, `task:${world.simTimeHours}:${zone.id}`),
+            taskCode: 'inspect-zone', // Assuming this task code exists
+            status: 'queued',
+            createdAtTick: world.simTimeHours,
+            context: {
+              zoneId: zone.id,
+              roomId: room.id,
+              structureId: structure.id,
+            },
+          };
+          newTasks.push(newTask);
+        }
+        
+        if (newTasks.length > 0) {
+          if (!workforceState) {
+            workforceState = {
+              roles: [],
+              employees: [],
+              taskDefinitions: [],
+              taskQueue: [],
+              kpis: [],
+              warnings: [],
+              payroll: createEmptyPayrollState(currentSimDay),
+              market: { structures: [] },
+            };
+          }
+          workforceState.taskQueue = [...workforceState.taskQueue, ...newTasks];
+        }
+
+        return {
+          ...zone,
+          pestDisease: {
+            ...zone.pestDisease,
+            risk01: newRisk,
+          },
+        };
+      });
+      return { ...room, zones: newZones };
+    });
+    return { ...structure, rooms: newRooms };
+  });
+
+  const newCompany = { ...world.company, structures: newStructures };
+  let newWorld = { ...world, company: newCompany };
+
+  if (workforceState) {
+    newWorld = { ...newWorld, workforce: workforceState };
+  }
+  
   if (!workforceState) {
     runtime.kpiSnapshot = createSnapshot(world.simTimeHours, [], 0, 0, 0, 0, 0, []);
     clearWorkforcePayrollAccrual(ctx);
-    return world;
+    return newWorld;
   }
 
   const workforceConfig = resolveWorkforceConfig(ctx);
@@ -896,8 +986,6 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
   const pendingHireTelemetry: { readonly employeeId: Employee['id']; readonly structureId: Structure['id'] }[] = [];
   const raiseIntents: WorkforceRaiseIntent[] = [];
   const terminationIntents: WorkforceTerminationIntent[] = [];
-  const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
-  const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
   const worldSeed = world.seed;
 
   for (const intent of intents) {
@@ -1096,16 +1184,15 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     structureById.set(structure.id, structure);
   });
 
-  const currentDayIndex = Math.max(0, Math.trunc(world.simTimeHours / HOURS_PER_DAY));
-  const previousPayroll = workforceState.payroll ?? createEmptyPayrollState(currentDayIndex);
+  const previousPayroll = workforceState.payroll ?? createEmptyPayrollState(currentSimDay);
   let payrollDayIndex = previousPayroll.dayIndex;
   let payrollTotals = clonePayrollTotals(previousPayroll.totals);
   let structurePayroll = cloneStructurePayroll(previousPayroll.byStructure);
   let finalizedPayroll: WorkforcePayrollState | undefined;
 
-  if (previousPayroll.dayIndex !== currentDayIndex) {
+  if (previousPayroll.dayIndex !== currentSimDay) {
     finalizedPayroll = finalizePayrollState(previousPayroll);
-    payrollDayIndex = currentDayIndex;
+    payrollDayIndex = currentSimDay;
     payrollTotals = createEmptyPayrollTotals();
     structurePayroll = new Map<Structure['id'], WorkforceStructurePayrollTotals>();
   }
@@ -1175,6 +1262,15 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
 
   for (const entry of schedulingEntries) {
     const { task, definition, structureId } = entry;
+    
+    const zoneId = task.context?.zoneId as string | undefined;
+    if (zoneId) {
+        const zone = findZone(world, zoneId);
+        if (zone?.pestDisease?.quarantinedUntilTick && zone.pestDisease.quarantinedUntilTick > world.simTimeHours) {
+            continue;
+        }
+    }
+
     const employees = employeesByStructure.get(structureId) ?? [];
 
     if (employees.length === 0) {
@@ -1236,10 +1332,10 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     const experiencedEmployee =
       updatedExperience === adjustment.employee.experience
         ? adjustment.employee
-        : ({
+        : {
             ...adjustment.employee,
             experience: updatedExperience,
-          } satisfies Employee);
+          } satisfies Employee;
     updatedEmployees.set(selected.employee.id, experiencedEmployee);
 
     const waitTimeHours = Math.max(0, world.simTimeHours - task.createdAtTick);
@@ -1370,7 +1466,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
   }
 
   return {
-    ...world,
+    ...newWorld,
     workforce: nextWorkforce,
   } satisfies SimulationWorld;
 }

@@ -14,6 +14,7 @@
 * **DD (design & data flows; SEC wins on conflicts).** 
 * **CHANGELOG (keep-a-changelog; record changes).** 
 * **AGENTS (guardrails for Codex: Node 22 LTS, ESM, pnpm workspaces, UI stack notes).** 
+* **Don't** call anything *.mvp
 
 ## 3) Ground rules
 
