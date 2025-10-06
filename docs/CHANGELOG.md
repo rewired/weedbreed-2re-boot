@@ -14,6 +14,7 @@
 - Added `ICo2Injector`/`Co2InjectorStub`, enriched zone environment state with `co2_ppm`, and covered steady-state/ramp scenarios via `Co2InjectorStub.test.ts` and `co2Coupling.integration.test.ts`.
 - Added `.nvmrc`/`.node-version` markers pinning Node.js 22 (LTS) locally while CI uses Node.js 22 (LTS) (ADR-0012).
 - Embedded the deterministic workforce branch (roles, employees, tasks, KPIs, payroll) into world snapshots (ADR-0013).
+- Delivered the pest & disease MVP (Task 0004): deterministic zone risk scoring from environment/hygiene signals, automatic inspection/treatment task emission with 72 h quarantine windows, telemetry topics for risk/task events, and unit/integration coverage.
 - Implemented seeded workforce identity sourcing with a 500 ms randomuser.me timeout and pseudodata fallback (ADR-0014).
 - Flattened blueprint taxonomy to domain-level folders with explicit subtype metadata and migration tooling (ADR-0015).
 - Ratified the shadcn/ui + Tailwind + Radix UI stack (lucide icons, Framer Motion, Recharts/Tremor) for UI components (ADR-0016).
