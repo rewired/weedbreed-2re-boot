@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import type { Plant, Zone, Uuid } from '@/backend/src/domain/entities.js';
+import { AMBIENT_CO2_PPM } from '@/backend/src/constants/simConstants.js';
 
 export const WHITE_WIDOW_STRAIN_ID = '550e8400-e29b-41d4-a716-446655440001' as Uuid;
 export const AK47_STRAIN_ID = '550e8400-e29b-41d4-a716-446655440000' as Uuid;
@@ -45,7 +46,8 @@ export function createTestZoneWithOptimalConditions(overrides: Partial<Zone> = {
       overrides.environment ??
       ({
         airTemperatureC: 23,
-        relativeHumidity_pct: 55
+        relativeHumidity_pct: 55,
+        co2_ppm: AMBIENT_CO2_PPM
       } satisfies Zone['environment']),
     ppfd_umol_m2s: overrides.ppfd_umol_m2s ?? 500,
     dli_mol_m2d_inc: overrides.dli_mol_m2d_inc ?? 0.5,

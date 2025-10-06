@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   AIR_DENSITY_KG_PER_M3,
+  AMBIENT_CO2_PPM,
   AREA_QUANTUM_M2,
   ROOM_DEFAULT_HEIGHT_M,
   DEFAULT_COMPANY_LOCATION_LON,
@@ -419,7 +420,8 @@ function createCompany(): Company {
     devices: [zoneDevice],
     environment: {
       airTemperatureC: 22,
-      relativeHumidity_pct: 55
+      relativeHumidity_pct: 55,
+      co2_ppm: AMBIENT_CO2_PPM
     }
   } satisfies Zone;
 

@@ -1,4 +1,4 @@
-import { AIR_DENSITY_KG_PER_M3 } from '../constants/simConstants.js';
+import { AIR_DENSITY_KG_PER_M3, AMBIENT_CO2_PPM } from '../constants/simConstants.js';
 import type { SimulationWorld, Uuid, WorkforceState } from '../domain/world.js';
 import {
   resolvePipelineStage,
@@ -96,7 +96,8 @@ const DEMO_WORLD: SimulationWorld = {
                 photoperiodPhase: 'vegetative',
                 environment: {
                   airTemperatureC: 22,
-                  relativeHumidity_pct: 55
+                  relativeHumidity_pct: 55,
+                  co2_ppm: AMBIENT_CO2_PPM
                 },
                 ppfd_umol_m2s: 0,
                 dli_mol_m2d_inc: 0,

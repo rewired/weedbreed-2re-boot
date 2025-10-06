@@ -277,6 +277,8 @@ it('zone without cultivationMethod fails validation', async () => {
   - Test: `packages/engine/tests/unit/stubs/LightEmitterStub.test.ts:23-29`
 - **NutrientBuffer:** capacity_N=10000 mg, buffer_N=1000 mg, flow_N=500 mg, demand_N=300 mg, leach=10% ⇒ uptake=**300**, leached=**50**, new_buffer=**1150**
   - Test: `packages/engine/tests/unit/stubs/NutrientBufferStub.test.ts:27-34`
+- **CO₂ Injector:** pulse=200 ppm/tick, duty=1, baseline 420 ppm ⇒ Δppm=**200** with target/safety clamps
+  - Test: `packages/engine/tests/unit/stubs/Co2InjectorStub.test.ts`
 
 **Stacking-Pattern Tests (Integration):**
 
@@ -288,6 +290,7 @@ it('zone without cultivationMethod fails validation', async () => {
   - Test: `packages/engine/tests/integration/pipeline/fanFilterChain.integration.test.ts`
 - **Pattern D (Sensor+Actuator):** Test: `packages/engine/tests/integration/pipeline/sensorActuatorPattern.integration.test.ts`
 - **Pattern E (Substrate+Irrigation):** Test: `packages/engine/tests/integration/pipeline/irrigationNutrientPattern.integration.test.ts`
+- **Pattern F (CO₂ Enrichment):** Test: `packages/engine/tests/integration/pipeline/co2Coupling.integration.test.ts`
 
 **Acceptance Criteria (Stubs):**
 

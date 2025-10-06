@@ -6,6 +6,7 @@ import type { EngineDiagnostic } from '@/backend/src/engine/Engine.js';
 import type { Plant, Zone } from '@/backend/src/domain/world.js';
 import * as strainLoader from '@/backend/src/domain/blueprints/strainBlueprintLoader.js';
 import { clearStrainBlueprintCache } from '@/backend/src/domain/blueprints/strainBlueprintLoader.js';
+import { AMBIENT_CO2_PPM } from '@/backend/src/constants/simConstants.js';
 import {
   AK47_STRAIN_ID,
   WHITE_WIDOW_STRAIN_ID,
@@ -82,7 +83,11 @@ describe('advancePhysiology pipeline', () => {
   it('advances plant physiology with real strain blueprint (White Widow)', () => {
     const world = createDemoWorld();
     const targetZone = zone(world);
-    targetZone.environment = { airTemperatureC: 23, relativeHumidity_pct: 55 } as Zone['environment'];
+    targetZone.environment = {
+      airTemperatureC: 23,
+      relativeHumidity_pct: 55,
+      co2_ppm: AMBIENT_CO2_PPM
+    } as Zone['environment'];
     targetZone.ppfd_umol_m2s = 500;
     targetZone.lightSchedule = { onHours: 18, offHours: 6, startHour: 0 };
     targetZone.dli_mol_m2d_inc = 1.5;
@@ -122,7 +127,11 @@ describe('advancePhysiology pipeline', () => {
   it('transitions plant from seedling to vegetative with real strain', () => {
     const world = createDemoWorld();
     const targetZone = zone(world);
-    targetZone.environment = { airTemperatureC: 24, relativeHumidity_pct: 55 } as Zone['environment'];
+    targetZone.environment = {
+      airTemperatureC: 24,
+      relativeHumidity_pct: 55,
+      co2_ppm: AMBIENT_CO2_PPM
+    } as Zone['environment'];
     targetZone.ppfd_umol_m2s = 550;
     targetZone.lightSchedule = { onHours: 24, offHours: 0, startHour: 0 };
     targetZone.dli_mol_m2d_inc = 1.5;
@@ -154,7 +163,11 @@ describe('advancePhysiology pipeline', () => {
     const loadSpy = vi.spyOn(strainLoader, 'loadStrainBlueprint');
     const world = createDemoWorld();
     const targetZone = zone(world);
-    targetZone.environment = { airTemperatureC: 23, relativeHumidity_pct: 55 } as Zone['environment'];
+    targetZone.environment = {
+      airTemperatureC: 23,
+      relativeHumidity_pct: 55,
+      co2_ppm: AMBIENT_CO2_PPM
+    } as Zone['environment'];
     targetZone.ppfd_umol_m2s = 500;
     targetZone.dli_mol_m2d_inc = 0.5;
     targetZone.plants = [

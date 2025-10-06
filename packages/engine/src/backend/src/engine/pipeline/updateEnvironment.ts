@@ -55,6 +55,28 @@ function updateZoneHumidity(zone: Zone, deltaRH_pct: number): Zone {
   } satisfies Zone;
 }
 
+function updateZoneCo2(zone: Zone, delta_ppm: number): Zone {
+  if (Math.abs(delta_ppm) < FLOAT_TOLERANCE) {
+    return zone;
+  }
+
+  const currentRaw = zone.environment.co2_ppm;
+  const current = Number.isFinite(currentRaw) ? currentRaw : 0;
+  const next = Math.max(0, current + delta_ppm);
+
+  if (Math.abs(next - current) < FLOAT_TOLERANCE) {
+    return zone;
+  }
+
+  return {
+    ...zone,
+    environment: {
+      ...zone.environment,
+      co2_ppm: next
+    }
+  } satisfies Zone;
+}
+
 function updateZoneLighting(zone: Zone, ppfd: number, dli_inc: number): Zone {
   const nextPPFD = Number.isFinite(ppfd) && ppfd > 0 ? ppfd : 0;
   const nextDLI = Number.isFinite(dli_inc) && dli_inc > 0 ? dli_inc : 0;
@@ -96,6 +118,7 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
   const zoneHumidityMap = runtime.zoneHumidityDeltaPct;
   const zonePPFDMap = runtime.zonePPFD_umol_m2s;
   const zoneDLIMap = runtime.zoneDLI_mol_m2d_inc;
+  const zoneCo2Map = runtime.zoneCo2Delta_ppm;
 
   let structuresChanged = false;
 
@@ -115,6 +138,10 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
         const deltaRH_pct = zoneHumidityMap.get(zone.id) ?? 0;
         nextZone = updateZoneHumidity(nextZone, deltaRH_pct);
         zoneHumidityMap.delete(zone.id);
+
+        const deltaCo2_ppm = zoneCo2Map.get(zone.id) ?? 0;
+        nextZone = updateZoneCo2(nextZone, deltaCo2_ppm);
+        zoneCo2Map.delete(zone.id);
 
         const ppfd = zonePPFDMap.get(zone.id) ?? 0;
         const dli_inc = zoneDLIMap.get(zone.id) ?? 0;

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import {
   AIR_DENSITY_KG_PER_M3,
+  AMBIENT_CO2_PPM,
   FLOAT_TOLERANCE,
   HOURS_PER_DAY,
   LATITUDE_MAX_DEG,
@@ -482,7 +483,10 @@ const zoneEnvironmentSchema: z.ZodType<ZoneEnvironment> = z.object({
   relativeHumidity_pct: finiteNumber
     .min(0, 'relativeHumidity_pct must be >= 0.')
     .max(100, 'relativeHumidity_pct must be <= 100.')
-    .default(50)
+    .default(50),
+  co2_ppm: finiteNumber
+    .min(0, 'co2_ppm must be >= 0.')
+    .default(AMBIENT_CO2_PPM)
 });
 
 function deriveZoneAirMassKg(zone: Pick<Zone, 'floorArea_m2' | 'height_m'>): number {

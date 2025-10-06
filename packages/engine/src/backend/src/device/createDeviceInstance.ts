@@ -92,5 +92,9 @@ function freezeEffectConfigs(
     next.sensor = Object.freeze({ ...configs.sensor });
   }
 
+  if (configs.co2) {
+    next.co2 = Object.freeze({ ...configs.co2 });
+  }
+
   return Object.freeze(next);
 }

@@ -9,6 +9,7 @@ import {
 } from '../../../src/backend/src/util/stress.js';
 import type { ZoneEnvironment } from '../../../src/backend/src/domain/entities.js';
 import type { EnvBand, StrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
+import { AMBIENT_CO2_PPM } from '../../../src/backend/src/constants/simConstants.js';
 
 const envBand = (overrides: Partial<EnvBand> = {}): EnvBand => ({
   green: [20, 25],
@@ -141,7 +142,11 @@ describe('stress calculations', () => {
   });
 
   describe('calculateCombinedStress', () => {
-    const environment: ZoneEnvironment = { airTemperatureC: 22, relativeHumidity_pct: 60 };
+    const environment: ZoneEnvironment = {
+      airTemperatureC: 22,
+      relativeHumidity_pct: 60,
+      co2_ppm: AMBIENT_CO2_PPM
+    };
 
     it('returns 0 when all conditions optimal', () => {
       const strain = baseStrain();
@@ -150,7 +155,11 @@ describe('stress calculations', () => {
 
     it('combines multiple stress sources', () => {
       const strain = baseStrain();
-      const stressedEnvironment: ZoneEnvironment = { airTemperatureC: 18.5, relativeHumidity_pct: 40 };
+      const stressedEnvironment: ZoneEnvironment = {
+        airTemperatureC: 18.5,
+        relativeHumidity_pct: 40,
+        co2_ppm: AMBIENT_CO2_PPM
+      };
       const stress = calculateCombinedStress(stressedEnvironment, 400, strain, 'vegetative');
       expect(stress).toBeGreaterThan(0);
       expect(stress).toBeLessThanOrEqual(1);
@@ -158,7 +167,11 @@ describe('stress calculations', () => {
 
     it('clamps combined stress to [0,1]', () => {
       const strain = baseStrain();
-      const extremeEnvironment: ZoneEnvironment = { airTemperatureC: 10, relativeHumidity_pct: 5 };
+      const extremeEnvironment: ZoneEnvironment = {
+        airTemperatureC: 10,
+        relativeHumidity_pct: 5,
+        co2_ppm: AMBIENT_CO2_PPM
+      };
       const stress = calculateCombinedStress(extremeEnvironment, 50, strain, 'vegetative');
       expect(stress).toBeGreaterThanOrEqual(0);
       expect(stress).toBeLessThanOrEqual(1);

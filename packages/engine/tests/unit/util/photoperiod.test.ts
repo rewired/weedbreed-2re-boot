@@ -12,6 +12,7 @@ import type {
   PhaseDurations,
   StageChangeThresholds
 } from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
+import { AMBIENT_CO2_PPM } from '../../../src/backend/src/constants/simConstants.js';
 
 describe('photoperiod utilities', () => {
   const schedule = (overrides: Partial<LightSchedule> = {}): LightSchedule => ({
@@ -50,7 +51,11 @@ describe('photoperiod utilities', () => {
     floorArea_m2: 10,
     height_m: 3,
     airMass_kg: 1,
-    environment: { airTemperatureC: 23, relativeHumidity_pct: 60 },
+    environment: {
+      airTemperatureC: 23,
+      relativeHumidity_pct: 60,
+      co2_ppm: AMBIENT_CO2_PPM
+    },
     ppfd_umol_m2s: 600,
     dli_mol_m2d_inc: 20,
     nutrientBuffer_mg: {},

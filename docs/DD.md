@@ -296,6 +296,10 @@ targets from the same factor to keep unit conversions deterministic.
 - **Pattern E — Substrate Buffer + Irrigation (Service + Domain):**
   - Service (`IIrrigationService`) + Domain stub (`INutrientBuffer`) jointly deliver nutrient outcome
   - Example: Irrigation service calculates flow, substrate buffer manages uptake/leaching
+ - **Pattern F — Gas Enrichment (CO₂ Injector):**
+  - Device implements `ICo2Injector` to enrich the zone bucket after sensors sample.
+  - Example: Deterministic injector clamps to target/safety limits.
+  - Test: `co2Coupling.integration.test.ts`
 
 **Stub Conventions (Design Decision):**
 
@@ -304,6 +308,7 @@ targets from the same factor to keep unit conversions deterministic.
 - **SI-Units:** W, Wh, m², m³/h, mg/h, µmol·m⁻²·s⁻¹ (PPFD), K, %
 - **Clamps/Caps:** Respect blueprint parameters (`capacity`, `max_*`)
 - **Telemetry:** Each stub returns primary outputs + auxiliary values (e.g., `energy_Wh`)
+- **Coverage:** Library includes `Co2InjectorStub` alongside thermal, humidity, airflow, filtration, lighting, sensor, irrigation, and substrate stubs.
 
 **Reference:** `/docs/proposals/20251002-interface_stubs.md` (consolidated specification)
 
