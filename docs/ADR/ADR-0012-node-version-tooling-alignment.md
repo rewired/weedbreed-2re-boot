@@ -1,8 +1,15 @@
 # ADR-0012: Node Version Tooling Alignment for Local Development
 
-- **Status:** Accepted
-- **Date:** 2025-10-04
-- **Authors:** Tooling Working Group
+> **Metadata**
+>
+> - **ID:** ADR-0012
+> - **Title:** Node Version Tooling Alignment for Local Development
+> - **Status:** Accepted
+> - **Date:** 2025-10-04
+> - **Supersedes:** _None_
+> - **Summary:** Add `.nvmrc` and `.node-version` markers to guide environment managers ahead of the Node.js 22 migration.
+> - **Binding:** true
+> - **Impacts:** AGENTS, DD
 
 ## Context
 

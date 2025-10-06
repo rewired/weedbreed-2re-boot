@@ -1,9 +1,18 @@
 # ADR-0006: Room validation helper extraction
 
-## Status
-Accepted
+> **Metadata**
+>
+> - **ID:** ADR-0006
+> - **Title:** Room validation helper extraction
+> - **Status:** Accepted
+> - **Date:** 2025-10-02
+> - **Supersedes:** _None_
+> - **Summary:** Refactor room checks into a dedicated helper to clarify validation responsibilities and reuse boundaries.
+> - **Binding:** false
+> - **Impacts:** DD
 
 ## Context
+
 `validateCompanyWorld` guards the SEC hierarchy and invariants before the tick
 pipeline processes a scenario. The routine accumulated nested validation logic
 for rooms, zones, plants, and devices in a single loop, making the structure
@@ -11,6 +20,7 @@ harder to navigate, hindering reuse in future validation entry points, and
 obscuring the distinct invariants that apply at the room boundary.
 
 ## Decision
+
 - Extract the room-specific checks (room geometry, growroom zone restrictions,
   nested zone/plant/device validation) into a dedicated `validateRoom` helper
   colocated with `validateDevice` inside
@@ -21,6 +31,7 @@ obscuring the distinct invariants that apply at the room boundary.
   paths.
 
 ## Consequences
+
 - The validation module now exposes focused helpers for the major hierarchy
   levels, clarifying responsibility boundaries and simplifying upcoming work to
   reuse room checks during partial world updates.

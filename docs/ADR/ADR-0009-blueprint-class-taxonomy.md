@@ -1,9 +1,20 @@
 # ADR-0009: Blueprint class taxonomy and validation
 
-## Status
-Accepted
+> ⚠️ **Superseded by [ADR-0015](./ADR-0015-blueprint-taxonomy-v2.md).**
+
+> **Metadata**
+>
+> - **ID:** ADR-0009
+> - **Title:** Blueprint class taxonomy and validation
+> - **Status:** Superseded
+> - **Date:** 2025-10-02
+> - **Supersedes:** _None_
+> - **Summary:** Established the initial blueprint class discriminator and directory alignment rules.
+> - **Binding:** false
+> - **Impacts:** SEC, DD, TDD
 
 ## Context
+
 Legacy blueprint JSON stored ad-hoc `kind` and `type` strings that were
 neither constrained by the engine nor referenced consistently across the
 simulation pipeline. As the number of blueprint families grows, loosely
@@ -14,6 +25,7 @@ a stable taxonomy that the backend can enforce when bootstrapping device
 behaviour and downstream content.
 
 ## Decision
+
 - Introduce a canonical `class` discriminator on every blueprint under
   `/data/blueprints/**` following the `<domain>.<effect>[.<variant>]`
   pattern so files can be grouped deterministically by capability, and
@@ -33,6 +45,7 @@ behaviour and downstream content.
   fixtures or the validator implementation.
 
 ## Consequences
+
 - All existing blueprint JSON files were migrated to include `class` and
   (where previously absent) `slug` attributes. Tests now parse the updated
   fixtures to ensure taxonomy compliance.

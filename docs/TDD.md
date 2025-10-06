@@ -8,17 +8,11 @@
 ## 0) Principles
 
 1. **Contract‑first**: Tests encode SEC semantics; failing tests mean contract drift.
-    
 2. **Determinism**: No non‑determinism in tests; all RNG via `createRng(seed, streamId)`.
-    
 3. **Small to system**: Start with pure functions, move to module/pipe, then world/system.
-    
 4. **Golden Master**: Canonical savegame & daily state hashes validate long‑runs (SEC §15).
-    
 5. **Single units**: Economy asserts use **per‑hour** units; `*_per_tick` is forbidden (derive via tick hours).
-    
 6. **Readable failures**: Tests explain “what SEC rule is violated”.
-    
 7. **No Magic Numbers**: All constants come from `simConstants.ts`.
 
 ### Diagnostics assertions
@@ -32,13 +26,11 @@
 ## 1) Canonical Constants (mirroring SEC §1.2)
 
 - `AREA_QUANTUM_M2 = 0.25`
-    
 - `ROOM_DEFAULT_HEIGHT_M = 3`
-    
 - `HOURS_PER_TICK = 1` (1 tick = 1 in‑game hour)
-    
 - Calendar: `HOURS_PER_DAY = 24`, `DAYS_PER_MONTH = 30`, `MONTHS_PER_YEAR = 12`
-    
+- Thermodynamics: `CP_AIR_J_PER_KG_K = 1 005`, `AIR_DENSITY_KG_PER_M3 = 1.2041`.
+- Headquarters defaults: `DEFAULT_COMPANY_LOCATION_LAT = 53.5511`, `DEFAULT_COMPANY_LOCATION_LON = 9.9937`, `DEFAULT_COMPANY_LOCATION_CITY = "Hamburg"`, `DEFAULT_COMPANY_LOCATION_COUNTRY = "Deutschland"`.
 
 **Test rule:** Any module using these must import from `simConstants.ts`. A lint rule bans hard‑coded duplicates.
 
@@ -63,9 +55,7 @@ src/
 ```
 
 - **Runner:** `vitest` (node).
-    
 - **Coverage threshold:** 90% lines/branches in `engine/` and `facade/`; 80% overall.
-    
 - **Snapshot location:** `__snapshots__` next to specs (only for low‑volatility payloads; prefer golden JSON files for world states).
 - **Blueprint fixtures:** Repository fixtures **MUST** live inside the domain folders that mirror their `class` (`device/climate/*.json`, `cultivation-method/*.json`, `room/purpose/*.json`, etc.). Specs walk `/data/blueprints/**` to assert the folder-derived taxonomy matches the JSON declaration and fail fast when contributors park files elsewhere.
 
@@ -76,10 +66,11 @@ Blueprint directory rule: All blueprints are auto-discovered under /data/bluepri
 ## 3) Data Validation & Fixtures
 
 - **Blueprints** (`/data/blueprints/**`) are **read‑only** fixtures in tests.
-    
 - **Schema:** Validate with **Zod** at façade boundaries and as test helpers.
-    
+- **Company schema:** `companySchema` asserts `location.longitude`/`latitude` stay within [-180, 180]/[-90, 90] and accepts the Hamburg defaults until UI capture overrides them.
+- **Device blueprint schema:** Tests require `effects` arrays with matching config blocks when multiple interfaces are declared; `createDeviceInstance` copy tests assert the structures are deep-frozen.
 - **Prices** live under `/data/prices/**`; ensure no prices leak into device blueprints.
+- **Tariff maps:** Schema specs assert `/data/prices/devicePrices.json` exposes `capitalExpenditure`, `baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`, `maintenanceServiceCost` and `/data/prices/utilityPrices.json` exposes only `price_electricity`/`price_water`.
 - **Taxonomy validation:** Unit tests assert that any mismatch between a blueprint's directory taxonomy and its JSON `class` raises a `BlueprintTaxonomyMismatchError` (or equivalent). Misplaced files must fail the loader guard immediately.
 
 - **Fixture layout check:** Repository-level specs enumerate blueprint folders and ensure no stray directories exist outside the sanctioned taxonomy tree. Tests fail if contributors invent ad-hoc folders.
@@ -103,9 +94,7 @@ describe('Zone schema — SEC §7.5', () => {
 ## 4) RNG & Stream Tests (SEC §5)
 
 - `createRng(seed, streamId)` produces identical sequences across platforms.
-    
 - **Streams** are stable ids: `plant:<uuid>`, `device:<uuid>`, `economy:<scope>`.
-    
 
 ```ts
 // tests/unit/util/rng.spec.ts
@@ -128,9 +117,7 @@ it('stable sequences per stream', () => {
 - Domains: `onHours ∈ [0,24]`, `offHours ∈ [0,24]`, integer or **0.25h** grid.
 
 - Constraint: `onHours + offHours = 24`.
-    
 - Optional: `startHour ∈ [0,24)`.
-    
 
 ```ts
 // tests/unit/facade/lightSchedule.spec.ts
@@ -149,8 +136,6 @@ describe('Light schedule — SEC §8', () => {
 });
 ```
 
----
-
 ## 5a) Workforce Schema Coverage (SEC §10)
 
 - `employeeSchema` enforces UUID v7 seeds, morale/fatigue bounds (`0..1`), and working-hour policy: base hours **5–16**, overtime **≤ 5**, `daysPerWeek ∈ [1,7]`.
@@ -163,15 +148,20 @@ describe('Light schedule — SEC §8', () => {
   `packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts`, respectively. These suites assert the
   new rate multipliers, cooldown resets, morale adjustments, task cleanup, and telemetry emission introduced for HR flows.
 - Trait coverage: `packages/engine/tests/unit/workforce/traits.test.ts` validates trait sampling conflicts, stacking modifiers, and salary deltas; `packages/engine/tests/integration/pipeline/workforceTraits.integration.test.ts` asserts runtime assignments expose trait-adjusted duration/error/fatigue data for downstream subsystems; `packages/facade/tests/unit/readModels/traitBreakdownView.test.ts` covers the façade aggregation.
+- Identity service coverage: `packages/engine/tests/unit/workforce/identitySource.test.ts` seeds `randomuser.me`, enforces the 500 ms timeout, and validates the pseudodata fallback via `createRng(rngSeedUuid, "employee:<rngSeedUuid>")`.
+
+## 5b) Lighting Telemetry & Stubs (SEC §6)
+
+- `zoneSchema` and pipeline integration tests ensure `ppfd_umol_m2s` and `dli_mol_m2d_inc` are present, finite, and non-negative on world snapshots.
+- `lightEmitterStub.spec.ts` validates PPFD scaling with dimming, DLI increments derived from tick seconds, and optional power telemetry accounting.
+- Integration coverage asserts lighting devices prioritise blueprint `effects.lighting` configs before heuristics.
 
 ---
 
 ## 6) Device Placement & Room Purpose (SEC §2)
 
 - **Zones only in growrooms**.
-    
 - **Devices** carry `placementScope: 'zone' | 'room' | 'structure'` and declare `allowedRoomPurposes`.
-    
 
 ```ts
 // tests/module/placement/eligibility.spec.ts
@@ -190,19 +180,20 @@ it('rejects zone device in non-grow room', () => {
 
 ### Tick Pipeline (Canonical, 9 Phases)
 
-1) Device Effects  
-2) Sensor Sampling  
-3) Environment Update  
-4) Irrigation & Nutrients  
-5) Workforce Scheduling  
-6) Plant Physiology  
-7) Harvest & Inventory  
-8) Economy & Cost Accrual  
-9) Commit & Telemetry
+1. Device Effects
+2. Sensor Sampling
+3. Environment Update
+4. Irrigation & Nutrients
+5. Workforce Scheduling
+6. Plant Physiology
+7. Harvest & Inventory
+8. Economy & Cost Accrual
+9. Commit & Telemetry
 
 - Canonical order: `applyDeviceEffects → applySensors → updateEnvironment → applyIrrigationAndNutrients → applyWorkforce → advancePhysiology → applyHarvestAndInventory → applyEconomyAccrual → commitAndTelemetry` (mirrors SEC §4.2).
 
 **Checklist (order trace):**
+
 - [ ] runTick(..., { trace: true }) yields exactly 9 phases
 - [ ] Second item is "applySensors" (before environment integration)
 - [ ] No extra or missing phases; names match public stage symbols
@@ -228,7 +219,6 @@ it('rejects zone device in non-grow room', () => {
 - Difficulty layer may set **`energyPriceFactor`/`energyPriceOverride`** and **`waterPriceFactor`/`waterPriceOverride`**; **override wins**.
 
 - Effective tariffs computed **once at sim start**.
-    
 
 ```ts
 // tests/unit/util/tariffs.spec.ts
@@ -239,8 +229,8 @@ it('override beats factor (electricity & water)', () => {
   const cfg = { price_electricity: 0.32, price_water: 4.0 }; // neutral costs
   const diff = { energyPriceFactor: 1.5, energyPriceOverride: 0.5, waterPriceFactor: 2.0 };
   const t = resolveTariffs(cfg, diff);
-  expect(t.kWh).toBe(0.5);         // override
-  expect(t.m3).toBe(8.0);          // factor (no override)
+  expect(t.kWh).toBe(0.5); // override
+  expect(t.m3).toBe(8.0); // factor (no override)
 });
 
 it('hourly cost derives from power draw (W) and tariff (kWh)', () => {
@@ -260,7 +250,6 @@ it('hourly cost derives from power draw (W) and tariff (kWh)', () => {
   - Irrigation compatibility is derived from irrigation method blueprints that list the substrate slug under `compatibility.substrates`; zones selecting a substrate without matching irrigation support should fail validation.
 - Substrate blueprints SHALL include `reusePolicy.maxCycles` (matching the top-level `maxCycles`), `densityFactor_L_per_kg`, and unit price metadata bound to `purchaseUnit`. Validation rejects reuse profiles missing sterilisation tasks when `maxCycles > 1`.
 
-
 ```ts
 // tests/integration/zone/cultivationMethod.spec.ts
 import { expect, it } from 'vitest';
@@ -277,6 +266,7 @@ it('zone without cultivationMethod fails validation', async () => {
 ## 9a) Stub Tests & Test Vectors (Phase 1)
 
 **Reference Test Vectors (from `/docs/proposals/20251002-interface_stubs.md` §8):**
+
 - **Thermal:** 1000 W, eff=0.9, 50 m³ room (≈60 kg air) ⇒ ΔT ≈ **+0.6 K/h** (sanity)
   - Test: `packages/engine/tests/unit/stubs/ThermalActuatorStub.test.ts:30-41`
 - **Humidity:** 500 g/h dehumidify, 60 kg air, k_rh(25°C) ≈ 0.15 ⇒ ΔrH ≈ **-1.25 %/h**
@@ -287,6 +277,7 @@ it('zone without cultivationMethod fails validation', async () => {
   - Test: `packages/engine/tests/unit/stubs/NutrientBufferStub.test.ts:27-34`
 
 **Stacking-Pattern Tests (Integration):**
+
 - **Pattern A (Split-AC):** Multi-Interface in one device (Thermal + Humidity + Airflow)
   - Test: `packages/engine/tests/integration/pipeline/multiEffectDevice.integration.test.ts:226-276`
 - **Pattern B (Dehumidifier+Reheat):** Combined device with coupled effects
@@ -297,6 +288,7 @@ it('zone without cultivationMethod fails validation', async () => {
 - **Pattern E (Substrate+Irrigation):** Test: `packages/engine/tests/integration/pipeline/irrigationNutrientPattern.integration.test.ts`
 
 **Acceptance Criteria (Stubs):**
+
 - ✅ Pure functions, deterministic, units validated
 - ✅ Caps/Clamps enforced; no negative stocks/flows
 - ✅ Tests for all stubs including the above vectors
@@ -308,7 +300,6 @@ it('zone without cultivationMethod fails validation', async () => {
 
 - Non‑useful electrical power becomes **sensible heat** in hosting zone unless exported. Assert temperature delta is positive given power draw and insufficient removal capacity.
 
-
 ```ts
 // packages/engine/tests/unit/thermo/heat.spec.ts
 import { expect, it } from 'vitest';
@@ -319,7 +310,7 @@ it('adds sensible heat proportional to power draw and duty', () => {
   const delta = applyDeviceHeat(zone, {
     powerDraw_W: 600,
     dutyCycle01: 0.5,
-    efficiency01: 0.9
+    efficiency01: 0.9,
   });
 
   expect(delta).toBeGreaterThan(0);
@@ -353,7 +344,6 @@ describe('Phase 1 zone capacity diagnostics', () => {
 ## 11) Telemetry Read‑only; Transport Separation (SEC §11)
 
 - No writes on telemetry channel. Intents and telemetry must not be multiplexed.
-    
 
 ```ts
 // tests/integration/transport/telemetryReadonly.spec.ts
@@ -372,19 +362,12 @@ it('rejects inbound messages on telemetry channel', async () => {
 ## 12) Golden Master (SEC §15)
 
 - **Fixture:** `tests/fixtures/golden/world_v1.seed.json` (minimal savegame; no derived fields).
-    
 - **Run:** 30 in‑game days (720 ticks) with seed `WB_SEED=gm-001`.
-    
 - **Outputs:** `daily.jsonl` + `summary.json`.
-    
 - **Assertion:**
-    
-    - `daily.hash` equals prior run (stable across platforms).
-        
-    - Event counts match (harvests, tasks, device switches).
-        
-    - Numeric tolerances: `EPS_REL = 1e-6`, `EPS_ABS = 1e-9`.
-        
+  - `daily.hash` equals prior run (stable across platforms).
+  - Event counts match (harvests, tasks, device switches).
+  - Numeric tolerances: `EPS_REL = 1e-6`, `EPS_ABS = 1e-9`.
 
 ```ts
 // tests/conformance/goldenMaster.spec.ts
@@ -406,40 +389,30 @@ it('30-day run matches golden summary and daily hashes', async () => {
 ## 13) Performance Budget
 
 - **Tick throughput (headless)**: ≥ 5k ticks/min on dev laptop baseline with demo world.
-    
 - **GC budget**: no steadily growing retained sets after 10k ticks.
-    
 - Perf tests run in CI on minimal world and assert upper bounds for time/memory.
-    
 
 ---
 
 ## 14) CI Pipeline
 
 - **Jobs:** lint → unit → module → integration → conformance (golden).
-    
 - **Artifacts:** `daily.jsonl`, `summary.json`, coverage reports.
-    
 - **Failure policy:** conformance failures block merge unless ADR approves contract change and golden is updated in the same PR.
-    
 
 ---
 
 ## 15) Mocks & Fakes
 
 - Prefer **fakes** over mocks for RNG, time, and transports.
-    
 - **No clock mocking** inside engine: tick time is simulated, not wall‑clock.
-    
 - Transport tests use an in‑memory adapter; never open real sockets in unit/module tests.
-    
 
 ---
 
 ## 16) Developer UX
 
 - `pnpm test:unit`, `test:module`, `test:integration`, `test:conf` scripts; `test:watch` for fast feedback.
-    
 - VS Code task maps for common runs; problem matchers surface SEC section in failure message.
 
 Note (UI components): While TDD remains UI-agnostic, downstream UI snapshot/visual tests will assume Tailwind styling with shadcn/ui components (Radix primitives) as per ADR-0016.
@@ -449,38 +422,24 @@ Note (UI components): While TDD remains UI-agnostic, downstream UI snapshot/visu
 ## 17) Update Procedure (when SEC changes)
 
 1. Update `simConstants.ts` and related schemas.
-    
 2. Update failing tests **first** to reflect new contract.
-    
 3. Implement minimal changes to pass.
-    
 4. Update **Golden Master**: re‑record only after ADR approval.
-    
 5. Update docs: AGENTS.md, CHANGELOG, and SEC references in test descriptions.
-    
 
 ---
 
 ## 18) Acceptance Checklist for PRs
 
 - ✅ Imports constants from `simConstants.ts`.
-    
 - ✅ Uses per‑hour units; derives per‑tick by hours.
-    
 - ✅ Validates light schedule per §8 with 0.25h grid.
-    
 - ✅ Enforces device placement & room purpose.
-    
 - ✅ Applies tariff policy (price_electricity/price_water; override > factor).
-    
 - ✅ Ensures power→heat coupling where relevant.
-    
 - ✅ Provides/updates golden fixtures & conformance spec.
-    
 - ✅ Coverage thresholds met; no `Math.random` in logic.
-    
 - ✅ Telemetry channel is read‑only; transport separation proven by tests.
-    
 
 ---
 

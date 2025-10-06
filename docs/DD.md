@@ -11,6 +11,8 @@ Weed Breed is a deterministic, tick‑driven cultivation & economy simulator. 
 
 UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; icons via lucide-react; micro-animations via Framer Motion. Charts via Recharts, optionally Tremor for dashboard presets. Components are in-repo (shadcn “copy-in” model) to avoid vendor lock and keep them themable with Tailwind.
 
+Local version markers (`.nvmrc`, `.node-version`) pin Node.js 22 for migration dry-runs while CI enforces Node.js 23 until the follow-up runtime ADR lands (ADR-0012).
+
 ---
 
 ## 1) Goals / Non‑Goals
@@ -18,35 +20,26 @@ UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; i
 **Goals**
 
 - Deterministic simulation with reproducible seeds and stream‑scoped RNG.
-    
 - Strict conformance to **per‑hour** economic units; tick derives from hours.
-    
 - Clean separation of **engine** (no I/O) and **façade/transport**.
-    
 - Enforce **roomPurpose**, **device placement**, and **zone cultivationMethod** rules.
-    
 - Realistic device capacity and **power→heat** coupling.
-    
 
 **Non‑Goals**
 
 - No dynamic energy/water market modelling (tariffs fixed at sim start unless a scenario explicitly overrides policy).
-    
 - No 3D geometry or CFD; we use lumped‑parameter environment models.
-    
 
 ---
 
 ## 2) Canonical Constants (SEC §1.2)
 
 - `AREA_QUANTUM_M2 = 0.25` — minimal calculable floor area.
-    
 - `ROOM_DEFAULT_HEIGHT_M = 3` — default room height, overridable by blueprint.
-    
 - `HOURS_PER_TICK = 1` — one in‑game hour per tick.
-    
 - Calendar: `HOURS_PER_DAY = 24`, `DAYS_PER_MONTH = 30`, `MONTHS_PER_YEAR = 12`.
-    
+- Thermodynamics: `CP_AIR_J_PER_KG_K = 1 005`, `AIR_DENSITY_KG_PER_M3 = 1.2041`.
+- Headquarters defaults: `DEFAULT_COMPANY_LOCATION_LAT = 53.5511`, `DEFAULT_COMPANY_LOCATION_LON = 9.9937`, `DEFAULT_COMPANY_LOCATION_CITY = "Hamburg"`, `DEFAULT_COMPANY_LOCATION_COUNTRY = "Deutschland"`.
 
 **Implementation:** centralize in `src/backend/src/constants/simConstants.ts`; no magic numbers.
 
@@ -57,6 +50,7 @@ UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; i
 Hierarchy and constraints:
 
 - **Company** → **Structure** (max usable area/volume; may represent outdoor fields).
+- Company metadata stores `location` (`longitude`, `latitude`, `city`, `country`) with SEC clamps and Hamburg defaults until UI capture overrides them.
 - **Room** with mandatory `roomPurpose` ∈ {growroom, breakroom, laboratory, storageroom, salesroom, workshop}.
 - **Zone** only inside **growrooms**; **must** declare `cultivationMethodId`.
 - **Plant** belongs to a zone; physiology depends on schedule & environment.
@@ -92,6 +86,8 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
 
 **Blueprints are templates**; never mutated at runtime. **Prices are separated** from device blueprints.
 
+Validation schemas live alongside the engine domain types (`packages/engine/src/backend/src/domain`) so the engine stays the single source of truth; façade packages import the engine exports instead of maintaining copies (ADR-0005).
+
 - **Blueprint taxonomy:** All blueprints expose `class` values using a domain-level
   identifier (`strain`, `cultivation-method`, `device.climate`, `room.purpose.growroom`,
   etc.) plus a kebab-case `slug` unique within that class. JSON stays authoritative for
@@ -102,13 +98,15 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
   method/control, etc.) is expressed by explicit fields within the JSON payload instead
   of being inferred from paths.
 
+- Device blueprints declaring multi-interface capabilities include `effects` arrays with matching config blocks (`thermal`, `humidity`, `lighting`, etc.); `createDeviceInstance` copies and freezes them so pipeline stages consume blueprint intent deterministically.
+
 Blueprint directory rule: All blueprints are auto-discovered under /data/blueprints/<domain>/<file>.json with a maximum depth of two segments (domain + file). Devices are /data/blueprints/device/<category>.json or /data/blueprints/device/<category>/<file>.json limited to two levels; no deeper subfolders are allowed.
 
 ### 4.2 Price Maps
 
 - `/data/prices/devicePrices.json` captures device **CapEx** (`capitalExpenditure`), **scheduled service visit costs** (`maintenanceServiceCost`), and **maintenance** progression (`baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`).
-- `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` per kWh** and **`price_water` per m³** only; nutrient costs are derived from irrigation/substrate consumption, not a standalone utility price.
-    - **Decision:** Monetary field names stay currency-neutral — never encode `EUR`, `USD`, `GBP`, symbols, or locale-specific suffixes. Scenario configuration contextualizes the neutral cost values.
+- `/data/prices/utilityPrices.json` is the canonical tariff source exposing **`price_electricity` per kWh** and **`price_water` per m³** only; nutrient costs are derived from irrigation/substrate consumption, not a standalone utility price (ADR-0004).
+  - **Decision:** Monetary field names stay currency-neutral — never encode `EUR`, `USD`, `GBP`, symbols, or locale-specific suffixes. Scenario configuration contextualizes the neutral cost values.
 
 ### 4.1 Cultivation Method (minimum shape)
 
@@ -117,9 +115,9 @@ Blueprint directory rule: All blueprints are auto-discovered under /data/bluepri
   "id": "uuid",
   "slug": "scrog",
   "name": "Screen of Green",
-  "areaPerPlant_m2": 0.20,
+  "areaPerPlant_m2": 0.2,
   "containers": [
-  { "id": "uuid", "slug": "pot-10l", "capex_per_unit": 2.0, "serviceLife_cycles": 8 }
+    { "id": "uuid", "slug": "pot-10l", "capex_per_unit": 2.0, "serviceLife_cycles": 8 }
   ],
   "substrates": [
     {
@@ -146,29 +144,23 @@ The `densityFactor_L_per_kg` drives container fill and irrigation calculations �
 uses it to convert container volumes into substrate mass, while irrigation modelling derives moisture
 targets from the same factor to keep unit conversions deterministic.
 
-> **Irrigation compatibility note:** Cultivation methods no longer list irrigation method IDs directly. Instead, irrigation method blueprints enumerate the substrates they support via `compatibility.substrates`, and methods inherit compatibility from whichever substrate option a zone selects.
+> **Irrigation compatibility note:** Cultivation methods no longer list irrigation method IDs directly. Instead, irrigation method blueprints enumerate the substrates they support via `compatibility.substrates`, and methods inherit compatibility from whichever substrate option a zone selects (ADR-0003).
 
 ---
 
 ## 5) Economy & Tariffs (SEC §3.6)
 
 - **Per‑hour** units for all recurring rates. No `*_per_tick` fields.
-    
 - **Tariff policy** (backend config + difficulty):
-    
-    - Backend exposes **`price_electricity`** (per **kWh**) and **`price_water`** (per **m³**).
-        
-    - Difficulty may supply **`energyPriceFactor`**/**`energyPriceOverride`** and **`waterPriceFactor`**/**`waterPriceOverride`** (override wins).
-        
-    - **Effective tariffs** are resolved **once at simulation start** and stay constant for the run (unless a scenario explicitly models variability).
-        
+  - Backend exposes **`price_electricity`** (per **kWh**) and **`price_water`** (per **m³**).
+  - Difficulty may supply **`energyPriceFactor`**/**`energyPriceOverride`** and **`waterPriceFactor`**/**`waterPriceOverride`** (override wins).
+  - **Effective tariffs** are resolved **once at simulation start** and stay constant for the run (unless a scenario explicitly models variability).
 
 **Derived costs**
 
 - Electricity: `kWh = (powerW / 1000) * hoursOn`; `cost = kWh * tariff.kWh`.
 
 - Water: `m3 = liters / 1000`; `cost = m3 * tariff.m3`.
-
 
 ## 5a) Workforce Domain (SEC §10)
 
@@ -181,6 +173,7 @@ targets from the same factor to keep unit conversions deterministic.
   - `taskQueue`: queued/in-progress task instances used by the dispatcher and telemetry.
   - `kpis`: rolling `WorkforceKpiSnapshot` entries summarising throughput, labour hours, overtime, and aggregate morale/fatigue.
   - `warnings`: deterministic `WorkforceWarning` entries carrying `code`, `severity`, `message`, optional `structureId`/`employeeId`/`taskId`, plus metadata for diagnostics and the façade.
+  - `identity`: deterministic pseudodata service that seeds `randomuser.me` calls with UUID v7, enforces a 500 ms timeout, and falls back to curated offline lists via `createRng(rngSeedUuid, "employee:<rngSeedUuid>")` so only pseudonymous records persist.
   - `payroll`: day-indexed accumulators capturing `baseMinutes`, `otMinutes`, `baseCost`, `otCost`, and `totalLaborCost` for the
     entire company as well as per-structure slices. Hourly rates follow the SEC 10.3 formula
     `rate_per_hour = (5 + 10 × relevantSkill) × locationIndex × roleBaseMult × employeeBaseMult × experienceMult × laborMarketFactor`,
@@ -223,34 +216,29 @@ targets from the same factor to keep unit conversions deterministic.
   same trait multipliers. A façade `createTraitBreakdown` read-model aggregates counts/strengths with optional economy hints for
   dashboards.
 
-
 ---
 
 ## 6) Tick Pipeline (SEC §4.2)
 
 ### Tick Pipeline (Canonical, 9 Phases)
 
-1) Device Effects  
-2) Sensor Sampling  
-3) Environment Update  
-4) Irrigation & Nutrients  
-5) Workforce Scheduling  
-6) Plant Physiology  
-7) Harvest & Inventory  
-8) Economy & Cost Accrual  
-9) Commit & Telemetry
-    
+1. Device Effects
+2. Sensor Sampling
+3. Environment Update
+4. Irrigation & Nutrients
+5. Workforce Scheduling
+6. Plant Physiology
+7. Harvest & Inventory
+8. Economy & Cost Accrual
+9. Commit & Telemetry
 
 ---
 
 ## 7) Light Schedule (SEC §8)
 
 - Variables: `onHours`, `offHours`, optional `startHour`.
-    
 - Domains: `onHours ∈ [0,24]`, `offHours ∈ [0,24]` (integer or **0.25h grid**). Constraint: `onHours + offHours = 24`. `startHour ∈ [0,24)`.
-    
 - DLI is computed by integrating PPFD over the on‑window.
-    
 
 **Validation strategy:** clamp to grid, normalize sum to 24, modulo `startHour` into range; log façade warnings for corrections.
 
@@ -259,13 +247,9 @@ targets from the same factor to keep unit conversions deterministic.
 ## 8) Devices (SEC §6)
 
 - **Placement rules:** enforced at install/move; `allowedRoomPurposes` filter.
-    
 - **Capacity realism:** devices surface coverage/airflow/dehumid capacity; zones may require multiple devices.
-    
 - **Power→Heat coupling:** all electrical draw not exported becomes **sensible heat** in hosting zone.
-    
 - **Quality/Condition:** canonical **[0,1]** engine scale (`quality01`, `condition01`); mapping to `%` only in read‑models.
-    
 
 **Device blueprint essentials**
 
@@ -290,6 +274,7 @@ targets from the same factor to keep unit conversions deterministic.
 **Concept:** Devices implement one or more interfaces (`IThermalActuator`, `IHumidityActuator`, `ILightEmitter`, `IAirflowActuator`, `IFiltrationUnit`, `ISensor`, `INutrientBuffer`, `IIrrigationService`). Effects are computed deterministically in pipeline order and aggregated.
 
 **Composition Patterns:**
+
 - **Pattern A — Multi-Interface in One Device (Split-AC):**
   - A device implements multiple interfaces (e.g., `IThermalActuator` + `IHumidityActuator` + `IAirflowActuator`)
   - Example: Split-AC cools (Thermal), dehumidifies (Humidity), and moves air (Airflow)
@@ -311,6 +296,7 @@ targets from the same factor to keep unit conversions deterministic.
   - Example: Irrigation service calculates flow, substrate buffer manages uptake/leaching
 
 **Stub Conventions (Design Decision):**
+
 - All stubs are **pure functions** (no side effects)
 - **Deterministic:** Same input set ⇒ same output set (with fixed seed)
 - **SI-Units:** W, Wh, m², m³/h, mg/h, µmol·m⁻²·s⁻¹ (PPFD), K, %
@@ -324,60 +310,45 @@ targets from the same factor to keep unit conversions deterministic.
 ## 9) Engine vs Façade vs Transport (SEC §11)
 
 - **Engine:** pure, deterministic, no network/time syscalls; advances tick and returns state + events.
-    
 - **Façade:** validates intents, resolves tariffs, computes read‑models, orchestrates tick, exposes telemetry (read‑only) over adapter.
-    
 - **Transport Adapter:** Socket.IO default; SSE supported; **never accept inbound writes on telemetry**.
-    
 
 ---
 
 ## 10) RNG & Reproducibility (SEC §5)
 
 - `createRng(seed, streamId)`; stable stream ids, e.g., `plant:<uuid>`, `device:<uuid>`, `economy:<scope>`.
-    
 - Daily canonical **state hashes** (exclude derived/transient fields) for conformance checks.
-    
 
 ---
 
 ## 11) Persistence & Savegame
 
 - **Savegame JSON** contains world tree (no derived fields).
-    
 - **Load**: validate against schemas; compute effective tariffs; seed RNG streams; start ticking.
-    
 
 ---
 
 ## 12) Error Handling & Validation
 
 - Schema guards in façade (Zod).
-    
 - Violations (e.g., zone without cultivationMethod, device in wrong purpose room) → **hard errors** on load or **rejected intents** at runtime.
-    
 - Light schedule normalization → **soft warnings**; recorded in diagnostics log.
-    
 
 ---
 
 ## 13) Performance Budget
 
 - Headless throughput: **≥ 5k ticks/min** on dev baseline for demo world.
-    
 - No cumulative memory growth after **10k ticks**.
-    
 - Profiling hooks around each pipeline stage.
-    
 
 ---
 
 ## 14) Telemetry & Read‑Models
 
 - Telemetry: `simTick`, `eventId`, payload snapshots (small deltas preferred).
-    
-- Read‑models: zone/plant summaries (health, stress, DLI, water use), economy snapshots (hourly energy/water, maintenance), device status.
-    
+- Read‑models: zone/plant summaries (health, stress, PPFD, DLI, water use), economy snapshots (hourly energy/water, maintenance), device status.
 
 ---
 
@@ -387,7 +358,7 @@ targets from the same factor to keep unit conversions deterministic.
 // src/backend/src/config/runtime.ts (facade)
 export interface BackendConfig {
   price_electricity: number; // cost per kWh (currency-neutral)
-  price_water: number;       // cost per m^3 (currency-neutral)
+  price_water: number; // cost per m^3 (currency-neutral)
   difficulty?: {
     energyPriceFactor?: number;
     energyPriceOverride?: number;
@@ -404,58 +375,39 @@ Tariff resolution occurs **once** at simulation start; façade provides `getEffe
 ## 16) Testing Strategy (see TDD.md)
 
 - Unit: validators, tariffs, RNG, physio pure functions.
-    
 - Module: device models, placement, power→heat, light schedule.
-    
 - Integration: tick pipeline order and interactions.
-    
 - Conformance: 30‑day golden master with daily hashes.
-    
 
 ---
 
 ## 17) Security & Trust Boundaries
 
 - Engine runs without network; all inbound data is validated in façade.
-    
 - Telemetry channel is write‑protected; intents use separate ingress.
-    
 
 ---
 
 ## 18) Open Issues / ADR Hooks
 
 - **Variable tariffs** (time‑of‑day pricing): ADR if needed; impacts economy stage.
-    
 - **CO₂ modelling depth** (simple bucket vs mass‑balance): ADR to change.
-    
 - **Irrigation granularity** (per‑plant vs per‑zone): ADR to change.
-    
 
 ---
 
 ## 19) Acceptance Criteria (for PRs implementing this DD)
 
 - ✅ Imports and uses `simConstants.ts` (no magic numbers).
-    
 - ✅ Zone requires `cultivationMethodId`; schema enforced.
-    
 - ✅ Device placement rules + roomPurpose eligibility enforced.
-    
 - ✅ Tariffs resolved from `price_electricity`/`price_water` with factor/override (override wins).
-    
 - ✅ All recurring costs are per‑hour; tick derives cost via hours.
-    
 - ✅ Power→heat coupling implemented where applicable.
-    
 - ✅ Telemetry is read‑only and transport‑separated.
-    
 - ✅ Deterministic RNG streams and daily state hashes in place.
-    
 - ✅ Performance budget & profiling hooks present.
-    
 - ✅ Tests cover unit/module/integration/conformance (see TDD.md).
-    
 
 ---
 
@@ -464,8 +416,11 @@ Tariff resolution occurs **once** at simulation start; façade provides `getEffe
 ```ts
 // tariffs.ts
 export function resolveTariffs(cfg: BackendConfig) {
-  const kWh = cfg.difficulty?.energyPriceOverride ?? cfg.price_electricity * (cfg.difficulty?.energyPriceFactor ?? 1);
-  const m3  = cfg.difficulty?.waterPriceOverride  ?? cfg.price_water       * (cfg.difficulty?.waterPriceFactor  ?? 1);
+  const kWh =
+    cfg.difficulty?.energyPriceOverride ??
+    cfg.price_electricity * (cfg.difficulty?.energyPriceFactor ?? 1);
+  const m3 =
+    cfg.difficulty?.waterPriceOverride ?? cfg.price_water * (cfg.difficulty?.waterPriceFactor ?? 1);
   return { kWh, m3 };
 }
 
@@ -480,7 +435,10 @@ export function validateLightSchedule(onHours: number, offHours: number, startHo
 }
 
 // powerToHeat.ts (simplified)
-export function applyDeviceHeat(zone: Zone, d: { powerDraw_W: number; dutyCycle01: number; efficiency01: number }) {
+export function applyDeviceHeat(
+  zone: Zone,
+  d: { powerDraw_W: number; dutyCycle01: number; efficiency01: number },
+) {
   const wasteW = d.powerDraw_W * (1 - d.efficiency01) * d.dutyCycle01;
   const joules = wasteW * 3600; // 1h
   const airMassKg = zone.airMass_kg; // bootstrap: area × (height || default) × 1.2041 kg/m³

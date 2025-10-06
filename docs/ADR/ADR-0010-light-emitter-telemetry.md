@@ -1,9 +1,18 @@
 # ADR-0010: Zone lighting telemetry and light emitter stub
 
-## Status
-Accepted
+> **Metadata**
+>
+> - **ID:** ADR-0010
+> - **Title:** Zone lighting telemetry and light emitter stub
+> - **Status:** Accepted
+> - **Date:** 2025-10-03
+> - **Supersedes:** _None_
+> - **Summary:** Extend zone state, schemas, and stubs to publish PPFD/DLI telemetry with deterministic coverage tests.
+> - **Binding:** true
+> - **Impacts:** SEC, DD, TDD
 
 ## Context
+
 The Simulation Engine Contract (SEC v0.2.1) specifies that lighting devices
 contribute photosynthetic photon flux density (PPFD) and daily light integral
 (DLI) metrics at the zone scope, yet the engine lacked concrete plumbing for
@@ -14,6 +23,7 @@ photoperiod analytics could not consume deterministic tick outputs or enforce
 non-negative values mandated by the contract.
 
 ## Decision
+
 - Extend the `Zone` domain entity, schemas, and validation routines with
   `ppfd_umol_m2s` and `dli_mol_m2d_inc` so lighting telemetry becomes part of the
   canonical world snapshot and remains non-negative/finiteness guarded.
@@ -25,6 +35,7 @@ non-negative values mandated by the contract.
   contract as future lighting features land.
 
 ## Consequences
+
 - Zone fixtures, bootstrap harnesses, and validators now initialise lighting
   telemetry fields, ensuring downstream systems observe zeroed values until
   lighting devices contribute increments.

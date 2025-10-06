@@ -2,6 +2,20 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Locked canonical geometry, calendar, thermodynamic, and HQ defaults in `simConstants.ts` with documented precedence flow (ADR-0001).
+- Anchored irrigation/substrate compatibility to irrigation method blueprints and removed substrate-level lists (ADR-0003).
+- Normalised price maps to per-hour maintenance curves and electricity/water tariffs only (ADR-0004).
+- Moved shared world schemas into the engine package; façade imports the engine-owned Zod exports (ADR-0005).
+- Shipped the deterministic `createRng(seed, streamId)` helper with regression coverage (ADR-0007).
+- Required `company.location` metadata with Hamburg defaults and coordinate clamps during validation (ADR-0008).
+- Extended zone state and the light emitter stub with PPFD/DLI telemetry plus guard tests (ADR-0010).
+- Propagated blueprint-declared `effects`/config blocks onto device instances before pipeline evaluation (ADR-0011).
+- Added `.nvmrc`/`.node-version` markers pinning Node.js 22 locally while CI enforces Node.js 23 (ADR-0012).
+- Embedded the deterministic workforce branch (roles, employees, tasks, KPIs, payroll) into world snapshots (ADR-0013).
+- Implemented seeded workforce identity sourcing with a 500 ms randomuser.me timeout and pseudodata fallback (ADR-0014).
+- Flattened blueprint taxonomy to domain-level folders with explicit subtype metadata and migration tooling (ADR-0015).
+- Ratified the shadcn/ui + Tailwind + Radix UI stack (lucide icons, Framer Motion, Recharts/Tremor) for UI components (ADR-0016).
+
 - Docs: standardized blueprint folders to max two levels under /data/blueprints (no deeper subfolders).
 - Flattened `/data/blueprints` to domain-level folders (`device/<category>/*.json`,
   `cultivation-method/*.json`, `room/purpose/*.json`, etc.) and aligned all JSON `class`
@@ -11,7 +25,7 @@
   `method`, `control`, `structureType`) and tightened Zod schemas/tests accordingly.
 - Updated loaders to guard domain↔class alignment only, refreshed fixtures/tests to the
   new layout, introduced migration scripts (`npm run migrate:folders`, `npm run
-  migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy update in
+migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy update in
   SEC/DD/TDD plus a dedicated ADR.
 - Docs/ADR: Adopted Tailwind + shadcn/ui (on Radix) as the UI component stack; updated SEC/DD/AGENTS/VISION_SCOPE and recorded decision in ADR-0016.
 
@@ -114,7 +128,6 @@
 - Added a `preinstall` guard that aborts `pnpm install` when the package manager is not pnpm 10.18.0, relying on the workspace shim metadata.
 - Exposed a `verify-pnpm` script and helper utility so CI and contributors can assert the correct pnpm version without triggering an install.
 
-
 ### #67 Reporting CLI tooling prerequisites
 
 - Documented Node.js/Corepack/pnpm setup prerequisites and troubleshooting guidance for the seed-to-harvest reporting CLI, clarifying that the repository `packageManager` metadata requires pnpm.
@@ -194,6 +207,7 @@
 - Etabliert Muster für zukünftige Blueprint-Loader (Device, Irrigation, Substrate): Filesystem-Scan + Validation + Caching.
 
 ### #60 Utility consolidation for helper functions
+
 - Added shared numeric helpers (`clamp`, `clamp01`, `resolveTickHoursValue`) and
   validation/environment utilities to eliminate divergent inline
   implementations across stubs, pipeline stages, and domain services.
@@ -203,10 +217,12 @@
   catalogue under `/docs/helper-functions.md` to prevent future duplication.
 
 ### #59 Tooling - Node version manager hints
+
 - Added `.nvmrc` and `.node-version` pointing to Node.js 22 so local environment managers auto-select the target runtime during the LTS migration dry run.
 - Captured the decision in ADR-0012 to document the transitional alignment between local tooling and CI-enforced Node.js 23.
 
 ### #58 WB-052 Zod compatibility rollback
+
 - Pinned `@wb/engine` to `zod@3.24.x` to restore `.strict()` and `.superRefine()`
   behaviours within blueprint schemas so SEC-aligned validation guards run
   again.
@@ -214,6 +230,7 @@
   Zod release is installed consistently across local and CI environments.
 
 ### #57 WB-050 physiology pipeline scaffolding
+
 - Introduced a strain blueprint schema with taxonomy validation, deterministic
   slug registry support, and SEC-aligned environmental band constraints to
   unblock physiology modelling.
@@ -228,10 +245,12 @@
   against regressions.
 
 ### #56 WB-049 DD sync to 8-phase pipeline + order test
+
 - Updated DD §6 to reflect the 8-phase pipeline with explicit Sensor Sampling (per SEC §4.2).
 - Added an integration test asserting the canonical phase order via the tick trace harness (TDD §7).
 
 ### #55 WB-048 airflow schema coverage parity
+
 - Extended the device blueprint schema regression fixture to include the
   explicit airflow effect block required by the SEC, keeping the multi-effect
   validation aligned with runtime expectations.
@@ -240,6 +259,7 @@
   the enforced schema nuance.
 
 ### #54 WB-047 sensor sampling before environment integration
+
 - Reordered the Engine tick pipeline so `applySensors` executes immediately after
   `applyDeviceEffects`, capturing zone conditions before `updateEnvironment`
   integrates actuator deltas as required by SEC §4.2.
@@ -249,6 +269,7 @@
   and its placement ahead of environmental integration.
 
 ### #53 WB-046 idle tick immutability guard
+
 - Updated `commitAndTelemetry` to return the existing world snapshot untouched
   (including `simTimeHours`) when no pipeline stage mutated state, matching the
   SEC §1 ordered-tick guarantee that idle ticks do not fabricate temporal
@@ -261,6 +282,7 @@
   semantics remain faithful.
 
 ### #52 WB-045 irrigation runtime lifecycle instrumentation
+
 - Deferred `clearIrrigationNutrientsRuntime` to the Engine tick runner so the
   instrumentation hook can inspect irrigation/nutrient outputs before the
   runtime clears, mirroring the sensor lifecycle defined in SEC §6.3.
@@ -271,6 +293,7 @@
   remains stable per the SEC/TDD pipeline contracts.
 
 ### #51 WB-044 latent heat coupling for stacked climate devices
+
 - Added the SEC-mandated `LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG` constant to
   the simulation canon and documentation so latent/sensible coupling shares a
   single source of truth.
@@ -283,6 +306,7 @@
   expectations for Patterns A/B and stacked heater+dehumidifier scenarios.
 
 ### #50 WB-043 world mutation tracking in Engine pipeline
+
 - Added a private `__wb_worldMutated` tracking helper on `EngineRunContext` so the
   tick runner can detect in-place stage stability without cloning worlds.
 - Updated `runTick` to raise the flag when a stage returns a new world instance
@@ -291,6 +315,7 @@
   stage touched the world, preserving the existing clone path when mutations do occur.
 
 ### #49 WB-042 airflow config parity for exhaust and cooling devices
+
 - Added explicit airflow effect blocks to the Exhaust Fan 4-inch and CoolAir Split 3000
   blueprints so `parseDeviceBlueprint` enforces the SEC airflow schema for existing
   airflow effects.
@@ -298,6 +323,7 @@
   traceable for contributors.
 
 ### #48 WB-041 interface stacking vectors and integration coverage
+
 - Documented stub reference vectors, stacking patterns, and acceptance criteria
   across SEC §6.3, DD §8a, and TDD §9a to align documentation with the
   `/docs/proposals/20251002-interface_stubs.md` specification.
@@ -306,6 +332,7 @@
   suite to backfill explicit stacking scenarios referenced by the docs.
 
 ### #47 WB-040 irrigation and nutrient buffering pipeline
+
 - Extended the zone domain contract and Zod schemas with `nutrientBuffer_mg`
   and `moisture01`, wiring the demo harness defaults so simulation snapshots
   expose substrate inventory for irrigation logic.
@@ -317,6 +344,7 @@
   persistence, and multi-zone isolation, plus documentation updates here.
 
 ### #46 WB-039 light emitter stub and zone lighting telemetry
+
 - Added `createLightEmitterStub` mirroring the plateau-field model from the SEC
   so dimming factors linearly scale PPFD, DLI increments derive from tick
   duration, and optional power draw reports watthour consumption.
@@ -329,6 +357,7 @@
   documentation updates (ADR-0010) describing the contract change.
 
 ### #45 WB-038 thermal actuator stub with cooling & auto support
+
 - Added `createThermalActuatorStub` under `@/backend/src/stubs` to deliver
   deterministic heating, cooling, and auto-mode behaviour with structured
   outputs for downstream composition.
@@ -340,6 +369,7 @@
   cases alongside a soft deprecation notice on the legacy heating helper.
 
 ### #44 WB-037 blueprint taxonomy guardrails clarified for contributors
+
 - Expanded SEC and DD blueprint sections with explicit directory conventions,
   JSON-source-of-truth language, and a required loader failure when paths and
   classes diverge.
@@ -349,6 +379,7 @@
   documentation, governance, and implementation stay aligned.
 
 ### #43 WB-036 taxonomy-driven blueprint filesystem
+
 - Migrated every blueprint JSON under `/data/blueprints/**` into taxonomy-aligned
   directories whose segment names mirror the declared class (e.g.
   `device/climate/cooling/cool-air-split-3000.json`).
@@ -361,6 +392,7 @@
   deeper hierarchy.
 
 ### #42 WB-035 blueprint taxonomy guardrails align filesystem & class strings
+
 - Reorganised device, irrigation, and substrate blueprints under taxonomy-aligned
   folders (e.g. `/data/blueprints/device/climate/cooling/**`) so directory
   segments encode `<domain>.<effect>[.<variant>]`.
@@ -374,6 +406,7 @@
   files land in the wrong folder.
 
 ### #41 WB-034 irrigation compatibility slug validation
+
 - Normalised every irrigation blueprint `compatibility.substrates` entry to the real substrate
   slugs shipped under `/data/blueprints/substrate`, removing phantom media names and keeping
   scenario metadata aligned with available inventory.
@@ -384,6 +417,7 @@
   to at least one compatible irrigation blueprint automatically, preventing future drift.
 
 ### #40 WB-033 substrate density enforcement
+
 - Enriched every substrate blueprint with `purchaseUnit`, `unitPrice_per_*`, `densityFactor_L_per_kg`,
   and explicit `reusePolicy` metadata aligned with SEC §7.5 so cultivation tooling can convert
   container volumes into substrate mass deterministically.
@@ -393,6 +427,7 @@
 - Updated SEC/DD/TDD guidance to call out the new required fields and documented the change here.
 
 ### #39 WB-032 blueprint taxonomy alignment
+
 - Added a canonical `<domain>.<effect>[.<variant>]` `class` discriminator and kebab-case
   slugs across every blueprint JSON under `/data/blueprints/**`, removing legacy
   `kind`/`type` identifiers while keeping slug uniqueness per class.
@@ -403,6 +438,7 @@
   taxonomy-driven migration for future contributors.
 
 ### #38 WB-031 device read-model percent enrichment
+
 - Introduced a façade read-model mapper that forwards canonical device metrics
   while appending `qualityPercent`/`conditionPercent` derived via the SEC-mandated
   `Math.round(100 * value)` normalisation.
@@ -412,6 +448,7 @@
   percentage metrics, including edge rounding behaviour.
 
 ### #37 WB-030 device condition lifecycle scaffolding
+
 - Added a backend device condition helper module with placeholder degradation,
   maintenance, and repair flows that honour SEC monotonic wear requirements and
   clamp condition/threshold values to the canonical unit interval.
@@ -421,6 +458,7 @@
   RNG-ready repair hooks, and clamping semantics.
 
 ### #36 WB-029 deterministic device quality factory
+
 - Added `createDeviceInstance` to the backend device module so world/bootstrap
   loaders draw device `quality01` via the deterministic `device:<uuid>` RNG
   stream and clamp values into the canonical unit interval.
@@ -431,6 +469,7 @@
   deterministic equality for identical `{seed, id}` pairs.
 
 ### #35 WB-028 canonical constant consolidation
+
 - Added `SECONDS_PER_HOUR`, `FLOAT_TOLERANCE`, and geospatial boundary constants
   to `simConstants`, eliminating duplicate physics values across the engine
   pipeline and validation layers.
@@ -441,11 +480,13 @@
   magic numbers and refreshed the canonical constant reference documentation.
 
 ### #34 WB-027 device capacity diagnostics & blueprint schema hardening
+
 - Introduced a Zod-backed device blueprint schema enforcing `power_W`, `efficiency01`, and at least one of `coverage_m2`/`airflow_m3_per_h`, exporting the validator for downstream loaders and adding unit coverage (including live JSON fixtures).
 - Normalised device instances with `coverage_m2`/`airflow_m3_per_h` fields, updated validation, demo fixtures, and pipeline logic to aggregate coverage & airflow totals, clamp effectiveness by coverage ratio, and emit `zone.capacity.coverage.warn` / `zone.capacity.airflow.warn` diagnostics when undersized.
 - Added integration tests verifying the new runtime totals and warnings, refreshed SEC/DD/TDD guidance, and migrated device blueprints to the canonical placement scope + capacity fields.
 
 ### #33 WB-026 zone air mass bootstrap derivation
+
 - Extended the zone domain contract and Zod schema with a documented `airMass_kg`
   field that downstream thermodynamics consume directly.
 - Derive air mass at bootstrap from floor area × height × `AIR_DENSITY_KG_PER_M3`,
@@ -455,6 +496,7 @@
   new field and asserted regression coverage for default and overridden heights.
 
 ### #32 WB-025 device thermal coupling
+
 - Added dry-air thermodynamic constants (`CP_AIR_J_PER_KG_K`,
   `AIR_DENSITY_KG_PER_M3`) to the canonical sim constants module and mirrored the
   reference documentation/ADR so pipeline code can compute heat deltas without
@@ -467,6 +509,7 @@
   waste-heat heating, zero-duty stability, and cross-stage cooling flows.
 
 ### #31 WB-024 pipeline stages clone world snapshots
+
 - Normalised all pipeline stage modules to return shallow world clones so the
   immutable tick contract holds even before stage-specific logic lands.
 - Added the snapshots pre-emptively to keep future implementations from
@@ -474,6 +517,7 @@
   staged world data.
 
 ### #30 WB-023 immutable tick world snapshots
+
 - Refactored all engine pipeline stages, including `commitAndTelemetry`, to return new
   `SimulationWorld` instances so tick progression honours the readonly world contract.
 - Updated `runTick` to compose the immutable snapshots while still exposing optional
@@ -483,12 +527,14 @@
   return-value change to keep trace utilities and specs validating the new workflow.
 
 ### #29 Tooling - perf harness warm-up stabilization
+
 - Added a warm-up loop to `withPerfHarness` so initial ticks run without trace
   collection, allowing JIT optimizations to settle before measurements begin.
 - Ensured the warm-up honours custom world/context factories while forcing
   tracing off to keep baseline metrics focused on the measured iterations.
 
 ### #28 WB-022 tick commit advances simulation time
+
 - Implemented the `commitAndTelemetry` pipeline stage so each tick increments
   `SimulationWorld.simTimeHours` by the SEC-mandated `HOURS_PER_TICK`, ensuring
   downstream systems observe deterministic world time progression.
@@ -497,12 +543,14 @@
   asserts the cumulative hour count advances by one per stage cycle.
 
 ### #26 WB-009 tick orchestrator & perf harness
+
 - Implemented the SEC-ordered `runTick` pipeline in `packages/engine/src/backend/src/engine/Engine.ts`, wiring the seven phase modules through the shared `PIPELINE_ORDER` map so instrumentation hooks observe deterministic sequencing.
 - Added `createTickTraceCollector` and the `withPerfStage` sampling utility in `packages/engine/src/backend/src/engine/trace.ts` and `packages/engine/src/backend/src/util/perf.ts` to record per-stage timing and heap usage without leaking wall-clock state.
 - Published the `runOneTickWithTrace`, `withPerfHarness`, and `createRecordingContext` helpers in `packages/engine/src/backend/src/engine/testHarness.ts` to simplify trace capture, perf baselines, and stage recording for integration scenarios.
 - Expanded Vitest coverage across `packages/engine/tests/integration/pipeline/order.spec.ts`, `packages/engine/tests/unit/engine/trace.spec.ts`, and `packages/engine/tests/integration/perf/baseline.spec.ts` to lock down pipeline order, trace schema invariants, and throughput guardrails for WB-009.
 
 ### #27 WB-021 tick pipeline instrumentation harness
+
 - Introduced the SEC-ordered `runTick` orchestrator that stages the seven
   deterministic phases and optionally collects `TickTrace` telemetry without
   leaking wall-clock data into simulation logic.
@@ -515,6 +563,7 @@
   expectations with the new instrumentation surfaces.
 
 ### #25 WB-020 deterministic tariff resolution helper
+
 - Added `resolveTariffs(config)` to the engine backend utilities so scenarios
   deterministically derive electricity and water tariffs with override-first
   precedence before multiplicative difficulty factors.
@@ -526,6 +575,7 @@
   base-only, factor-only, override-only, and mixed configurations.
 
 ### #24 WB-019 company location validation consolidation
+
 - Updated the shared `nonEmptyString` schema to trim incoming values before
   enforcing non-empty constraints so world tree strings remain normalised at
   parse time.
@@ -536,6 +586,7 @@
   focuses on SEC-specific guardrails beyond baseline schema requirements.
 
 ### #23 WB-018 company headquarters location metadata
+
 - Added Hamburg-backed default company location constants to `simConstants` and
   documented them in the canonical constants reference for interim UI coverage.
 - Extended the domain model, schemas, and business validation to require
@@ -545,6 +596,7 @@
   coordinates.
 
 ### #22 WB-017 light schedule grid constant centralisation
+
 - Added the SEC-mandated `LIGHT_SCHEDULE_GRID_HOURS` export to the canonical
   `simConstants` module so photoperiod validators share the same 15 minute grid
   source of truth as the documentation.
@@ -554,6 +606,7 @@
   centralised reference for photoperiod light schedules.
 
 ### #21 WB-016 uuid schema branding alignment
+
 - Branded the shared `uuidSchema` in the engine domain schemas with Zod's
   `.brand<'Uuid'>()` helper so parsed entities infer the branded `Uuid` type
   expected by the domain model.
@@ -564,6 +617,7 @@
   existing schema unit coverage relevant without modification.
 
 ### #20 Tooling - engine lint guard compliance
+
 - Normalised template string usage in `@wb/engine` validation helpers so numeric
   segments are explicitly stringified, satisfying the strict `restrict-template-expressions`
   guard enforced by the workspace ESLint profile.
@@ -574,6 +628,7 @@
   continue operating on deterministic, fully typed clones of the base world tree.
 
 ### #19 WB-014 deterministic RNG utility
+
 - Introduced `createRng(seed, streamId)` in the engine backend util library so
   all stochastic behaviour flows through a deterministic, stream-scoped
   generator aligned with SEC §5.
@@ -585,6 +640,7 @@
   and the chosen splitmix/mulberry implementation strategy.
 
 ### #18 WB-013 room validation helper extraction
+
 - Refactored `validateCompanyWorld` to delegate room, zone, plant, and device
   checks to a new `validateRoom` helper so hierarchy-specific invariants stay
   co-located with their scope.
@@ -594,6 +650,7 @@
   validation module.
 
 ### #17 WB-012 light schedule 24-hour enforcement
+
 - Enforced the light schedule schema to reject photoperiods that do not sum to
   a full 24-hour cycle, aligning validation with the SEC light-cycle contract.
 - Added regression coverage ensuring valid 24-hour schedules parse successfully
@@ -602,6 +659,7 @@
   schedules before submitting company world payloads.
 
 ### #16 WB-011 growroom zone cardinality validation
+
 - Enforced the room schema to reject growrooms that do not declare at least one
   zone, maintaining SEC hierarchy invariants.
 - Added regression coverage ensuring `companySchema.safeParse` reports a zones
@@ -610,12 +668,14 @@
   growrooms now fail schema checks.
 
 ### #15 Tooling - align engine runtime dependencies
+
 - Declared `zod@^3.23.8` as an explicit runtime dependency for `@wb/engine`
   so schema validation helpers resolve consistently during builds and tests.
 - Re-synced workspace lockfiles via `pnpm install` to ensure CI resolves the
   shared Zod version already used by the façade package.
 
 ### #14 WB-010 engine-hosted world validation schemas
+
 - Moved the company world Zod schemas and `parseCompanyWorld` helper into
   `@wb/engine` so validation logic ships with the canonical domain contracts.
 - Exported the schemas from the engine package and updated façade imports to
@@ -624,6 +684,7 @@
   validation regression tests close to the source of truth.
 
 ### #13 WB-006 facade world schema validation
+
 - Added Zod-based world tree schemas in `@wb/facade` that reuse engine
   enumerations to guarantee SEC-aligned runtime validation of cultivation
   methods, irrigation, containers, and substrates before engine bootstrap.
@@ -635,10 +696,12 @@
   usage and keep all randomness routed through deterministic RNG utilities.
 
 ### #12 Tooling - facade Vitest alias parity
+
 - Added the `@/backend` path alias to the façade Vitest config so shared engine
   modules resolve consistently during façade test runs.
 
 ### #12 Price map enforcement for device service costs
+
 - Removed per-service maintenance costs from device blueprints and migrated the
   values into `/data/prices/devicePrices.json` under the new
   `maintenanceServiceCost` field.
@@ -651,6 +714,7 @@
   metadata from pricing data.
 
 ### #11 WB-004 validation guard fixes
+
 - Hardened light schedule validation to reject non-finite values before range
   checks, preventing NaN/Infinity leakage into tick logic.
 - Adopted readonly array typing across world entities and rewrote tests to use
@@ -659,6 +723,7 @@
   validation issue.
 
 ### #10 WB-004 domain model scaffolding
+
 - Added strongly typed world tree entities and validation helpers under
   `packages/engine/src/backend/src/domain/world.ts` to encode SEC hierarchy and
   guardrails.
@@ -668,15 +733,18 @@
   implementation alignment.
 
 ### #09 WB-002 canonical constants module
+
 - Added the canonical `simConstants.ts` module under `src/backend/src/constants` with SEC-aligned values and helper accessors.
 - Documented the constants in `docs/constants/simConstants.md` and enforced single-source usage through a bespoke ESLint rule.
 - Expanded automated coverage with unit/integration tests verifying immutable exports and package re-exports.
 
 ### #08 Tooling - pnpm 10.17.1 alignment
+
 - Harmonised the repository on pnpm 10.17.1 via package manager engines metadata.
 - Simplified CI pnpm setup to source the version from `package.json`, preventing action self-install conflicts.
 
 ### #07 WB-001 pnpm workspace bootstrap
+
 - Initialised pnpm workspaces with shared TypeScript configuration and path aliases for engine, façade, transport, and monitoring packages.
 - Added base linting, formatting, and testing toolchain aligned with Node 23+ ESM requirements.
 - Provisioned CI workflow executing lint, test, and build stages to guarantee green pipelines.
@@ -684,28 +752,34 @@
 All notable changes to this repository will be documented in this file.
 
 ### #06 Currency-neutral terminology enforcement
+
 - Clarified across SEC, DD, TDD, and Vision Scope that monetary identifiers and UI copy must remain currency-neutral, forbidding baked-in codes/symbols (EUR, USD, GBP, etc.).
 - Updated reference docs and prompts to describe tariffs and KPIs using neutral cost phrasing instead of currency-specific notation.
 
 ### #05 Issue-0003 economy price map alignment
+
 - Added ADR-0004 documenting the canonical maintenance and tariff price maps (device maintenance base/increase fields; utility tariffs limited to electricity & water).
 - Normalized `/data/prices/devicePrices.json` maintenance keys, confirmed grow room blueprints omit `baseRentPerTick`, and set `/data/prices/utilityPrices.json` as the single source of truth for `price_electricity`/`price_water`.
 - Updated SEC, DD, TDD, and Vision/Scope guidance to reflect the canonical field names and removal of the nutrient tariff knob.
 
 ### #04 Canonical simulation constants alignment
+
 - Added ADR-0001 to capture the canonical simulation constants contract (`AREA_QUANTUM_M2 = 0.25`, `ROOM_DEFAULT_HEIGHT_M = 3`, calendar invariants) and document precedence across SEC, DD, TDD, AGENTS, and VISION_SCOPE.
 - Flagged exporter tooling drift that still referenced `AREA_QUANTUM_M2 = 0.5`, aligning it with the SEC baseline in the decision history.
 
 ### #03 Irrigation compatibility source of truth correction
+
 - Removed `supportedIrrigationMethodIds` from substrate blueprints; irrigation compatibility is now resolved from irrigation method blueprints that list compatible substrates under `compatibility.substrates`.
 - Superseded ADR-0002 with ADR-0003 to document the irrigation-method-driven compatibility model and refreshed SEC/DD/TDD guidance accordingly.
 
 ### #02 Cultivation method blueprint field alignment
+
 - Renamed cultivation method planting density to `areaPerPlant_m2` and updated container/substrate references to concrete blueprint slugs.
 - Shifted irrigation compatibility to substrate blueprints via `supportedIrrigationMethodIds`, removing direct `irrigationMethodIds` from cultivation methods (see ADR-0002, superseded by ADR-0003).
 - Added ADR-0002 documenting the substrate-driven irrigation compatibility decision and refreshed SEC/DD/AGENTS guidance.
 
 ### #01 Data audit groundwork
+
 - Logged device blueprint schema gaps (placement scope + room eligibility) in ISSUE-0001 for SEC alignment.
 - Captured cultivation method blueprint compliance gaps with SEC §7.5 in ISSUE-0002.
 - Recorded pricing data violations (per-tick rates, tariff fields) in ISSUE-0003.
