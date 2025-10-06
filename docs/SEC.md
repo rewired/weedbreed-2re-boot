@@ -43,10 +43,12 @@ UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; i
 - A **self-contained JSON** describing a minimal but complete world state (metadata, world tree, schedules, inventory, workforce) at **sim time T0**.
 - Contains **no derived fields** (only inputs). The engine computes outputs from it.
 - Carries `schemaVersion`, `seed`, `simTime` and a **content hash** over canonical ordering.
+- Persisted via an **atomic write path** (temp file → fsync → rename) and stored in `/data/savegames/` using ISO-8601 timestamped filenames (`<timestamp>--<slug>.json`).
 
 ### 0.2.2 Scope & Contents (SHOULD)
 
 - **Metadata:** `schemaVersion`, `seed`, `simTime`, `notes`.
+- **Repository location:** canonical saves live under `/data/savegames/` and remain source-controlled for regression. Derivations use canonical ordering for deterministic hashing.
 - **World:** company → structures → rooms → zones → plants (ids, sizes, starting states).
 - **Schedules:** per-zone light cycle (e.g., 18/6 or 12/12), irrigation method reference, any planned switches.
 - **Workforce:** a minimal personnel directory; an empty or sample task queue.
@@ -625,6 +627,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 - **Naming alignment:** `roomPurpose` replaces prior `roomArchetype` terminology across data/docs.
 - **Device schema update:** add required `placementScope` in `devices/*.json`.
 - **Quality scale:** adopt **[0,1]** engine scale; façade/read-model maps to 0–100 where needed.
+- **Save schema:** save files carry `schemaVersion`; the engine ships a migration registry (`packages/engine/src/backend/src/saveLoad/migrations`) with deterministic fixtures validating legacy upgrades (current: v0 → v1 normalises `simTime`).
 
 - Water + **Electricity tariff:** ensure backend config exposes `price_electricity` for electricity in kWh and `price_water` for water per m^3; difficulty layer provides `energyPriceFactor` and/or `energyPriceOverride`aswell as `waterPriceFactor` and/or `waterPriceOverride`.
 
@@ -673,7 +676,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 | [tasks/0002-co2-actuator-and-environment-coupling.md](./tasks/0002-co2-actuator-and-environment-coupling.md) | CO₂ Actuator and Environment Coupling | Define injector interface, couple zone CO₂ dynamics, and wire energy costs with deterministic tests. | [§6](#6-environment--devices-well-mixed-baseline); [§10](#10-economy-integration-non-intrusive) | merged | Stub, runtime coupling, and steady-state/ramp tests shipped in `Co2InjectorStub` + `co2Coupling.integration.test.ts`. |
 | [tasks/0003-golden-master-conformance-suite.md](./tasks/0003-golden-master-conformance-suite.md) | Golden Master & Conformance Suite | Refresh 30-day/200-day deterministic runs with hash fixtures and CI gating. | [§0.2](#02-reference-test-simulation-golden-master); [§15](#15-acceptance-criteria-for-engine-conformance) | deferred | Align with [TDD §12](./TDD.md#12-golden-master-sec-15) for artifact layout and tolerances. |
 | [tasks/0004-pest-disease-system-mvp.md](./tasks/0004-pest-disease-system-mvp.md) | Pest & Disease System MVP | Build deterministic risk scores, inspection/treatment tasks, and telemetry hooks. | [§3.3](#33-task--treatment-catalogs-data-driven); [§8.5](#85-pests--diseases-health--biosecurity) | deferred | Leans on task catalog rules plus [VISION_SCOPE §1](./VISION_SCOPE.md#1-vision) risk pillar. |
-| [tasks/0005-save-load-and-migrations.md](./tasks/0005-save-load-and-migrations.md) | Save/Load and Migrations | Deliver crash-safe saves, schema versioning, and migration scaffolding with regression fixtures. | [§0.2](#02-reference-test-simulation-golden-master); [§13](#13-migration-notes-from-legacy-to-re-reboot) | deferred | Persistence guardrails reiterated in [DD Goals](./DD.md#1-goals--non-goals). |
+| [tasks/0005-save-load-and-migrations.md](./tasks/0005-save-load-and-migrations.md) | Save/Load and Migrations | Deliver crash-safe saves, schema versioning, and migration scaffolding with regression fixtures. | [§0.2](#02-reference-test-simulation-golden-master); [§13](#13-migration-notes-from-legacy-to-re-reboot) | merged | Atomic save/load pipeline and migration registry shipped with fixtures + tests (Task 0005). |
 | [tasks/0006-sensors-stage-content-and-noise-model.md](./tasks/0006-sensors-stage-content-and-noise-model.md) | Sensors Stage Content and Noise Model | Formalise sensor payload schema, deterministic noise, and tick ordering checks. | [§Tick Pipeline](#tick-pipeline-canonical-9-phases) | deferred | Mirrors stub guidance from [proposals/20251002-interface_stubs.md](./proposals/20251002-interface_stubs.md#pattern-d--sensor--aktuator-in-einem-geh%C3%A4use). |
 | [tasks/0007-determinism-helper-scaffolds.md](./tasks/0007-determinism-helper-scaffolds.md) | Determinism Helper Scaffolds | Provide shared hashing and UUID v7 helpers for tests without touching runtime flows. | [§5](#5-determinism--rng) | deferred | Constrained to test scaffolds per [AGENTS §2](../AGENTS.md#2-core-invariants-mirror-sec-1). |
 | [tasks/0008-package-audit-reporting-matrix.md](./tasks/0008-package-audit-reporting-matrix.md) | Package Audit & Reporting Matrix | Capture dependency review matrix and CLI for tooling governance. | [§0.1](#01-platform--monorepo-baseline-technology-choices) | deferred | Outputs feed `docs/reports/PACKAGE_AUDIT.md` and [DD §1](./DD.md#1-goals--non-goals) tooling bullets. |
