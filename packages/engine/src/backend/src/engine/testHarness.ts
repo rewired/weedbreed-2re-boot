@@ -259,3 +259,5 @@ export function createRecordingContext(buffer: StepName[]): EngineRunContext {
     }
   } satisfies EngineRunContext;
 }
+
+export { runDeterministic } from './conformance/runDeterministic.js';

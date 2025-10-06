@@ -10,6 +10,8 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "test": "vitest run",
+    "test:conf:30d": "vitest run packages/engine/tests/conformance/goldenMaster.30d.spec.ts",
+    "test:conf:200d": "vitest run packages/engine/tests/conformance/goldenMaster.200d.spec.ts",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "dev": "tsx watch src/index.ts",

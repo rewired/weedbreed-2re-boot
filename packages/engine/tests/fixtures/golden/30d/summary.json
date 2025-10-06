@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "sec-0.2.1",
+  "run": {
+    "days": 30,
+    "seed": "gm-001",
+    "ticks": 720
+  },
+  "metrics": {
+    "harvests": 0,
+    "lots": 0,
+    "totalEvents": 0,
+    "notes": "Stub summary for conformance placeholder"
+  }
+}

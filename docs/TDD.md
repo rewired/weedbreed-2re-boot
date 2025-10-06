@@ -366,26 +366,23 @@ it('rejects inbound messages on telemetry channel', async () => {
 
 ## 12) Golden Master (SEC §15)
 
-- **Fixture:** `tests/fixtures/golden/world_v1.seed.json` (minimal savegame; no derived fields).
-- **Run:** 30 in‑game days (720 ticks) with seed `WB_SEED=gm-001`.
-- **Outputs:** `daily.jsonl` + `summary.json`.
+- **Fixtures:** `packages/engine/tests/fixtures/golden/30d/{daily.jsonl,summary.json}` and `packages/engine/tests/fixtures/golden/200d/{daily.jsonl,summary.json}`.
+- **Run:** 30 in-game days (720 ticks) and 200 in-game days (4,800 ticks) with seed `WB_SEED=gm-001`, replayed via `runDeterministic({ days, seed })`.
+- **Outputs:** Deterministic JSON artifacts mirrored under `./reporting/<days>d/` when `outDir` is provided.
 - **Assertion:**
   - `daily.hash` equals prior run (stable across platforms).
   - Event counts match (harvests, tasks, device switches).
   - Numeric tolerances: `EPS_REL = 1e-6`, `EPS_ABS = 1e-9`.
 
 ```ts
-// tests/conformance/goldenMaster.spec.ts
+// tests/conformance/goldenMaster.30d.spec.ts
 import { expect, it } from 'vitest';
-import { runDeterministic } from '@/backend/src/engine/testHarness';
-import expected from '../fixtures/golden/summary_v1.json';
+import { runDeterministic } from '@/backend/src/engine/testHarness.js';
 
-it('30-day run matches golden summary and daily hashes', async () => {
-  const out = await runDeterministic({ days: 30, seed: 'gm-001' });
-  expect(out.summary.metrics).toMatchObject(expected.metrics);
-  for (let i = 0; i < out.daily.length; i++) {
-    expect(out.daily[i].hash).toBe(expected.daily[i].hash);
-  }
+it('30-day run matches golden summary and daily hashes', () => {
+  const out = runDeterministic({ days: 30, seed: 'gm-001' });
+  expect(out.summary).toMatchSnapshot('summary-30d');
+  expect(out.daily).toMatchSnapshot('daily-30d');
 });
 ```
 
