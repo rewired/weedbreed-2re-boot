@@ -144,7 +144,9 @@ export interface Co2EffectConfig {
   readonly hysteresis_ppm?: number;
 }
 
-export type SensorMeasurementType = 'temperature' | 'humidity' | 'ppfd' | 'co2';
+export const SENSOR_MEASUREMENT_TYPES = ['temperature', 'humidity', 'ppfd', 'co2'] as const;
+
+export type SensorMeasurementType = (typeof SENSOR_MEASUREMENT_TYPES)[number];
 
 export interface SensorEffectConfig {
   readonly measurementType: SensorMeasurementType;

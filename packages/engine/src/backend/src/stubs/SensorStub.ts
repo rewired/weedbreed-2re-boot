@@ -61,17 +61,26 @@ export function createSensorStub(measurementType: SensorMeasurementType): ISenso
       if (noise01 === 0 || condition01 === 1) {
         return {
           measuredValue: clampMeasuredValue(measurementType, trueValue),
-          error: 0
+          error: 0,
+          trueValue,
+          noise01,
+          condition01,
+          noiseSample: 0
         } satisfies SensorOutputs<number>;
       }
 
       const gaussian = boxMullerTransform(rng);
       const deviation = noise01 * (1 - condition01);
-      const measuredValue = clampMeasuredValue(measurementType, trueValue + gaussian * deviation);
+      const noiseSample = gaussian * deviation;
+      const measuredValue = clampMeasuredValue(measurementType, trueValue + noiseSample);
 
       return {
         measuredValue,
-        error: Math.abs(measuredValue - trueValue)
+        error: Math.abs(measuredValue - trueValue),
+        trueValue,
+        noise01,
+        condition01,
+        noiseSample
       } satisfies SensorOutputs<number>;
     }
   } satisfies ISensor<number>;

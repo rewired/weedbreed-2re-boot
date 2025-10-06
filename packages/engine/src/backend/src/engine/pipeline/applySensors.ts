@@ -1,12 +1,18 @@
-import type { SensorOutputs } from '../../domain/interfaces/ISensor.js';
+import type { SensorReading } from '../../domain/interfaces/ISensor.js';
 import type { SensorMeasurementType, ZoneDeviceInstance } from '../../domain/entities.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
 import { createSensorStub } from '../../stubs/index.js';
 import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
 import { createRng } from '../../util/rng.js';
+import { resolveTickHours } from '../resolveTickHours.js';
+import { HOURS_PER_TICK } from '../../constants/simConstants.js';
+import { assertValidSensorReading } from './sensorReadingSchema.js';
 
 export interface SensorReadingsRuntime {
-  readonly deviceSensorReadings: Map<ZoneDeviceInstance['id'], SensorOutputs<number>[]>;
+  readonly sampledAtSimTimeHours: number;
+  readonly sampledTick: number;
+  readonly tickDurationHours: number;
+  readonly deviceSensorReadings: Map<ZoneDeviceInstance['id'], SensorReading<number>[]>;
 }
 
 const SENSOR_READINGS_CONTEXT_KEY = '__wb_sensorReadings' as const;
@@ -22,8 +28,12 @@ function setSensorRuntime(ctx: EngineRunContext, runtime: SensorReadingsRuntime)
   return runtime;
 }
 
-export function ensureSensorReadingsRuntime(ctx: EngineRunContext): SensorReadingsRuntime {
+export function ensureSensorReadingsRuntime(
+  ctx: EngineRunContext,
+  metadata: Pick<SensorReadingsRuntime, 'sampledAtSimTimeHours' | 'sampledTick' | 'tickDurationHours'>
+): SensorReadingsRuntime {
   return setSensorRuntime(ctx, {
+    ...metadata,
     deviceSensorReadings: new Map()
   });
 }
@@ -68,7 +78,7 @@ function isSensorDevice(device: ZoneDeviceInstance): boolean {
 function recordSensorReading(
   runtime: SensorReadingsRuntime,
   deviceId: ZoneDeviceInstance['id'],
-  reading: SensorOutputs<number>
+  reading: SensorReading<number>
 ): void {
   const existing = runtime.deviceSensorReadings.get(deviceId);
 
@@ -81,7 +91,16 @@ function recordSensorReading(
 }
 
 export function applySensors(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
-  const runtime = ensureSensorReadingsRuntime(ctx);
+  const sampledAtSimTimeHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
+  const tickDurationCandidate = resolveTickHours(ctx);
+  const tickDurationHours = tickDurationCandidate > 0 ? tickDurationCandidate : HOURS_PER_TICK;
+  const sampledTick = Math.max(0, Math.trunc(sampledAtSimTimeHours / tickDurationHours));
+
+  const runtime = ensureSensorReadingsRuntime(ctx, {
+    sampledAtSimTimeHours,
+    sampledTick,
+    tickDurationHours
+  });
 
   for (const structure of world.company.structures) {
     for (const room of structure.rooms) {
@@ -126,7 +145,8 @@ export function applySensors(world: SimulationWorld, ctx: EngineRunContext): Sim
           }
 
           const stub = createSensorStub(measurementType);
-          const rng = createRng(world.seed, `sensor:${device.id}`);
+          const rngStreamId = `sensor:${device.id}`;
+          const rng = createRng(world.seed, rngStreamId);
           const reading = stub.computeEffect(
             {
               trueValue,
@@ -135,8 +155,17 @@ export function applySensors(world: SimulationWorld, ctx: EngineRunContext): Sim
             },
             rng
           );
+          const validatedReading = assertValidSensorReading({
+            ...reading,
+            measurementType,
+            rngStreamId,
+            sampledAtSimTimeHours,
+            sampledTick,
+            tickDurationHours
+          });
+          const enrichedReading = Object.freeze(validatedReading) as SensorReading<number>;
 
-          recordSensorReading(runtime, device.id, reading);
+          recordSensorReading(runtime, device.id, enrichedReading);
         }
       }
     }

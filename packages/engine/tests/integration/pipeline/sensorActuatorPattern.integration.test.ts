@@ -3,11 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { getSensorReadingsRuntime } from '@/backend/src/engine/pipeline/applySensors.js';
 import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import type { SensorReading } from '@/backend/src/domain/interfaces/ISensor.js';
 import type { ZoneDeviceInstance, Uuid } from '@/backend/src/domain/world.js';
-
-type SensorSnapshot = {
-  readonly measured: number;
-};
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -49,7 +46,7 @@ describe('Tick pipeline — sensor + actuator pattern', () => {
 
     const initialTemperature = zone.environment.airTemperatureC;
 
-    const tickOneSnapshots: SensorSnapshot[] = [];
+    const tickOneSnapshots: SensorReading<number>[] = [];
     const ctxTickOne: EngineRunContext = {
       instrumentation: {
         onStageComplete(stage) {
@@ -59,9 +56,7 @@ describe('Tick pipeline — sensor + actuator pattern', () => {
 
           const runtime = getSensorReadingsRuntime(ctxTickOne);
           const readings = runtime?.deviceSensorReadings.get(deviceId) ?? [];
-          tickOneSnapshots.push(
-            ...readings.map((reading) => ({ measured: reading.measuredValue })),
-          );
+          tickOneSnapshots.push(...readings);
         },
       },
     } satisfies EngineRunContext;
@@ -70,10 +65,12 @@ describe('Tick pipeline — sensor + actuator pattern', () => {
     const firstZone = afterFirst.company.structures[0].rooms[0].zones[0];
 
     expect(tickOneSnapshots).toHaveLength(1);
-    expect(tickOneSnapshots[0]?.measured).toBeCloseTo(initialTemperature, 5);
+    expect(tickOneSnapshots[0]?.measuredValue).toBeCloseTo(initialTemperature, 5);
+    expect(tickOneSnapshots[0]?.trueValue).toBeCloseTo(initialTemperature, 5);
+    expect(tickOneSnapshots[0]?.noiseSample).toBe(0);
     expect(firstZone.environment.airTemperatureC).toBeGreaterThan(initialTemperature);
 
-    const tickTwoSnapshots: SensorSnapshot[] = [];
+    const tickTwoSnapshots: SensorReading<number>[] = [];
     const baselineSecondTemp = firstZone.environment.airTemperatureC;
     const ctxTickTwo: EngineRunContext = {
       instrumentation: {
@@ -84,9 +81,7 @@ describe('Tick pipeline — sensor + actuator pattern', () => {
 
           const runtime = getSensorReadingsRuntime(ctxTickTwo);
           const readings = runtime?.deviceSensorReadings.get(deviceId) ?? [];
-          tickTwoSnapshots.push(
-            ...readings.map((reading) => ({ measured: reading.measuredValue })),
-          );
+          tickTwoSnapshots.push(...readings);
         },
       },
     } satisfies EngineRunContext;
@@ -95,7 +90,9 @@ describe('Tick pipeline — sensor + actuator pattern', () => {
     const secondZone = afterSecond.company.structures[0].rooms[0].zones[0];
 
     expect(tickTwoSnapshots).toHaveLength(1);
-    expect(tickTwoSnapshots[0]?.measured).toBeCloseTo(baselineSecondTemp, 5);
+    expect(tickTwoSnapshots[0]?.measuredValue).toBeCloseTo(baselineSecondTemp, 5);
+    expect(tickTwoSnapshots[0]?.trueValue).toBeCloseTo(baselineSecondTemp, 5);
+    expect(tickTwoSnapshots[0]?.noiseSample).toBe(0);
     expect(secondZone.environment.airTemperatureC).toBeGreaterThan(baselineSecondTemp);
   });
 });

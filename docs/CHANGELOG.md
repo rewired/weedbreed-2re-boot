@@ -36,6 +36,17 @@ migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy upd
   SEC/DD/TDD plus a dedicated ADR.
 - Docs/ADR: Adopted Tailwind + shadcn/ui (on Radix) as the UI component stack; updated SEC/DD/AGENTS/VISION_SCOPE and recorded decision in ADR-0016.
 
+### #78 WB-050 sensor stage schema & deterministic noise
+
+- Finalised the sensor stage payload, enriching `applySensors` with timestamp/tick metadata,
+  deterministic `sensor:<deviceId>` RNG stream ids, and frozen readings that expose
+  `{trueValue, measuredValue, error, noiseSample, noise01, condition01}` per SEC §4.2.
+- Added `SensorReadingSchema` validation plus unit tests for noise determinism and schema
+  bounds, ensuring humidity/temperature clamps remain enforceable before telemetry export.
+- Documented the phase contract in `docs/engine/phases/02-sensors.md` and extended the
+  Pattern D integration tests to assert pre-integration sampling, zero-noise stability, and
+  tick trace ordering.
+
 ### #77 Demo harness humidity baseline
 
 - Updated the engine test harness demo zone to include a representative
