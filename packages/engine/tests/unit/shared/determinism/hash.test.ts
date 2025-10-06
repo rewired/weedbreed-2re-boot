@@ -28,4 +28,10 @@ describe('hashCanonicalJson', () => {
 
     expect(hashA).not.toBe(hashB);
   });
+
+  it('rejects values that cannot be canonicalised', async () => {
+    await expect(hashCanonicalJson(() => undefined)).rejects.toThrow(
+      /could not be canonicalised/u
+    );
+  });
 });
