@@ -1,4 +1,4 @@
-import pino, { type LoggerOptions } from 'pino';
+import pino, { type Logger, type LoggerOptions } from 'pino';
 
 const DEFAULT_LEVEL = process.env.WB_TOOLS_LOG_LEVEL ?? 'silent';
 
@@ -23,7 +23,7 @@ function buildOptions(): LoggerOptions {
   return options;
 }
 
-export function createToolsLogger() {
+export function createToolsLogger(): Logger {
   return pino(buildOptions());
 }
 

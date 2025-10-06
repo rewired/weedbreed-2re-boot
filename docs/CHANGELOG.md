@@ -23,7 +23,7 @@
 - Ratified the shadcn/ui + Tailwind + Radix UI stack (lucide icons, Framer Motion, Recharts/Tremor) for UI components (ADR-0016).
 - Added crash-safe save/load scaffolding with schema versioning, migration registry (v0→v1), canonical fixtures (`packages/engine/tests/fixtures/save/v*`), and `/data/savegames/` repository path documentation (Task 0005).
 - Added a deterministic conformance harness (`runDeterministic`) with committed golden fixtures (`packages/engine/tests/fixtures/golden/30d`, `.../200d`) and Vitest specs (`goldenMaster.30d.spec.ts`, `goldenMaster.200d.spec.ts`) wired to `pnpm --filter @wb/engine test:conf:30d`/`test:conf:200d`.
-- Added package audit report & deterministic scaffolds (no runtime behaviour change) to validate candidate dependencies.
+- Captured Task 0008 package audit matrix with `pnpm report:packages`, documenting the deterministic CLI + Markdown pairing without runtime behaviour changes.
 - Populated SEC Appendix B with a complete crosswalk of legacy `/docs/tasks/**` proposals and noted the contradictions log location.
 
 - Docs: standardized blueprint folders to max two levels under /data/blueprints (no deeper subfolders).
