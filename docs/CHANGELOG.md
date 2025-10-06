@@ -5,6 +5,12 @@
 - Added test-only determinism helper scaffolds (`hashCanonicalJson`, `newV7`) for
   hashing canonical JSON payloads and generating UUIDv7 identifiers without
   impacting runtime flows (Task 0007).
+- Added the psychrometric VPD helper (`computeVpd_kPa`) under
+  `packages/engine/src/shared/psychro/psychro.ts`, initialising `psychrolib` in
+  SI mode and documenting its test-only scope pending Task 0009 wiring.
+- Introduced deterministic unit/property coverage exercising `computeVpd_kPa`
+  across SEC-aligned humidity and temperature ranges while noting the
+  `psychrolib@1.1.x` pin until a maintained v2 release.
 - Rebuilt the Golden Master conformance suite (Task 0003): generated deterministic 30d/200d fixtures via `generateGoldenScenarioRun`, updated `runDeterministic` to validate fixtures or emit artifacts, expanded conformance specs to assert topology coverage/ACH, inventory transfer, workforce breaks/janitorial cadence, and documented artifact paths in SEC/TDD/task notes.
 - Locked canonical geometry, calendar, thermodynamic, and HQ defaults in `simConstants.ts` with documented precedence flow (ADR-0001).
 - Anchored irrigation/substrate compatibility to irrigation method blueprints and removed substrate-level lists (ADR-0003).
