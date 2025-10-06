@@ -283,6 +283,8 @@ function salePrice(basePrice, quality01): number {
 - **Info Hierarchy:** Top: tick/time, daily costs, energy/water, balance; middle: active zone/plant KPIs; bottom: events/tasks.
     
 - **Accessibility:** SI units; tooltips; color‑vision‑friendly palettes; scalable typography.
+
+Implementation note (UI components): We will use Tailwind for styling and adopt shadcn/ui (built on Radix) as our unstyled component layer, keeping full theming control in Tailwind while benefiting from accessible primitives and consistent patterns (dialogs, sheets, tabs, tables, toasts).
     
 
 ---

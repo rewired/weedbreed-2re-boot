@@ -441,7 +441,8 @@ it('30-day run matches golden summary and daily hashes', async () => {
 - `pnpm test:unit`, `test:module`, `test:integration`, `test:conf` scripts; `test:watch` for fast feedback.
     
 - VS Code task maps for common runs; problem matchers surface SEC section in failure message.
-    
+
+Note (UI components): While TDD remains UI-agnostic, downstream UI snapshot/visual tests will assume Tailwind styling with shadcn/ui components (Radix primitives) as per ADR-0016.
 
 ---
 

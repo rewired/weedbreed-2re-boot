@@ -30,7 +30,9 @@ We start **fresh**: no external document references; prior proposals are folded 
 - **React + Vite** — The UI **SHALL** be a React app built with Vite; the UI remains **dumb** (read models in, intents out).
     
 - **Tailwind CSS** — The UI **SHOULD** use Tailwind for styling.
-    
+
+UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; icons via lucide-react; micro-animations via Framer Motion. Charts via Recharts, optionally Tremor for dashboard presets. Components are in-repo (shadcn “copy-in” model) to avoid vendor lock and keep them themable with Tailwind.
+
 - **Terminal Monitor (neo-blessed)** — A read-only terminal monitor **SHOULD** provide live telemetry dashboards; it **MUST NOT** send commands over telemetry.
     
 - **Transport Adapter** — A transport abstraction **SHALL** exist. **Socket.IO SHOULD** be the default transport initially. Alternative transports (e.g., SSE) **MAY** be swapped under the same contract.
