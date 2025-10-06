@@ -11,7 +11,7 @@ Weed Breed is a deterministic, tick‑driven cultivation & economy simulator. 
 
 UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; icons via lucide-react; micro-animations via Framer Motion. Charts via Recharts, optionally Tremor for dashboard presets. Components are in-repo (shadcn “copy-in” model) to avoid vendor lock and keep them themable with Tailwind.
 
-Local version markers (`.nvmrc`, `.node-version`) pin Node.js 22 for migration dry-runs while CI enforces Node.js 23 until the follow-up runtime ADR lands (ADR-0012).
+Local version markers (`.nvmrc`, `.node-version`) pin Node.js 22 (LTS) for both local development and CI; the entire stack runs Node.js 22 (LTS) per ADR-0012.
 
 ---
 

@@ -13,8 +13,8 @@ Steer implementation so the codebase **conforms to SEC v0.2.1** while remaining 
 
 ## 1) Platform & Monorepo (must‑haves)
 
-- **Node.js v23+**, **ES Modules** end‑to‑end. (`"type": "module"` in packages.)
-  - `.nvmrc` / `.node-version` pin **Node.js 22** locally for the migration dry-run; adopt it via your version manager, then test on Node.js 23 before merging (ADR-0012).
+- **Node.js 22 (LTS)**, **ES Modules** end‑to‑end. (`"type": "module"` in packages.)
+  - `.nvmrc` / `.node-version` pin **Node.js 22 (LTS)** locally; adopt it via your version manager and match CI, which also runs Node.js 22 (LTS).
 - **TypeScript** (strongly recommended in backend and UI) with strict mode; emit ESM.
 - **pnpm workspaces** monorepo: engine (headless), façade (integration/transport), UI (React+Vite), tools (monitoring/validation).
 - **UI:** React + Vite + Tailwind. "Dumb UI": read‑models in, intents out.
