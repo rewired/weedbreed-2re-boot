@@ -1,8 +1,15 @@
 # ADR-0013: Workforce Domain Model Integration
 
-- **Status:** Accepted
-- **Date:** 2025-10-05
-- **Authors:** Simulation Engine Working Group
+> **Metadata**
+>
+> - **ID:** ADR-0013
+> - **Title:** Workforce Domain Model Integration
+> - **Status:** Accepted
+> - **Date:** 2025-10-05
+> - **Supersedes:** _None_
+> - **Summary:** Establish deterministic workforce schemas, task definitions, and world embedding aligned with SEC §10.
+> - **Binding:** true
+> - **Impacts:** SEC, DD, TDD, VISION
 
 ## Context
 

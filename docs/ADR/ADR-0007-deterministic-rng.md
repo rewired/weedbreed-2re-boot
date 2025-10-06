@@ -1,9 +1,18 @@
 # ADR-0007: Deterministic RNG utility
 
-## Status
-Accepted
+> **Metadata**
+>
+> - **ID:** ADR-0007
+> - **Title:** Deterministic RNG utility
+> - **Status:** Accepted
+> - **Date:** 2025-10-02
+> - **Supersedes:** _None_
+> - **Summary:** Introduce `createRng(seed, streamId)` as the sole stochastic interface with deterministic coverage tests.
+> - **Binding:** true
+> - **Impacts:** SEC, DD, TDD
 
 ## Context
+
 The Simulation Engine Contract (SEC §5) mandates a deterministic random number
 interface (`createRng(seed, streamId)`) so identical seeds and inputs yield the
 same simulation outcomes. The engine package lacked a canonical implementation,
@@ -12,6 +21,7 @@ on `Math.random`, which violates determinism guarantees and complicates
 reproducibility audits.
 
 ## Decision
+
 - Add `createRng(seed, streamId)` under
   `packages/engine/src/backend/src/util/rng.ts`, using the `xmur3` mixer to
   expand the combined `{seed, streamId}` tuple into a 32-bit state that seeds a
@@ -25,6 +35,7 @@ reproducibility audits.
   inputs and divergence between distinct stream identifiers.
 
 ## Consequences
+
 - All stochastic engine code can adopt the shared utility, ensuring
   reproducibility and simplifying audits against SEC determinism requirements.
 - The public export clarifies the preferred RNG entry point for downstream

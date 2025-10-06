@@ -1,8 +1,15 @@
 # ADR-0011: Device Effects Stacking and Multi-Interface Composition
 
-- **Status:** Accepted
-- **Date:** 2024-05-05
-- **Authors:** Simulation Engine Team
+> **Metadata**
+>
+> - **ID:** ADR-0011
+> - **Title:** Device Effects Stacking and Multi-Interface Composition
+> - **Status:** Accepted
+> - **Date:** 2025-10-03
+> - **Supersedes:** _None_
+> - **Summary:** Surface explicit device effect declarations/configs from blueprints onto instances and pipelines to support deterministic multi-effect modelling.
+> - **Binding:** true
+> - **Impacts:** SEC, DD, TDD
 
 ## Context
 
@@ -35,16 +42,19 @@ The runtime pipeline consumes `DeviceInstance` objects exclusively; no runtime r
 ## Consequences
 
 ### Positive
+
 - Enables explicit modelling of multi-effect devices (Patterns A–E) without relying on brittle slug heuristics.
 - Improves determinism and observability: effect parameters originate from validated blueprint data, simplifying testing and diagnostics.
 - Provides a foundation for future effects (e.g., filtration, nutrient dosing) by extending the `effects` enumeration and schema.
 
 ### Negative
+
 - Introduces limited data duplication: effect configuration now lives in both blueprint JSON and the instantiated device snapshot.
 - Requires ongoing blueprint migrations to populate `effects` arrays and configs, increasing authoring effort during transition.
 - Slightly increases `createDeviceInstance` complexity due to deep-freezing and copying logic.
 
 ### Neutral
+
 - Legacy blueprints without `effects` continue to operate via existing heuristics, ensuring incremental adoption.
 - Runtime pipeline retains per-device stub evaluation; broader stub composition optimisations remain out of scope.
 
@@ -61,6 +71,6 @@ The runtime pipeline consumes `DeviceInstance` objects exclusively; no runtime r
 
 ## References
 
-- Consolidated reference: *Interfaces & Stubs — Consolidated (Engine v1, Phase 1)*.
+- Consolidated reference: _Interfaces & Stubs — Consolidated (Engine v1, Phase 1)_.
 - ADR-0009: Blueprint class taxonomy and validation.
 - SEC §6: Device behaviour, efficiency, and energy accounting.

@@ -1,8 +1,15 @@
-# ADR-0015 — Blueprint Taxonomy v2
+# ADR-0015: Blueprint Taxonomy v2
 
-- **Status:** Accepted (2025-10-06)
-- **Owners:** Simulation Engine maintainers
-- **Related:** SEC §3, DD §4, TDD §3
+> **Metadata**
+>
+> - **ID:** ADR-0015
+> - **Title:** Blueprint Taxonomy v2
+> - **Status:** Accepted
+> - **Date:** 2025-10-06
+> - **Supersedes:** [ADR-0009](./ADR-0009-blueprint-class-taxonomy.md)
+> - **Summary:** Flatten blueprint directories, normalize `class` identifiers to domain-level values, and require explicit subtype metadata with migration tooling.
+> - **Binding:** true
+> - **Impacts:** SEC, DD, TDD
 
 ## Problem
 

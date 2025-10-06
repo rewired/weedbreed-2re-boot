@@ -1,8 +1,15 @@
 # ADR-0014: Workforce Identity Pseudodata Guarantees
 
-- **Status:** Accepted
-- **Date:** 2025-10-06
-- **Authors:** Simulation Engine Working Group
+> **Metadata**
+>
+> - **ID:** ADR-0014
+> - **Title:** Workforce Identity Pseudodata Guarantees
+> - **Status:** Accepted
+> - **Date:** 2025-10-06
+> - **Supersedes:** _None_
+> - **Summary:** Provide deterministic RNG-backed pseudodata with remote API fallback for employee identities without storing real PII.
+> - **Binding:** true
+> - **Impacts:** SEC, DD, TDD, VISION
 
 ## Context
 
