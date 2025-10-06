@@ -227,6 +227,106 @@ function validateDevice(
       message: 'device airflow_m3_per_h must be non-negative'
     });
   }
+
+  const maintenance = device.maintenance;
+
+  if (maintenance) {
+    if (!Number.isFinite(maintenance.runtimeHours) || maintenance.runtimeHours < 0) {
+      issues.push({
+        path: `${path}.maintenance.runtimeHours`,
+        message: 'maintenance.runtimeHours must be a finite non-negative number'
+      });
+    }
+
+    if (!Number.isFinite(maintenance.hoursSinceService) || maintenance.hoursSinceService < 0) {
+      issues.push({
+        path: `${path}.maintenance.hoursSinceService`,
+        message: 'maintenance.hoursSinceService must be a finite non-negative number'
+      });
+    }
+
+    if (!Number.isFinite(maintenance.totalMaintenanceCostCc) || maintenance.totalMaintenanceCostCc < 0) {
+      issues.push({
+        path: `${path}.maintenance.totalMaintenanceCostCc`,
+        message: 'maintenance.totalMaintenanceCostCc must be a finite non-negative number'
+      });
+    }
+
+    if (maintenance.maintenanceWindow) {
+      const { startTick, endTick } = maintenance.maintenanceWindow;
+
+      if (endTick <= startTick) {
+        issues.push({
+          path: `${path}.maintenance.maintenanceWindow`,
+          message: 'maintenance windows must end after they start'
+        });
+      }
+    }
+
+    if (maintenance.policy) {
+      const policy = maintenance.policy;
+
+      if (!Number.isFinite(policy.lifetimeHours) || policy.lifetimeHours <= 0) {
+        issues.push({
+          path: `${path}.maintenance.policy.lifetimeHours`,
+          message: 'maintenance.policy.lifetimeHours must be a positive finite number'
+        });
+      }
+
+      if (!Number.isFinite(policy.maintenanceIntervalHours) || policy.maintenanceIntervalHours < 0) {
+        issues.push({
+          path: `${path}.maintenance.policy.maintenanceIntervalHours`,
+          message: 'maintenance.policy.maintenanceIntervalHours must be non-negative'
+        });
+      }
+
+      if (!Number.isFinite(policy.serviceHours) || policy.serviceHours < 0) {
+        issues.push({
+          path: `${path}.maintenance.policy.serviceHours`,
+          message: 'maintenance.policy.serviceHours must be non-negative'
+        });
+      }
+
+      if (!Number.isFinite(policy.baseCostPerHourCc) || policy.baseCostPerHourCc < 0) {
+        issues.push({
+          path: `${path}.maintenance.policy.baseCostPerHourCc`,
+          message: 'maintenance.policy.baseCostPerHourCc must be non-negative'
+        });
+      }
+
+      if (!Number.isFinite(policy.costIncreasePer1000HoursCc) || policy.costIncreasePer1000HoursCc < 0) {
+        issues.push({
+          path: `${path}.maintenance.policy.costIncreasePer1000HoursCc`,
+          message: 'maintenance.policy.costIncreasePer1000HoursCc must be non-negative'
+        });
+      }
+
+      if (!Number.isFinite(policy.serviceVisitCostCc) || policy.serviceVisitCostCc < 0) {
+        issues.push({
+          path: `${path}.maintenance.policy.serviceVisitCostCc`,
+          message: 'maintenance.policy.serviceVisitCostCc must be non-negative'
+        });
+      }
+
+      if (!Number.isFinite(policy.replacementCostCc) || policy.replacementCostCc < 0) {
+        issues.push({
+          path: `${path}.maintenance.policy.replacementCostCc`,
+          message: 'maintenance.policy.replacementCostCc must be non-negative'
+        });
+      }
+
+      if (
+        !Number.isFinite(policy.maintenanceConditionThreshold01) ||
+        policy.maintenanceConditionThreshold01 < 0 ||
+        policy.maintenanceConditionThreshold01 > 1
+      ) {
+        issues.push({
+          path: `${path}.maintenance.policy.maintenanceConditionThreshold01`,
+          message: 'maintenance.policy.maintenanceConditionThreshold01 must lie within [0,1]'
+        });
+      }
+    }
+  }
 }
 
 /**

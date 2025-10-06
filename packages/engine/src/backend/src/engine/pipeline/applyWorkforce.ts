@@ -31,6 +31,7 @@ import type {
   WorkforceState,
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
+  WorkforceWarning,
   Zone,
   WorkforceIntent,
   WorkforceRaiseIntent,
@@ -56,6 +57,11 @@ import {
   getCultivationMethodCatalog,
   scheduleCultivationTasksForZone,
 } from '../../cultivation/methodRuntime.js';
+import { consumeDeviceMaintenanceRuntime } from '../../device/maintenanceRuntime.js';
+import {
+  TELEMETRY_DEVICE_MAINTENANCE_SCHEDULED_V1,
+  TELEMETRY_DEVICE_REPLACEMENT_RECOMMENDED_V1,
+} from '../../telemetry/topics.js';
 
 const SCORE_EPSILON = 1e-6;
 const OVERTIME_MORALE_PENALTY_PER_HOUR = 0.02;
@@ -1190,6 +1196,121 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     structureById.set(structure.id, structure);
   });
 
+  const maintenanceRuntime = consumeDeviceMaintenanceRuntime(ctx);
+  const maintenanceWarnings: WorkforceWarning[] = [];
+
+  if (maintenanceRuntime) {
+    const maintainDefinition = definitions.get('maintain_device');
+    const existingTaskIds = new Set(taskQueue.map((task) => task.id));
+
+    if (maintenanceRuntime.scheduledTasks.length > 0 && !maintainDefinition) {
+      maintenanceWarnings.push({
+        simTimeHours: world.simTimeHours,
+        code: 'workforce.maintenance.definition_missing',
+        message: 'Maintenance tasks could not be scheduled because the maintain_device definition is missing.',
+        severity: 'warning',
+      });
+    }
+
+    if (maintainDefinition) {
+      for (const plan of maintenanceRuntime.scheduledTasks) {
+        if (!plan.workshopRoomId) {
+          maintenanceWarnings.push({
+            simTimeHours: world.simTimeHours,
+            code: 'workforce.maintenance.workshop_missing',
+            message: `Maintenance task for ${plan.deviceName} skipped because no workshop is available in structure ${plan.structureName}.`,
+            severity: 'warning',
+            structureId: plan.structureId,
+            metadata: { deviceId: plan.deviceId, zoneId: plan.zoneId },
+          });
+          continue;
+        }
+
+        if (existingTaskIds.has(plan.taskId)) {
+          continue;
+        }
+
+        const newTask: WorkforceTaskInstance = {
+          id: plan.taskId,
+          taskCode: maintainDefinition.taskCode,
+          status: 'queued',
+          createdAtTick: plan.startTick,
+          dueTick: plan.dueTick,
+          context: {
+            taskCategory: 'maintenance',
+            reason: plan.reason,
+            deviceId: plan.deviceId,
+            structureId: plan.structureId,
+            roomId: plan.roomId,
+            zoneId: plan.zoneId,
+            workshopRoomId: plan.workshopRoomId,
+          },
+        } satisfies WorkforceTaskInstance;
+
+        taskQueue = [...taskQueue, newTask];
+        existingTaskIds.add(plan.taskId);
+
+        ctx.telemetry?.emit(TELEMETRY_DEVICE_MAINTENANCE_SCHEDULED_V1, {
+          taskId: plan.taskId,
+          deviceId: plan.deviceId,
+          structureId: plan.structureId,
+          roomId: plan.roomId,
+          zoneId: plan.zoneId,
+          startTick: plan.startTick,
+          endTick: plan.endTick,
+          serviceHours: plan.serviceHours,
+          reason: plan.reason,
+          serviceVisitCostCc: plan.serviceVisitCostCc,
+        });
+      }
+    }
+
+    if (maintenanceRuntime.completedTasks.length > 0) {
+      const completedIds = new Set(maintenanceRuntime.completedTasks.map((entry) => entry.taskId));
+      taskQueue = taskQueue.map((task) => {
+        if (!completedIds.has(task.id)) {
+          return task;
+        }
+
+        if (task.status === 'completed') {
+          return task;
+        }
+
+        return {
+          ...task,
+          status: 'completed',
+        } satisfies WorkforceTaskInstance;
+      });
+    }
+
+    if (maintenanceRuntime.replacements.length > 0) {
+      for (const recommendation of maintenanceRuntime.replacements) {
+        ctx.telemetry?.emit(TELEMETRY_DEVICE_REPLACEMENT_RECOMMENDED_V1, {
+          deviceId: recommendation.deviceId,
+          structureId: recommendation.structureId,
+          roomId: recommendation.roomId,
+          zoneId: recommendation.zoneId,
+          recommendedSinceTick: recommendation.recommendedSinceTick,
+          totalMaintenanceCostCc: recommendation.totalMaintenanceCostCc,
+          replacementCostCc: recommendation.replacementCostCc,
+        });
+
+        maintenanceWarnings.push({
+          simTimeHours: world.simTimeHours,
+          code: 'workforce.maintenance.replacement_recommended',
+          message: `Replacement recommended for ${recommendation.deviceName} in ${recommendation.zoneName}.`,
+          severity: 'warning',
+          structureId: recommendation.structureId,
+          metadata: {
+            deviceId: recommendation.deviceId,
+            totalMaintenanceCostCc: recommendation.totalMaintenanceCostCc,
+            replacementCostCc: recommendation.replacementCostCc,
+          },
+        });
+      }
+    }
+  }
+
   const previousPayroll = workforceState.payroll ?? createEmptyPayrollState(currentSimDay);
   let payrollDayIndex = previousPayroll.dayIndex;
   let payrollTotals = clonePayrollTotals(previousPayroll.totals);
@@ -1432,20 +1553,25 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
   runtime.assignments.push(...assignments);
   runtime.kpiSnapshot = snapshot;
 
+  const combinedWarnings =
+    maintenanceWarnings.length > 0
+      ? [...workforceState.warnings, ...maintenanceWarnings]
+      : workforceState.warnings;
+
   const nextWorkforce: WorkforceState = {
     ...workforceState,
     employees: nextEmployees,
     taskQueue: updatedTasks,
     kpis: [...workforceState.kpis, snapshot],
-    warnings: workforceState.warnings,
+    warnings: combinedWarnings,
     payroll: currentPayrollState,
   } satisfies WorkforceState;
 
   emitWorkforceKpiSnapshot(ctx.telemetry, snapshot);
   emitWorkforcePayrollSnapshot(ctx.telemetry, currentPayrollState);
 
-  if (workforceState.warnings.length > 0) {
-    emitWorkforceWarnings(ctx.telemetry, workforceState.warnings);
+  if (combinedWarnings.length > 0) {
+    emitWorkforceWarnings(ctx.telemetry, combinedWarnings);
   }
 
   for (const event of pendingScanTelemetry) {

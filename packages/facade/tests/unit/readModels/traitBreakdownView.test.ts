@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Employee, WorkforceState } from '@wb/engine';
-import { createTraitBreakdown } from '@/readModels/traitBreakdownView.js';
+import { createTraitBreakdown } from '../../../src/readModels/traitBreakdownView.js';
+import type { TraitBreakdownView } from '../../../src/readModels/traitBreakdownView.js';
 
 function buildEmployee(partial: Partial<Employee>): Employee {
   return {
@@ -73,16 +74,21 @@ describe('createTraitBreakdown', () => {
       market: { structures: [] },
     } satisfies WorkforceState;
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const breakdown = createTraitBreakdown(workforce);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const typedBreakdown = breakdown as TraitBreakdownView;
 
-    expect(breakdown.totals).toMatchObject({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    expect(typedBreakdown.totals).toMatchObject({
       employeesWithTraits: 2,
       totalTraits: 4,
       positiveCount: 3,
       negativeCount: 1,
     });
 
-    expect(breakdown.traits).toEqual([
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    expect(typedBreakdown.traits).toEqual([
       {
         id: 'trait_green_thumb',
         name: 'Green Thumb',

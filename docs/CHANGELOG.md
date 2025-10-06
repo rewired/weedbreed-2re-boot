@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Implemented device degradation and maintenance lifecycle flows (Task 0011):
+  deterministic wear curves, maintenance scheduling with workshop-aware task
+  emission, replacement recommendations, economy accrual tracking, and 120-day
+  integration coverage.
 - Added test-only determinism helper scaffolds (`hashCanonicalJson`, `newV7`) for
   hashing canonical JSON payloads and generating UUIDv7 identifiers without
   impacting runtime flows (Task 0007).

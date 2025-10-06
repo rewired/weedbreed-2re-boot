@@ -42,7 +42,7 @@ export function createTraitBreakdown(workforce: WorkforceState): TraitBreakdownV
   let negativeCount = 0;
 
   for (const employee of workforce.employees) {
-    const traits = employee.traits ?? [];
+    const traits = employee.traits;
 
     if (traits.length > 0) {
       employeesWithTraits += 1;
@@ -72,7 +72,10 @@ export function createTraitBreakdown(workforce: WorkforceState): TraitBreakdownV
 
   const traits: TraitBreakdownEntry[] = Array.from(aggregation.entries())
     .map(([traitId, data]) => {
-      const metadata = metadataIndex.get(traitId) ?? getTraitMetadata(traitId);
+      let metadata = metadataIndex.get(traitId);
+
+      metadata ??= getTraitMetadata(traitId);
+
       const average = data.count > 0 ? data.strengthSum / data.count : 0;
       return {
         id: traitId,

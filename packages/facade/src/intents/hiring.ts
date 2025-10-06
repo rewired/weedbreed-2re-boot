@@ -17,9 +17,15 @@ export function createHiringMarketScanIntent(structureId: Uuid): HiringMarketSca
 }
 
 export function createHiringMarketHireIntent(
-  candidate: HiringMarketCandidateRef,
+  candidate: HiringMarketCandidateRef | null | undefined,
 ): HiringMarketHireIntent {
-  if (!candidate?.structureId || !candidate.candidateId) {
+  if (!candidate) {
+    throw new Error('candidate must include structureId and candidateId');
+  }
+
+  const { structureId, candidateId } = candidate;
+
+  if (!structureId || !candidateId) {
     throw new Error('candidate must include structureId and candidateId');
   }
 

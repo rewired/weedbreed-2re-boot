@@ -2,7 +2,8 @@ import {
   CP_AIR_J_PER_KG_K,
   FLOAT_TOLERANCE,
   LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG,
-  ROOM_DEFAULT_HEIGHT_M
+  ROOM_DEFAULT_HEIGHT_M,
+  HOURS_PER_DAY
 } from '../../constants/simConstants.js';
 import type {
   AirflowActuatorInputs,
@@ -13,7 +14,7 @@ import type {
   ThermalActuatorInputs
 } from '../../domain/interfaces/index.js';
 import type { ZoneDeviceInstance } from '../../domain/entities.js';
-import type { SimulationWorld, Zone } from '../../domain/world.js';
+import type { SimulationWorld, Zone, Room, Structure } from '../../domain/world.js';
 import {
   createAirflowActuatorStub,
   createCo2InjectorStub,
@@ -25,6 +26,14 @@ import {
 import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
 import { resolveTickHours } from '../resolveTickHours.js';
 import { clamp01 } from '../../util/math.js';
+import {
+  updateZoneDeviceLifecycle,
+  type DeviceDegradationOutcome
+} from '../../device/degradation.js';
+import {
+  ensureDeviceMaintenanceRuntime,
+  updateDeviceMaintenanceAccrual
+} from '../../device/maintenanceRuntime.js';
 
 export interface DeviceEffectsRuntime {
   readonly zoneTemperatureDeltaC: Map<Zone['id'], number>;
@@ -592,16 +601,34 @@ function deriveFiltrationInputs(
 export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
   const tickHours = resolveTickHours(ctx);
   const runtime = ensureDeviceEffectsRuntime(ctx);
+  const maintenanceRuntime = ensureDeviceMaintenanceRuntime(ctx);
+  maintenanceRuntime.scheduledTasks.length = 0;
+  maintenanceRuntime.completedTasks.length = 0;
+  maintenanceRuntime.replacements.length = 0;
 
-  for (const structure of world.company.structures) {
-    for (const room of structure.rooms) {
-      for (const zone of room.zones) {
+  const simHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
+  const currentTick = Math.trunc(simHours);
+  const currentDayIndex = Math.floor(simHours / HOURS_PER_DAY);
+  const seed = world.seed;
+
+  let maintenanceCostThisTickCc = 0;
+  let structuresChanged = false;
+
+  const nextStructures = world.company.structures.map((structure) => {
+    const workshopRoom = structure.rooms.find((room) => room.purpose === 'workshop');
+    let roomsChanged = false;
+
+    const nextRooms = structure.rooms.map((room) => {
+      let zonesChanged = false;
+
+      const nextZones = room.zones.map((zone) => {
         const { totalCoverage_m2, effectiveness01 } = computeCoverageTotals(zone);
         const height_m = resolveZoneHeight(zone);
         const volume_m3 = Math.max(0, zone.floorArea_m2) * height_m;
         let runningAirflow_m3_per_h = 0;
         let totalAirflowDelivered_m3_per_h = 0;
         let totalAirflowReduction_m3_per_h = 0;
+        let devicesChanged = false;
 
         runtime.zoneCoverageTotals_m2.set(zone.id, totalCoverage_m2);
         runtime.zoneCoverageEffectiveness01.set(zone.id, effectiveness01);
@@ -611,7 +638,43 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
 
         emitCoverageWarning(ctx, zone, totalCoverage_m2, Math.max(0, zone.floorArea_m2), effectiveness01);
 
-        for (const device of zone.devices) {
+        const deviceOutcomes: DeviceDegradationOutcome[] = zone.devices.map((device) => {
+          const outcome = updateZoneDeviceLifecycle({
+            device,
+            structure,
+            room,
+            zone,
+            workshopRoom,
+            seed,
+            tickHours,
+            currentTick
+          });
+
+          if (outcome.device !== device) {
+            devicesChanged = true;
+          }
+
+          if (outcome.costAccruedCc) {
+            maintenanceCostThisTickCc += outcome.costAccruedCc;
+          }
+
+          if (outcome.scheduledTask) {
+            maintenanceRuntime.scheduledTasks.push(outcome.scheduledTask);
+          }
+
+          if (outcome.completedTaskId) {
+            maintenanceRuntime.completedTasks.push({ taskId: outcome.completedTaskId });
+          }
+
+          if (outcome.replacementJustRecommended) {
+            maintenanceRuntime.replacements.push(outcome.replacementJustRecommended);
+          }
+
+          return outcome;
+        });
+
+        for (const outcome of deviceOutcomes) {
+          const device = outcome.device;
           const thermalInputs = deriveThermalInputs(device);
           let thermalDeltaK = 0;
 
@@ -624,11 +687,7 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
               tickHours
             );
             thermalDeltaK = deltaT_K;
-            accumulateTemperatureDelta(
-              runtime,
-              zone.id,
-              deltaT_K * effectiveness01
-            );
+            accumulateTemperatureDelta(runtime, zone.id, deltaT_K * effectiveness01);
           }
 
           const humidityInputs = deriveHumidityInputs(device);
@@ -738,9 +797,55 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
         runtime.zoneAirChangesPerHour.set(zone.id, netACH);
 
         emitAirflowWarning(ctx, zone, netAirflow_m3_per_h, netACH, volume_m3);
+
+        const nextDevices = deviceOutcomes.map((outcome) => outcome.device);
+
+        if (devicesChanged) {
+          zonesChanged = true;
+          return {
+            ...zone,
+            devices: nextDevices
+          } satisfies Zone;
+        }
+
+        return zone;
+      });
+
+      if (zonesChanged) {
+        roomsChanged = true;
+        return {
+          ...room,
+          zones: nextZones
+        } satisfies Room;
       }
+
+      return room;
+    });
+
+    if (roomsChanged) {
+      structuresChanged = true;
+      return {
+        ...structure,
+        rooms: nextRooms
+      } satisfies Structure;
     }
+
+    return structure;
+  });
+
+  if (maintenanceCostThisTickCc !== 0) {
+    updateDeviceMaintenanceAccrual(ctx, currentDayIndex, maintenanceCostThisTickCc);
   }
 
-  return world;
+  if (!structuresChanged) {
+    return world;
+  }
+
+  return {
+    ...world,
+    company: {
+      ...world.company,
+      structures: nextStructures
+    }
+  } satisfies SimulationWorld;
 }

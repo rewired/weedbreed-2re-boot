@@ -197,7 +197,7 @@ export function createWorkforceView(
       } satisfies WorkforceEmployeeSkillView;
     });
 
-    const traits = (employee.traits ?? []).map((assignment) => {
+    const traits = employee.traits.map((assignment) => {
       const metadata = getTraitMetadata(assignment.traitId);
 
       return {
