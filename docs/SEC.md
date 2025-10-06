@@ -600,7 +600,13 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 - Transport adapter with **Socket.IO default**; SSE acceptable.
 - Separate channels: **intents (client→server)** and **telemetry (server→client)**; **no multiplexing**.
-- Telemetry channel is **receive-only** for clients; writes rejected at transport level.
+- Telemetry channel is **receive-only** for clients; inbound emits are rejected with deterministic
+  `WB_TEL_READONLY` errors surfaced via `TransportAck` and mirrored on a `telemetry:error` event.
+- Intents namespace accepts only `intent:submit` events with an acknowledgement callback. Payloads must
+  include a string `type`; invalid submissions return `WB_INTENT_INVALID`, unexpected event names yield
+  `WB_INTENT_CHANNEL_INVALID`, and handler failures respond with `WB_INTENT_HANDLER_ERROR` while preserving determinism.
+- All acknowledgements follow `{ ok: boolean, error?: { code, message } }` so façade consumers can assert
+  SEC §11.3 compliance in contract tests.
 
 ### 11.4 Versioning & Observability
 

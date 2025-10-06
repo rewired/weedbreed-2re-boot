@@ -351,16 +351,23 @@ describe('Phase 1 zone capacity diagnostics', () => {
 ## 11) Telemetry Read‑only; Transport Separation (SEC §11)
 
 - No writes on telemetry channel. Intents and telemetry must not be multiplexed.
+- Telemetry emits must surface `WB_TEL_READONLY` via both the acknowledgement payload and a
+  `telemetry:error` mirror event.
+- Intents namespace accepts only `intent:submit` with `{ type: string }`; invalid payloads →
+  `WB_INTENT_INVALID`, unexpected events → `WB_INTENT_CHANNEL_INVALID`, handler failures →
+  `WB_INTENT_HANDLER_ERROR`.
+- Contract coverage: `packages/facade/tests/integration/transport/telemetryReadonly.integration.test.ts`
+  and `packages/facade/tests/integration/transport/intentRouting.integration.test.ts`.
 
 ```ts
-// tests/integration/transport/telemetryReadonly.spec.ts
+// packages/facade/tests/integration/transport/telemetryReadonly.integration.test.ts
 import { expect, it } from 'vitest';
-import { Transport } from '@/backend/src/facade/transport';
+import { SOCKET_ERROR_CODES } from '@wb/facade/transport/adapter';
 
 it('rejects inbound messages on telemetry channel', async () => {
-  const t = new Transport();
-  const res = await t.sendTelemetryInbound({ any: 'payload' } as any);
-  expect(res.ok).toBe(false);
+  const ack = await emitTelemetryInbound();
+  expect(ack.ok).toBe(false);
+  expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED);
 });
 ```
 

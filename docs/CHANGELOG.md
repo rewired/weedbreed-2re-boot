@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Hardened the Socket.IO transport adapter (Task 0013): enforced read-only telemetry with
+  deterministic `WB_TEL_READONLY` rejections, constrained intents to `intent:submit` with
+  `{ type: string }` envelopes, added façade integration tests covering malformed payloads
+  and channel misuse, and documented the transport contract updates in SEC/TDD.
 - Consolidated economy accrual flows (Task 0012): utilities now capture energy and
   water consumption with tariff-derived per-hour costs, cultivation methods apply
   price map setup costs, maintenance accruals track hourly rates, and a dedicated
