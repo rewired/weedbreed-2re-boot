@@ -71,7 +71,7 @@ Blueprint directory rule: All blueprints are auto-discovered under /data/bluepri
 - **Device blueprint schema:** Tests require `effects` arrays with matching config blocks when multiple interfaces are declared; `createDeviceInstance` copy tests assert the structures are deep-frozen.
 - **Prices** live under `/data/prices/**`; ensure no prices leak into device blueprints.
 - **Tariff maps:** Schema specs assert `/data/prices/devicePrices.json` exposes `capitalExpenditure`, `baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`, `maintenanceServiceCost` and `/data/prices/utilityPrices.json` exposes only `price_electricity`/`price_water`.
-- Psychrometric helper tests (`packages/engine/tests/unit/shared/psychro/psychro.test.ts`) use `fast-check` to assert `computeVpd_kPa` stays finite and ≥0 for RH ∈ [0,100]; helper remains test-only until docs/tasks/0003A promotes it into the pipeline.
+- Psychrometric helper tests (`packages/engine/tests/unit/shared/psychro/psychro.test.ts`) use `fast-check` to assert `computeVpd_kPa` stays finite and ≥0 for RH ∈ [0,100]; helper remains test-only until [docs/tasks/0009-psychrometric-wiring-plan.md](docs/tasks/0009-psychrometric-wiring-plan.md) promotes it into the pipeline.
 - **Taxonomy validation:** Unit tests assert that any mismatch between a blueprint's directory taxonomy and its JSON `class` raises a `BlueprintTaxonomyMismatchError` (or equivalent). Misplaced files must fail the loader guard immediately.
 
 - **Fixture layout check:** Repository-level specs enumerate blueprint folders and ensure no stray directories exist outside the sanctioned taxonomy tree. Tests fail if contributors invent ad-hoc folders.
@@ -95,7 +95,7 @@ describe('Zone schema — SEC §7.5', () => {
 ## 4) RNG & Stream Tests (SEC §5)
 
 - `createRng(seed, streamId)` produces identical sequences across platforms.
-- Shared determinism helpers (`hashCanonicalJson`, `newV7`) live under `packages/engine/src/shared/determinism` with dedicated unit specs; production code must keep using the existing deterministic UUID services until docs/tasks/0002A clears an ADR.
+- Shared determinism helpers (`hashCanonicalJson`, `newV7`) live under `packages/engine/src/shared/determinism` with dedicated unit specs; production code must keep using the existing deterministic UUID services until [docs/tasks/0007-determinism-helper-scaffolds.md](docs/tasks/0007-determinism-helper-scaffolds.md) clears an ADR.
 - **Streams** are stable ids: `plant:<uuid>`, `device:<uuid>`, `economy:<scope>`.
 
 ```ts

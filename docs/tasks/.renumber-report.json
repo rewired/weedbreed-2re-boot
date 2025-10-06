@@ -1,0 +1,167 @@
+{
+  "generatedAt": "2025-10-06T07:37:35.984Z",
+  "entries": [
+    {
+      "oldId": "0001",
+      "newId": "0001",
+      "oldPath": "docs/tasks/0001-appendix-b-crosswalk-fill.md",
+      "newPath": "docs/tasks/0001-appendix-b-crosswalk-fill.md",
+      "title": "Appendix B Crosswalk Fill",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0002",
+      "newId": "0002",
+      "oldPath": "docs/tasks/0002-co2-actuator-and-environment-coupling.md",
+      "newPath": "docs/tasks/0002-co2-actuator-and-environment-coupling.md",
+      "title": "CO₂ Actuator and Environment Coupling",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0003",
+      "newId": "0003",
+      "oldPath": "docs/tasks/0003-golden-master-conformance-suite.md",
+      "newPath": "docs/tasks/0003-golden-master-conformance-suite.md",
+      "title": "Golden Master & Conformance Suite",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0004",
+      "newId": "0004",
+      "oldPath": "docs/tasks/0004-pest-disease-system-mvp.md",
+      "newPath": "docs/tasks/0004-pest-disease-system-mvp.md",
+      "title": "Pest & Disease System MVP",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0005",
+      "newId": "0005",
+      "oldPath": "docs/tasks/0005-save-load-and-migrations.md",
+      "newPath": "docs/tasks/0005-save-load-and-migrations.md",
+      "title": "Save/Load and Migrations",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0006",
+      "newId": "0006",
+      "oldPath": "docs/tasks/0006-sensors-stage-content-and-noise-model.md",
+      "newPath": "docs/tasks/0006-sensors-stage-content-and-noise-model.md",
+      "title": "Sensors Stage Content and Noise Model",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0007",
+      "newId": "0007",
+      "oldPath": "docs/tasks/0007-determinism-helper-scaffolds.md",
+      "newPath": "docs/tasks/0007-determinism-helper-scaffolds.md",
+      "title": "Determinism Helper Scaffolds",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0008",
+      "newId": "0008",
+      "oldPath": "docs/tasks/0008-package-audit-reporting-matrix.md",
+      "newPath": "docs/tasks/0008-package-audit-reporting-matrix.md",
+      "title": "Package Audit & Reporting Matrix",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0009",
+      "newId": "0009",
+      "oldPath": "docs/tasks/0009-psychrometric-wiring-plan.md",
+      "newPath": "docs/tasks/0009-psychrometric-wiring-plan.md",
+      "title": "Psychrometric Wiring Plan",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0010",
+      "newId": "0010",
+      "oldPath": "docs/tasks/0010-cultivation-method-tasks-runtime.md",
+      "newPath": "docs/tasks/0010-cultivation-method-tasks-runtime.md",
+      "title": "Cultivation Method Tasks Runtime",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0011",
+      "newId": "0011",
+      "oldPath": "docs/tasks/0011-device-degradation-and-maintenance-flows.md",
+      "newPath": "docs/tasks/0011-device-degradation-and-maintenance-flows.md",
+      "title": "Device Degradation and Maintenance Flows",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0012",
+      "newId": "0012",
+      "oldPath": "docs/tasks/0012-economy-accrual-consolidation.md",
+      "newPath": "docs/tasks/0012-economy-accrual-consolidation.md",
+      "title": "Economy Accrual Consolidation",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0013",
+      "newId": "0013",
+      "oldPath": "docs/tasks/0013-transport-adapter-hardening.md",
+      "newPath": "docs/tasks/0013-transport-adapter-hardening.md",
+      "title": "Transport Adapter Hardening",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0014",
+      "newId": "0014",
+      "oldPath": "docs/tasks/0014-vpd-and-stress-signals-finalization.md",
+      "newPath": "docs/tasks/0014-vpd-and-stress-signals-finalization.md",
+      "title": "VPD and Stress Signals Finalization",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0015",
+      "newId": "0015",
+      "oldPath": "docs/tasks/0015-blueprint-taxonomy-v2-loader-tests.md",
+      "newPath": "docs/tasks/0015-blueprint-taxonomy-v2-loader-tests.md",
+      "title": "Blueprint Taxonomy v2 Loader Tests",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0016",
+      "newId": "0016",
+      "oldPath": "docs/tasks/0016-open-questions-to-adrs.md",
+      "newPath": "docs/tasks/0016-open-questions-to-adrs.md",
+      "title": "Open Questions to ADRs",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0017",
+      "newId": "0017",
+      "oldPath": "docs/tasks/0017-performance-budget-in-ci.md",
+      "newPath": "docs/tasks/0017-performance-budget-in-ci.md",
+      "title": "Performance Budget in CI",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    },
+    {
+      "oldId": "0018",
+      "newId": "0018",
+      "oldPath": "docs/tasks/0018-terminal-monitor-mvp.md",
+      "newPath": "docs/tasks/0018-terminal-monitor-mvp.md",
+      "title": "Terminal Monitor MVP",
+      "dependsOnOld": [],
+      "dependsOnNew": []
+    }
+  ]
+}
