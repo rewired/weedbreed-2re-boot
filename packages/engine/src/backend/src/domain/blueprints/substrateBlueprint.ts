@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
-import {
-  BlueprintClassMismatchError,
-  type BlueprintPathOptions,
-  deriveBlueprintClassFromPath
-} from './taxonomy.js';
+import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.js';
 
 const nonEmptyString = z.string().trim().min(1, 'String fields must not be empty.');
 const finiteNumber = z.number().finite('Value must be a finite number.');
@@ -42,13 +38,24 @@ const reusePolicySchema = z
     }
   });
 
-const TAXONOMY_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*';
-const classSchema = z
-  .string({ required_error: 'class is required.' })
-  .regex(
-    new RegExp(`^substrate\.${TAXONOMY_SEGMENT}(?:\.${TAXONOMY_SEGMENT})*$`),
-    'class must begin with "substrate." and use lowercase dot-separated taxonomy segments.'
-  );
+const classSchema = z.literal('substrate', {
+  required_error: 'class is required.',
+  invalid_type_error: 'class must be the canonical "substrate" domain value.'
+});
+
+const substrateMaterialSchema = z.enum(
+  ['soil', 'coco', 'rockwool', 'peat', 'perlite', 'clay', 'living-soil', 'aeroponic', 'hydroponic-media', 'custom'],
+  {
+    invalid_type_error: 'material must be a recognised substrate material.'
+  }
+);
+
+const substrateCycleSchema = z.enum(
+  ['single-cycle', 'multi-cycle', 'coir', 'perpetual', 'reusable', 'sterile', 'continuous', 'inert', 'custom'],
+  {
+    invalid_type_error: 'cycle must describe the reuse cadence or profile for the substrate.'
+  }
+);
 
 export const substrateBlueprintSchema = z
   .object({
@@ -65,7 +72,9 @@ export const substrateBlueprintSchema = z
       .int('maxCycles must be an integer.')
       .min(1, 'maxCycles must be at least 1.'),
     reusePolicy: reusePolicySchema,
-    meta: z.record(z.unknown()).optional()
+    meta: z.record(z.unknown()).optional(),
+    material: substrateMaterialSchema,
+    cycle: substrateCycleSchema
   })
   .strict()
   .superRefine((blueprint, ctx) => {
@@ -125,11 +134,7 @@ export function parseSubstrateBlueprint(
   const blueprint = substrateBlueprintSchema.parse(input);
 
   if (options.filePath) {
-    const derived = deriveBlueprintClassFromPath(options.filePath, options);
-
-    if (derived.className !== blueprint.class) {
-      throw new BlueprintClassMismatchError(derived.relativePath, derived.className, blueprint.class);
-    }
+    assertBlueprintClassMatchesPath(blueprint.class, options.filePath, options);
   }
 
   return blueprint;

@@ -1,0 +1,10 @@
+{
+  "id": "2630459c-fc40-4e91-a69f-b47665b5a917",
+  "slug": "growroom",
+  "class": "room.purpose.growroom",
+  "name": "Grow Room",
+  "description": "A room designed for cultivating plants under controlled conditions.",
+  "economy": {
+    "areaCost": 3.5
+  }
+}

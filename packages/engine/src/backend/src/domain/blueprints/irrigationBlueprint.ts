@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
-import {
-  BlueprintClassMismatchError,
-  type BlueprintPathOptions,
-  deriveBlueprintClassFromPath
-} from './taxonomy.js';
+import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.js';
 
 const slugString = z
   .string({ required_error: 'slug is required.' })
@@ -15,13 +11,34 @@ const nonEmptyString = z
   .trim()
   .min(1, 'String fields must not be empty.');
 
-const TAXONOMY_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*';
-const classSchema = z
-  .string({ required_error: 'class is required.' })
-  .regex(
-    new RegExp(`^irrigation\.${TAXONOMY_SEGMENT}(?:\.${TAXONOMY_SEGMENT})*$`),
-    'class must begin with "irrigation." and use lowercase dot-separated taxonomy segments.'
-  );
+const classSchema = z.literal('irrigation', {
+  required_error: 'class is required.',
+  invalid_type_error: 'class must be the canonical "irrigation" domain value.'
+});
+
+const irrigationMethodSchema = z.enum(
+  ['drip', 'ebb-flow', 'manual', 'top-feed', 'spray', 'aeroponic', 'deep-water', 'wick', 'nutrient-film', 'overhead'],
+  {
+    invalid_type_error: 'method must be a recognised irrigation method.'
+  }
+);
+
+const irrigationControlSchema = z.enum(
+  [
+    'inline-fertigation',
+    'table',
+    'can',
+    'timer',
+    'hand',
+    'automated',
+    'gravity',
+    'pulse',
+    'pressure-compensated'
+  ],
+  {
+    invalid_type_error: 'control must be a recognised irrigation control strategy.'
+  }
+);
 
 const compatibilitySchema = z.object({
   substrates: z
@@ -45,7 +62,9 @@ const irrigationBlueprintBaseSchema = z
     name: nonEmptyString,
     description: nonEmptyString.optional(),
     compatibility: compatibilitySchema,
-    meta: z.record(z.unknown()).optional()
+    meta: z.record(z.unknown()).optional(),
+    method: irrigationMethodSchema,
+    control: irrigationControlSchema
   })
   .passthrough();
 
@@ -92,11 +111,7 @@ export function parseIrrigationBlueprint(
   const blueprint = createIrrigationBlueprintSchema(slugSet).parse(input);
 
   if (options.filePath) {
-    const derived = deriveBlueprintClassFromPath(options.filePath, options);
-
-    if (derived.className !== blueprint.class) {
-      throw new BlueprintClassMismatchError(derived.relativePath, derived.className, blueprint.class);
-    }
+    assertBlueprintClassMatchesPath(blueprint.class, options.filePath, options);
   }
 
   return blueprint;

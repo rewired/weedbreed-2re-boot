@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { DEVICE_PLACEMENT_SCOPES, ROOM_PURPOSES } from '../entities.js';
 import {
-  BlueprintClassMismatchError,
+  assertBlueprintClassMatchesPath,
   type BlueprintPathOptions,
   deriveBlueprintClassFromPath
 } from './taxonomy.js';
@@ -15,13 +15,16 @@ const slugString = z
 
 const placementScopeSchema = z.enum([...DEVICE_PLACEMENT_SCOPES]);
 const roomPurposeSchema = z.enum([...ROOM_PURPOSES]);
-const TAXONOMY_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*';
-const deviceClassSchema = z
-  .string({ required_error: 'class is required.' })
-  .regex(
-    new RegExp(`^device\.${TAXONOMY_SEGMENT}(?:\.${TAXONOMY_SEGMENT})+$`),
-    'class must follow the device taxonomy (<domain>.<effect>[.<variant>]).'
-  );
+const DEVICE_CLASS_VALUES = [
+  'device.climate',
+  'device.airflow',
+  'device.lighting',
+  'device.filtration'
+] as const;
+const deviceClassSchema = z.enum(DEVICE_CLASS_VALUES, {
+  required_error: 'class is required.',
+  invalid_type_error: 'class must be one of the supported device domains.'
+});
 
 /**
  * Canonical device blueprint contract enforced for JSON payloads.
@@ -77,6 +80,11 @@ const airflowConfigSchema = airflowConfigObjectSchema.optional();
 const filtrationConfigSchema = filtrationConfigObjectSchema.optional();
 const sensorConfigSchema = sensorConfigObjectSchema.optional();
 
+const climateModeSchema = z.enum(['thermal', 'dehumidifier', 'humidity-controller', 'co2']);
+const airflowSubtypeSchema = z.enum(['exhaust', 'intake', 'recirculation', 'oscillating']);
+const lightingStageSchema = z.enum(['propagation', 'vegetative', 'flowering', 'full-cycle']);
+const filtrationMediaSchema = z.enum(['carbon', 'hepa', 'electrostatic', 'uv']);
+
 const deviceBlueprintObjectSchema = z
   .object({
     id: z.string().uuid('Device blueprint id must be a UUID v4.'),
@@ -103,7 +111,11 @@ const deviceBlueprintObjectSchema = z
     lighting: lightingConfigSchema,
     airflow: airflowConfigSchema,
     filtration: filtrationConfigSchema,
-    sensor: sensorConfigSchema
+    sensor: sensorConfigSchema,
+    mode: z.string().optional(),
+    subtype: z.string().optional(),
+    stage: z.string().optional(),
+    media: z.string().optional()
   })
   .passthrough();
 
@@ -200,27 +212,32 @@ function ensureNestedField(
   }
 }
 
-const classSpecificValidators: Partial<
-  Record<string, (blueprint: Record<string, unknown>, ctx: z.RefinementCtx) => void>
-> = {
-  'device.climate.cooling': (blueprint, ctx) => {
-    ensureNestedField(blueprint, ['coverage', 'maxArea_m2'], ctx, 'Cooling units require coverage.maxArea_m2.');
-    ensureNestedField(blueprint, ['limits', 'coolingCapacity_kW'], ctx, 'Cooling units require limits.coolingCapacity_kW.');
-    ensureNestedField(blueprint, ['settings', 'coolingCapacity'], ctx, 'Cooling units require settings.coolingCapacity.');
-    ensureNestedField(blueprint, ['settings', 'targetTemperature'], ctx, 'Cooling units require settings.targetTemperature.');
+type ClimateValidator = (blueprint: Record<string, unknown>, ctx: z.RefinementCtx) => void;
+
+const climateModeValidators: Partial<Record<z.infer<typeof climateModeSchema>, ClimateValidator>> = {
+  thermal: (blueprint, ctx) => {
+    ensureNestedField(blueprint, ['coverage', 'maxArea_m2'], ctx, 'Thermal units require coverage.maxArea_m2.');
+    ensureNestedField(blueprint, ['limits', 'coolingCapacity_kW'], ctx, 'Thermal units require limits.coolingCapacity_kW.');
+    ensureNestedField(blueprint, ['settings', 'coolingCapacity'], ctx, 'Thermal units require settings.coolingCapacity.');
+    ensureNestedField(
+      blueprint,
+      ['settings', 'targetTemperature'],
+      ctx,
+      'Thermal units require settings.targetTemperature.'
+    );
     ensureNestedField(
       blueprint,
       ['settings', 'targetTemperatureRange'],
       ctx,
-      'Cooling units require settings.targetTemperatureRange.'
+      'Thermal units require settings.targetTemperatureRange.'
     );
   },
-  'device.climate.co2': (blueprint, ctx) => {
+  co2: (blueprint, ctx) => {
     ensureNestedField(blueprint, ['limits', 'maxCO2_ppm'], ctx, 'CO₂ injectors require limits.maxCO2_ppm.');
     ensureNestedField(blueprint, ['settings', 'targetCO2'], ctx, 'CO₂ injectors require settings.targetCO2.');
     ensureNestedField(blueprint, ['settings', 'pulsePpmPerTick'], ctx, 'CO₂ injectors require settings.pulsePpmPerTick.');
   },
-  'device.climate.dehumidifier': (blueprint, ctx) => {
+  dehumidifier: (blueprint, ctx) => {
     ensureNestedField(
       blueprint,
       ['limits', 'removalRate_kg_h'],
@@ -234,7 +251,7 @@ const classSpecificValidators: Partial<
       'Dehumidifiers require settings.latentRemovalKgPerTick.'
     );
   },
-  'device.climate.humidity-controller': (blueprint, ctx) => {
+  'humidity-controller': (blueprint, ctx) => {
     ensureNestedField(
       blueprint,
       ['settings', 'humidifyRateKgPerTick'],
@@ -247,16 +264,20 @@ const classSpecificValidators: Partial<
       ctx,
       'Humidity controllers require settings.dehumidifyRateKgPerTick.'
     );
-  },
-  'device.airflow.exhaust': (blueprint, ctx) => {
+  }
+};
+
+const airflowSubtypeValidators: Partial<Record<z.infer<typeof airflowSubtypeSchema>, ClimateValidator>> = {
+  exhaust: (blueprint, ctx) => {
     ensureNestedField(blueprint, ['airflow_m3_per_h'], ctx, 'Exhaust fans require airflow_m3_per_h.');
     ensureNestedField(blueprint, ['settings', 'airflow'], ctx, 'Exhaust fans require settings.airflow.');
-  },
-  'device.lighting.vegetative': (blueprint, ctx) => {
-    ensureNestedField(blueprint, ['coverage', 'maxArea_m2'], ctx, 'Grow lights require coverage.maxArea_m2.');
-    ensureNestedField(blueprint, ['settings', 'ppfd'], ctx, 'Grow lights require settings.ppfd.');
-    ensureNestedField(blueprint, ['settings', 'spectralRange'], ctx, 'Grow lights require settings.spectralRange.');
   }
+};
+
+const lightingValidators: ClimateValidator = (blueprint, ctx) => {
+  ensureNestedField(blueprint, ['coverage', 'maxArea_m2'], ctx, 'Lighting devices require coverage.maxArea_m2.');
+  ensureNestedField(blueprint, ['settings', 'ppfd'], ctx, 'Lighting devices require settings.ppfd.');
+  ensureNestedField(blueprint, ['settings', 'spectralRange'], ctx, 'Lighting devices require settings.spectralRange.');
 };
 
 export const deviceBlueprintSchema = deviceBlueprintObjectSchema.superRefine((blueprint, ctx) => {
@@ -313,9 +334,87 @@ export const deviceBlueprintSchema = deviceBlueprintObjectSchema.superRefine((bl
   }
 
   const validator =
-    classSpecificValidators[blueprint.class as keyof typeof classSpecificValidators];
+    blueprint.class === 'device.climate'
+      ? climateModeValidators[blueprint.mode as z.infer<typeof climateModeSchema>]
+      : blueprint.class === 'device.airflow'
+        ? airflowSubtypeValidators[blueprint.subtype as z.infer<typeof airflowSubtypeSchema>]
+        : blueprint.class === 'device.lighting'
+          ? lightingValidators
+          : undefined;
   if (validator) {
     validator(blueprint, ctx);
+  }
+
+  if (blueprint.class === 'device.climate') {
+    const parsedMode = climateModeSchema.safeParse(blueprint.mode);
+
+    if (!parsedMode.success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['mode'],
+        message: "mode is required for device.climate and must be one of 'thermal', 'dehumidifier', 'humidity-controller', 'co2'."
+      });
+    }
+  } else if (blueprint.mode !== undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['mode'],
+      message: 'mode is only supported for device.climate blueprints.'
+    });
+  }
+
+  if (blueprint.class === 'device.airflow') {
+    const parsedSubtype = airflowSubtypeSchema.safeParse(blueprint.subtype);
+
+    if (!parsedSubtype.success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['subtype'],
+        message: "subtype is required for device.airflow and must be one of 'exhaust', 'intake', 'recirculation', 'oscillating'."
+      });
+    }
+  } else if (blueprint.subtype !== undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['subtype'],
+      message: 'subtype is only supported for device.airflow blueprints.'
+    });
+  }
+
+  if (blueprint.class === 'device.lighting') {
+    const parsedStage = lightingStageSchema.safeParse(blueprint.stage);
+
+    if (!parsedStage.success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['stage'],
+        message: "stage is required for device.lighting and must be one of 'propagation', 'vegetative', 'flowering', 'full-cycle'."
+      });
+    }
+  } else if (blueprint.stage !== undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['stage'],
+      message: 'stage is only supported for device.lighting blueprints.'
+    });
+  }
+
+  if (blueprint.class === 'device.filtration') {
+    const parsedMedia = filtrationMediaSchema.safeParse(blueprint.media);
+
+    if (!parsedMedia.success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['media'],
+        message: "media is required for device.filtration and must be one of 'carbon', 'hepa', 'electrostatic', 'uv'."
+      });
+    }
+  } else if (blueprint.media !== undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['media'],
+      message: 'media is only supported for device.filtration blueprints.'
+    });
   }
 });
 
@@ -344,10 +443,7 @@ export function parseDeviceBlueprint(
   if (options.filePath) {
     const derived = deriveBlueprintClassFromPath(options.filePath, options);
     relativePath = derived.relativePath;
-
-    if (derived.className !== blueprint.class) {
-      throw new BlueprintClassMismatchError(derived.relativePath, derived.className, blueprint.class);
-    }
+    assertBlueprintClassMatchesPath(blueprint.class, options.filePath, options);
   }
 
   if (options.slugRegistry) {

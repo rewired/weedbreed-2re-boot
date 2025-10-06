@@ -74,11 +74,12 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
 ```
 /data
   /blueprints
-    /device/climate/cooling/cool-air-split-3000.json
-    /cultivation-method/training/sog/sea-of-green.json
-    /substrate/soil/multi-cycle/soil-multi-cycle.json
-    /container/pot/pot-10l.json
-    /room-purpose/core/growroom/growroom.json
+    /device/climate/cool-air-split-3000.json
+    /device/airflow/exhaust-fan-4-inch.json
+    /cultivation-method/sea-of-green.json
+    /substrate/soil-single-cycle.json
+    /container/pot-10l.json
+    /room/purpose/growroom.json
     ...
   /prices
     electricity.json
@@ -89,16 +90,17 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
 
 **Blueprints are templates**; never mutated at runtime. **Prices are separated** from device blueprints.
 
-- **Blueprint taxonomy:** All blueprints expose `class` values using
-  `<domain>.<effect>[.<variant>]` plus a kebab-case `slug` unique within that class. Each
-  directory segment under `/data/blueprints/**` mirrors the matching class segment so
-  loaders can derive taxonomy metadata from the filesystem itself. JSON stays
-  authoritative for metadata; filesystem placement provides expectations only. When the
-  folder taxonomy and JSON `class` disagree, the loader throws a
-  `BlueprintTaxonomyMismatchError` and rejects the payload so contributors correct the
-  placement instead of allowing divergent runtime behaviour. The backend validators rely
-  on the taxonomy to select effect-specific rules (e.g. cooling, dehumidification,
-  lighting) while the data set retires the legacy `kind`/`type` fields.
+- **Blueprint taxonomy:** All blueprints expose `class` values using a domain-level
+  identifier (`strain`, `cultivation-method`, `device.climate`, `room.purpose.growroom`,
+  etc.) plus a kebab-case `slug` unique within that class. Directory layout is flattened
+  to two levels—`/data/blueprints/<domain>/<file>.json`—so loaders can map files to
+  domains without parsing subtype folders. JSON stays authoritative for metadata; the
+  filesystem only provides expectations. When the folder taxonomy and JSON `class`
+  disagree, the loader throws a `BlueprintTaxonomyMismatchError` and rejects the
+  payload. Subtype information (device climate mode, airflow subtype, cultivation
+  family/technique, pathogen, taxon, substrate material/cycle, irrigation
+  method/control, etc.) is expressed by explicit fields within the JSON payload instead
+  of being inferred from paths.
 
 ### 4.2 Price Maps
 
@@ -115,7 +117,7 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
   "name": "Screen of Green",
   "areaPerPlant_m2": 0.20,
   "containers": [
-    { "id": "uuid", "slug": "pot-10l", "capex_per_unit": 2.0, "serviceLife_cycles": 8 }
+  { "id": "uuid", "slug": "pot-10l", "capex_per_unit": 2.0, "serviceLife_cycles": 8 }
   ],
   "substrates": [
     {
@@ -133,6 +135,10 @@ geometry bounds) before the tick pipeline consumes a scenario payload.
   "notes": "SEC §7.5 compliant"
 }
 ```
+
+- Additional required metadata for taxonomy v2:
+  - `family` (e.g. `training`, `soil`, `hydroponic`).
+  - `technique` (canonical slug such as `sog`, `scrog`, `basic-soil-pot`).
 
 The `densityFactor_L_per_kg` drives container fill and irrigation calculations — cultivation tooling
 uses it to convert container volumes into substrate mass, while irrigation modelling derives moisture

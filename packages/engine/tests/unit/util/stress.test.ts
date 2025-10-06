@@ -20,7 +20,7 @@ const envBand = (overrides: Partial<EnvBand> = {}): EnvBand => ({
 const baseStrain = (): StrainBlueprint => ({
   id: '11111111-1111-1111-1111-111111111111',
   slug: 'mock-strain',
-  class: 'strain.hybrid.mock',
+  class: 'strain',
   name: 'Mock Strain',
   generalResilience: 0.8,
   germinationRate: 0.9,

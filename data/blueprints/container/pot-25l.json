@@ -1,0 +1,23 @@
+{
+  "id": "9fb62d74-df4e-4e74-a0fb-77fa1f21d3ef",
+  "slug": "pot-25l",
+  "class": "container",
+  "name": "25 L Pot",
+  "volumeInLiters": 25,
+  "footprintArea": 0.3,
+  "reusableCycles": 6,
+  "packingDensity": 0.9,
+  "meta": {
+    "description": "Large 25 L pot for flagship plants or extended veg; gives roots the headroom needed for heavy-feeding cultivars.",
+    "advantages": [
+      "High volume supports vigorous, tall plants",
+      "Moisture buffer stretches irrigation intervals",
+      "Wide base resists tipping in high-canopy rooms"
+    ],
+    "disadvantages": [
+      "Consumes more floor area per plant",
+      "Longer dry-down can slow reset between cycles"
+    ]
+  },
+  "containerType": "pot"
+}

@@ -31,7 +31,7 @@ describe('strainBlueprintLoader', () => {
     const whiteWidow = blueprints.get(WHITE_WIDOW_STRAIN_ID);
     expect(whiteWidow).toBeDefined();
     expect(whiteWidow?.slug).toBe('white-widow');
-    expect(whiteWidow?.class).toBe('strain.hybrid.balanced');
+    expect(whiteWidow?.class).toBe('strain');
   });
 
   it('loadStrainBlueprint retrieves a specific blueprint', () => {

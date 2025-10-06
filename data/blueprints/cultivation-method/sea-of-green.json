@@ -1,0 +1,75 @@
+{
+  "id": "659ba4d7-a5fc-482e-98d4-b614341883ac",
+  "slug": "sea-of-green",
+  "class": "cultivation-method",
+  "name": "Sea of Green",
+  "laborIntensity": 0.4,
+  "laborProfile": {
+    "hoursPerPlantPerWeek": 0.65
+  },
+  "areaPerPlant_m2": 0.25,
+  "minimumSpacing": 0.25,
+  "maxCycles": 2,
+  "substrates": [
+    "soil-single-cycle",
+    "coco-coir"
+  ],
+  "containers": [
+    "pot-11l"
+  ],
+  "strainTraitCompatibility": {
+    "preferred": {
+      "genotype.indica": {
+        "min": 0.5
+      },
+      "photoperiod.vegetationTime": {
+        "max": 1814400
+      }
+    },
+    "conflicting": {
+      "genotype.sativa": {
+        "min": 0.5
+      },
+      "photoperiod.vegetationTime": {
+        "min": 2419200
+      }
+    }
+  },
+  "envBias": {
+    "vpd_kPa": 0.1,
+    "rh_frac": -0.05
+  },
+  "capacityHints": {
+    "plantsPer_m2": 18,
+    "canopyHeight_m": 0.6
+  },
+  "idealConditions": {
+    "idealTemperature": [
+      22,
+      28
+    ],
+    "idealHumidity": [
+      0.5,
+      0.65
+    ]
+  },
+  "meta": {
+    "description": "Sea of Green (SOG) is a high-density cultivation method where many small plants are grown close together to quickly fill a canopy. It emphasizes short vegetative phases and rapid cycling, ideal for fast-flowering indica-dominant strains.",
+    "advantages": [
+      "Shorter grow cycles",
+      "Efficient use of space",
+      "Lower training effort"
+    ],
+    "disadvantages": [
+      "More plants to manage",
+      "Legal limitations in plant count (IRL)",
+      "Not suitable for large or tall plants"
+    ],
+    "defaults": {
+      "containerSlug": "pot-11l",
+      "substrateSlug": "coco-coir"
+    }
+  },
+  "family": "training",
+  "technique": "sog"
+}

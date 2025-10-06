@@ -14,7 +14,7 @@ import type { RandomNumberGenerator } from '../../../src/backend/src/util/rng.js
 const mockStrain = (): StrainBlueprint => ({
   id: '22222222-2222-2222-2222-222222222222',
   slug: 'mock',
-  class: 'strain.hybrid.mock',
+  class: 'strain',
   name: 'Mock Strain',
   generalResilience: 0.8,
   germinationRate: 0.9,

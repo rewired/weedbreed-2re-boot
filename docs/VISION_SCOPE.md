@@ -8,7 +8,7 @@
 
 **Elevator Pitch.** _Weed Breed_ is a modular, deterministic cultivation & economy simulation. Players plan **Company → Structure → Room → Zone → Plant**, configure climate & devices, balance **cost vs. yield**, and complete cycles from **seeding → harvest → post‑harvest**. The system is open and content‑driven via **JSON blueprints**, enabling modders and researchers to contribute.
 
-> **Modding note:** Blueprint JSON stays authoritative for metadata, but every file **must** live in the taxonomy folders that mirror its declared `class` (`device/climate/cooling/**`, etc.). Misplaced files or path/class mismatches are rejected by the loader so the runtime and data set never drift.
+> **Modding note:** Blueprint JSON stays authoritative for metadata, but every file **must** live in the domain folders that mirror its declared `class` (`device/climate/*.json`, `cultivation-method/*.json`, etc.). Misplaced files or path/class mismatches are rejected by the loader so the runtime and data set never drift.
 
 **Why now?** Few titles combine **physically plausible climate & plant physiology**, **deterministic reproducibility**, and a **meaningful economy loop**. _Weed Breed_ fills this gap.
 

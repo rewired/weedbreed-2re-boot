@@ -14,6 +14,9 @@
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",
+    "migrate:folders": "node scripts/migrate-blueprint-folders.mjs",
+    "migrate:classes": "node scripts/normalize-blueprint-classes.mjs",
+    "migrate:blueprints": "npm run migrate:folders && npm run migrate:classes",
     "preinstall": "node ./tools/scripts/ensure-pnpm.mjs",
     "verify-pnpm": "node ./tools/scripts/ensure-pnpm.mjs"
   },

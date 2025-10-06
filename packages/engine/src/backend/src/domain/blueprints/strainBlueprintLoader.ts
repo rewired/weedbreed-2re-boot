@@ -32,21 +32,20 @@ function collectStrainBlueprintFiles(blueprintsRoot: string): string[] {
     throw new Error(`Strain blueprints root "${strainRoot}" does not exist.`);
   }
 
-  const stack: string[] = [strainRoot];
+  const entries = fs.readdirSync(strainRoot, { withFileTypes: true });
   const files: string[] = [];
 
-  while (stack.length > 0) {
-    const current = stack.pop()!;
-    const stat = fs.statSync(current);
+  for (const entry of entries) {
+    const entryPath = path.join(strainRoot, entry.name);
 
-    if (stat.isDirectory()) {
-      const entries = fs.readdirSync(current);
+    if (entry.isDirectory()) {
+      throw new Error(
+        `Strain blueprints path "${entryPath}" should not contain nested directories after taxonomy v2 migration.`
+      );
+    }
 
-      for (const entry of entries) {
-        stack.push(path.join(current, entry));
-      }
-    } else if (stat.isFile() && current.endsWith('.json')) {
-      files.push(current);
+    if (entry.isFile() && entry.name.endsWith('.json')) {
+      files.push(entryPath);
     }
   }
 

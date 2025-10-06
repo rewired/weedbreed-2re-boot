@@ -67,7 +67,7 @@ src/
 - **Coverage threshold:** 90% lines/branches in `engine/` and `facade/`; 80% overall.
     
 - **Snapshot location:** `__snapshots__` next to specs (only for low‑volatility payloads; prefer golden JSON files for world states).
-- **Blueprint fixtures:** Repository fixtures **MUST** live inside the taxonomy folders that mirror their `class` segments (`device/climate/cooling/**`, etc.). Specs walk `/data/blueprints/**` to assert the folder-derived taxonomy matches the JSON declaration and fail fast when contributors park files elsewhere.
+- **Blueprint fixtures:** Repository fixtures **MUST** live inside the domain folders that mirror their `class` (`device/climate/*.json`, `cultivation-method/*.json`, `room/purpose/*.json`, etc.). Specs walk `/data/blueprints/**` to assert the folder-derived taxonomy matches the JSON declaration and fail fast when contributors park files elsewhere.
 
 ---
 
