@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.js';
 import { getSensorReadingsRuntime } from '@/backend/src/engine/pipeline/applySensors.js';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import type { SensorOutputs } from '@/backend/src/domain/interfaces/ISensor.js';
+import type { SensorReading } from '@/backend/src/domain/interfaces/ISensor.js';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
 import { type DeviceQualityPolicy, type Uuid, type ZoneDeviceInstance } from '@/backend/src/domain/world.js';
 import { deviceQuality } from '../../testUtils/deviceHelpers.js';
@@ -56,8 +56,8 @@ const HEATER_BLUEPRINT: DeviceBlueprint = {
 function runSensorTick(
   world: ReturnType<typeof createDemoWorld>,
   deviceId: Uuid
-): SensorOutputs<number>[] {
-  const readings: SensorOutputs<number>[] = [];
+): SensorReading<number>[] {
+  const readings: SensorReading<number>[] = [];
   const ctx: EngineRunContext = {
     instrumentation: {
       onStageComplete(stage) {
@@ -95,8 +95,8 @@ describe('Tick pipeline — sensor readings', () => {
     const advanceIndex = stepNames.indexOf('advancePhysiology');
 
     expect(deviceEffectsIndex).toBeGreaterThanOrEqual(0);
-    expect(sensorIndex).toBeGreaterThan(deviceEffectsIndex);
-    expect(updateIndex).toBeGreaterThan(sensorIndex);
+    expect(sensorIndex).toBe(deviceEffectsIndex + 1);
+    expect(updateIndex).toBe(sensorIndex + 1);
     expect(sensorIndex).toBeLessThan(advanceIndex);
     expect(getSensorReadingsRuntime(ctx)).toBeUndefined();
   });
@@ -159,7 +159,7 @@ describe('Tick pipeline — sensor readings', () => {
 
     zone.devices = [heater, sensor];
 
-    const captured: SensorOutputs<number>[] = [];
+    const captured: SensorReading<number>[] = [];
     const ctx: EngineRunContext = {
       instrumentation: {
         onStageComplete(stage) {
@@ -178,9 +178,18 @@ describe('Tick pipeline — sensor readings', () => {
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
 
     expect(captured).toHaveLength(1);
-    expect(captured[0]?.measuredValue).toBeCloseTo(baselineTemperature, 5);
+    const [reading] = captured;
+    expect(reading?.measuredValue).toBeCloseTo(baselineTemperature, 5);
     expect(nextZone.environment.airTemperatureC).toBeGreaterThan(baselineTemperature);
-    expect(captured[0]?.error).toBe(0);
+    expect(reading?.error).toBe(0);
+    expect(reading?.trueValue).toBeCloseTo(baselineTemperature, 5);
+    expect(reading?.measurementType).toBe('temperature');
+    expect(reading?.noise01).toBe(0);
+    expect(reading?.noiseSample).toBe(0);
+    expect(reading?.rngStreamId).toBe(`sensor:${sensorId}`);
+    expect(reading?.sampledAtSimTimeHours).toBe(world.simTimeHours);
+    expect(reading?.sampledTick).toBe(0);
+    expect(reading?.tickDurationHours).toBeGreaterThan(0);
   });
 
   it('records readings from multiple sensors', () => {
@@ -232,7 +241,7 @@ describe('Tick pipeline — sensor readings', () => {
 
     zone.devices = [temperatureSensor, humiditySensor];
 
-    const readingsByDevice = new Map<Uuid, SensorOutputs<number>[]>();
+    const readingsByDevice = new Map<Uuid, SensorReading<number>[]>();
     const ctx: EngineRunContext = {
       instrumentation: {
         onStageComplete(stage) {
@@ -256,8 +265,13 @@ describe('Tick pipeline — sensor readings', () => {
     runTick(world, ctx);
 
     expect(readingsByDevice.size).toBe(2);
-    expect(readingsByDevice.get(temperatureSensorId)?.[0]?.measuredValue).toBeDefined();
-    expect(readingsByDevice.get(humiditySensorId)?.[0]?.measuredValue).toBeDefined();
+    const temperatureReading = readingsByDevice.get(temperatureSensorId)?.[0];
+    const humidityReading = readingsByDevice.get(humiditySensorId)?.[0];
+
+    expect(temperatureReading?.measuredValue).toBeDefined();
+    expect(temperatureReading?.measurementType).toBe('temperature');
+    expect(humidityReading?.measuredValue).toBeDefined();
+    expect(humidityReading?.measurementType).toBe('humidity');
   });
 
   it('produces error telemetry when noise is applied', () => {
@@ -351,12 +365,14 @@ describe('Tick pipeline — sensor readings', () => {
 
           const runtime = getSensorReadingsRuntime(ctx);
           const readings = runtime?.deviceSensorReadings.values().next().value as
-            | SensorOutputs<number>[]
+            | SensorReading<number>[]
             | undefined;
 
           if (readings?.[0]) {
             expect(readings[0].measuredValue).toBe(zone.ppfd_umol_m2s);
             expect(readings[0].error).toBe(0);
+            expect(readings[0].noiseSample).toBe(0);
+            expect(readings[0].trueValue).toBe(zone.ppfd_umol_m2s);
           }
         }
       }
@@ -411,6 +427,8 @@ describe('Tick pipeline — sensor readings', () => {
     expect(readingsB).toHaveLength(1);
     expect(readingsA[0]?.measuredValue).toBe(readingsB[0]?.measuredValue);
     expect(readingsA[0]?.error).toBe(readingsB[0]?.error);
+    expect(readingsA[0]?.noiseSample).toBe(readingsB[0]?.noiseSample);
+    expect(readingsA[0]?.sampledAtSimTimeHours).toBe(readingsB[0]?.sampledAtSimTimeHours);
   });
 
   it('changes sensor readings when the device id changes', () => {
