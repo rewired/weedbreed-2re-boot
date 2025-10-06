@@ -17,7 +17,7 @@ import {
   calculateHealthDecay,
   calculateHealthRecovery
 } from '../../util/growth.js';
-import { calculateCombinedStress } from '../../util/stress.js';
+import { calculateCombinedStress } from '../../physiology/stressModel.js';
 import {
   shouldTransitionToFlowering,
   shouldTransitionToHarvestReady,

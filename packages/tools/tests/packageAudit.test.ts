@@ -25,7 +25,8 @@ describe('package audit reporting', () => {
     expect(globbyEntry?.directUsages.some((usage) => usage.includes('packages/tools/src/lib/packageAudit.ts'))).toBe(true);
 
     const psychrolibEntry = entries.find((entry) => entry.candidate.name === 'psychrolib');
-    expect(psychrolibEntry?.versions).toContain('1.1.0');
+    expect(psychrolibEntry?.installed).toBe(false);
+    expect(psychrolibEntry?.versions).toEqual(['—']);
     expect(psychrolibEntry?.notes.some((note) => note.includes('v2 upstream release'))).toBe(true);
   });
 

@@ -17,7 +17,7 @@ _Generated via `pnpm report:packages` — deterministic snapshot of candidate to
 | `xxhash-wasm` | `^1` | ✅ | `1.1.0` | @wb/engine (dependencies) | @wb/engine: packages/engine/src/shared/determinism/hash.ts | Greenlist | Current release exposes 64-bit helpers only; 128-bit hash composed via dual seeds.<br>Test-only hashing helper; aligns with deterministic checksum scaffolds without runtime hooks yet. |
 | `safe-stable-stringify` | `^2` | ✅ | `2.5.0` | @wb/engine (dependencies) | @wb/engine: packages/engine/src/backend/src/engine/conformance/goldenScenario.ts<br>@wb/engine: packages/engine/src/backend/src/engine/conformance/runDeterministic.ts<br>@wb/engine: packages/engine/src/backend/src/saveLoad/saveManager.ts<br>@wb/engine: packages/engine/src/shared/determinism/hash.ts | Greenlist | Used for canonical JSON hashing in tests; no production wiring planned until determinism ADR. |
 | `globby` | `^14` | ✅ | `14.1.0` | @wb/tools (dependencies) | @wb/tools: packages/tools/src/lib/packageAudit.ts | Greenlist | Tooling helper only; drives report discovery without impacting runtime bundles. |
-| `psychrolib` | `^2` | ✅ | `1.1.0` | @wb/engine (dependencies) | @wb/engine: packages/engine/src/shared/psychro/psychro.ts | Review | Upstream npm only publishes v1.x today; monitor for v2 cut.<br>Hold for v2 upstream release (or vetted fork) before wiring psychrometrics into the pipeline.<br>Installed range diverges from prompt target; verify before rollout. |
+| `psychrolib` | `^2` | ❌ | — | — | — | Review | Upstream npm only publishes v1.x today; monitor for v2 cut.<br>Hold for v2 upstream release (or vetted fork) before wiring psychrometrics into the pipeline. |
 | `mathjs` | `^13` | ❌ | — | — | — | Skip | Defer until we formalise tree-shaking and bundle footprint guardrails. |
 | `@turf/turf` | `^7` | ❌ | — | — | — | Skip | Spatial tooling is future-facing; no geometry ADR approved yet. |
 | `zod-to-json-schema` | `^3` | ❌ | — | — | — | Skip | Schema export automation can wait until façade contracts stabilise. |
@@ -77,4 +77,3 @@ _Generated via `pnpm report:packages` — deterministic snapshot of candidate to
 - Introduce runtime UUID/hash replacements without aligning with packages/engine/src/backend/src/util/uuid.ts.
 - Adopt psychrolib in production flows before securing a maintained ^2 release or validating 1.x compatibility formally.
 - Pull mathjs (or similar heavy dependencies) without a documented tree-shaking plan and bundle budget.
-

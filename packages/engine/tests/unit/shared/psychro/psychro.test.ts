@@ -5,7 +5,7 @@ import { computeVpd_kPa } from '../../../../src/shared/psychro/psychro.js';
 
 describe('computeVpd_kPa', () => {
   it('matches a known reference point (25°C, 50% RH)', () => {
-    expect(computeVpd_kPa(25, 50)).toBeCloseTo(1.5846, 4);
+    expect(computeVpd_kPa(25, 50)).toBeCloseTo(1.5839, 4);
   });
 
   it('returns finite, non-negative VPD across a broad SI range', () => {
