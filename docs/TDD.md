@@ -69,6 +69,8 @@ src/
 - **Snapshot location:** `__snapshots__` next to specs (only for low‑volatility payloads; prefer golden JSON files for world states).
 - **Blueprint fixtures:** Repository fixtures **MUST** live inside the domain folders that mirror their `class` (`device/climate/*.json`, `cultivation-method/*.json`, `room/purpose/*.json`, etc.). Specs walk `/data/blueprints/**` to assert the folder-derived taxonomy matches the JSON declaration and fail fast when contributors park files elsewhere.
 
+Blueprint directory rule: All blueprints are auto-discovered under /data/blueprints/<domain>/<file>.json with a maximum depth of two segments (domain + file). Devices are /data/blueprints/device/<category>.json or /data/blueprints/device/<category>/<file>.json limited to two levels; no deeper subfolders are allowed.
+
 ---
 
 ## 3) Data Validation & Fixtures
@@ -185,6 +187,18 @@ it('rejects zone device in non-grow room', () => {
 ---
 
 ## 7) Tick trace instrumentation & perf harness (Engine)
+
+### Tick Pipeline (Canonical, 9 Phases)
+
+1) Device Effects  
+2) Sensor Sampling  
+3) Environment Update  
+4) Irrigation & Nutrients  
+5) Workforce Scheduling  
+6) Plant Physiology  
+7) Harvest & Inventory  
+8) Economy & Cost Accrual  
+9) Commit & Telemetry
 
 - Canonical order: `applyDeviceEffects → applySensors → updateEnvironment → applyIrrigationAndNutrients → applyWorkforce → advancePhysiology → applyHarvestAndInventory → applyEconomyAccrual → commitAndTelemetry` (mirrors SEC §4.2).
 

@@ -261,10 +261,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
   - `room.purpose.<slug>` for room purposes (slug preserved in the class)
   - `personnel.role.<slug>` / `personnel.skill.<slug>` when workforce blueprints are in
     play
-- Directory layout is **two levels maximum**: `data/blueprints/<domain>/<file>.json`.
-  Devices use `data/blueprints/device/<category>/<file>.json`; room purposes use
-  `data/blueprints/room/purpose/<file>.json`. Nested folders beyond this structure are
-  forbidden.
+Blueprint directory rule: All blueprints are auto-discovered under /data/blueprints/<domain>/<file>.json with a maximum depth of two segments (domain + file). Devices are /data/blueprints/device/<category>.json or /data/blueprints/device/<category>/<file>.json limited to two levels; no deeper subfolders are allowed.
 - JSON remains the **single source of truth** for blueprint metadata. Loaders **SHALL**
   trust the JSON payload first, using the filesystem only to derive expectations and to
   surface mismatches when contributors misplace files.
@@ -312,7 +309,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 ### 3.4 Namespaces & Naming Conventions (STRICT)
 
 * **Blueprint taxonomy:** JSON `class` values use domain identifiers (`strain`, `cultivation-method`, `device.climate`, `room.purpose.<slug>`, …). Slugs are **kebab-case**, unique **per class**.
-* **Filesystem alignment:** Blueprint files reside under `/data/blueprints/<domain>/<file>.json` (or sanctioned subfolders) and **MUST** mirror the JSON `class`. Mismatches are loader errors.
+* **Filesystem alignment:** Blueprint files follow the canonical directory rule and **MUST** mirror the JSON `class`. Mismatches are loader errors.
 * **Identifiers:** Entity IDs are UUIDs. Human-facing names are free text but **not** used for referential integrity.
 
 ### 3.5 Identity & UUID Policy (Traceability)
@@ -373,21 +370,17 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 ### 4.2 Phase Order
 
-1. **Device Effects** — compute device outputs (light, heat, airflow, CO₂, dehumidification) subject to capacity & efficiency.
+### Tick Pipeline (Canonical, 9 Phases)
 
-2. **Sensor Sampling** — record zone state before environmental integration so co-housed actuators observe pre-actuation values.
-
-3. **Environment Update** — integrate device outputs into zone state (well-mixed model baseline).
-
-4. **Irrigation & Nutrients** — fulfill zone method (manual enqueues tasks; automated fulfills on schedule).
-
-5. **Plant Physiology** — update age/phase, biomass, stress, disease risk using strain curves and environment.
-
-6. **Harvest & Inventory** — create lots when criteria met; move yield to inventory.
-
-7. **Economy & Cost Accrual** — aggregate consumption/costs; maintenance curves progress.
-
-8. **Commit & Telemetry** — snapshot state and publish read-only events.
+1) Device Effects  
+2) Sensor Sampling  
+3) Environment Update  
+4) Irrigation & Nutrients  
+5) Workforce Scheduling  
+6) Plant Physiology  
+7) Harvest & Inventory  
+8) Economy & Cost Accrual  
+9) Commit & Telemetry
     
 
 ---
