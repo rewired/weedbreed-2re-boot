@@ -2,6 +2,7 @@ import { resolveTickHours } from '../resolveTickHours.js';
 import { createIrrigationServiceStub, createNutrientBufferStub } from '../../stubs/index.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
 import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
+import { accumulateWaterConsumption } from '../../economy/runtime.js';
 import type {
   IrrigationEvent,
   IrrigationServiceInputs,
@@ -195,6 +196,10 @@ export function applyIrrigationAndNutrients(
         runtime.zoneNutrientsUptake_mg.set(zone.id, { ...outputs.uptake_mg });
         runtime.zoneNutrientsLeached_mg.set(zone.id, { ...outputs.leached_mg });
         runtime.zoneBufferUpdates_mg.set(zone.id, { ...bufferResult.new_buffer_mg });
+
+        if (outputs.water_L > 0) {
+          accumulateWaterConsumption(ctx, outputs.water_L);
+        }
 
         emitIrrigationDiagnostic(ctx, zone, outputs);
 

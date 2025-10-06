@@ -6,6 +6,7 @@ export * from './blueprints/strainBlueprint.js';
 export * from './blueprints/substrateBlueprint.js';
 export * from './blueprints/irrigationBlueprint.js';
 export * from './pricing/devicePriceMap.js';
+export * from './pricing/cultivationMethodPriceMap.js';
 export * from '../device/createDeviceInstance.js';
 export * from '../device/condition.js';
 export * from './cultivation/substrateUsage.js';

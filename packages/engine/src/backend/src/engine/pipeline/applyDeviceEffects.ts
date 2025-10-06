@@ -34,6 +34,7 @@ import {
   ensureDeviceMaintenanceRuntime,
   updateDeviceMaintenanceAccrual
 } from '../../device/maintenanceRuntime.js';
+import { accumulateEnergyConsumption } from '../../economy/runtime.js';
 
 export interface DeviceEffectsRuntime {
   readonly zoneTemperatureDeltaC: Map<Zone['id'], number>;
@@ -658,6 +659,19 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
             maintenanceCostThisTickCc += outcome.costAccruedCc;
           }
 
+          const energyDevice = outcome.device;
+          const duty01 = clamp01(
+            Number.isFinite(energyDevice.dutyCycle01) ? energyDevice.dutyCycle01 : 0
+          );
+          const power_W = Number.isFinite(energyDevice.powerDraw_W)
+            ? Math.max(0, energyDevice.powerDraw_W)
+            : 0;
+          const energy_kWh = (power_W * duty01 * tickHours) / 1_000;
+
+          if (energy_kWh > 0) {
+            accumulateEnergyConsumption(ctx, energy_kWh);
+          }
+
           if (outcome.scheduledTask) {
             maintenanceRuntime.scheduledTasks.push(outcome.scheduledTask);
           }
@@ -834,7 +848,7 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
   });
 
   if (maintenanceCostThisTickCc !== 0) {
-    updateDeviceMaintenanceAccrual(ctx, currentDayIndex, maintenanceCostThisTickCc);
+    updateDeviceMaintenanceAccrual(ctx, currentDayIndex, tickHours, maintenanceCostThisTickCc);
   }
 
   if (!structuresChanged) {
