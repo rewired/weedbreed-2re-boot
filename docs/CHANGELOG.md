@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Consolidated economy accrual flows (Task 0012): utilities now capture energy and
+  water consumption with tariff-derived per-hour costs, cultivation methods apply
+  price map setup costs, maintenance accruals track hourly rates, and a dedicated
+  economy integration test (`pnpm --filter @wb/engine test:economy`) guards the
+  daily totals.
 - Implemented device degradation and maintenance lifecycle flows (Task 0011):
   deterministic wear curves, maintenance scheduling with workshop-aware task
   emission, replacement recommendations, economy accrual tracking, and 120-day

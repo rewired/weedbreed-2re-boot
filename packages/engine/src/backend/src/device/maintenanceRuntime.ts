@@ -31,6 +31,8 @@ export interface DeviceMaintenanceRuntime {
 export interface DeviceMaintenanceAccrualState {
   readonly dayIndex: number;
   readonly costCc: number;
+  readonly costCc_per_h: number;
+  readonly hoursAccrued: number;
 }
 
 export interface DeviceMaintenanceAccrualSnapshot {
@@ -73,18 +75,30 @@ export function consumeDeviceMaintenanceRuntime(ctx: EngineRunContext): DeviceMa
 export function updateDeviceMaintenanceAccrual(
   ctx: EngineRunContext,
   dayIndex: number,
+  tickHours: number,
   costIncrementCc: number
 ): void {
   if (!Number.isFinite(costIncrementCc) || costIncrementCc === 0) {
     return;
   }
 
+  if (!Number.isFinite(tickHours) || tickHours <= 0) {
+    return;
+  }
+
   const carrier = ctx as DeviceMaintenanceAccrualCarrier;
   const existing = carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY];
+  const hours = Math.max(0, tickHours);
+  const costPerHourIncrement = costIncrementCc / hours;
 
   if (!existing) {
     carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY] = {
-      current: { dayIndex, costCc: costIncrementCc }
+      current: {
+        dayIndex,
+        costCc: costIncrementCc,
+        costCc_per_h: costPerHourIncrement,
+        hoursAccrued: hours
+      }
     } satisfies DeviceMaintenanceAccrualSnapshot;
     return;
   }
@@ -92,8 +106,15 @@ export function updateDeviceMaintenanceAccrual(
   const current = existing.current;
 
   if (current.dayIndex === dayIndex) {
+    const nextCost = current.costCc + costIncrementCc;
+    const nextHours = current.hoursAccrued + hours;
     carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY] = {
-      current: { dayIndex, costCc: current.costCc + costIncrementCc },
+      current: {
+        dayIndex,
+        costCc: nextCost,
+        costCc_per_h: nextHours > 0 ? nextCost / nextHours : 0,
+        hoursAccrued: nextHours
+      },
       finalized: existing.finalized
     } satisfies DeviceMaintenanceAccrualSnapshot;
     return;
@@ -102,7 +123,12 @@ export function updateDeviceMaintenanceAccrual(
   const finalized = existing.finalized ? [...existing.finalized, current] : [current];
 
   carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY] = {
-    current: { dayIndex, costCc: costIncrementCc },
+    current: {
+      dayIndex,
+      costCc: costIncrementCc,
+      costCc_per_h: costPerHourIncrement,
+      hoursAccrued: hours
+    },
     finalized
   } satisfies DeviceMaintenanceAccrualSnapshot;
 }
@@ -117,10 +143,16 @@ export function consumeDeviceMaintenanceAccrual(
     return undefined;
   }
 
-  delete carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY];
+  const finalized = snapshot.finalized ? [...snapshot.finalized] : undefined;
+
+  if (finalized && finalized.length > 0) {
+    carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY] = {
+      current: snapshot.current
+    } satisfies DeviceMaintenanceAccrualSnapshot;
+  }
 
   return {
     current: snapshot.current,
-    finalized: snapshot.finalized ? [...snapshot.finalized] : undefined
+    finalized
   } satisfies DeviceMaintenanceAccrualSnapshot;
 }
