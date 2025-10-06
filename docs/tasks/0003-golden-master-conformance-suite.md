@@ -3,8 +3,8 @@ ID: 0003
 # Golden Master & Conformance Suite
 
 **ID:** 0003
-**Status:** Planned
-**Owner:** unassigned
+**Status:** In Progress
+**Owner:** gpt-5-codex
 **Priority:** P0
 **Tags:** backend, tests, ci
 
