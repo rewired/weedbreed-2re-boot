@@ -1,4 +1,4 @@
-# ADR — Blueprint Taxonomy v2
+# ADR-0015 — Blueprint Taxonomy v2
 
 - **Status:** Accepted (2025-10-06)
 - **Owners:** Simulation Engine maintainers
