@@ -57,6 +57,10 @@ UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; i
 - Running **N days** from T0 yields **identical daily state hashes** (and identical event counts per topic) on supported platforms.
 - Engine publishes a **reference summary** (energy/water/nutrient totals, biomass/harvest KPIs). Values **SHALL** match within strict tolerances (exact where deterministic, fixed rounding elsewhere).
 - Canonical fixtures live in `packages/engine/tests/fixtures/golden/<days>{d}/` with `daily.jsonl` and `summary.json` pairs. Replays are driven through `runDeterministic({ days, seed, outDir })` (exported from `@/backend/src/engine/testHarness.ts`) and are exercised in CI via `pnpm --filter @wb/engine test:conf:30d` for the PR gate and `pnpm --filter @wb/engine test:conf:200d` for soak coverage.
+- Golden Master topology (seed `gm-001`): one structure hosting a 100 m² growroom (5 × 20 m² zones), a 20 m² storageroom, and a 20 m² breakroom. Zone device counts are derived from blueprint capacity (`led-veg-light-600` for lighting, `cool-air-split-3000` for airflow) and guarantee coverage ≥ 1.0 and ACH ≥ 1.0.
+- Zone assignments: each grow zone selects a distinct strain blueprint and exactly one cultivation method, including deterministic container/substrate/irrigation selections. Harvests generate storage lots the same tick; replants occur on the following day with fresh plant UUID streams.
+- Workforce guardrails: all 8 h shifts include a 30 min break in the breakroom; janitorial tasks clean storageroom/breakroom on a 7 d / 14 d cadence. Conformance specs assert break compliance, janitorial coverage, and storage inventory integrity.
+- `runDeterministic({ outDir: './reporting/<days>d' })` writes git-ignored artifacts for CI retention (`./reporting/30d`, `./reporting/200d`).
 
 ### 0.2.4 Evolution (MAY)
 

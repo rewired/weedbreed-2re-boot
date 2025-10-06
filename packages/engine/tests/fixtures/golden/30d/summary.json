@@ -1,14 +1,301 @@
 {
   "schemaVersion": "sec-0.2.1",
-  "run": {
-    "days": 30,
-    "seed": "gm-001",
-    "ticks": 720
+  "tolerances": {
+    "abs": 1e-9,
+    "rel": 0.000001
   },
-  "metrics": {
-    "harvests": 0,
-    "lots": 0,
-    "totalEvents": 0,
-    "notes": "Stub summary for conformance placeholder"
-  }
+  "run": {
+    "seed": "gm-001",
+    "days": 30,
+    "ticks": 720,
+    "structureId": "1c6c5e04-0d0c-4c59-b7d3-dfb2f548f8a8"
+  },
+  "topology": {
+    "companyId": "5d1f24be-9565-4e50-956b-16d4f557c6df",
+    "structure": {
+      "id": "1c6c5e04-0d0c-4c59-b7d3-dfb2f548f8a8",
+      "slug": "golden-master-structure",
+      "floorArea_m2": 140,
+      "rooms": [
+        {
+          "id": "7f43b718-86bd-4dc6-92f4-01a08357b6f4",
+          "slug": "grow-room",
+          "purpose": "growroom",
+          "floorArea_m2": 100,
+          "height_m": 3,
+          "zones": [
+            {
+              "id": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+              "slug": "zone-1",
+              "strainSlug": "white-widow",
+              "cultivationMethodSlug": "sea-of-green",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            },
+            {
+              "id": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+              "slug": "zone-2",
+              "strainSlug": "sour-diesel",
+              "cultivationMethodSlug": "screen-of-green",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            },
+            {
+              "id": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+              "slug": "zone-3",
+              "strainSlug": "northern-lights",
+              "cultivationMethodSlug": "basic-soil-pot",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            },
+            {
+              "id": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+              "slug": "zone-4",
+              "strainSlug": "ak47",
+              "cultivationMethodSlug": "screen-of-green",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            },
+            {
+              "id": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+              "slug": "zone-5",
+              "strainSlug": "skunk-1",
+              "cultivationMethodSlug": "sea-of-green",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            }
+          ]
+        },
+        {
+          "id": "c4545aab-8e71-4d39-bb3c-e9c5ce3d6f56",
+          "slug": "storage-room",
+          "purpose": "storageroom",
+          "floorArea_m2": 20,
+          "height_m": 3,
+          "zones": []
+        },
+        {
+          "id": "8c3c2f06-6c5a-4f36-8f43-52a6901c1d3a",
+          "slug": "break-room",
+          "purpose": "breakroom",
+          "floorArea_m2": 20,
+          "height_m": 3,
+          "zones": []
+        }
+      ]
+    }
+  },
+  "lifecycle": {
+    "zones": [
+      {
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "harvests": 1,
+        "replants": 1,
+        "cycleLengthDays": 56,
+        "firstHarvestDay": 24,
+        "lastHarvestDay": 24
+      },
+      {
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "harvests": 1,
+        "replants": 1,
+        "cycleLengthDays": 63,
+        "firstHarvestDay": 26,
+        "lastHarvestDay": 26
+      },
+      {
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "harvests": 1,
+        "replants": 1,
+        "cycleLengthDays": 52,
+        "firstHarvestDay": 28,
+        "lastHarvestDay": 28
+      },
+      {
+        "zoneId": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+        "harvests": 1,
+        "replants": 0,
+        "cycleLengthDays": 60,
+        "firstHarvestDay": 30,
+        "lastHarvestDay": 30
+      },
+      {
+        "zoneId": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+        "harvests": 0,
+        "replants": 0,
+        "cycleLengthDays": 58,
+        "firstHarvestDay": 32,
+        "lastHarvestDay": null
+      }
+    ],
+    "replants": [
+      {
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "day": 25,
+        "plantId": "249b694e-a3d1-6013-1c3c-5da8a22edccc"
+      },
+      {
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "day": 27,
+        "plantId": "3d075075-baa2-9ac7-32e4-389573ea3531"
+      },
+      {
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "day": 29,
+        "plantId": "3c54de2a-9d1f-848c-fe88-7a4026d6c110"
+      }
+    ]
+  },
+  "inventory": {
+    "totalLots": 4,
+    "lots": [
+      {
+        "id": "7b82e755-5770-ef66-ac63-d0104629b0c7",
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "strainSlug": "white-widow",
+        "harvestDay": 24,
+        "storedAtDay": 24,
+        "mass_kg": 9.069
+      },
+      {
+        "id": "49146d5d-6a8e-3385-1ae7-4b461c9bdfad",
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "strainSlug": "sour-diesel",
+        "harvestDay": 26,
+        "storedAtDay": 26,
+        "mass_kg": 9.768
+      },
+      {
+        "id": "8b741ea0-0d19-97b9-1b3f-2ea67141e262",
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "strainSlug": "northern-lights",
+        "harvestDay": 28,
+        "storedAtDay": 28,
+        "mass_kg": 9.228
+      },
+      {
+        "id": "74d20cff-3db3-76ba-f602-c8fa2d37df6c",
+        "zoneId": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+        "strainSlug": "ak47",
+        "harvestDay": 30,
+        "storedAtDay": 30,
+        "mass_kg": 9.032
+      }
+    ]
+  },
+  "workforce": {
+    "employees": [
+      {
+        "id": "3ce46ea4-5524-4cd0-b7f2-9e5b6f0a6f41",
+        "slug": "lead-grower",
+        "name": "Lead Grower",
+        "role": "grower",
+        "shiftHours": 8
+      },
+      {
+        "id": "7f20f2f2-bd0c-48ae-b30a-8c0807f67641",
+        "slug": "post-harvest-tech",
+        "name": "Post Harvest Tech",
+        "role": "trimmer",
+        "shiftHours": 8
+      },
+      {
+        "id": "a20958ae-f0e8-4e41-b391-2a8ea56f4baf",
+        "slug": "facility-janitor",
+        "name": "Facility Janitor",
+        "role": "janitor",
+        "shiftHours": 8
+      }
+    ],
+    "breakCompliance": [
+      {
+        "employeeId": "3ce46ea4-5524-4cd0-b7f2-9e5b6f0a6f41",
+        "breaksTaken": 30,
+        "required": 30,
+        "rooms": [
+          "8c3c2f06-6c5a-4f36-8f43-52a6901c1d3a"
+        ]
+      },
+      {
+        "employeeId": "7f20f2f2-bd0c-48ae-b30a-8c0807f67641",
+        "breaksTaken": 30,
+        "required": 30,
+        "rooms": [
+          "8c3c2f06-6c5a-4f36-8f43-52a6901c1d3a"
+        ]
+      },
+      {
+        "employeeId": "a20958ae-f0e8-4e41-b391-2a8ea56f4baf",
+        "breaksTaken": 30,
+        "required": 30,
+        "rooms": [
+          "8c3c2f06-6c5a-4f36-8f43-52a6901c1d3a"
+        ]
+      }
+    ],
+    "janitorialCoverage": {
+      "storageRoomDays": [
+        7,
+        14,
+        21,
+        28
+      ],
+      "breakroomDays": [
+        14,
+        28
+      ]
+    }
+  },
+  "events": {
+    "totals": {
+      "harvest": 4,
+      "storageTransfer": 4,
+      "replant": 3,
+      "breakStart": 90,
+      "breakEnd": 90,
+      "janitorial": 6
+    },
+    "averagePerDay": 6.567
+  },
+  "hash": "4d41ffc09356f6ef21955998"
 }

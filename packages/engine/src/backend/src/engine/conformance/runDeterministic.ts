@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { fileURLToPath } from 'node:url';
+import safeStringify from 'safe-stable-stringify';
+
+import { generateGoldenScenarioRun } from './goldenScenario.js';
 
 export interface DeterministicRunOptions {
   readonly days: number;
@@ -16,43 +19,64 @@ export interface DeterministicRunResult {
   readonly daily: readonly unknown[];
 }
 
-const FIXTURE_ROOT = path.resolve(
-  fileURLToPath(new URL('../../../../../../', import.meta.url)),
-  'packages/engine/tests/fixtures/golden'
+const FIXTURE_ROOT = fileURLToPath(
+  new URL('../../../../../tests/fixtures/golden/', import.meta.url)
 );
 
-function resolveFixturePaths(days: number): { summary: string; daily: string } {
-  const dir = path.join(FIXTURE_ROOT, `${days}d`);
-  const summary = path.join(dir, 'summary.json');
-  const daily = path.join(dir, 'daily.jsonl');
-
-  if (!fs.existsSync(summary)) {
-    throw new Error(`Golden summary fixture missing for ${days}d run at "${summary}".`);
-  }
-
-  if (!fs.existsSync(daily)) {
-    throw new Error(`Golden daily fixture missing for ${days}d run at "${daily}".`);
-  }
-
-  return { summary, daily };
+function resolveFixtureDir(days: number): string {
+  return path.join(FIXTURE_ROOT, `${days}d`);
 }
 
-function copyFixture(src: string, outDir: string): string {
-  fs.mkdirSync(outDir, { recursive: true });
-  const filename = path.basename(src);
-  const dest = path.join(outDir, filename);
-  fs.copyFileSync(src, dest);
-  return dest;
+function ensureDir(dir: string): void {
+  fs.mkdirSync(dir, { recursive: true });
 }
 
-function readDaily(pathname: string): unknown[] {
-  const raw = fs.readFileSync(pathname, 'utf8');
-  const lines = raw
+function writeSummaryFile(filePath: string, payload: unknown): void {
+  const json = `${JSON.stringify(payload, null, 2)}\n`;
+  fs.writeFileSync(filePath, json, 'utf8');
+}
+
+function writeDailyFile(filePath: string, payload: readonly unknown[]): void {
+  const lines = payload.map((entry) => JSON.stringify(entry));
+  const joined = `${lines.join('\n')}\n`;
+  fs.writeFileSync(filePath, joined, 'utf8');
+}
+
+function readSummaryFile(filePath: string): unknown {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8')) as unknown;
+}
+
+function readDailyFile(filePath: string): unknown[] {
+  const raw = fs.readFileSync(filePath, 'utf8');
+  return raw
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+    .filter((line) => line.length > 0)
+    .map((line) => JSON.parse(line) as unknown);
+}
 
-  return lines.map((line) => JSON.parse(line) as unknown);
+function assertFixtureMatch(filePath: string, payload: unknown): void {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Expected golden fixture missing at "${filePath}".`);
+  }
+
+  const recorded = readSummaryFile(filePath);
+
+  if (safeStringify(recorded) !== safeStringify(payload)) {
+    throw new Error(`Golden summary drift detected for "${filePath}".`);
+  }
+}
+
+function assertDailyFixtureMatch(filePath: string, payload: readonly unknown[]): void {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Expected golden daily fixture missing at "${filePath}".`);
+  }
+
+  const recorded = readDailyFile(filePath);
+
+  if (safeStringify(recorded) !== safeStringify(payload)) {
+    throw new Error(`Golden daily drift detected for "${filePath}".`);
+  }
 }
 
 export function runDeterministic(options: DeterministicRunOptions): DeterministicRunResult {
@@ -66,22 +90,26 @@ export function runDeterministic(options: DeterministicRunOptions): Deterministi
     throw new Error('Deterministic runs require a non-empty seed.');
   }
 
-  const { summary, daily } = resolveFixturePaths(days);
-  const dailyRecords = readDaily(daily);
-  const summaryPayload = JSON.parse(fs.readFileSync(summary, 'utf8')) as unknown;
+  const run = generateGoldenScenarioRun(days, seed);
 
-  let summaryPath = summary;
-  let dailyPath = daily;
+  const targetDir = outDir ?? resolveFixtureDir(days);
+  ensureDir(targetDir);
+
+  const summaryPath = path.join(targetDir, 'summary.json');
+  const dailyPath = path.join(targetDir, 'daily.jsonl');
 
   if (outDir) {
-    summaryPath = copyFixture(summary, outDir);
-    dailyPath = copyFixture(daily, outDir);
+    writeSummaryFile(summaryPath, run.summary);
+    writeDailyFile(dailyPath, run.daily);
+  } else {
+    assertFixtureMatch(summaryPath, run.summary);
+    assertDailyFixtureMatch(dailyPath, run.daily);
   }
 
   return {
     summaryPath,
     dailyPath,
-    summary: summaryPayload,
-    daily: dailyRecords
+    summary: run.summary,
+    daily: run.daily,
   } satisfies DeterministicRunResult;
 }

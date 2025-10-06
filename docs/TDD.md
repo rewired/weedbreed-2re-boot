@@ -367,24 +367,14 @@ it('rejects inbound messages on telemetry channel', async () => {
 ## 12) Golden Master (SEC §15)
 
 - **Fixtures:** `packages/engine/tests/fixtures/golden/30d/{daily.jsonl,summary.json}` and `packages/engine/tests/fixtures/golden/200d/{daily.jsonl,summary.json}`.
-- **Run:** 30 in-game days (720 ticks) and 200 in-game days (4,800 ticks) with seed `WB_SEED=gm-001`, replayed via `runDeterministic({ days, seed })`.
-- **Outputs:** Deterministic JSON artifacts mirrored under `./reporting/<days>d/` when `outDir` is provided.
+- **Run:** 30 in-game days (720 ticks) and 200 in-game days (4,800 ticks) with seed `WB_SEED=gm-001`, replayed via `runDeterministic({ days, seed })` and optionally `outDir` to persist artifacts.
+- **Outputs:** Deterministic JSON artifacts mirrored under `./reporting/<days>d/` when `outDir` is provided; CI uploads these directories.
 - **Assertion:**
-  - `daily.hash` equals prior run (stable across platforms).
-  - Event counts match (harvests, tasks, device switches).
+  - `goldenMaster.30d.spec.ts` verifies fixture equality plus topology rules (growroom geometry, lighting coverage ≥ 1, ACH ≥ 1, storage-only harvest lots, breakroom-only breaks, janitorial cadence) and exercises artifact emission into `reporting/30d`.
+  - `goldenMaster.200d.spec.ts` enforces 200-day soak determinism, harvest → storage → replant sequencing (next-day replants with new plant UUIDs), and artifact emission into `reporting/200d`.
   - Numeric tolerances: `EPS_REL = 1e-6`, `EPS_ABS = 1e-9`.
 
-```ts
-// tests/conformance/goldenMaster.30d.spec.ts
-import { expect, it } from 'vitest';
-import { runDeterministic } from '@/backend/src/engine/testHarness.js';
-
-it('30-day run matches golden summary and daily hashes', () => {
-  const out = runDeterministic({ days: 30, seed: 'gm-001' });
-  expect(out.summary).toMatchSnapshot('summary-30d');
-  expect(out.daily).toMatchSnapshot('daily-30d');
-});
-```
+Run selectively via `pnpm --filter @wb/engine test:conf:30d` (PR gate) and `pnpm --filter @wb/engine test:conf:200d` (nightly/on-demand).
 
 ---
 
