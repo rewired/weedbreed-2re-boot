@@ -95,7 +95,8 @@ const DEMO_WORLD: SimulationWorld = {
                 },
                 photoperiodPhase: 'vegetative',
                 environment: {
-                  airTemperatureC: 22
+                  airTemperatureC: 22,
+                  relativeHumidity_pct: 55
                 },
                 ppfd_umol_m2s: 0,
                 dli_mol_m2d_inc: 0,

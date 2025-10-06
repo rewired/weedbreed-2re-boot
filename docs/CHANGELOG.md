@@ -1,5 +1,11 @@
 # Changelog
 
+### #77 Demo harness humidity baseline
+
+- Updated the engine test harness demo zone to include a representative
+  `relativeHumidity_pct` value so the fixture aligns with the environment
+  schema used across integration tests and perf harness scenarios.
+
 ### #76 Workforce payroll multipliers & HR intents
 
 - Extended `EmployeeRole` and `Employee` domain models with deterministic compensation metadata: role and employee base rate
