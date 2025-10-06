@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "days": 7,
+    "ticks": 168,
+    "schemaVersion": "0.2.1",
+    "worldSeed": "gm-001"
+  },
+  "totals": {
+    "energy_kWh": 1399.44,
+    "water_m3": 0.504,
+    "biomassGain_kg": 23.728495806,
+    "heatLoad_kWh": 1293.6,
+    "harvestYield_kg": 0,
+    "cost_electricity": 265.8936,
+    "cost_water": 1.0584,
+    "cost_total": 266.952
+  },
+  "events": {
+    "harvests": 0,
+    "irrigationEvents": 35,
+    "maintenanceTasks": 28
+  }
+}

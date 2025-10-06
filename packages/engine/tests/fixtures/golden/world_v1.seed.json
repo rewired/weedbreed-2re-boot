@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "0.2.1",
+  "seed": "gm-001",
+  "simTime": 0,
+  "notes": "Golden master baseline world for conformance runs (v1)",
+  "company": {
+    "id": "company-neo-botany",
+    "name": "Neo Botany Cooperative"
+  },
+  "tariffs": {
+    "price_electricity": 0.19,
+    "price_water": 2.1
+  },
+  "structures": [
+    {
+      "id": "structure-main",
+      "name": "Main Cultivation Hub",
+      "rooms": [
+        {
+          "id": "room-veg",
+          "name": "Vegetative Wing",
+          "purpose": "growroom",
+          "zones": [
+            {
+              "id": "zone-veg-alpha",
+              "name": "Veg Alpha",
+              "area_m2": 24,
+              "cultivationMethodId": "basic_soil_pot",
+              "lightSchedule": {
+                "onHours": 18,
+                "offHours": 6,
+                "startHour": 6
+              },
+              "lighting": {
+                "powerOn_kW": 5.6,
+                "powerStandby_kW": 0.28,
+                "heatToZoneFactor": 0.9
+              },
+              "irrigation": {
+                "hours": [7, 15, 23],
+                "waterRate_m3_per_h": 0.012
+              },
+              "growth": {
+                "onRate_kg_per_h": 0.092,
+                "offRate_kg_per_h": 0.015,
+                "jitter_kg_per_h": 0.0012,
+                "initialBiomass_kg": 12.6
+              },
+              "harvest": {
+                "cycleDays": 14,
+                "harvestThreshold_kg": 60,
+                "yieldPerHarvest_kg": 18.4
+              },
+              "maintenance": {
+                "windowHours": [10, 18],
+                "tasksPerWindow": 1,
+                "jitterTasks": 0.6
+              }
+            }
+          ]
+        },
+        {
+          "id": "room-flower",
+          "name": "Flower Suite",
+          "purpose": "growroom",
+          "zones": [
+            {
+              "id": "zone-flower-alpha",
+              "name": "Flower Alpha",
+              "area_m2": 32,
+              "cultivationMethodId": "scrog",
+              "lightSchedule": {
+                "onHours": 12,
+                "offHours": 12,
+                "startHour": 10
+              },
+              "lighting": {
+                "powerOn_kW": 7.8,
+                "powerStandby_kW": 0.32,
+                "heatToZoneFactor": 0.95
+              },
+              "irrigation": {
+                "hours": [11, 21],
+                "waterRate_m3_per_h": 0.018
+              },
+              "growth": {
+                "onRate_kg_per_h": 0.115,
+                "offRate_kg_per_h": 0.022,
+                "jitter_kg_per_h": 0.0016,
+                "initialBiomass_kg": 23.4
+              },
+              "harvest": {
+                "cycleDays": 21,
+                "harvestThreshold_kg": 90,
+                "yieldPerHarvest_kg": 26.9
+              },
+              "maintenance": {
+                "windowHours": [9],
+                "tasksPerWindow": 2,
+                "jitterTasks": 0.8
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

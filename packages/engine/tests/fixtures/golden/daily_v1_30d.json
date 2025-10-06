@@ -1,0 +1,572 @@
+[
+  {
+    "day": 1,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.388056599,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "da6519494cf812ad10cc70202093e2a7c35c8f87cb47aacb491844810807cfbd"
+  },
+  {
+    "day": 2,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.386902565,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "76889a572e853907386a5fd1ddd7916f3dab81bc365ed9aed56f06bc7cf79b56"
+  },
+  {
+    "day": 3,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.388741143,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "1d0c270f53d25e9c82111cd9c3ae43d12666f4e6f211210e1a255b9f3b4dc17f"
+  },
+  {
+    "day": 4,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.390355752,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "226d2f9da15019aad0f2711fa0ce6e280a8fc68129ff7737ff31aca21a3dc091"
+  },
+  {
+    "day": 5,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.388128716,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "02a6f047b79bf1858e20bce7e03db17496ccd1b3ff01df8941ba527647ec816a"
+  },
+  {
+    "day": 6,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.393150841,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "c2157cbb51bfa65df8e23efac1761cc2bd27c3a8aa02c0ce400ed7e27aa1865f"
+  },
+  {
+    "day": 7,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.39316019,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "145a8328098cf6a265278c32fda2d16f4a62f6c5bb2b5d779ccfae8ed5c7513f"
+  },
+  {
+    "day": 8,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.389670951,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "8d68be0ab1b6b95e0d68bad0ae63a95c21c3cfeb3defe35ce66f9ee89355351c"
+  },
+  {
+    "day": 9,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.389364667,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "1b51e62fa44e6e52e2f69dc82adbe7a9c616f12566470e308ce20beb281b850e"
+  },
+  {
+    "day": 10,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.3871698,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "ffb1be0716fa82a5979f89f72a5f2b3bb8b0c5d2ee10ab46224de93c2af9489f"
+  },
+  {
+    "day": 11,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.394517337,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "70b4133d419f2a49c9d6c1a51d2075f841e9c2a478c83fa4a4b541567bbefbc5"
+  },
+  {
+    "day": 12,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.391646242,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "f4558650cc6bc931a2ed101259ed61fa26e017edf1c8eb1cc887dfcde6c9686a"
+  },
+  {
+    "day": 13,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.392820537,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "e5334b31715b531e2ef22e36b1aca61b3ff2fbd9b7a1942340e106788f434d31"
+  },
+  {
+    "day": 14,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.396478613,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "11a0d9610b286e52a9c3bc5013ec5402411e89840fd92190baf77d6d5da5998c"
+  },
+  {
+    "day": 15,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.388278085,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "84709d82b45d4f17c536e1123c976611aada0d9c65959849a827e3792196a3a4"
+  },
+  {
+    "day": 16,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.389796899,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "50fbd7b1134b4be8e8c838c2fe58b46561d014b321a805a232557c148d1d91c3"
+  },
+  {
+    "day": 17,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.385925494,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "8eb7d1933dbc166651d86bbe595c155b75508f6e16806f51a726f1f6763b5138"
+  },
+  {
+    "day": 18,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.386088861,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "cafd15044d993be3c234d5af3fd06af2750360f905bea0e4feab38c2795024f0"
+  },
+  {
+    "day": 19,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.395523233,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "f571200a50ed9d78ba3ff88be9ce08f3fcedd0a2ffccab9bcfb5c3b58e9c2d7f"
+  },
+  {
+    "day": 20,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.388523319,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "74d70e9df3a029d38f6ea9558f02e809487fc98168f7534e0fa721c486750727"
+  },
+  {
+    "day": 21,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.393136473,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "a92991b3824fd98d49d42e9f3cdfa9e4d5025603ec1032261499995b4589928b"
+  },
+  {
+    "day": 22,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.391279436,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "a766b30557033c62d4dd99f66247e151d9b5664f4f9e658781c5e11f3bce6498"
+  },
+  {
+    "day": 23,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.391972709,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "01b6fcc7833e203068f6cc9ca700ed58bc168e07c453ea0488db9027b2088630"
+  },
+  {
+    "day": 24,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.387724376,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "966431abe95197f5d43f1c4d60d50f312ba79080e72c1ca93eb49e12da90e760"
+  },
+  {
+    "day": 25,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.389328011,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "ba30bdd53913fac109c987e74f0dfa0b92068f45815e41a8dc8739df96ca815b"
+  },
+  {
+    "day": 26,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.386870104,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "861152e813a669c2c6e346825c40793f59728572d1df94e390c09117ebf9ae26"
+  },
+  {
+    "day": 27,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.387104067,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "b0e8a8e1b8a9ffe5800a983034719f0b362045152aa5fdce06e6c654a02ad50c"
+  },
+  {
+    "day": 28,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.386675287,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 18.4,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 1,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "e8718a88b6efaa3e5cf2e588d354efb7b434f90f5a1cc37baf67ea2efabcda17"
+  },
+  {
+    "day": 29,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.393716087,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "4ba4f8fc21f9e9e993e38f87101567da5e5264ceead4883c0c550e6d40a7a8ba"
+  },
+  {
+    "day": 30,
+    "totals": {
+      "energy_kWh": 199.92,
+      "water_m3": 0.072,
+      "biomassGain_kg": 3.38830694,
+      "heatLoad_kWh": 184.8,
+      "harvestYield_kg": 0,
+      "cost_electricity": 37.9848,
+      "cost_water": 0.1512,
+      "cost_total": 38.136
+    },
+    "events": {
+      "harvests": 0,
+      "irrigationEvents": 5,
+      "maintenanceTasks": 4
+    },
+    "hash": "c94d04992955caae73e90a90274c6d18f31a986affd7d9ee829003736f944335"
+  }
+]

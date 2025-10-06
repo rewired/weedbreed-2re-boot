@@ -2,6 +2,11 @@
 
 All notable changes to this repository will be documented in this file.
 
+# [2025-10-07] Golden master conformance suite baseline
+- Established the pnpm workspace foundation with the @wb/engine package, TypeScript configuration, and lint/build/test tooling to host conformance specs.
+- Implemented a deterministic simulation harness with nine-phase tick pipeline instrumentation and generated v1 golden fixtures (7-day and 30-day runs with daily hashes and summaries).
+- Added conformance tests enforcing golden hashes plus documentation for task WB-013 execution.
+
 ## [2025-10-06] Currency-neutral terminology enforcement
 - Clarified across SEC, DD, TDD, and Vision Scope that monetary identifiers and UI copy must remain currency-neutral, forbidding baked-in codes/symbols (EUR, USD, GBP, etc.).
 - Updated reference docs and prompts to describe tariffs and KPIs using neutral cost phrasing instead of currency-specific notation.
