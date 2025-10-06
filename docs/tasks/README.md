@@ -2,7 +2,7 @@
 
 | ID   | Title | Priority | Status | Owner | Links | Resolved |
 | ---- | ----- | -------- | ------ | ----- | ----- | -------- |
-| 0001 | Appendix B Crosswalk Fill | P0 | Planned | unassigned | [task](./0001-appendix-b-crosswalk-fill.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
+| 0001 | Appendix B Crosswalk Fill | P0 | Planned | unassigned | [task](./0001-appendix-b-crosswalk-fill.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [x] |
 | 0002 | CO₂ Actuator and Environment Coupling | P0 | Planned | unassigned | [task](./0002-co2-actuator-and-environment-coupling.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
 | 0003 | Golden Master & Conformance Suite | P0 | Planned | unassigned | [task](./0003-golden-master-conformance-suite.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
 | 0004 | Pest & Disease System MVP | P0 | Planned | unassigned | [task](./0004-pest-disease-system-mvp.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |

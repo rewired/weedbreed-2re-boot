@@ -2,8 +2,8 @@ ID: 0001
 # Appendix B Crosswalk Fill
 
 **ID:** 0002  
-**Status:** Planned  
-**Owner:** unassigned  
+**Status:** done  
+**Owner:** codex
 **Priority:** P0  
 **Tags:** docs, governance
 
