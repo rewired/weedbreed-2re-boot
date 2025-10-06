@@ -5,6 +5,9 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": ["dist"],
+  "dependencies": {
+    "socket.io": "^4.7.5"
+  },
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "test": "vitest run",

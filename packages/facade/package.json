@@ -7,6 +7,12 @@
   "files": [
     "dist"
   ],
+  "dependencies": {
+    "@wb/transport-sio": "workspace:*"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.7.5"
+  },
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "test": "vitest run",
