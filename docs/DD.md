@@ -21,6 +21,7 @@ Local version markers (`.nvmrc`, `.node-version`) pin Node.js 22 (LTS) for both 
 
 - Deterministic simulation with reproducible seeds and stream‑scoped RNG.
 - Test-only determinism scaffolds (`hashCanonicalJson`, `newV7`) live under `packages/engine/src/shared/determinism` until an ADR approves runtime adoption (see [docs/tasks/0007-determinism-helper-scaffolds.md](docs/tasks/0007-determinism-helper-scaffolds.md)).
+- Tooling CLI (`pnpm report:packages`) produces a deterministic package audit matrix stored in `docs/reports/PACKAGE_AUDIT.md` without introducing runtime imports.
 - Strict conformance to **per‑hour** economic units; tick derives from hours.
 - Clean separation of **engine** (no I/O) and **façade/transport**.
 - Enforce **roomPurpose**, **device placement**, and **zone cultivationMethod** rules.

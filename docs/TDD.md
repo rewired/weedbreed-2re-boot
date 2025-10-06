@@ -58,8 +58,10 @@ src/
 - **Coverage threshold:** 90% lines/branches in `engine/` and `facade/`; 80% overall.
 - **Snapshot location:** `__snapshots__` next to specs (only for low‑volatility payloads; prefer golden JSON files for world states).
 - **Blueprint fixtures:** Repository fixtures **MUST** live inside the domain folders that mirror their `class` (`device/climate/*.json`, `cultivation-method/*.json`, `room/purpose/*.json`, etc.). Specs walk `/data/blueprints/**` to assert the folder-derived taxonomy matches the JSON declaration and fail fast when contributors park files elsewhere.
+- **Tooling audits:** `packages/tools/tests/packageAudit.test.ts` keeps `docs/reports/PACKAGE_AUDIT.md` in sync with the CLI generator so `pnpm report:packages` remains deterministic documentation-only tooling.
 
 Blueprint directory rule: All blueprints are auto-discovered under /data/blueprints/<domain>/<file>.json with a maximum depth of two segments (domain + file). Devices are /data/blueprints/device/<category>.json or /data/blueprints/device/<category>/<file>.json limited to two levels; no deeper subfolders are allowed.
+- **Save/load fixtures:** Legacy/current save snapshots live under `packages/engine/tests/fixtures/save/v*/`. Unit specs in `tests/unit/save/` exercise schema guards and crash-safe writes; integration specs in `tests/integration/saveLoad/` load fixtures, apply migrations, and assert canonical hashes stay stable across versions.
 
 ---
 

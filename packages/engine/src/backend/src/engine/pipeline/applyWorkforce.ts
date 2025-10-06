@@ -53,6 +53,8 @@ import {
   applyTraitEffects,
   type TraitEffectBreakdownEntry,
 } from '../../domain/workforce/traits.js';
+import { evaluatePestDiseaseSystem } from '../../health/pestDiseaseSystem.js';
+import { emitPestDiseaseRiskWarnings, emitPestDiseaseTaskEvents } from '../../telemetry/health.js';
 
 const SCORE_EPSILON = 1e-6;
 const OVERTIME_MORALE_PENALTY_PER_HOUR = 0.02;
@@ -974,6 +976,35 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     return newWorld;
   }
 
+  const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
+  const pestEvaluation = evaluatePestDiseaseSystem(world, currentSimHours);
+
+  if (pestEvaluation.scheduledTasks.length > 0) {
+    const existingTaskIds = new Set(workforceState.taskQueue.map((task) => task.id));
+    const newTasks = pestEvaluation.scheduledTasks.filter((task) => !existingTaskIds.has(task.id));
+
+    if (newTasks.length > 0) {
+      workforceState = {
+        ...workforceState,
+        taskQueue: [...workforceState.taskQueue, ...newTasks],
+      } satisfies WorkforceState;
+    }
+  }
+
+  const shouldUpdateHealth = world.health !== pestEvaluation.health;
+  const shouldUpdateWorkforce = (world as SimulationWorld & { workforce?: WorkforceState }).workforce !== workforceState;
+
+  if (shouldUpdateHealth || shouldUpdateWorkforce) {
+    world = {
+      ...world,
+      health: pestEvaluation.health,
+      workforce: workforceState,
+    } satisfies SimulationWorld;
+  }
+
+  emitPestDiseaseRiskWarnings(ctx.telemetry, pestEvaluation.warnings);
+  emitPestDiseaseTaskEvents(ctx.telemetry, pestEvaluation.taskEvents);
+
   const workforceConfig = resolveWorkforceConfig(ctx);
   const intents = extractWorkforceIntents(ctx);
   let marketState: WorkforceMarketState = workforceState.market;
@@ -986,6 +1017,10 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
   const pendingHireTelemetry: { readonly employeeId: Employee['id']; readonly structureId: Structure['id'] }[] = [];
   const raiseIntents: WorkforceRaiseIntent[] = [];
   const terminationIntents: WorkforceTerminationIntent[] = [];
+<<<<<<< HEAD
+=======
+  const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
+>>>>>>> c29286bdeb0b43866b7afa83a0df476a649aad08
   const worldSeed = world.seed;
 
   for (const intent of intents) {

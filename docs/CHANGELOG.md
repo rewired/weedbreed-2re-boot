@@ -2,6 +2,9 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Added test-only determinism helper scaffolds (`hashCanonicalJson`, `newV7`) for
+  hashing canonical JSON payloads and generating UUIDv7 identifiers without
+  impacting runtime flows (Task 0007).
 - Rebuilt the Golden Master conformance suite (Task 0003): generated deterministic 30d/200d fixtures via `generateGoldenScenarioRun`, updated `runDeterministic` to validate fixtures or emit artifacts, expanded conformance specs to assert topology coverage/ACH, inventory transfer, workforce breaks/janitorial cadence, and documented artifact paths in SEC/TDD/task notes.
 - Locked canonical geometry, calendar, thermodynamic, and HQ defaults in `simConstants.ts` with documented precedence flow (ADR-0001).
 - Anchored irrigation/substrate compatibility to irrigation method blueprints and removed substrate-level lists (ADR-0003).
@@ -14,11 +17,13 @@
 - Added `ICo2Injector`/`Co2InjectorStub`, enriched zone environment state with `co2_ppm`, and covered steady-state/ramp scenarios via `Co2InjectorStub.test.ts` and `co2Coupling.integration.test.ts`.
 - Added `.nvmrc`/`.node-version` markers pinning Node.js 22 (LTS) locally while CI uses Node.js 22 (LTS) (ADR-0012).
 - Embedded the deterministic workforce branch (roles, employees, tasks, KPIs, payroll) into world snapshots (ADR-0013).
+- Delivered the pest & disease MVP (Task 0004): deterministic zone risk scoring from environment/hygiene signals, automatic inspection/treatment task emission with 72 h quarantine windows, telemetry topics for risk/task events, and unit/integration coverage.
 - Implemented seeded workforce identity sourcing with a 500 ms randomuser.me timeout and pseudodata fallback (ADR-0014).
 - Flattened blueprint taxonomy to domain-level folders with explicit subtype metadata and migration tooling (ADR-0015).
 - Ratified the shadcn/ui + Tailwind + Radix UI stack (lucide icons, Framer Motion, Recharts/Tremor) for UI components (ADR-0016).
+- Added crash-safe save/load scaffolding with schema versioning, migration registry (v0→v1), canonical fixtures (`packages/engine/tests/fixtures/save/v*`), and `/data/savegames/` repository path documentation (Task 0005).
 - Added a deterministic conformance harness (`runDeterministic`) with committed golden fixtures (`packages/engine/tests/fixtures/golden/30d`, `.../200d`) and Vitest specs (`goldenMaster.30d.spec.ts`, `goldenMaster.200d.spec.ts`) wired to `pnpm --filter @wb/engine test:conf:30d`/`test:conf:200d`.
-- Added package audit report & deterministic scaffolds (no runtime behaviour change) to validate candidate dependencies.
+- Captured Task 0008 package audit matrix with `pnpm report:packages`, documenting the deterministic CLI + Markdown pairing without runtime behaviour changes.
 - Populated SEC Appendix B with a complete crosswalk of legacy `/docs/tasks/**` proposals and noted the contradictions log location.
 
 - Docs: standardized blueprint folders to max two levels under /data/blueprints (no deeper subfolders).
@@ -33,6 +38,17 @@
 migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy update in
   SEC/DD/TDD plus a dedicated ADR.
 - Docs/ADR: Adopted Tailwind + shadcn/ui (on Radix) as the UI component stack; updated SEC/DD/AGENTS/VISION_SCOPE and recorded decision in ADR-0016.
+
+### #78 WB-050 sensor stage schema & deterministic noise
+
+- Finalised the sensor stage payload, enriching `applySensors` with timestamp/tick metadata,
+  deterministic `sensor:<deviceId>` RNG stream ids, and frozen readings that expose
+  `{trueValue, measuredValue, error, noiseSample, noise01, condition01}` per SEC §4.2.
+- Added `SensorReadingSchema` validation plus unit tests for noise determinism and schema
+  bounds, ensuring humidity/temperature clamps remain enforceable before telemetry export.
+- Documented the phase contract in `docs/engine/phases/02-sensors.md` and extended the
+  Pattern D integration tests to assert pre-integration sampling, zero-noise stability, and
+  tick trace ordering.
 
 ### #77 Demo harness humidity baseline
 
