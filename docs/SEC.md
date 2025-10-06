@@ -56,6 +56,7 @@ UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; i
 
 - Running **N days** from T0 yields **identical daily state hashes** (and identical event counts per topic) on supported platforms.
 - Engine publishes a **reference summary** (energy/water/nutrient totals, biomass/harvest KPIs). Values **SHALL** match within strict tolerances (exact where deterministic, fixed rounding elsewhere).
+- Canonical fixtures live in `packages/engine/tests/fixtures/golden/<days>{d}/` with `daily.jsonl` and `summary.json` pairs. Replays are driven through `runDeterministic({ days, seed, outDir })` (exported from `@/backend/src/engine/testHarness.ts`) and are exercised in CI via `pnpm --filter @wb/engine test:conf:30d` for the PR gate and `pnpm --filter @wb/engine test:conf:200d` for soak coverage.
 
 ### 0.2.4 Evolution (MAY)
 
