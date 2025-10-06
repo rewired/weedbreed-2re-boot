@@ -454,6 +454,12 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 - Plants **SHALL** maintain a lifecycle with at least: Seed/Start, Vegetative, Flowering, Harvest-ready.
 - A **photoperiod light cycle** **SHALL** govern stage behavior: defaults **18/6** (veg) and **12/12** (flower). Changing the cycle **SHALL** cause deterministic transitions per strain rules.
 - Per-tick growth, stress, and quality **SHALL** derive from environment × strain tolerance windows.
+  - Stress curves are resolved via a **piecewise quadratic ramp** anchored on the strain's `envBands` (green/yellow ranges) and
+    the numeric tolerances declared under `stressTolerance`. Each contribution (temperature, VPD, PPFD) produces a value in
+    **[0,1]**; the engine averages the available contributions per tick and clamps to **[0,1]**.
+  - VPD **SHALL** be computed with the Magnus formula (`A = 17.27`, `B = 237.3`, base `0.6108` kPa) using relative humidity
+    in **[0,1]**. Dew point calculations **SHALL** clamp humidity to `(1e-6, 1-1e-6)` to avoid singularities. When a strain lacks a
+    VPD band the engine **SHALL** fall back to the humidity fraction band for the third contribution.
 
 #### 8.1.1 Growth Fractions (SHALL)
 
@@ -642,7 +648,6 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 ## 14. Open Questions (to be resolved iteratively)
 
 - Minimum viable set of irrigation methods for v1?
-- Exact stress→growth reduction curves per strain (piecewise vs parametric)?
 - Daily vs tick-level economic accrual granularity for reports?
 - Standard zone height vs variable height support in baseline formulas?
 - Cultivation method presets (SoG/ScRoG/DWC/etc.) and their default container/substrate bundles?
@@ -691,7 +696,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 | [tasks/0011-device-degradation-and-maintenance-flows.md](./tasks/0011-device-degradation-and-maintenance-flows.md) | Device Degradation and Maintenance Flows | Model condition decay, maintenance planning, and replacement economics. | [§6.2](#62-device-quality-vs-condition-shall--option-a-adopted); [§10](#10-economy-integration-non-intrusive) | deferred | Long-run coverage ties into [TDD §8](./TDD.md#8-economy--tariffs-sec-36) maintenance checks. |
 | [tasks/0012-economy-accrual-consolidation.md](./tasks/0012-economy-accrual-consolidation.md) | Economy Accrual Consolidation | Consolidate all resource costs under per-hour tariffs with CI drift guards. | [§10](#10-economy-integration-non-intrusive); [§7.5](#423-zone-requirement-shall) | deferred | Builds on price-map policy in [AGENTS §5](../AGENTS.md#5-data-contracts--price-separation-sec-3). |
 | [tasks/0013-transport-adapter-hardening.md](./tasks/0013-transport-adapter-hardening.md) | Transport Adapter Hardening | Enforce telemetry read-only channels and add negative transport tests. | [§11.3](#113-transport-policy) | deferred | Contract coverage complements [TDD §11](./TDD.md#11-telemetry-read-only-transport-separation-sec-11). |
-| [tasks/0014-vpd-and-stress-signals-finalization.md](./tasks/0014-vpd-and-stress-signals-finalization.md) | VPD and Stress Signals Finalization | Finalise VPD-derived stress curves and integrate them into plant physiology. | [§8](#8-plant-model-lifecycle--growth); [§14](#14-open-questions-to-be-resolved-iteratively) | deferred | Depends on psychrometric helper in [tasks/0009](./tasks/0009-psychrometric-wiring-plan.md) and closes SEC open question. |
+| [tasks/0014-vpd-and-stress-signals-finalization.md](./tasks/0014-vpd-and-stress-signals-finalization.md) | VPD and Stress Signals Finalization | Finalise VPD-derived stress curves and integrate them into plant physiology. | [§8](#8-plant-model-lifecycle--growth); [§14](#14-open-questions-to-be-resolved-iteratively) | merged | Stress curves resolved via piecewise quadratic ramp; VPD Magnus integration and dew point clamps codified. |
 | [tasks/0015-blueprint-taxonomy-v2-loader-tests.md](./tasks/0015-blueprint-taxonomy-v2-loader-tests.md) | Blueprint Taxonomy v2 Loader Tests | Harden loader with depth/class enforcement and failure fixtures. | [§3.0.1](#301-blueprint-taxonomy-strict-adr-0015) | deferred | Matches enforcement rules from [AGENTS §5](../AGENTS.md#5-data-contracts--price-separation-sec-3). |
 | [tasks/0016-open-questions-to-adrs.md](./tasks/0016-open-questions-to-adrs.md) | Open Questions to ADRs | Convert SEC open questions into ADRs and update dependent docs. | [§14](#14-open-questions-to-be-resolved-iteratively) | deferred | ADR workflow governed by [AGENTS §1.4](../AGENTS.md#14-documentation--governance-strict). |
 | [tasks/0017-performance-budget-in-ci.md](./tasks/0017-performance-budget-in-ci.md) | Performance Budget in CI | Wire perf harness CI gate enforcing throughput and heap thresholds. | [§0.2](#02-reference-test-simulation-golden-master) | deferred | CI policy should mirror [TDD §0](./TDD.md#0-principles) perf guidance and [`simulation-reporting`](./engine/simulation-reporting.md). |

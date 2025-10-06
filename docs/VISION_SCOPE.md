@@ -28,7 +28,7 @@
 
 **Experience Pillars.**
 
-- **Planning & Optimization:** Light, climate, CO₂, device upgrades.
+- **Planning & Optimization:** Light, climate, CO₂, device upgrades, VPD-driven stress tuning.
 - **Risk Management:** Pests/diseases, device wear, resource bottlenecks.
 - **Economy:** OpEx/CapEx, cash flow, break‑even, price/quality.
 

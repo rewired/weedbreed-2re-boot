@@ -31,7 +31,10 @@ Local version markers (`.nvmrc`, `.node-version`) pin Node.js 22 (LTS) for both 
 
 - No dynamic energy/water market modelling (tariffs fixed at sim start unless a scenario explicitly overrides policy).
 - No 3D geometry or CFD; we use lumped‑parameter environment models.
-- Psychrometric helper (`computeVpd_kPa`) is test-only until [docs/tasks/0009-psychrometric-wiring-plan.md](docs/tasks/0009-psychrometric-wiring-plan.md) greenlights pipeline integration and `psychrolib` ships the ^2 release; the repository pins `psychrolib@1.1.x` for deterministic test coverage only.
+- Psychrometric helpers (`computeSaturationVapourPressure_kPa`, `computeDewPoint_C`, `computeVpd_kPa`) live under
+  `packages/engine/src/backend/src/physiology/vpd.ts` using the Magnus formulation (A=17.27, B=237.3, base 0.6108 kPa) with
+  humidity clamps `(1e-6, 1-1e-6)` to avoid singularities. Shared consumers import the same helpers; no runtime dependency on
+  `psychrolib` remains.
 
 ---
 
