@@ -19,6 +19,13 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "psychrolib": "^1.1.0",
+    "safe-stable-stringify": "^2.5.0",
+    "uuid": "^13.0.0",
+    "xxhash-wasm": "^1.1.0",
     "zod": "3.24.0"
+  },
+  "devDependencies": {
+    "fast-check": "^3.23.2"
   }
 }

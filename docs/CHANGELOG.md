@@ -15,6 +15,7 @@
 - Implemented seeded workforce identity sourcing with a 500 ms randomuser.me timeout and pseudodata fallback (ADR-0014).
 - Flattened blueprint taxonomy to domain-level folders with explicit subtype metadata and migration tooling (ADR-0015).
 - Ratified the shadcn/ui + Tailwind + Radix UI stack (lucide icons, Framer Motion, Recharts/Tremor) for UI components (ADR-0016).
+- Added package audit report & deterministic scaffolds (no runtime behaviour change) to validate candidate dependencies.
 
 - Docs: standardized blueprint folders to max two levels under /data/blueprints (no deeper subfolders).
 - Flattened `/data/blueprints` to domain-level folders (`device/<category>/*.json`,

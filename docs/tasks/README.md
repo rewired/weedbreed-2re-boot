@@ -17,6 +17,9 @@
 | 0013 | Open Questions to ADRs | P2 | Planned | unassigned | [task](./0013-open-questions-to-adrs.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
 | 0014 | Performance Budget in CI | P2 | Planned | unassigned | [task](./0014-performance-budget-in-ci.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
 | 0015 | Terminal Monitor MVP | P2 | Planned | unassigned | [task](./0015-terminal-monitor-mvp.md) · [SEC](../SEC.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
+| 0001A | Package Audit & Reporting Matrix | P1 | In Progress | unassigned | [task](./0001-package-audit.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
+| 0002A | Determinism Helper Scaffolds | P1 | In Progress | unassigned | [task](./0002-determinism-helpers.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
+| 0003A | Psychrometric Wiring Plan | P1 | In Progress | unassigned | [task](./0003-psychro-wiring-plan.md) · [DD](../DD.md) · [TDD](../TDD.md) | [ ] |
 
 ## How to work with tasks
 - **Branch naming:** use `feature/<task-id>-short-slug` (e.g., `feature/0004-co2-coupling`) so CI links back to the task.
