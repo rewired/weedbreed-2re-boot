@@ -5,6 +5,9 @@
 - Added test-only determinism helper scaffolds (`hashCanonicalJson`, `newV7`) for
   hashing canonical JSON payloads and generating UUIDv7 identifiers without
   impacting runtime flows (Task 0007).
+- Added cultivation maintenance runtime translating cultivation-method reuse policies
+  into deterministic repotting, sterilisation, and disposal tasks with unit and
+  integration coverage (Task 0010).
 - Added the psychrometric VPD helper (`computeVpd_kPa`) under
   `packages/engine/src/shared/psychro/psychro.ts`, initialising `psychrolib` in
   SI mode and documenting its test-only scope pending Task 0009 wiring.

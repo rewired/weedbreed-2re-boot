@@ -2,10 +2,6 @@ import { HOURS_PER_DAY } from '../../constants/simConstants.js';
 import { DEFAULT_WORKFORCE_CONFIG, type WorkforceConfig } from '../../config/workforce.js';
 import { bankersRound, clamp01 } from '../../util/math.js';
 import {
-  calculatePestDiseaseRisk,
-  accumulateRisk,
-} from '../../health/pestDiseaseRisk.js';
-import {
   emitWorkforceKpiSnapshot,
   emitWorkforceWarnings,
   emitWorkforcePayrollSnapshot,
@@ -55,6 +51,11 @@ import {
 } from '../../domain/workforce/traits.js';
 import { evaluatePestDiseaseSystem } from '../../health/pestDiseaseSystem.js';
 import { emitPestDiseaseRiskWarnings, emitPestDiseaseTaskEvents } from '../../telemetry/health.js';
+import {
+  ensureCultivationTaskRuntime,
+  getCultivationMethodCatalog,
+  scheduleCultivationTasksForZone,
+} from '../../cultivation/methodRuntime.js';
 
 const SCORE_EPSILON = 1e-6;
 const OVERTIME_MORALE_PENALTY_PER_HOUR = 0.02;
@@ -880,26 +881,12 @@ function createSnapshot(
   } satisfies WorkforceKpiSnapshot;
 }
 
-function isInspectionTaskQueued(taskQueue: readonly WorkforceTaskInstance[], zoneId: string): boolean {
-  return taskQueue.some(
-    (task) =>
-      task.context?.zoneId === zoneId &&
-      task.taskCode === 'inspect-zone' &&
-      task.status === 'queued'
-  );
-}
+function isZoneQuarantined(world: SimulationWorld, zoneId: Zone['id'], currentTick: number): boolean {
+  const risks = world.health?.pestDisease.zoneRisks ?? [];
+  const entry = risks.find((risk) => risk.zoneId === zoneId);
+  const quarantineUntil = entry?.quarantineUntilTick;
 
-function findZone(world: SimulationWorld, zoneId: string): Zone | undefined {
-    for (const structure of world.company.structures) {
-        for (const room of structure.rooms) {
-            for (const zone of room.zones) {
-                if (zone.id === zoneId) {
-                    return zone;
-                }
-            }
-        }
-    }
-    return undefined;
+  return typeof quarantineUntil === 'number' && quarantineUntil > currentTick;
 }
 
 export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): SimulationWorld {
@@ -908,75 +895,63 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
 
   const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
   const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
+  const cultivationRuntime = ensureCultivationTaskRuntime(ctx);
+  const cultivationCatalog = getCultivationMethodCatalog();
+  const cultivationTasks: WorkforceTaskInstance[] = [];
+  const currentTick = Math.trunc(currentSimHours);
 
-  // Pest & Disease Risk Calculation
-  const newStructures = world.company.structures.map((structure) => {
-    const newRooms = structure.rooms.map((room) => {
-      const newZones = room.zones.map((zone) => {
-        const hygiene = 0.8; // Placeholder for hygiene score
-        const currentRisk = zone.pestDisease?.risk01 ?? 0;
-        const riskFactors = calculatePestDiseaseRisk(zone.environment, hygiene);
-        const newRisk = accumulateRisk(currentRisk, riskFactors);
+  for (const structure of world.company.structures) {
+    for (const room of structure.rooms) {
+      for (const zone of room.zones) {
+        const cultivationZoneTasks = scheduleCultivationTasksForZone({
+          world,
+          structure,
+          room,
+          zone,
+          workforce: workforceState,
+          runtime: cultivationRuntime,
+          currentTick,
+          methodCatalog: cultivationCatalog,
+        });
 
-        let newTasks: WorkforceTaskInstance[] = [];
-        if (newRisk > 0.5 && (!workforceState || !isInspectionTaskQueued(workforceState.taskQueue, zone.id))) {
-          const newTask: WorkforceTaskInstance = {
-            id: deterministicUuid(world.seed, `task:${world.simTimeHours}:${zone.id}`),
-            taskCode: 'inspect-zone', // Assuming this task code exists
-            status: 'queued',
-            createdAtTick: world.simTimeHours,
-            context: {
-              zoneId: zone.id,
-              roomId: room.id,
-              structureId: structure.id,
-            },
-          };
-          newTasks.push(newTask);
+        if (cultivationZoneTasks.length > 0) {
+          cultivationTasks.push(...cultivationZoneTasks);
         }
-        
-        if (newTasks.length > 0) {
-          if (!workforceState) {
-            workforceState = {
-              roles: [],
-              employees: [],
-              taskDefinitions: [],
-              taskQueue: [],
-              kpis: [],
-              warnings: [],
-              payroll: createEmptyPayrollState(currentSimDay),
-              market: { structures: [] },
-            };
-          }
-          workforceState.taskQueue = [...workforceState.taskQueue, ...newTasks];
-        }
-
-        return {
-          ...zone,
-          pestDisease: {
-            ...zone.pestDisease,
-            risk01: newRisk,
-          },
-        };
-      });
-      return { ...room, zones: newZones };
-    });
-    return { ...structure, rooms: newRooms };
-  });
-
-  const newCompany = { ...world.company, structures: newStructures };
-  let newWorld = { ...world, company: newCompany };
-
-  if (workforceState) {
-    newWorld = { ...newWorld, workforce: workforceState };
+      }
+    }
   }
-  
+
+  if (cultivationTasks.length > 0) {
+    if (!workforceState) {
+      workforceState = {
+        roles: [],
+        employees: [],
+        taskDefinitions: [],
+        taskQueue: [],
+        kpis: [],
+        warnings: [],
+        payroll: createEmptyPayrollState(currentSimDay),
+        market: { structures: [] },
+      } satisfies WorkforceState;
+    }
+
+    const existingTaskIds = new Set(workforceState.taskQueue.map((task) => task.id));
+    const filteredCultivationTasks = cultivationTasks.filter((task) => !existingTaskIds.has(task.id));
+
+    if (filteredCultivationTasks.length > 0) {
+      workforceState = {
+        ...workforceState,
+        taskQueue: [...workforceState.taskQueue, ...filteredCultivationTasks],
+      } satisfies WorkforceState;
+    }
+  }
+
   if (!workforceState) {
     runtime.kpiSnapshot = createSnapshot(world.simTimeHours, [], 0, 0, 0, 0, 0, []);
     clearWorkforcePayrollAccrual(ctx);
-    return newWorld;
+    return world;
   }
 
-  const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
   const pestEvaluation = evaluatePestDiseaseSystem(world, currentSimHours);
 
   if (pestEvaluation.scheduledTasks.length > 0) {
@@ -1017,10 +992,6 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
   const pendingHireTelemetry: { readonly employeeId: Employee['id']; readonly structureId: Structure['id'] }[] = [];
   const raiseIntents: WorkforceRaiseIntent[] = [];
   const terminationIntents: WorkforceTerminationIntent[] = [];
-<<<<<<< HEAD
-=======
-  const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
->>>>>>> c29286bdeb0b43866b7afa83a0df476a649aad08
   const worldSeed = world.seed;
 
   for (const intent of intents) {
@@ -1300,10 +1271,9 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     
     const zoneId = task.context?.zoneId as string | undefined;
     if (zoneId) {
-        const zone = findZone(world, zoneId);
-        if (zone?.pestDisease?.quarantinedUntilTick && zone.pestDisease.quarantinedUntilTick > world.simTimeHours) {
-            continue;
-        }
+      if (isZoneQuarantined(world, zoneId, world.simTimeHours)) {
+        continue;
+      }
     }
 
     const employees = employeesByStructure.get(structureId) ?? [];
@@ -1501,7 +1471,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
   }
 
   return {
-    ...newWorld,
+    ...world,
     workforce: nextWorkforce,
   } satisfies SimulationWorld;
 }

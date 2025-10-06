@@ -149,6 +149,12 @@ targets from the same factor to keep unit conversions deterministic.
 
 > **Irrigation compatibility note:** Cultivation methods no longer list irrigation method IDs directly. Instead, irrigation method blueprints enumerate the substrates they support via `compatibility.substrates`, and methods inherit compatibility from whichever substrate option a zone selects (ADR-0003).
 
+**Runtime enforcement:** The engine monitors harvest cycles per zone and enqueues
+repotting, substrate sterilisation, and disposal tasks based on the active
+cultivation method's container service life and substrate reuse policy. These
+tasks land in the workforce queue with deterministic identifiers so labour
+costing and scheduling remain aligned with SEC §7.5 and §10.
+
 ---
 
 ## 5) Economy & Tariffs (SEC §3.6)
