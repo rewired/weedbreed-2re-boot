@@ -20,6 +20,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@wb/engine': resolve(currentDir, '../engine/src/index.ts'),
+      '@wb/transport-sio': resolve(currentDir, '../transport-sio/src/index.ts'),
+      '@wb/transport-sio/': resolve(currentDir, '../transport-sio/src/'),
       '@/backend': resolve(currentDir, '../engine/src/backend'),
       '@': resolve(currentDir, 'src')
     }
