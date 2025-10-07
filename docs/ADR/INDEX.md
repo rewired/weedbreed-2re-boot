@@ -2,6 +2,10 @@
 
 | ADR-ID   | Title                                                                   | Status     | Supersedes | Affects                      | Binding? | Link                                                               |
 | -------- | ----------------------------------------------------------------------- | ---------- | ---------- | ---------------------------- | -------- | ------------------------------------------------------------------ |
+| ADR-0020 | Zone Height Baseline & Cultivation Presets                              | Accepted   | —          | SEC, DD, TDD, VISION         | Yes      | [ADR-0020](./ADR-0020-zone-height-and-cultivation-presets.md)      |
+| ADR-0019 | Economy Reporting Cadence                                               | Accepted   | —          | SEC, DD, TDD, VISION         | Yes      | [ADR-0019](./ADR-0019-economy-reporting-cadence.md)                |
+| ADR-0018 | Stress→Growth Curve Model                                              | Accepted   | —          | SEC, DD, TDD, VISION         | Yes      | [ADR-0018](./ADR-0018-stress-growth-curve-model.md)                |
+| ADR-0017 | Irrigation Baseline Methods (v1 Minimum Set)                            | Accepted   | —          | SEC, DD, TDD, VISION         | Yes      | [ADR-0017](./ADR-0017-irrigation-baseline-methods.md)              |
 | ADR-0016 | UI Component Stack (Tailwind + shadcn/ui on Radix)                      | Accepted   | —          | SEC, DD, AGENTS, VISION      | Yes      | [ADR-0016](./ADR-0016-ui-component-stack.md)                       |
 | ADR-0015 | Blueprint Taxonomy v2                                                   | Accepted   | ADR-0009   | SEC, DD, TDD                 | Yes      | [ADR-0015](./ADR-0015-blueprint-taxonomy-v2.md)                    |
 | ADR-0014 | Workforce Identity Pseudodata Guarantees                                | Accepted   | —          | SEC, DD, TDD, VISION         | Yes      | [ADR-0014](./ADR-0014-workforce-identity-pseudodata.md)            |

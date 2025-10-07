@@ -59,6 +59,7 @@ Hierarchy and constraints:
 - Company metadata stores `location` (`longitude`, `latitude`, `city`, `country`) with SEC clamps and Hamburg defaults until UI capture overrides them.
 - **Room** with mandatory `roomPurpose` ∈ {growroom, breakroom, laboratory, storageroom, salesroom, workshop}.
 - **Zone** only inside **growrooms**; **must** declare `cultivationMethodId`.
+- **Default zone height:** assume **3 m** when room/zone omit explicit values (ADR-0020); room overrides propagate.
 - **Plant** belongs to a zone; physiology depends on schedule & environment.
 - **Device** attaches by `placementScope: 'zone'|'room'|'structure'` with `allowedRoomPurposes` eligible set.
 
@@ -152,6 +153,9 @@ targets from the same factor to keep unit conversions deterministic.
 
 > **Irrigation compatibility note:** Cultivation methods no longer list irrigation method IDs directly. Instead, irrigation method blueprints enumerate the substrates they support via `compatibility.substrates`, and methods inherit compatibility from whichever substrate option a zone selects (ADR-0003).
 
+- **Canonical irrigation methods (ADR-0017):** `manual-watering-can`, `drip-inline-fertigation-basic`, `top-feed-pump-timer`, and `ebb-flow-table-small` must stay present in `/data/blueprints/irrigation/` and supported by cultivation defaults.
+- **Launch cultivation presets (ADR-0020):** `basic-soil-pot` (pot-10l + soil-single-cycle), `sea-of-green` (pot-11l + coco-coir), and `screen-of-green` (pot-25l + soil-multi-cycle) ship as the default bundles surfaced in UX and fixtures; hydroponic presets require a future ADR.
+
 **Runtime enforcement:** The engine monitors harvest cycles per zone and enqueues
 repotting, substrate sterilisation, and disposal tasks based on the active
 cultivation method's container service life and substrate reuse policy. These
@@ -173,6 +177,8 @@ costing and scheduling remain aligned with SEC §7.5 and §10.
 - Electricity: `kWh = (powerW / 1000) * hoursOn`; `cost = kWh * tariff.kWh`.
 
 - Water: `m3 = liters / 1000`; `cost = m3 * tariff.m3`.
+
+- **Reporting cadence (ADR-0019):** Engine persists hourly (per tick) ledger rows; façade/read-models expose those hourly slices plus deterministic daily rollups computed as 24-hour sums. Other cadences require a new ADR.
 
 ## 5a) Workforce Domain (SEC §10)
 
@@ -244,6 +250,7 @@ costing and scheduling remain aligned with SEC §7.5 and §10.
 8. Economy & Cost Accrual
 9. Commit & Telemetry
 
+- **Plant Physiology (ADR-0018):** evaluates temperature, VPD/humidity, and PPFD deltas via the piecewise quadratic tolerance ramp, multiplying per-dimension growth multipliers and taking the max stress contribution.
 ---
 
 ## 7) Light Schedule (SEC §8)
