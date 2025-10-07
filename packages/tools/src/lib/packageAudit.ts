@@ -446,8 +446,8 @@ async function detectDirectUsage(
       if (!containsImport(contents, candidate.name)) continue;
 
       const manifest = manifestByDir.find((pkg) => filePath.startsWith(pkg.dirWithSep));
-      const relative = path.relative(repoRoot, filePath);
-      const owner = manifest?.label ?? relative.split(path.sep)[0];
+      const relative = path.relative(repoRoot, filePath).replace(/\\/g, '/');
+      const owner = manifest?.label ?? relative.split('/')[0];
       const list = ensureUsageSet(usage, candidate.name);
       list.add(`${owner}: ${relative}`);
     }
