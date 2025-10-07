@@ -2,6 +2,12 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+### #07 Transport Vitest alias reliability
+
+- Added a façade Vitest alias for `@wb/transport-sio` so integration suites
+  resolve the Socket.IO transport directly from source during workspace test
+  runs, preventing missing dist artifact failures.
+
 - Removed the `packages/tools/tests/packageAudit.test.ts` tooling audit; the
   report markdown is now maintained via `pnpm report:packages` without an
   automated sync assertion after repeated encoding failures in CI.
