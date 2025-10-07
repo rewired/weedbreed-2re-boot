@@ -2,6 +2,9 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Removed the `packages/tools/tests/packageAudit.test.ts` tooling audit; the
+  report markdown is now maintained via `pnpm report:packages` without an
+  automated sync assertion after repeated encoding failures in CI.
 - Hardened blueprint taxonomy loader guards (Task 0015): renamed the mismatch error to
   `BlueprintTaxonomyMismatchError`, added dedicated unit coverage for directory depth
   and class alignment, extended the repository layout spec to assert taxonomy guardrails,
