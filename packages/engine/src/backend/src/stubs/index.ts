@@ -1,0 +1,25 @@
+/**
+ * Phase 1 Stub Implementations (Engine v1)
+ *
+ * Deterministic, referential stub implementations for stackable device effects.
+ * Each stub provides pure functions with predefined test vectors for validation.
+ *
+ * @see Consolidated Reference Document: Interfaces & Stubs (Engine v1, Phase 1)
+ */
+export * from './ThermalActuatorStub.js';
+export * from './HumidityActuatorStub.js';
+export * from './LightEmitterStub.js';
+export * from './NutrientBufferStub.js';
+export * from './IrrigationServiceStub.js';
+export * from './SensorStub.js';
+export * from './AirflowActuatorStub.js';
+export * from './FiltrationStub.js';
+export * from './Co2InjectorStub.js';
+
+export { createThermalActuatorStub } from './ThermalActuatorStub.js';
+export { createHumidityActuatorStub } from './HumidityActuatorStub.js';
+export { createLightEmitterStub } from './LightEmitterStub.js';
+export { createSensorStub } from './SensorStub.js';
+export { createAirflowActuatorStub } from './AirflowActuatorStub.js';
+export { createFiltrationStub } from './FiltrationStub.js';
+export { createCo2InjectorStub } from './Co2InjectorStub.js';

@@ -1,0 +1,10 @@
+{
+  "id": "Gardening",
+  "slug": "gardening",
+  "class": "personnel.skill.gardening",
+  "name": "Gardening",
+  "description": "Plant care, canopy management, pruning, and phenology adjustments.",
+  "tags": [
+    "cultivation"
+  ]
+}

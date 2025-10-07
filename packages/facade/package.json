@@ -1,0 +1,26 @@
+{
+  "name": "@wb/facade",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@wb/transport-sio": "workspace:*"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.7.5"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "test": "vitest run",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "dev": "tsx watch src/index.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

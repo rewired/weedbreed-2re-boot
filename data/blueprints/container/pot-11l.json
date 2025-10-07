@@ -1,0 +1,23 @@
+{
+  "id": "d9267b6f-41f3-4e91-95b8-5bd7be381d3f",
+  "slug": "pot-11l",
+  "class": "container",
+  "name": "11 L Pot",
+  "volumeInLiters": 11,
+  "footprintArea": 0.2,
+  "reusableCycles": 6,
+  "packingDensity": 0.95,
+  "meta": {
+    "description": "Balanced 11 L container sized for standard indoor runs; pairs with ebb-and-flow trays or benches without sacrificing root stability.",
+    "advantages": [
+      "Supports moderate root mass for full-cycle plants",
+      "Fits common flood tables and rolling benches",
+      "Durable enough for multiple sanitization cycles"
+    ],
+    "disadvantages": [
+      "Heavier to maneuver when saturated",
+      "Still undersized for very long veg or mother plants"
+    ]
+  },
+  "containerType": "pot"
+}

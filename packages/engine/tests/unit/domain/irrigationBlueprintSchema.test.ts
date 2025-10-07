@@ -1,0 +1,102 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { describe, expect, it } from 'vitest';
+
+import dripInline from '../../../../../data/blueprints/irrigation/drip-inline-fertigation-basic.json' with { type: 'json' };
+import ebbFlow from '../../../../../data/blueprints/irrigation/ebb-flow-table-small.json' with { type: 'json' };
+import manualCan from '../../../../../data/blueprints/irrigation/manual-watering-can.json' with { type: 'json' };
+import topFeed from '../../../../../data/blueprints/irrigation/top-feed-pump-timer.json' with { type: 'json' };
+import cocoCoir from '../../../../../data/blueprints/substrate/coco-coir.json' with { type: 'json' };
+import soilMulti from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };
+import soilSingle from '../../../../../data/blueprints/substrate/soil-single-cycle.json' with { type: 'json' };
+
+import { parseIrrigationBlueprint } from '@/backend/src/domain/world.js';
+
+describe('parseIrrigationBlueprint', () => {
+  const substrateSlugs = new Set([
+    cocoCoir.slug as string,
+    soilMulti.slug as string,
+    soilSingle.slug as string
+  ]);
+
+const fixtures = [
+  {
+    data: dripInline,
+    path: fileURLToPath(
+      new URL('../../../../../data/blueprints/irrigation/drip-inline-fertigation-basic.json', import.meta.url)
+    )
+  },
+  {
+    data: ebbFlow,
+    path: fileURLToPath(
+      new URL('../../../../../data/blueprints/irrigation/ebb-flow-table-small.json', import.meta.url)
+    )
+  },
+  {
+    data: manualCan,
+    path: fileURLToPath(
+      new URL('../../../../../data/blueprints/irrigation/manual-watering-can.json', import.meta.url)
+    )
+  },
+  {
+    data: topFeed,
+    path: fileURLToPath(
+      new URL('../../../../../data/blueprints/irrigation/top-feed-pump-timer.json', import.meta.url)
+    )
+  }
+] as const;
+
+const blueprintsRoot = path.resolve(
+  fileURLToPath(new URL('../../../../../data/blueprints/', import.meta.url))
+);
+
+  it('parses repository irrigation blueprints without modification', () => {
+    fixtures.forEach((fixture) => {
+      expect(() =>
+        parseIrrigationBlueprint(fixture.data, {
+          knownSubstrateSlugs: substrateSlugs,
+          filePath: fixture.path,
+          blueprintsRoot
+        })
+      ).not.toThrow();
+    });
+  });
+
+  it('rejects blueprints referencing unknown substrate slugs', () => {
+    const invalid = JSON.parse(JSON.stringify(manualCan)) as typeof manualCan;
+    invalid.compatibility.substrates = [...invalid.compatibility.substrates, 'unknown-substrate'];
+
+    expect(() =>
+      parseIrrigationBlueprint(invalid, {
+        knownSubstrateSlugs: substrateSlugs,
+        filePath: fixtures[2].path,
+        blueprintsRoot
+      })
+    ).toThrow(/unknown substrate slug/);
+  });
+
+  it('requires method and control descriptors', () => {
+    const missingMethod = JSON.parse(JSON.stringify(dripInline)) as typeof dripInline;
+    delete (missingMethod as Record<string, unknown>).method;
+
+    expect(() =>
+      parseIrrigationBlueprint(missingMethod, {
+        knownSubstrateSlugs: substrateSlugs,
+        filePath: fixtures[0].path,
+        blueprintsRoot
+      })
+    ).toThrow(/method/);
+
+    const missingControl = JSON.parse(JSON.stringify(dripInline)) as typeof dripInline;
+    delete (missingControl as Record<string, unknown>).control;
+
+    expect(() =>
+      parseIrrigationBlueprint(missingControl, {
+        knownSubstrateSlugs: substrateSlugs,
+        filePath: fixtures[0].path,
+        blueprintsRoot
+      })
+    ).toThrow(/control/);
+  });
+});

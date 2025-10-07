@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "seed": "test-seed-0001",
+  "simTime": {
+    "tick": 120,
+    "hoursElapsed": 120
+  },
+  "world": {
+    "company": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Fixture Farms",
+      "location": {
+        "lon": 9.9937,
+        "lat": 53.5511,
+        "cityName": "Hamburg",
+        "countryName": "Deutschland"
+      }
+    }
+  },
+  "metadata": {
+    "createdAtIso": "2025-01-01T00:00:00.000Z"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "5ab7d9ac-f14a-45d9-b5f9-908182ca4a02",
+  "slug": "breakroom",
+  "class": "room.purpose.breakroom",
+  "name": "Break Room",
+  "description": "A space for employees to rest and recover energy.",
+  "economy": {
+    "areaCost": 2.8
+  }
+}

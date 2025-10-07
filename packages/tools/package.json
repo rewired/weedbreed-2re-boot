@@ -1,0 +1,30 @@
+{
+  "name": "@wb/tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier --check \"src/**/*.ts\"",
+    "dev": "tsx watch src/index.ts",
+    "report:packages": "tsx src/cli/report.ts report packages"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "cli-table3": "^0.6.5",
+    "commander": "^12.1.0",
+    "globby": "^14.1.0",
+    "pino": "^9.13.1",
+    "pino-pretty": "^11.3.0",
+    "yaml": "^2.8.1"
+  }
+}

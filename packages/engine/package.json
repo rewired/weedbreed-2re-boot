@@ -1,0 +1,34 @@
+{
+  "name": "@wb/engine",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "test": "vitest run",
+    "test:economy": "vitest run tests/integration/pipeline/economyAccrual.integration.test.ts",
+    "test:conf:30d": "vitest run -t golden-30d",
+    "test:conf:200d": "vitest run -t golden-200d",
+    "perf:ci": "tsx scripts/perf/ciPerfCheck.ts",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "dev": "tsx watch src/index.ts",
+    "report:seed-to-harvest": "tsx src/backend/src/engine/reporting/cli.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "safe-stable-stringify": "^2.5.0",
+    "uuid": "^13.0.0",
+    "xxhash-wasm": "^1.1.0",
+    "zod": "3.24.0"
+  },
+  "devDependencies": {
+    "fast-check": "^3.23.2"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "Maintenance",
+  "slug": "maintenance",
+  "class": "personnel.skill.maintenance",
+  "name": "Maintenance",
+  "description": "Device diagnostics, preventive maintenance, and facility upkeep routines.",
+  "tags": [
+    "operations",
+    "technical"
+  ]
+}

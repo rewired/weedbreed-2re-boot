@@ -1,0 +1,511 @@
+{
+  "schemaVersion": "sec-0.2.1",
+  "tolerances": {
+    "abs": 1e-9,
+    "rel": 0.000001
+  },
+  "run": {
+    "seed": "gm-001",
+    "days": 200,
+    "ticks": 4800,
+    "structureId": "1c6c5e04-0d0c-4c59-b7d3-dfb2f548f8a8"
+  },
+  "topology": {
+    "companyId": "5d1f24be-9565-4e50-956b-16d4f557c6df",
+    "structure": {
+      "id": "1c6c5e04-0d0c-4c59-b7d3-dfb2f548f8a8",
+      "slug": "golden-master-structure",
+      "floorArea_m2": 140,
+      "rooms": [
+        {
+          "id": "7f43b718-86bd-4dc6-92f4-01a08357b6f4",
+          "slug": "grow-room",
+          "purpose": "growroom",
+          "floorArea_m2": 100,
+          "height_m": 3,
+          "zones": [
+            {
+              "id": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+              "slug": "zone-1",
+              "strainSlug": "white-widow",
+              "cultivationMethodSlug": "sea-of-green",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            },
+            {
+              "id": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+              "slug": "zone-2",
+              "strainSlug": "sour-diesel",
+              "cultivationMethodSlug": "screen-of-green",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            },
+            {
+              "id": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+              "slug": "zone-3",
+              "strainSlug": "northern-lights",
+              "cultivationMethodSlug": "basic-soil-pot",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            },
+            {
+              "id": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+              "slug": "zone-4",
+              "strainSlug": "ak47",
+              "cultivationMethodSlug": "screen-of-green",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            },
+            {
+              "id": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+              "slug": "zone-5",
+              "strainSlug": "skunk-1",
+              "cultivationMethodSlug": "sea-of-green",
+              "lighting": {
+                "blueprintId": "3b5f6ad7-672e-47cd-9a24-f0cc45c4101e",
+                "count": 17,
+                "coverageRatio": 1.02
+              },
+              "climate": {
+                "blueprintId": "7d3d3f1a-8c6f-4e9c-926d-5a2a4a3b6f1b",
+                "count": 1,
+                "airChangesPerHour": 5.833
+              }
+            }
+          ]
+        },
+        {
+          "id": "c4545aab-8e71-4d39-bb3c-e9c5ce3d6f56",
+          "slug": "storage-room",
+          "purpose": "storageroom",
+          "floorArea_m2": 20,
+          "height_m": 3,
+          "zones": []
+        },
+        {
+          "id": "8c3c2f06-6c5a-4f36-8f43-52a6901c1d3a",
+          "slug": "break-room",
+          "purpose": "breakroom",
+          "floorArea_m2": 20,
+          "height_m": 3,
+          "zones": []
+        }
+      ]
+    }
+  },
+  "lifecycle": {
+    "zones": [
+      {
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "harvests": 4,
+        "replants": 4,
+        "cycleLengthDays": 56,
+        "firstHarvestDay": 24,
+        "lastHarvestDay": 192
+      },
+      {
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "harvests": 3,
+        "replants": 3,
+        "cycleLengthDays": 63,
+        "firstHarvestDay": 26,
+        "lastHarvestDay": 152
+      },
+      {
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "harvests": 4,
+        "replants": 4,
+        "cycleLengthDays": 52,
+        "firstHarvestDay": 28,
+        "lastHarvestDay": 184
+      },
+      {
+        "zoneId": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+        "harvests": 3,
+        "replants": 3,
+        "cycleLengthDays": 60,
+        "firstHarvestDay": 30,
+        "lastHarvestDay": 150
+      },
+      {
+        "zoneId": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+        "harvests": 3,
+        "replants": 3,
+        "cycleLengthDays": 58,
+        "firstHarvestDay": 32,
+        "lastHarvestDay": 148
+      }
+    ],
+    "replants": [
+      {
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "day": 25,
+        "plantId": "249b694e-a3d1-6013-1c3c-5da8a22edccc"
+      },
+      {
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "day": 27,
+        "plantId": "3d075075-baa2-9ac7-32e4-389573ea3531"
+      },
+      {
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "day": 29,
+        "plantId": "3c54de2a-9d1f-848c-fe88-7a4026d6c110"
+      },
+      {
+        "zoneId": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+        "day": 31,
+        "plantId": "84dc4a25-0dad-ccd5-085d-5bdc137b06ed"
+      },
+      {
+        "zoneId": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+        "day": 33,
+        "plantId": "ba35f92e-a063-5565-1136-35d9caa5f220"
+      },
+      {
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "day": 81,
+        "plantId": "d6618cbe-50f7-4c16-bb82-1466decf46ae"
+      },
+      {
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "day": 81,
+        "plantId": "b6adf940-32f3-71b3-66cf-7a634a6462c2"
+      },
+      {
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "day": 90,
+        "plantId": "87a41730-cd56-be15-9671-266c62fd63a5"
+      },
+      {
+        "zoneId": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+        "day": 91,
+        "plantId": "a98e3611-8fc0-3183-ce9a-01e419baf3e0"
+      },
+      {
+        "zoneId": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+        "day": 91,
+        "plantId": "60f012c9-711d-bd45-344a-c07b57919f14"
+      },
+      {
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "day": 133,
+        "plantId": "505635d5-64e9-90c2-4c0e-7a2450fbab70"
+      },
+      {
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "day": 137,
+        "plantId": "8062171c-49b3-9485-4f12-93b472147718"
+      },
+      {
+        "zoneId": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+        "day": 149,
+        "plantId": "b0475e01-2ee1-bc11-d7a9-ef9d4e60eaae"
+      },
+      {
+        "zoneId": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+        "day": 151,
+        "plantId": "8a943827-e6b0-8b04-5e15-e9a7f33af54e"
+      },
+      {
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "day": 153,
+        "plantId": "dc44780a-d70c-beec-f671-6344a5a87e3f"
+      },
+      {
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "day": 185,
+        "plantId": "1d2b8f5b-fe33-ea3c-1568-0ac2097bae20"
+      },
+      {
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "day": 193,
+        "plantId": "7d34a005-9f23-ff0a-2426-c43b00074ce7"
+      }
+    ]
+  },
+  "inventory": {
+    "totalLots": 17,
+    "lots": [
+      {
+        "id": "7b82e755-5770-ef66-ac63-d0104629b0c7",
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "strainSlug": "white-widow",
+        "harvestDay": 24,
+        "storedAtDay": 24,
+        "mass_kg": 9.069
+      },
+      {
+        "id": "49146d5d-6a8e-3385-1ae7-4b461c9bdfad",
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "strainSlug": "sour-diesel",
+        "harvestDay": 26,
+        "storedAtDay": 26,
+        "mass_kg": 9.768
+      },
+      {
+        "id": "8b741ea0-0d19-97b9-1b3f-2ea67141e262",
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "strainSlug": "northern-lights",
+        "harvestDay": 28,
+        "storedAtDay": 28,
+        "mass_kg": 9.228
+      },
+      {
+        "id": "74d20cff-3db3-76ba-f602-c8fa2d37df6c",
+        "zoneId": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+        "strainSlug": "ak47",
+        "harvestDay": 30,
+        "storedAtDay": 30,
+        "mass_kg": 9.032
+      },
+      {
+        "id": "5235029a-1fab-4eca-2c7f-950ea60182bb",
+        "zoneId": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+        "strainSlug": "skunk-1",
+        "harvestDay": 32,
+        "storedAtDay": 32,
+        "mass_kg": 7.753
+      },
+      {
+        "id": "b55a2f27-8251-88c8-7786-7158e6025bce",
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "strainSlug": "white-widow",
+        "harvestDay": 80,
+        "storedAtDay": 80,
+        "mass_kg": 8.408
+      },
+      {
+        "id": "86262381-7109-69d1-12bf-cd21f6603bc1",
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "strainSlug": "northern-lights",
+        "harvestDay": 80,
+        "storedAtDay": 80,
+        "mass_kg": 7.676
+      },
+      {
+        "id": "7e2eb5d8-169e-501b-48ac-40bd477fff8d",
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "strainSlug": "sour-diesel",
+        "harvestDay": 89,
+        "storedAtDay": 89,
+        "mass_kg": 9.23
+      },
+      {
+        "id": "0ea816b2-9450-8988-421c-cfa2ee2652f0",
+        "zoneId": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+        "strainSlug": "ak47",
+        "harvestDay": 90,
+        "storedAtDay": 90,
+        "mass_kg": 9.794
+      },
+      {
+        "id": "e5806be7-8817-93e7-279b-68b577dce5a3",
+        "zoneId": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+        "strainSlug": "skunk-1",
+        "harvestDay": 90,
+        "storedAtDay": 90,
+        "mass_kg": 8.809
+      },
+      {
+        "id": "c8a2e6f2-ec7e-9e95-bfc6-d76ae19f3e9d",
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "strainSlug": "northern-lights",
+        "harvestDay": 132,
+        "storedAtDay": 132,
+        "mass_kg": 7.619
+      },
+      {
+        "id": "341f4bca-426b-63a2-fb30-0eddfabc313c",
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "strainSlug": "white-widow",
+        "harvestDay": 136,
+        "storedAtDay": 136,
+        "mass_kg": 8.744
+      },
+      {
+        "id": "06eeaa78-980e-ced3-c2f0-92eafeb1d73e",
+        "zoneId": "e84a23d8-9d3e-49d6-a1c6-261e7f4bb9b2",
+        "strainSlug": "skunk-1",
+        "harvestDay": 148,
+        "storedAtDay": 148,
+        "mass_kg": 7.792
+      },
+      {
+        "id": "2f960f9e-ba2f-bb7c-2e2d-78bab80bcf2c",
+        "zoneId": "d2d7410f-7d68-4fb0-8a42-221d787600f1",
+        "strainSlug": "ak47",
+        "harvestDay": 150,
+        "storedAtDay": 150,
+        "mass_kg": 9.367
+      },
+      {
+        "id": "10f2f93e-9d85-a520-9766-d6ea076f8d82",
+        "zoneId": "b1c8c08a-850a-4d85-bd3b-aed02716f6d1",
+        "strainSlug": "sour-diesel",
+        "harvestDay": 152,
+        "storedAtDay": 152,
+        "mass_kg": 8.237
+      },
+      {
+        "id": "1738b9d2-5f4c-dd08-ef96-a9696c16402c",
+        "zoneId": "c9b641d0-5f66-4f43-a16d-4695e07d54d3",
+        "strainSlug": "northern-lights",
+        "harvestDay": 184,
+        "storedAtDay": 184,
+        "mass_kg": 8.38
+      },
+      {
+        "id": "cd77a3af-3850-f796-ea3b-f9f545f97813",
+        "zoneId": "a4be1f8d-63b7-4f08-9dcb-61e3f6b5bdc0",
+        "strainSlug": "white-widow",
+        "harvestDay": 192,
+        "storedAtDay": 192,
+        "mass_kg": 8.215
+      }
+    ]
+  },
+  "workforce": {
+    "employees": [
+      {
+        "id": "3ce46ea4-5524-4cd0-b7f2-9e5b6f0a6f41",
+        "slug": "lead-grower",
+        "name": "Lead Grower",
+        "role": "grower",
+        "shiftHours": 8
+      },
+      {
+        "id": "7f20f2f2-bd0c-48ae-b30a-8c0807f67641",
+        "slug": "post-harvest-tech",
+        "name": "Post Harvest Tech",
+        "role": "trimmer",
+        "shiftHours": 8
+      },
+      {
+        "id": "a20958ae-f0e8-4e41-b391-2a8ea56f4baf",
+        "slug": "facility-janitor",
+        "name": "Facility Janitor",
+        "role": "janitor",
+        "shiftHours": 8
+      }
+    ],
+    "breakCompliance": [
+      {
+        "employeeId": "3ce46ea4-5524-4cd0-b7f2-9e5b6f0a6f41",
+        "breaksTaken": 200,
+        "required": 200,
+        "rooms": [
+          "8c3c2f06-6c5a-4f36-8f43-52a6901c1d3a"
+        ]
+      },
+      {
+        "employeeId": "7f20f2f2-bd0c-48ae-b30a-8c0807f67641",
+        "breaksTaken": 200,
+        "required": 200,
+        "rooms": [
+          "8c3c2f06-6c5a-4f36-8f43-52a6901c1d3a"
+        ]
+      },
+      {
+        "employeeId": "a20958ae-f0e8-4e41-b391-2a8ea56f4baf",
+        "breaksTaken": 200,
+        "required": 200,
+        "rooms": [
+          "8c3c2f06-6c5a-4f36-8f43-52a6901c1d3a"
+        ]
+      }
+    ],
+    "janitorialCoverage": {
+      "storageRoomDays": [
+        7,
+        14,
+        21,
+        28,
+        35,
+        42,
+        49,
+        56,
+        63,
+        70,
+        77,
+        84,
+        91,
+        98,
+        105,
+        112,
+        119,
+        126,
+        133,
+        140,
+        147,
+        154,
+        161,
+        168,
+        175,
+        182,
+        189,
+        196
+      ],
+      "breakroomDays": [
+        14,
+        28,
+        42,
+        56,
+        70,
+        84,
+        98,
+        112,
+        126,
+        140,
+        154,
+        168,
+        182,
+        196
+      ]
+    }
+  },
+  "events": {
+    "totals": {
+      "harvest": 17,
+      "storageTransfer": 17,
+      "replant": 17,
+      "breakStart": 600,
+      "breakEnd": 600,
+      "janitorial": 42
+    },
+    "averagePerDay": 6.465
+  },
+  "hash": "8329a5ffbd39d23c7cd5b8ab"
+}

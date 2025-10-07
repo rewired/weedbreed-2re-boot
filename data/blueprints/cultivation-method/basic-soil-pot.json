@@ -1,0 +1,54 @@
+{
+  "id": "85cc0916-0e8a-495e-af8f-50291abe6855",
+  "slug": "basic-soil-pot",
+  "class": "cultivation-method",
+  "name": "Basic Soil Pot",
+  "laborIntensity": 0.1,
+  "laborProfile": {
+    "hoursPerPlantPerWeek": 0.35
+  },
+  "areaPerPlant_m2": 0.5,
+  "minimumSpacing": 0.5,
+  "maxCycles": 1,
+  "substrates": [
+    "soil-single-cycle",
+    "coco-coir"
+  ],
+  "containers": [
+    "pot-10l"
+  ],
+  "strainTraitCompatibility": {},
+  "envBias": {},
+  "capacityHints": {
+    "plantsPer_m2": 4,
+    "canopyHeight_m": 1.2
+  },
+  "idealConditions": {
+    "idealTemperature": [
+      20,
+      28
+    ],
+    "idealHumidity": [
+      0.5,
+      0.7
+    ]
+  },
+  "meta": {
+    "description": "Simple cultivation method: one plant per pot in soil. Low setup cost, minimal labor, universally compatible.",
+    "advantages": [
+      "Very low initial cost",
+      "Compatible with most strains",
+      "Easy to manage"
+    ],
+    "disadvantages": [
+      "Moderate space usage",
+      "Lower productivity than advanced methods"
+    ],
+    "defaults": {
+      "containerSlug": "pot-10l",
+      "substrateSlug": "soil-single-cycle"
+    }
+  },
+  "family": "soil",
+  "technique": "basic-pot"
+}

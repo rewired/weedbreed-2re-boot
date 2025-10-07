@@ -1,0 +1,10 @@
+{
+  "id": "Logistics",
+  "slug": "logistics",
+  "class": "personnel.skill.logistics",
+  "name": "Logistics",
+  "description": "Inventory stewardship, material handling, and production scheduling.",
+  "tags": [
+    "operations"
+  ]
+}

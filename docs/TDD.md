@@ -8,32 +8,30 @@
 ## 0) Principles
 
 1. **Contract‑first**: Tests encode SEC semantics; failing tests mean contract drift.
-    
 2. **Determinism**: No non‑determinism in tests; all RNG via `createRng(seed, streamId)`.
-    
 3. **Small to system**: Start with pure functions, move to module/pipe, then world/system.
-    
 4. **Golden Master**: Canonical savegame & daily state hashes validate long‑runs (SEC §15).
-    
 5. **Single units**: Economy asserts use **per‑hour** units; `*_per_tick` is forbidden (derive via tick hours).
-    
 6. **Readable failures**: Tests explain “what SEC rule is violated”.
-    
 7. **No Magic Numbers**: All constants come from `simConstants.ts`.
-    
+
+### Diagnostics assertions
+
+- Prefer matching on diagnostic codes (e.g. `arrayContaining` + `objectContaining`) instead of strict array lengths when
+  running multi-stage or full pipeline tests. This keeps specs resilient to additional diagnostics while still verifying the
+  contractually required codes.
 
 ---
 
 ## 1) Canonical Constants (mirroring SEC §1.2)
 
 - `AREA_QUANTUM_M2 = 0.25`
-    
 - `ROOM_DEFAULT_HEIGHT_M = 3`
-    
 - `HOURS_PER_TICK = 1` (1 tick = 1 in‑game hour)
-    
 - Calendar: `HOURS_PER_DAY = 24`, `DAYS_PER_MONTH = 30`, `MONTHS_PER_YEAR = 12`
-    
+- Thermodynamics: `CP_AIR_J_PER_KG_K = 1 005`, `AIR_DENSITY_KG_PER_M3 = 1.2041`.
+- Headquarters defaults: `DEFAULT_COMPANY_LOCATION_LAT = 53.5511`, `DEFAULT_COMPANY_LOCATION_LON = 9.9937`, `DEFAULT_COMPANY_LOCATION_CITY = "Hamburg"`, `DEFAULT_COMPANY_LOCATION_COUNTRY = "Deutschland"`.
+- Default zone height scenarios use `ROOM_DEFAULT_HEIGHT_M` (ADR-0020) whenever fixtures omit `height_m`.
 
 **Test rule:** Any module using these must import from `simConstants.ts`. A lint rule bans hard‑coded duplicates.
 
@@ -58,22 +56,33 @@ src/
 ```
 
 - **Runner:** `vitest` (node).
-    
 - **Coverage threshold:** 90% lines/branches in `engine/` and `facade/`; 80% overall.
-    
 - **Snapshot location:** `__snapshots__` next to specs (only for low‑volatility payloads; prefer golden JSON files for world states).
-    
+- **Blueprint fixtures:** Repository fixtures **MUST** live inside the domain folders that mirror their `class` (`device/climate/*.json`, `cultivation-method/*.json`, `room/purpose/*.json`, etc.). Specs walk `/data/blueprints/**` (see `packages/engine/tests/unit/domain/blueprintTaxonomyLayout.test.ts`) to assert the folder-derived taxonomy matches the JSON declaration, validate depth guardrails, and fail fast when contributors park files elsewhere.
+- **Manual package audit:** regenerate `docs/reports/PACKAGE_AUDIT.md` with `pnpm report:packages` whenever dependency metadata changes; the automated markdown sync test was removed after repeated encoding instability in CI.
+
+Blueprint directory rule: All blueprints are auto-discovered under /data/blueprints/<domain>/<file>.json with a maximum depth of two segments (domain + file). Devices are /data/blueprints/device/<category>.json or /data/blueprints/device/<category>/<file>.json limited to two levels; no deeper subfolders are allowed.
+- **Save/load fixtures:** Legacy/current save snapshots live under `packages/engine/tests/fixtures/save/v*/`. Unit specs in `tests/unit/save/` exercise schema guards and crash-safe writes; integration specs in `tests/integration/saveLoad/` load fixtures, apply migrations, and assert canonical hashes stay stable across versions.
 
 ---
 
 ## 3) Data Validation & Fixtures
 
 - **Blueprints** (`/data/blueprints/**`) are **read‑only** fixtures in tests.
-    
 - **Schema:** Validate with **Zod** at façade boundaries and as test helpers.
-    
+- **Company schema:** `companySchema` asserts `location.longitude`/`latitude` stay within [-180, 180]/[-90, 90] and accepts the Hamburg defaults until UI capture overrides them.
+- **Device blueprint schema:** Tests require `effects` arrays with matching config blocks when multiple interfaces are declared; `createDeviceInstance` copy tests assert the structures are deep-frozen.
 - **Prices** live under `/data/prices/**`; ensure no prices leak into device blueprints.
-    
+- **Tariff maps:** Schema specs assert `/data/prices/devicePrices.json` exposes `capitalExpenditure`, `baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`, `maintenanceServiceCost` and `/data/prices/utilityPrices.json` exposes only `price_electricity`/`price_water`.
+- **Irrigation fixtures (ADR-0017):** Tests assert `/data/blueprints/irrigation/` contains `manual-watering-can`, `drip-inline-fertigation-basic`, `top-feed-pump-timer`, and `ebb-flow-table-small` blueprints to guarantee baseline coverage.
+- **Cultivation presets (ADR-0020):** Fixture guards keep `basic-soil-pot`, `sea-of-green`, and `screen-of-green` available with their canonical container/substrate defaults (pot-10l + soil-single-cycle, pot-11l + coco-coir, pot-25l + soil-multi-cycle).
+- Physiological VPD/stress coverage:
+  - `packages/engine/tests/unit/physiology/vpd.spec.ts` asserts Magnus-based saturation, dew point clamps, and VPD determinism at humidity bounds.
+  - `packages/engine/tests/unit/physiology/stressCurves.spec.ts` exercises the ADR-0018 quadratic tolerance ramp across temperature, humidity/VPD, and PPFD bands; `tests/unit/shared/psychro/psychro.test.ts` keeps the property-based guard on `computeVpd_kPa`.
+  - `packages/engine/tests/integration/pipeline/plantStress.integration.test.ts` runs a seed→flowering scenario confirming VPD excursions degrade health and biomass accumulation as mandated by SEC §8.
+- **Taxonomy validation:** Unit tests (`packages/engine/tests/unit/data/blueprintTaxonomy.spec.ts`) assert that any mismatch between a blueprint's directory taxonomy and its JSON `class` raises a `BlueprintTaxonomyMismatchError`. The guard also rejects nested directories beyond the two-level allowance so misplacements fail immediately.
+
+- **Fixture layout check:** Repository-level specs enumerate blueprint folders and ensure no stray directories exist outside the sanctioned taxonomy tree. Tests fail if contributors invent ad-hoc folders.
 
 ```ts
 // tests/unit/schema/zoneSchema.spec.ts
@@ -94,9 +103,8 @@ describe('Zone schema — SEC §7.5', () => {
 ## 4) RNG & Stream Tests (SEC §5)
 
 - `createRng(seed, streamId)` produces identical sequences across platforms.
-    
+- Shared determinism helpers (`hashCanonicalJson`, `newV7`) live under `packages/engine/src/shared/determinism` with dedicated unit specs; production code must keep using the existing deterministic UUID services until [docs/tasks/0007-determinism-helper-scaffolds.md](docs/tasks/0007-determinism-helper-scaffolds.md) clears an ADR.
 - **Streams** are stable ids: `plant:<uuid>`, `device:<uuid>`, `economy:<scope>`.
-    
 
 ```ts
 // tests/unit/util/rng.spec.ts
@@ -117,11 +125,9 @@ it('stable sequences per stream', () => {
 ## 5) Light Schedule Contract (SEC §8)
 
 - Domains: `onHours ∈ [0,24]`, `offHours ∈ [0,24]`, integer or **0.25h** grid.
-    
+
 - Constraint: `onHours + offHours = 24`.
-    
 - Optional: `startHour ∈ [0,24)`.
-    
 
 ```ts
 // tests/unit/facade/lightSchedule.spec.ts
@@ -140,14 +146,32 @@ describe('Light schedule — SEC §8', () => {
 });
 ```
 
+## 5a) Workforce Schema Coverage (SEC §10)
+
+- `employeeSchema` enforces UUID v7 seeds, morale/fatigue bounds (`0..1`), and working-hour policy: base hours **5–16**, overtime **≤ 5**, `daysPerWeek ∈ [1,7]`.
+- `workforceTaskDefinitionSchema` rejects skill thresholds outside `[0,1]` and mandates structured `requiredSkills` entries.
+- `workforceStateSchema` validates the full branch (`roles`, `employees`, `taskDefinitions`, `taskQueue`, `kpis`, `warnings`, `payroll`) embedded in the world snapshot to guard deterministic scheduling inputs. `workforceWarningSchema` clamps severity to `'info' | 'warning' | 'critical'` and requires deterministic codes/messages plus optional structure/employee/task anchors.
+- Unit coverage: `tests/unit/domain/workforceSchemas.test.ts` exercises the above constraints (including warnings) and snapshot parsing.
+- Façade integration coverage: `packages/facade/tests/integration/workforceView.integration.test.ts` projects a simulated workforce state into directory filters, live queue entries, KPI percentages, and decorated warnings via `createWorkforceView`.
+- Payroll scaling, raise cadence, and termination handling are covered by `packages/engine/tests/unit/workforce/payroll.test.ts`,
+  `packages/engine/tests/unit/services/workforce/raises.test.ts`, and
+  `packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts`, respectively. These suites assert the
+  new rate multipliers, cooldown resets, morale adjustments, task cleanup, and telemetry emission introduced for HR flows.
+- Trait coverage: `packages/engine/tests/unit/workforce/traits.test.ts` validates trait sampling conflicts, stacking modifiers, and salary deltas; `packages/engine/tests/integration/pipeline/workforceTraits.integration.test.ts` asserts runtime assignments expose trait-adjusted duration/error/fatigue data for downstream subsystems; `packages/facade/tests/unit/readModels/traitBreakdownView.test.ts` covers the façade aggregation.
+- Identity service coverage: `packages/engine/tests/unit/workforce/identitySource.test.ts` seeds `randomuser.me`, enforces the 500 ms timeout, and validates the pseudodata fallback via `createRng(rngSeedUuid, "employee:<rngSeedUuid>")`.
+
+## 5b) Lighting Telemetry & Stubs (SEC §6)
+
+- `zoneSchema` and pipeline integration tests ensure `ppfd_umol_m2s` and `dli_mol_m2d_inc` are present, finite, and non-negative on world snapshots.
+- `lightEmitterStub.spec.ts` validates PPFD scaling with dimming, DLI increments derived from tick seconds, and optional power telemetry accounting.
+- Integration coverage asserts lighting devices prioritise blueprint `effects.lighting` configs before heuristics.
+
 ---
 
 ## 6) Device Placement & Room Purpose (SEC §2)
 
 - **Zones only in growrooms**.
-    
 - **Devices** carry `placementScope: 'zone' | 'room' | 'structure'` and declare `allowedRoomPurposes`.
-    
 
 ```ts
 // tests/module/placement/eligibility.spec.ts
@@ -162,22 +186,33 @@ it('rejects zone device in non-grow room', () => {
 
 ---
 
-## 7) Tick Pipeline Order (SEC §4.2)
+## 7) Tick trace instrumentation & perf harness (Engine)
 
-Order: 1) Device Effects → 2) Environment → 3) Irrigation & Nutrients → 4) Plant Physiology → 5) Harvest & Inventory → 6) Economy → 7) Commit & Telemetry
+### Tick Pipeline (Canonical, 9 Phases)
 
-```ts
-// tests/integration/pipeline/order.spec.ts
-import { expect, it } from 'vitest';
-import { runOneTickWithTrace } from '@/backend/src/engine/testHarness';
+1. Device Effects
+2. Sensor Sampling
+3. Environment Update
+4. Irrigation & Nutrients
+5. Workforce Scheduling
+6. Plant Physiology
+7. Harvest & Inventory
+8. Economy & Cost Accrual
+9. Commit & Telemetry
 
-it('executes fixed order', async () => {
-  const trace = await runOneTickWithTrace();
-  expect(trace.map(s => s.step)).toEqual([
-    'device-effects', 'environment', 'irrigation', 'physiology', 'harvest', 'economy', 'commit'
-  ]);
-});
-```
+- Canonical order: `applyDeviceEffects → applySensors → updateEnvironment → applyIrrigationAndNutrients → applyWorkforce → advancePhysiology → applyHarvestAndInventory → applyEconomyAccrual → commitAndTelemetry` (mirrors SEC §4.2).
+
+**Checklist (order trace):**
+
+- [ ] runTick(..., { trace: true }) yields exactly 9 phases
+- [ ] Second item is "applySensors" (before environment integration)
+- [ ] No extra or missing phases; names match public stage symbols
+- `runTick(world, ctx, { trace: true })` returns `{ world, trace }` where `world` is the immutable post-tick snapshot and `trace` is an optional {@link TickTrace} with monotonic `startedAtNs`, `durationNs`, `endedAtNs`, and heap metrics for every stage without feeding wall-clock time into simulation logic.
+- `runOneTickWithTrace()` (engine test harness) clones the deterministic demo world and returns `{ world, context, trace }` for integration/unit assertions.
+- `withPerfHarness({ ticks })` executes repeated traced ticks and reports `{ traces, totalDurationNs, averageDurationNs, maxHeapUsedBytes }` so perf tests and CI guard throughput (≥ 5 k ticks/min ≈ ≤ 12 ms avg/tick) and heap (< 64 MiB).
+- `generateSeedToHarvestReport({ ticks, scenario })` wraps the orchestrator and perf harness to emit JSON artifacts documenting lifecycle transitions + telemetry; see `docs/engine/simulation-reporting.md` for CLI usage and schema.
+- `createRecordingContext(buffer)` attaches the instrumentation hook so specs can assert that stage completions mirror the trace order.
+- `pnpm --filter @wb/engine perf:ci` runs the CI performance budget harness (10 k traced ticks, deterministic demo world) and fails when throughput falls below 5 k ticks/min or heap exceeds 64 MiB; a 5 % guard band emits warnings for near-regressions requiring manual review.
 
 ---
 
@@ -190,12 +225,13 @@ it('executes fixed order', async () => {
 
 - **Source of truth:** `/data/prices/utilityPrices.json` is the canonical tariff map and **only** carries electricity and water prices; nutrient costs are covered by irrigation/substrate consumption flows.
 
-- **Device maintenance:** `/data/prices/devicePrices.json` provides `capitalExpenditure`, `baseMaintenanceCostPerHour`, and `costIncreasePer1000Hours`. Schema tests must guard these identifiers.
+- **Device maintenance:** `/data/prices/devicePrices.json` provides `capitalExpenditure`, `baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`, and `maintenanceServiceCost`. Schema tests must guard these identifiers.
 
 - Difficulty layer may set **`energyPriceFactor`/`energyPriceOverride`** and **`waterPriceFactor`/`waterPriceOverride`**; **override wins**.
 
 - Effective tariffs computed **once at sim start**.
-    
+
+- **Reporting cadence (ADR-0019):** Economy read-model specs assert hourly (per tick) ledger rows exist and that daily totals equal deterministic 24-hour sums; alternate cadences should fail tests.
 
 ```ts
 // tests/unit/util/tariffs.spec.ts
@@ -206,8 +242,8 @@ it('override beats factor (electricity & water)', () => {
   const cfg = { price_electricity: 0.32, price_water: 4.0 }; // neutral costs
   const diff = { energyPriceFactor: 1.5, energyPriceOverride: 0.5, waterPriceFactor: 2.0 };
   const t = resolveTariffs(cfg, diff);
-  expect(t.kWh).toBe(0.5);         // override
-  expect(t.m3).toBe(8.0);          // factor (no override)
+  expect(t.kWh).toBe(0.5); // override
+  expect(t.m3).toBe(8.0); // factor (no override)
 });
 
 it('hourly cost derives from power draw (W) and tariff (kWh)', () => {
@@ -223,9 +259,11 @@ it('hourly cost derives from power draw (W) and tariff (kWh)', () => {
 
 ## 9) Cultivation Methods on Zones (SEC §7.5)
 
-- Zone **must** reference a `cultivationMethod` defining **containers**, **substrates** (incl. `densityFactor_L_per_kg`), **irrigation** compatibility, and **planting density**.
+- Zone **must** reference a `cultivationMethod` defining **containers**, **substrates** (incl. `densityFactor_L_per_kg` and `purchaseUnit`), **irrigation** compatibility, and **planting density**.
   - Irrigation compatibility is derived from irrigation method blueprints that list the substrate slug under `compatibility.substrates`; zones selecting a substrate without matching irrigation support should fail validation.
-    
+- Canonical irrigation method coverage is validated by fixture tests to keep `manual-watering-can`, `drip-inline-fertigation-basic`, `top-feed-pump-timer`, and `ebb-flow-table-small` available (ADR-0017).
+- Zone presets default to `basic-soil-pot`, `sea-of-green`, or `screen-of-green` bundles; schema/read-model specs surface these as the initial options and fail if the canonical container/substrate pairs disappear (ADR-0020).
+- Substrate blueprints SHALL include `reusePolicy.maxCycles` (matching the top-level `maxCycles`), `densityFactor_L_per_kg`, and unit price metadata bound to `purchaseUnit`. Validation rejects reuse profiles missing sterilisation tasks when `maxCycles > 1`.
 
 ```ts
 // tests/integration/zone/cultivationMethod.spec.ts
@@ -240,20 +278,82 @@ it('zone without cultivationMethod fails validation', async () => {
 
 ---
 
+## 9a) Stub Tests & Test Vectors (Phase 1)
+
+**Reference Test Vectors (from `/docs/proposals/20251002-interface_stubs.md` §8):**
+
+- **Thermal:** 1000 W, eff=0.9, 50 m³ room (≈60 kg air) ⇒ ΔT ≈ **+0.6 K/h** (sanity)
+  - Test: `packages/engine/tests/unit/stubs/ThermalActuatorStub.test.ts:30-41`
+- **Humidity:** 500 g/h dehumidify, 60 kg air, k_rh(25°C) ≈ 0.15 ⇒ ΔrH ≈ **-1.25 %/h**
+  - Test: `packages/engine/tests/unit/stubs/HumidityActuatorStub.test.ts:32-39`
+- **Lighting:** 600 µmol·m⁻²·s⁻¹, 0.25 h ⇒ **DLI_inc ≈ 0.54 mol·m⁻²**
+  - Test: `packages/engine/tests/unit/stubs/LightEmitterStub.test.ts:23-29`
+- **NutrientBuffer:** capacity_N=10000 mg, buffer_N=1000 mg, flow_N=500 mg, demand_N=300 mg, leach=10% ⇒ uptake=**300**, leached=**50**, new_buffer=**1150**
+  - Test: `packages/engine/tests/unit/stubs/NutrientBufferStub.test.ts:27-34`
+- **CO₂ Injector:** pulse=200 ppm/tick, duty=1, baseline 420 ppm ⇒ Δppm=**200** with target/safety clamps
+  - Test: `packages/engine/tests/unit/stubs/Co2InjectorStub.test.ts`
+
+**Stacking-Pattern Tests (Integration):**
+
+- **Pattern A (Split-AC):** Multi-Interface in one device (Thermal + Humidity + Airflow)
+  - Test: `packages/engine/tests/integration/pipeline/multiEffectDevice.integration.test.ts:226-276`
+- **Pattern B (Dehumidifier+Reheat):** Combined device with coupled effects
+  - Test: `packages/engine/tests/integration/pipeline/multiEffectDevice.integration.test.ts:278-327`
+- **Pattern C (Fan→Filter):** Composition via chain (Airflow + Filtration)
+  - Test: `packages/engine/tests/integration/pipeline/fanFilterChain.integration.test.ts`
+- **Pattern D (Sensor+Actuator):** Test: `packages/engine/tests/integration/pipeline/sensorActuatorPattern.integration.test.ts`
+- **Pattern E (Substrate+Irrigation):** Test: `packages/engine/tests/integration/pipeline/irrigationNutrientPattern.integration.test.ts`
+- **Pattern F (CO₂ Enrichment):** Test: `packages/engine/tests/integration/pipeline/co2Coupling.integration.test.ts`
+
+**Acceptance Criteria (Stubs):**
+
+- ✅ Pure functions, deterministic, units validated
+- ✅ Caps/Clamps enforced; no negative stocks/flows
+- ✅ Tests for all stubs including the above vectors
+- ✅ Telemetry fields available (energy_Wh, dli_inc, uptake/leached, …)
+
+---
+
 ## 10) Power→Heat Coupling (SEC §6.1)
 
 - Non‑useful electrical power becomes **sensible heat** in hosting zone unless exported. Assert temperature delta is positive given power draw and insufficient removal capacity.
-    
 
 ```ts
-// tests/module/thermo/powerToHeat.spec.ts
+// packages/engine/tests/unit/thermo/heat.spec.ts
 import { expect, it } from 'vitest';
 import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat';
 
 it('adds sensible heat proportional to power draw and duty', () => {
-  const z = { airMass_kg: 75, tempC: 22 } as any;
-  applyDeviceHeat(z, { powerW: 600, duty01: 0.5, efficiency01: 0.9 });
-  expect(z.tempC).toBeGreaterThan(22);
+  const zone = { floorArea_m2: 60, height_m: 3, airMass_kg: 60 * 3 * 1.2041 } as const;
+  const delta = applyDeviceHeat(zone, {
+    powerDraw_W: 600,
+    dutyCycle01: 0.5,
+    efficiency01: 0.9,
+  });
+
+  expect(delta).toBeGreaterThan(0);
+});
+```
+
+---
+
+## 10.1) Zone capacity diagnostics (SEC §6)
+
+- Phase 1 clamps device impact to `coverage_m2 / zoneArea` when < 1. Warn via `zone.capacity.coverage.warn` and surface totals.
+- Airflow totals compute ACH; emit `zone.capacity.airflow.warn` when ACH < 1.
+
+```
+// packages/engine/tests/integration/pipeline/zoneCapacity.integration.test.ts
+import { describe, expect, it } from 'vitest';
+
+describe('Phase 1 zone capacity diagnostics', () => {
+  it('clamps device effectiveness when coverage undershoots demand', () => {
+    // assert coverage ratio scales heat delta and warning triggers
+  });
+
+  it('warns when airflow-derived ACH drops below 1', () => {
+    // expect ACH warning + totals in runtime snapshot
+  });
 });
 ```
 
@@ -262,17 +362,23 @@ it('adds sensible heat proportional to power draw and duty', () => {
 ## 11) Telemetry Read‑only; Transport Separation (SEC §11)
 
 - No writes on telemetry channel. Intents and telemetry must not be multiplexed.
-    
+- Telemetry emits must surface `WB_TEL_READONLY` via both the acknowledgement payload and a
+  `telemetry:error` mirror event.
+- Intents namespace accepts only `intent:submit` with `{ type: string }`; invalid payloads →
+  `WB_INTENT_INVALID`, unexpected events → `WB_INTENT_CHANNEL_INVALID`, handler failures →
+  `WB_INTENT_HANDLER_ERROR`.
+- Contract coverage: `packages/facade/tests/integration/transport/telemetryReadonly.integration.test.ts`
+  and `packages/facade/tests/integration/transport/intentRouting.integration.test.ts`.
 
 ```ts
-// tests/integration/transport/telemetryReadonly.spec.ts
+// packages/facade/tests/integration/transport/telemetryReadonly.integration.test.ts
 import { expect, it } from 'vitest';
-import { Transport } from '@/backend/src/facade/transport';
+import { SOCKET_ERROR_CODES } from '@wb/facade/transport/adapter';
 
 it('rejects inbound messages on telemetry channel', async () => {
-  const t = new Transport();
-  const res = await t.sendTelemetryInbound({ any: 'payload' } as any);
-  expect(res.ok).toBe(false);
+  const ack = await emitTelemetryInbound();
+  expect(ack.ok).toBe(false);
+  expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED);
 });
 ```
 
@@ -280,115 +386,72 @@ it('rejects inbound messages on telemetry channel', async () => {
 
 ## 12) Golden Master (SEC §15)
 
-- **Fixture:** `tests/fixtures/golden/world_v1.seed.json` (minimal savegame; no derived fields).
-    
-- **Run:** 30 in‑game days (720 ticks) with seed `WB_SEED=gm-001`.
-    
-- **Outputs:** `daily.jsonl` + `summary.json`.
-    
+- **Fixtures:** `packages/engine/tests/fixtures/golden/30d/{daily.jsonl,summary.json}` and `packages/engine/tests/fixtures/golden/200d/{daily.jsonl,summary.json}`.
+- **Run:** 30 in-game days (720 ticks) and 200 in-game days (4,800 ticks) with seed `WB_SEED=gm-001`, replayed via `runDeterministic({ days, seed })` and optionally `outDir` to persist artifacts.
+- **Outputs:** Deterministic JSON artifacts mirrored under `./reporting/<days>d/` when `outDir` is provided; CI uploads these directories.
 - **Assertion:**
-    
-    - `daily.hash` equals prior run (stable across platforms).
-        
-    - Event counts match (harvests, tasks, device switches).
-        
-    - Numeric tolerances: `EPS_REL = 1e-6`, `EPS_ABS = 1e-9`.
-        
+  - `goldenMaster.30d.spec.ts` verifies fixture equality plus topology rules (growroom geometry, lighting coverage ≥ 1, ACH ≥ 1, storage-only harvest lots, breakroom-only breaks, janitorial cadence) and exercises artifact emission into `reporting/30d`.
+  - `goldenMaster.200d.spec.ts` enforces 200-day soak determinism, harvest → storage → replant sequencing (next-day replants with new plant UUIDs), and artifact emission into `reporting/200d`.
+  - Numeric tolerances: `EPS_REL = 1e-6`, `EPS_ABS = 1e-9`.
 
-```ts
-// tests/conformance/goldenMaster.spec.ts
-import { expect, it } from 'vitest';
-import { runDeterministic } from '@/backend/src/engine/testHarness';
-import expected from '../fixtures/golden/summary_v1.json';
-
-it('30-day run matches golden summary and daily hashes', async () => {
-  const out = await runDeterministic({ days: 30, seed: 'gm-001' });
-  expect(out.summary.metrics).toMatchObject(expected.metrics);
-  for (let i = 0; i < out.daily.length; i++) {
-    expect(out.daily[i].hash).toBe(expected.daily[i].hash);
-  }
-});
-```
+Run selectively via `pnpm --filter @wb/engine test:conf:30d` (PR gate) and `pnpm --filter @wb/engine test:conf:200d` (nightly/on-demand).
 
 ---
 
 ## 13) Performance Budget
 
 - **Tick throughput (headless)**: ≥ 5k ticks/min on dev laptop baseline with demo world.
-    
 - **GC budget**: no steadily growing retained sets after 10k ticks.
-    
 - Perf tests run in CI on minimal world and assert upper bounds for time/memory.
-    
 
 ---
 
 ## 14) CI Pipeline
 
 - **Jobs:** lint → unit → module → integration → conformance (golden).
-    
 - **Artifacts:** `daily.jsonl`, `summary.json`, coverage reports.
-    
 - **Failure policy:** conformance failures block merge unless ADR approves contract change and golden is updated in the same PR.
-    
 
 ---
 
 ## 15) Mocks & Fakes
 
 - Prefer **fakes** over mocks for RNG, time, and transports.
-    
 - **No clock mocking** inside engine: tick time is simulated, not wall‑clock.
-    
 - Transport tests use an in‑memory adapter; never open real sockets in unit/module tests.
-    
 
 ---
 
 ## 16) Developer UX
 
 - `pnpm test:unit`, `test:module`, `test:integration`, `test:conf` scripts; `test:watch` for fast feedback.
-    
 - VS Code task maps for common runs; problem matchers surface SEC section in failure message.
-    
+
+Note (UI components): While TDD remains UI-agnostic, downstream UI snapshot/visual tests will assume Tailwind styling with shadcn/ui components (Radix primitives) as per ADR-0016.
 
 ---
 
 ## 17) Update Procedure (when SEC changes)
 
 1. Update `simConstants.ts` and related schemas.
-    
 2. Update failing tests **first** to reflect new contract.
-    
 3. Implement minimal changes to pass.
-    
 4. Update **Golden Master**: re‑record only after ADR approval.
-    
 5. Update docs: AGENTS.md, CHANGELOG, and SEC references in test descriptions.
-    
 
 ---
 
 ## 18) Acceptance Checklist for PRs
 
 - ✅ Imports constants from `simConstants.ts`.
-    
 - ✅ Uses per‑hour units; derives per‑tick by hours.
-    
 - ✅ Validates light schedule per §8 with 0.25h grid.
-    
 - ✅ Enforces device placement & room purpose.
-    
 - ✅ Applies tariff policy (price_electricity/price_water; override > factor).
-    
 - ✅ Ensures power→heat coupling where relevant.
-    
 - ✅ Provides/updates golden fixtures & conformance spec.
-    
 - ✅ Coverage thresholds met; no `Math.random` in logic.
-    
 - ✅ Telemetry channel is read‑only; transport separation proven by tests.
-    
 
 ---
 
