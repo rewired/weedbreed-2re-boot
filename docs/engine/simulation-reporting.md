@@ -46,6 +46,11 @@ absolute path of the generated file on success.
 
 If the command fails with `Cannot find module '@npmcli/config'`, npm handled the execution instead of pnpm/Corepack. Reinstall or repair npm so it respects the Corepack shim, or switch to pnpm with `corepack use pnpm@10.18.0` before running the CLI.
 
+## 6) CI performance budget harness
+
+- The same perf harness powers the CI gate: `pnpm --filter @wb/engine perf:ci` traces 10 k demo-world ticks, enforces ≥ 5 k ticks/min throughput and a 64 MiB heap ceiling, and surfaces 5 % guard-band warnings for near-regressions that demand manual investigation.
+- Override knobs for local experimentation are exposed via environment variables (`PERF_CI_TICK_COUNT`, `PERF_CI_MIN_TICKS_PER_MINUTE`, `PERF_CI_MAX_HEAP_MIB`, `PERF_CI_WARNING_GUARD_PERCENTAGE`). CI never relaxes the failure thresholds; guard-band warnings document the review window.
+
 ## 5) JSON schema
 
 TypeScript-flavoured pseudo schema describing the artifact shape:

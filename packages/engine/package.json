@@ -13,6 +13,7 @@
     "test:economy": "vitest run tests/integration/pipeline/economyAccrual.integration.test.ts",
     "test:conf:30d": "vitest run -t golden-30d",
     "test:conf:200d": "vitest run -t golden-200d",
+    "perf:ci": "tsx scripts/perf/ciPerfCheck.ts",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "dev": "tsx watch src/index.ts",
