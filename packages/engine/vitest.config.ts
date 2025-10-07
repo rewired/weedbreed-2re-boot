@@ -10,6 +10,7 @@ export default defineConfig({
     alias: {
       '@wb/engine': path.resolve(packageDir, 'src/index.ts'),
       '@/backend': path.resolve(packageDir, 'src/backend'),
+      '@/shared': path.resolve(packageDir, 'src/shared'),
       '@/tests': path.resolve(packageDir, 'tests')
     }
   },

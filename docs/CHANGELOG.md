@@ -12,6 +12,10 @@
   `BlueprintTaxonomyMismatchError`, added dedicated unit coverage for directory depth
   and class alignment, extended the repository layout spec to assert taxonomy guardrails,
   and documented the enforcement path in TDD.
+- Fixed the conformance harness regressions: aligned golden master specs with the committed
+  fixture directory, added a Vitest alias for shared determinism utilities to unblock
+  save/load tests, updated the CO₂ injector stub clamp flags, and synced the v1 save fixture
+  metadata with the migration output so golden, migration, and stub suites all pass again.
 - Hardened the Socket.IO transport adapter (Task 0013): enforced read-only telemetry with
   deterministic `WB_TEL_READONLY` rejections, constrained intents to `intent:submit` with
   `{ type: string }` envelopes, added façade integration tests covering malformed payloads

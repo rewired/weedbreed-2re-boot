@@ -11,10 +11,7 @@ import type {
   ScenarioSummary,
 } from '@/backend/src/engine/conformance/goldenScenario.js';
 
-const FIXTURE_ROOT = path.resolve(
-  path.dirname(fileURLToPath(new URL('.', import.meta.url))),
-  '../fixtures/golden'
-);
+const FIXTURE_ROOT = fileURLToPath(new URL('../fixtures/golden/', import.meta.url));
 
 function loadSummary(days: number) {
   const fixturePath = path.join(FIXTURE_ROOT, `${days}d/summary.json`);

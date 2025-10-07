@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { hashCanonicalJson } from '../../../../src/shared/determinism/hash.js';
+import { hashCanonicalJson } from '@/shared/determinism/hash.js';
 
 describe('hashCanonicalJson', () => {
   it('produces a 128-bit hex digest', async () => {
