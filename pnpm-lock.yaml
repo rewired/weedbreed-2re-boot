@@ -86,7 +86,24 @@ importers:
         specifier: ^2.8.1
         version: 2.8.1
 
-  packages/tools-monitor: {}
+  packages/tools-monitor:
+    dependencies:
+      '@wb/transport-sio':
+        specifier: workspace:*
+        version: link:../transport-sio
+      neo-blessed:
+        specifier: ^0.2.0
+        version: 0.2.0
+      socket.io-client:
+        specifier: ^4.8.1
+        version: 4.8.1
+      zod:
+        specifier: 3.24.0
+        version: 3.24.0
+    devDependencies:
+      '@types/blessed':
+        specifier: ^0.1.25
+        version: 0.1.25
 
   packages/transport-sio:
     dependencies:
@@ -626,6 +643,9 @@ packages:
 
   '@socket.io/component-emitter@3.1.2':
     resolution: {integrity: sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA==}
+
+  '@types/blessed@0.1.25':
+    resolution: {integrity: sha512-kQsjBgtsbJLmG6CJA+Z6Nujj+tq1fcSE3UIowbDvzQI4wWmoTV7djUDhSo5lDjgwpIN0oRvks0SA5mMdKE5eFg==}
 
   '@types/chai@5.2.2':
     resolution: {integrity: sha512-8kB30R7Hwqf40JPiKhVzodJs2Qc1ZJ5zuT3uzw5Hq/dhNCl3G3l83jfpdI1e20BP348+fV7VIL/+FxaXkqBmWg==}
@@ -1244,6 +1264,11 @@ packages:
   negotiator@0.6.3:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
     engines: {node: '>= 0.6'}
+
+  neo-blessed@0.2.0:
+    resolution: {integrity: sha512-C2kC4K+G2QnNQFXUIxTQvqmrdSIzGTX1ZRKeDW6ChmvPRw8rTkTEJzbEQHiHy06d36PCl/yMOCjquCRV8SpSQw==}
+    engines: {node: '>= 8.0.0'}
+    hasBin: true
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -2020,6 +2045,10 @@ snapshots:
 
   '@socket.io/component-emitter@3.1.2': {}
 
+  '@types/blessed@0.1.25':
+    dependencies:
+      '@types/node': 20.19.19
+
   '@types/chai@5.2.2':
     dependencies:
       '@types/deep-eql': 4.0.2
@@ -2729,6 +2758,8 @@ snapshots:
   natural-compare@1.4.0: {}
 
   negotiator@0.6.3: {}
+
+  neo-blessed@0.2.0: {}
 
   object-assign@4.1.1: {}
 

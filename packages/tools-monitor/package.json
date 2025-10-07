@@ -10,9 +10,19 @@
     "test": "vitest run",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
   },
   "engines": {
     "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@wb/transport-sio": "workspace:*",
+    "neo-blessed": "^0.2.0",
+    "socket.io-client": "^4.8.1",
+    "zod": "3.24.0"
+  },
+  "devDependencies": {
+    "@types/blessed": "^0.1.25"
   }
 }
