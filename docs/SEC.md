@@ -647,10 +647,12 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 ## 14. Open Questions (to be resolved iteratively)
 
-- Minimum viable set of irrigation methods for v1?
-- Daily vs tick-level economic accrual granularity for reports?
-- Standard zone height vs variable height support in baseline formulas?
-- Cultivation method presets (SoG/ScRoG/DWC/etc.) and their default container/substrate bundles?
+All previously listed questions now have binding ADRs. New questions MUST cite a `docs/tasks/**` proposal before landing here.
+
+- ✅ Minimum viable irrigation methods for v1 are locked in [ADR-0017](./ADR/ADR-0017-irrigation-baseline-methods.md).
+- ✅ Stress→growth curve shape is formalised in [ADR-0018](./ADR/ADR-0018-stress-growth-curve-model.md).
+- ✅ Economy reporting cadence (hourly accrual + daily rollups) is governed by [ADR-0019](./ADR/ADR-0019-economy-reporting-cadence.md).
+- ✅ Zone height defaults and cultivation method presets are defined in [ADR-0020](./ADR/ADR-0020-zone-height-and-cultivation-presets.md).
 
 ---
 

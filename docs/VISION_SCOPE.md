@@ -72,7 +72,7 @@
 - **Structure:** 1 medium warehouse (blueprint default height **3 m**).
 - **Rooms 1:** 2 growrooms.
   - **Zones:** 5 zones, each with a **cultivationMethod** (containers, substrates incl. density factor, irrigation compatibility).  
-     **Irrigation:** configured per zone via an **irrigation method** (e.g., hand‑watering, drip); **no initial water/nutrient stockpiles** — water is metered from mains, nutrients are costed via irrigation input.
+    **Irrigation:** configured per zone via one of the canonical methods (ADR-0017) — manual watering, drip inline fertigation, top-feed pump, or ebb-flow; **no initial water/nutrient stockpiles** — water is metered from mains, nutrients are costed via irrigation input.
 - **Rooms 2:** 1 breakroom for 8 employees (no zones).
 - **Staff:** 8 employees (≥ 4× Gardener, 2× Technician, 2× Janitor).
 - **Starting Capital:** 100,000,000.
@@ -87,9 +87,11 @@
 - **Company → Structure → Room → Zone → Plant** (hierarchical).
 - **Devices** are installed by **`placementScope`** = `zone | room | structure` (blueprint). Eligibility via `allowedRoomPurposes`.
 - **Workforce** snapshot stores deterministic roles/employees/task queues/payroll; employee identities draw from a seeded `randomuser.me` call (500 ms timeout) with deterministic pseudodata fallback.
-- **Strains** (JSON) define photoperiod, DLI/PPFD ranges, NPK/water curves, stress tolerances.
+- **Strains** (JSON) define photoperiod, DLI/PPFD ranges, NPK/water curves, stress tolerances evaluated via the ADR-0018 piecewise quadratic tolerance ramp.
 - **CultivationMethods** define topology, planting density, containers, substrates (with L↔kg density factor and reuse/sterilization policy), irrigation compatibility (inherited from irrigation methods listing their substrates), and costs.
 - **Irrigation Methods** (JSON) define how water/nutrients are delivered (hand‑watering, drip, etc.) and scheduling hooks.
+- **Canonical irrigation set (ADR-0017):** `manual-watering-can`, `drip-inline-fertigation-basic`, `top-feed-pump-timer`, and `ebb-flow-table-small` ship as the guaranteed launch methods across docs, fixtures, and UI.
+- **Cultivation presets (ADR-0020):** Default bundles are `basic-soil-pot` (pot-10l + soil-single-cycle), `sea-of-green` (pot-11l + coco-coir), and `screen-of-green` (pot-25l + soil-multi-cycle); hydroponic additions require a future ADR.
 - **Pests/Diseases** as events/states with incidence, progression, effects & treatments.
 
 **Binding SEC Rules reflected here.**
@@ -97,7 +99,7 @@
 - **Zones only exist in growrooms.**
 - **Every Zone MUST reference exactly one `cultivationMethod`.**
 - **AREA_QUANTUM_M2 = 0.25** (minimal calculable floor area).
-- **Default room height = 3 m** (overridable by blueprint).
+- **Default room height = 3 m** (overridable by blueprint); zones inherit this height when neither room nor cultivation method specifies an alternative (ADR-0020).
 - **Thermo baselines:** `CP_AIR_J_PER_KG_K = 1 005`, `AIR_DENSITY_KG_PER_M3 = 1.2041`.
 - **Company HQ defaults:** Hamburg coordinates (`lat 53.5511`, `lon 9.9937`) with `city = "Hamburg"`, `country = "Deutschland"` seed new worlds until players override them.
 
@@ -136,6 +138,7 @@
 - **Decision:** Experience copy and UI labels adopt neutral monetary language — never surface currency symbols/codes (EUR, USD, GBP, etc.) in identifiers or baked-in text; localized presentation layers may add symbols contextually.
 - **Tariff source:** `/data/prices/utilityPrices.json` is the single source of truth for electricity & water tariffs; nutrient pricing flows through irrigation/substrate consumption instead of a utility entry.
 - **Device maintenance pricing:** `/data/prices/devicePrices.json` carries `capitalExpenditure`, `baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`, and `maintenanceServiceCost` for maintenance curves.
+- **Reporting cadence (ADR-0019):** Economy read-models surface hourly (per tick) ledger slices with deterministic daily rollups built from 24-hour sums; dashboards reference the daily aggregates while audits rely on hourly data.
 - **Electric power → heat:** Non‑useful electrical power becomes **sensible heat** in the hosting zone unless exported.
 
 **Cost drivers.**
@@ -214,7 +217,7 @@ function salePrice(basePrice, quality01): number {
 ## 10. UX & Presentation Vision
 
 - **Key Screens:** Start (New/Load/Import), Dashboard (time/tick, energy/water/cost), Structure Explorer (Company → Structure → Room → Zone → Plant), detail pane with KPIs & stress breakdown, Shop/Research, Logs/Audits.
-- **Info Hierarchy:** Top: tick/time, daily costs, energy/water, balance; middle: active zone/plant KPIs; bottom: events/tasks.
+- **Info Hierarchy:** Top: tick/time, daily costs with hourly drill-down per ADR-0019, energy/water, balance; middle: active zone/plant KPIs; bottom: events/tasks.
 - **Accessibility:** SI units; tooltips; color‑vision‑friendly palettes; scalable typography.
 
 Implementation note (UI components): We will use Tailwind for styling and adopt shadcn/ui (built on Radix) as our unstyled component layer, keeping full theming control in Tailwind while benefiting from accessible primitives and consistent patterns (dialogs, sheets, tabs, tables, toasts).

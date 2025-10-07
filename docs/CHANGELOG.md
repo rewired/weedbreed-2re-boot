@@ -2,6 +2,8 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Published ADR-0017–ADR-0020 to close SEC §14 open questions: locked the canonical irrigation method set, ratified the piecewise quadratic stress→growth curve, mandated hourly-ledger plus daily-rollup economy reporting, and fixed zone height defaults alongside launch cultivation presets.
+
 ### #07 Transport Vitest alias reliability
 
 - Added a façade Vitest alias for `@wb/transport-sio` so integration suites

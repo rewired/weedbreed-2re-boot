@@ -31,6 +31,7 @@
 - Calendar: `HOURS_PER_DAY = 24`, `DAYS_PER_MONTH = 30`, `MONTHS_PER_YEAR = 12`
 - Thermodynamics: `CP_AIR_J_PER_KG_K = 1 005`, `AIR_DENSITY_KG_PER_M3 = 1.2041`.
 - Headquarters defaults: `DEFAULT_COMPANY_LOCATION_LAT = 53.5511`, `DEFAULT_COMPANY_LOCATION_LON = 9.9937`, `DEFAULT_COMPANY_LOCATION_CITY = "Hamburg"`, `DEFAULT_COMPANY_LOCATION_COUNTRY = "Deutschland"`.
+- Default zone height scenarios use `ROOM_DEFAULT_HEIGHT_M` (ADR-0020) whenever fixtures omit `height_m`.
 
 **Test rule:** Any module using these must import from `simConstants.ts`. A lint rule bans hard‑coded duplicates.
 
@@ -73,9 +74,11 @@ Blueprint directory rule: All blueprints are auto-discovered under /data/bluepri
 - **Device blueprint schema:** Tests require `effects` arrays with matching config blocks when multiple interfaces are declared; `createDeviceInstance` copy tests assert the structures are deep-frozen.
 - **Prices** live under `/data/prices/**`; ensure no prices leak into device blueprints.
 - **Tariff maps:** Schema specs assert `/data/prices/devicePrices.json` exposes `capitalExpenditure`, `baseMaintenanceCostPerHour`, `costIncreasePer1000Hours`, `maintenanceServiceCost` and `/data/prices/utilityPrices.json` exposes only `price_electricity`/`price_water`.
+- **Irrigation fixtures (ADR-0017):** Tests assert `/data/blueprints/irrigation/` contains `manual-watering-can`, `drip-inline-fertigation-basic`, `top-feed-pump-timer`, and `ebb-flow-table-small` blueprints to guarantee baseline coverage.
+- **Cultivation presets (ADR-0020):** Fixture guards keep `basic-soil-pot`, `sea-of-green`, and `screen-of-green` available with their canonical container/substrate defaults (pot-10l + soil-single-cycle, pot-11l + coco-coir, pot-25l + soil-multi-cycle).
 - Physiological VPD/stress coverage:
   - `packages/engine/tests/unit/physiology/vpd.spec.ts` asserts Magnus-based saturation, dew point clamps, and VPD determinism at humidity bounds.
-  - `packages/engine/tests/unit/physiology/stressCurves.spec.ts` exercises the quadratic tolerance ramp across temperature, humidity/VPD, and PPFD bands; `tests/unit/shared/psychro/psychro.test.ts` keeps the property-based guard on `computeVpd_kPa`.
+  - `packages/engine/tests/unit/physiology/stressCurves.spec.ts` exercises the ADR-0018 quadratic tolerance ramp across temperature, humidity/VPD, and PPFD bands; `tests/unit/shared/psychro/psychro.test.ts` keeps the property-based guard on `computeVpd_kPa`.
   - `packages/engine/tests/integration/pipeline/plantStress.integration.test.ts` runs a seed→flowering scenario confirming VPD excursions degrade health and biomass accumulation as mandated by SEC §8.
 - **Taxonomy validation:** Unit tests (`packages/engine/tests/unit/data/blueprintTaxonomy.spec.ts`) assert that any mismatch between a blueprint's directory taxonomy and its JSON `class` raises a `BlueprintTaxonomyMismatchError`. The guard also rejects nested directories beyond the two-level allowance so misplacements fail immediately.
 
@@ -227,6 +230,8 @@ it('rejects zone device in non-grow room', () => {
 
 - Effective tariffs computed **once at sim start**.
 
+- **Reporting cadence (ADR-0019):** Economy read-model specs assert hourly (per tick) ledger rows exist and that daily totals equal deterministic 24-hour sums; alternate cadences should fail tests.
+
 ```ts
 // tests/unit/util/tariffs.spec.ts
 import { expect, it } from 'vitest';
@@ -255,6 +260,8 @@ it('hourly cost derives from power draw (W) and tariff (kWh)', () => {
 
 - Zone **must** reference a `cultivationMethod` defining **containers**, **substrates** (incl. `densityFactor_L_per_kg` and `purchaseUnit`), **irrigation** compatibility, and **planting density**.
   - Irrigation compatibility is derived from irrigation method blueprints that list the substrate slug under `compatibility.substrates`; zones selecting a substrate without matching irrigation support should fail validation.
+- Canonical irrigation method coverage is validated by fixture tests to keep `manual-watering-can`, `drip-inline-fertigation-basic`, `top-feed-pump-timer`, and `ebb-flow-table-small` available (ADR-0017).
+- Zone presets default to `basic-soil-pot`, `sea-of-green`, or `screen-of-green` bundles; schema/read-model specs surface these as the initial options and fail if the canonical container/substrate pairs disappear (ADR-0020).
 - Substrate blueprints SHALL include `reusePolicy.maxCycles` (matching the top-level `maxCycles`), `densityFactor_L_per_kg`, and unit price metadata bound to `purchaseUnit`. Validation rejects reuse profiles missing sterilisation tasks when `maxCycles > 1`.
 
 ```ts
