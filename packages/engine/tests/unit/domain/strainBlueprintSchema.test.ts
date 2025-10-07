@@ -4,7 +4,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { parseStrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
-import { BlueprintClassMismatchError } from '../../../src/backend/src/domain/blueprints/taxonomy.js';
+import { BlueprintTaxonomyMismatchError } from '../../../src/backend/src/domain/blueprints/taxonomy.js';
 import { resolveBlueprintPath } from '../../testUtils/paths.js';
 
 const fixturePath = resolveBlueprintPath('strain/white-widow.json');
@@ -156,13 +156,13 @@ describe('strainBlueprintSchema', () => {
     ).not.toThrow();
   });
 
-  it('throws BlueprintClassMismatchError when path disagrees', () => {
+  it('throws BlueprintTaxonomyMismatchError when path disagrees', () => {
     expect(() =>
       parseStrainBlueprint(fixturePayload, {
         filePath: path.join(blueprintsRoot, 'device/climate/cool-air-split-3000.json'),
         blueprintsRoot
       })
-    ).toThrow(BlueprintClassMismatchError);
+    ).toThrow(BlueprintTaxonomyMismatchError);
   });
 
   it('detects duplicate slugs in registry', () => {

@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { assertBlueprintClassMatchesPath } from '@/backend/src/domain/blueprints/taxonomy.js';
+import { assertBlueprintClassMatchesPath, deriveBlueprintClassFromPath } from '@/backend/src/domain/blueprints/taxonomy.js';
 import { resolveBlueprintPath } from '../../testUtils/paths.js';
 
 const blueprintsRoot = path.resolve(resolveBlueprintPath(''));
@@ -42,6 +42,22 @@ describe('blueprint taxonomy layout', () => {
         assertBlueprintClassMatchesPath(payload.class as string, filePath, { blueprintsRoot })
       ).not.toThrow();
     }
+  });
+
+  it('keeps blueprint directory depth within taxonomy v2 guardrails', () => {
+    const failures: string[] = [];
+
+    for (const filePath of blueprintFiles) {
+      try {
+        deriveBlueprintClassFromPath(filePath, { blueprintsRoot });
+      } catch (error) {
+        const relative = path.relative(blueprintsRoot, filePath);
+        const message = error instanceof Error ? error.message : String(error);
+        failures.push(`${relative}: ${message}`);
+      }
+    }
+
+    expect(failures).toHaveLength(0);
   });
 
   it('keeps slug identifiers unique per blueprint class', () => {
