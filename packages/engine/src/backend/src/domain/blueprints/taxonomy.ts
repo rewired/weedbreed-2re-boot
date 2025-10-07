@@ -24,7 +24,7 @@ export class BlueprintPathError extends Error {
   }
 }
 
-export class BlueprintClassMismatchError extends Error {
+export class BlueprintTaxonomyMismatchError extends Error {
   constructor(
     readonly filePath: string,
     readonly expectedClass: string,
@@ -33,7 +33,7 @@ export class BlueprintClassMismatchError extends Error {
     super(
       `Blueprint class mismatch for "${filePath}": expected "${expectedClass}" derived from the folder taxonomy, received "${actualClass}".`
     );
-    this.name = 'BlueprintClassMismatchError';
+    this.name = 'BlueprintTaxonomyMismatchError';
   }
 }
 
@@ -140,12 +140,12 @@ export function assertBlueprintClassMatchesPath(
 
   if (derived.allowNamespaceSuffix) {
     if (declaredClass !== expected && !declaredClass.startsWith(`${expected}.`)) {
-      throw new BlueprintClassMismatchError(derived.relativePath, expected, declaredClass);
+      throw new BlueprintTaxonomyMismatchError(derived.relativePath, expected, declaredClass);
     }
     return;
   }
 
   if (declaredClass !== expected) {
-    throw new BlueprintClassMismatchError(derived.relativePath, expected, declaredClass);
+    throw new BlueprintTaxonomyMismatchError(derived.relativePath, expected, declaredClass);
   }
 }
