@@ -177,9 +177,9 @@ export function createCo2InjectorStub(): ICo2Injector {
       );
       const power_W = Math.max(0, ensureFinite(inputs.power_W, 0));
       const energy_Wh = power_W * resolvedDt_h * effectiveDuty01;
-      const clampedByTarget = deliverable_ppm + FLOAT_TOLERANCE < requestedDelta_ppm;
+      const clampedByTarget = requestedDelta_ppm > FLOAT_TOLERANCE;
       const clampedBySafety =
-        Number.isFinite(safetyCeiling_ppm) && deliverable_ppm + FLOAT_TOLERANCE < safetyHeadroom_ppm;
+        Number.isFinite(safetyCeiling_ppm) && safetyHeadroom_ppm <= deliverable_ppm + FLOAT_TOLERANCE;
 
       return ensureFiniteOutputs({
         delta_ppm: deliverable_ppm,

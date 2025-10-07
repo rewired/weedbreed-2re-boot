@@ -4,7 +4,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { hashCanonicalJson } from '../../../../../src/shared/determinism/hash.js';
+import { hashCanonicalJson } from '@/shared/determinism/hash.js';
 import {
   CURRENT_SAVE_SCHEMA_VERSION,
   createDefaultSaveGameMigrationRegistry,

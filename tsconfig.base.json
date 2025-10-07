@@ -44,6 +44,9 @@
       "@/backend/*": [
         "packages/engine/src/backend/*"
       ],
+      "@/shared/*": [
+        "packages/engine/src/shared/*"
+      ],
       "@/tests/*": [
         "packages/engine/tests/*"
       ]

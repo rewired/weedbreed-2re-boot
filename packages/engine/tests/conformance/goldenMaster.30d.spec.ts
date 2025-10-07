@@ -14,10 +14,7 @@ import type {
 const EPS_ABS = 1e-9;
 const EPS_REL = 1e-6;
 
-const FIXTURE_ROOT = path.resolve(
-  path.dirname(fileURLToPath(new URL('.', import.meta.url))),
-  '../fixtures/golden'
-);
+const FIXTURE_ROOT = fileURLToPath(new URL('../fixtures/golden/', import.meta.url));
 
 function loadSummary(days: number) {
   const fixturePath = path.join(FIXTURE_ROOT, `${days}d/summary.json`);
