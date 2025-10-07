@@ -18,6 +18,7 @@
     "migrate:folders": "node scripts/migrate-blueprint-folders.mjs",
     "migrate:classes": "node scripts/normalize-blueprint-classes.mjs",
     "migrate:blueprints": "npm run migrate:folders && npm run migrate:classes",
+    "monitor:terminal": "pnpm --filter @wb/tools-monitor run start",
     "preinstall": "node ./tools/scripts/ensure-pnpm.mjs",
     "verify-pnpm": "node ./tools/scripts/ensure-pnpm.mjs",
     "report:packages": "pnpm --filter ./packages/tools run report:packages",

@@ -5,6 +5,18 @@
 - Published ADR-0017–ADR-0020 to close SEC §14 open questions: locked the canonical irrigation method set, ratified the piecewise quadratic stress→growth curve, mandated hourly-ledger plus daily-rollup economy reporting, and fixed zone height defaults alongside launch cultivation presets.
 - Added a deterministic CI performance budget harness (`pnpm perf:ci`) that runs 10 k demo-world ticks, fails below 5 k ticks/min throughput or above the 64 MiB heap plateau, and emits guard-band warnings so regressions surface before breaching SEC §3 success criteria.
 
+### #79 Terminal monitor MVP (Task 0018)
+
+- Shipped the `@wb/tools-monitor` neo-blessed dashboard with a Socket.IO
+  telemetry client that honours SEC §0.1/§11.3 read-only mandates, renders
+  workforce KPIs, pest/maintenance warnings, and per-hour labour costs, and
+  exposes keyboard navigation without enabling command input.
+- Added a deterministic runtime store with Zod schema guards plus unit tests to
+  catch malformed telemetry and integration coverage that boots against the
+  transport harness to assert no telemetry writes trigger `WB_TEL_READONLY`.
+- Documented usage, CLI flags, and panel layout in `docs/tools/terminal-monitor.md`
+  and wired a top-level `pnpm monitor:terminal` helper script.
+
 ### #07 Transport Vitest alias reliability
 
 - Added a façade Vitest alias for `@wb/transport-sio` so integration suites
