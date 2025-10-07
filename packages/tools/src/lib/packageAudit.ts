@@ -440,12 +440,13 @@ async function detectDirectUsage(
   const usage = new Map<string, Set<string>>();
 
   for (const filePath of files) {
+    const normalizedFilePath = path.normalize(filePath);
     const contents = await readFile(filePath, 'utf8');
 
     for (const candidate of CANDIDATES) {
       if (!containsImport(contents, candidate.name)) continue;
 
-      const manifest = manifestByDir.find((pkg) => filePath.startsWith(pkg.dirWithSep));
+      const manifest = manifestByDir.find((pkg) => normalizedFilePath.startsWith(pkg.dirWithSep));
       const relative = path.relative(repoRoot, filePath).replace(/\\/g, '/');
       const owner = manifest?.label ?? relative.split('/')[0];
       const list = ensureUsageSet(usage, candidate.name);
