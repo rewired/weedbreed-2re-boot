@@ -5,6 +5,9 @@
 - Removed the `packages/tools/tests/packageAudit.test.ts` tooling audit; the
   report markdown is now maintained via `pnpm report:packages` without an
   automated sync assertion after repeated encoding failures in CI.
+- Allowed the `@wb/tools` Vitest runner to pass when no test files are
+  present by forwarding `--passWithNoTests`, preventing workspace test runs
+  from failing on empty suites.
 - Hardened blueprint taxonomy loader guards (Task 0015): renamed the mismatch error to
   `BlueprintTaxonomyMismatchError`, added dedicated unit coverage for directory depth
   and class alignment, extended the repository layout spec to assert taxonomy guardrails,
