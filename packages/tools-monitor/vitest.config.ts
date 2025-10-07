@@ -1,4 +1,8 @@
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
+
+const currentDir = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
@@ -12,5 +16,11 @@ export default defineConfig({
   },
   esbuild: {
     target: 'es2022'
+  },
+  resolve: {
+    alias: {
+      '@wb/transport-sio': resolve(currentDir, '../transport-sio/src/index.ts'),
+      '@wb/transport-sio/': resolve(currentDir, '../transport-sio/src/')
+    }
   }
 });

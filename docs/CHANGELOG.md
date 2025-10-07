@@ -4,6 +4,7 @@
 
 - Published ADR-0017–ADR-0020 to close SEC §14 open questions: locked the canonical irrigation method set, ratified the piecewise quadratic stress→growth curve, mandated hourly-ledger plus daily-rollup economy reporting, and fixed zone height defaults alongside launch cultivation presets.
 - Added a deterministic CI performance budget harness (`pnpm perf:ci`) that runs 10 k demo-world ticks, fails below 5 k ticks/min throughput or above the 64 MiB heap plateau, and emits guard-band warnings so regressions surface before breaching SEC §3 success criteria.
+- Added a tools-monitor Vitest alias for `@wb/transport-sio` so terminal monitor integration tests resolve the Socket.IO transport directly from source during workspace runs, preventing missing dist artifact failures.
 
 ### #79 Terminal monitor MVP (Task 0018)
 
