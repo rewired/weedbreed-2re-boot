@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Hardened blueprint taxonomy loader guards (Task 0015): renamed the mismatch error to
+  `BlueprintTaxonomyMismatchError`, added dedicated unit coverage for directory depth
+  and class alignment, extended the repository layout spec to assert taxonomy guardrails,
+  and documented the enforcement path in TDD.
 - Hardened the Socket.IO transport adapter (Task 0013): enforced read-only telemetry with
   deterministic `WB_TEL_READONLY` rejections, constrained intents to `intent:submit` with
   `{ type: string }` envelopes, added façade integration tests covering malformed payloads

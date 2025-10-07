@@ -57,7 +57,7 @@ src/
 - **Runner:** `vitest` (node).
 - **Coverage threshold:** 90% lines/branches in `engine/` and `facade/`; 80% overall.
 - **Snapshot location:** `__snapshots__` next to specs (only for low‑volatility payloads; prefer golden JSON files for world states).
-- **Blueprint fixtures:** Repository fixtures **MUST** live inside the domain folders that mirror their `class` (`device/climate/*.json`, `cultivation-method/*.json`, `room/purpose/*.json`, etc.). Specs walk `/data/blueprints/**` to assert the folder-derived taxonomy matches the JSON declaration and fail fast when contributors park files elsewhere.
+- **Blueprint fixtures:** Repository fixtures **MUST** live inside the domain folders that mirror their `class` (`device/climate/*.json`, `cultivation-method/*.json`, `room/purpose/*.json`, etc.). Specs walk `/data/blueprints/**` (see `packages/engine/tests/unit/domain/blueprintTaxonomyLayout.test.ts`) to assert the folder-derived taxonomy matches the JSON declaration, validate depth guardrails, and fail fast when contributors park files elsewhere.
 - **Tooling audits:** `packages/tools/tests/packageAudit.test.ts` keeps `docs/reports/PACKAGE_AUDIT.md` in sync with the CLI generator so `pnpm report:packages` remains deterministic documentation-only tooling.
 
 Blueprint directory rule: All blueprints are auto-discovered under /data/blueprints/<domain>/<file>.json with a maximum depth of two segments (domain + file). Devices are /data/blueprints/device/<category>.json or /data/blueprints/device/<category>/<file>.json limited to two levels; no deeper subfolders are allowed.
@@ -77,7 +77,7 @@ Blueprint directory rule: All blueprints are auto-discovered under /data/bluepri
   - `packages/engine/tests/unit/physiology/vpd.spec.ts` asserts Magnus-based saturation, dew point clamps, and VPD determinism at humidity bounds.
   - `packages/engine/tests/unit/physiology/stressCurves.spec.ts` exercises the quadratic tolerance ramp across temperature, humidity/VPD, and PPFD bands; `tests/unit/shared/psychro/psychro.test.ts` keeps the property-based guard on `computeVpd_kPa`.
   - `packages/engine/tests/integration/pipeline/plantStress.integration.test.ts` runs a seed→flowering scenario confirming VPD excursions degrade health and biomass accumulation as mandated by SEC §8.
-- **Taxonomy validation:** Unit tests assert that any mismatch between a blueprint's directory taxonomy and its JSON `class` raises a `BlueprintTaxonomyMismatchError` (or equivalent). Misplaced files must fail the loader guard immediately.
+- **Taxonomy validation:** Unit tests (`packages/engine/tests/unit/data/blueprintTaxonomy.spec.ts`) assert that any mismatch between a blueprint's directory taxonomy and its JSON `class` raises a `BlueprintTaxonomyMismatchError`. The guard also rejects nested directories beyond the two-level allowance so misplacements fail immediately.
 
 - **Fixture layout check:** Repository-level specs enumerate blueprint folders and ensure no stray directories exist outside the sanctioned taxonomy tree. Tests fail if contributors invent ad-hoc folders.
 
