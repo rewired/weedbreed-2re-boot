@@ -209,9 +209,10 @@ it('rejects zone device in non-grow room', () => {
 - [ ] No extra or missing phases; names match public stage symbols
 - `runTick(world, ctx, { trace: true })` returns `{ world, trace }` where `world` is the immutable post-tick snapshot and `trace` is an optional {@link TickTrace} with monotonic `startedAtNs`, `durationNs`, `endedAtNs`, and heap metrics for every stage without feeding wall-clock time into simulation logic.
 - `runOneTickWithTrace()` (engine test harness) clones the deterministic demo world and returns `{ world, context, trace }` for integration/unit assertions.
-- `withPerfHarness({ ticks })` executes repeated traced ticks and reports `{ traces, totalDurationNs, averageDurationNs, maxHeapUsedBytes }` so perf tests can guard throughput (< 5 ms avg/tick) and heap (< 64 MiB).
+- `withPerfHarness({ ticks })` executes repeated traced ticks and reports `{ traces, totalDurationNs, averageDurationNs, maxHeapUsedBytes }` so perf tests and CI guard throughput (≥ 5 k ticks/min ≈ ≤ 12 ms avg/tick) and heap (< 64 MiB).
 - `generateSeedToHarvestReport({ ticks, scenario })` wraps the orchestrator and perf harness to emit JSON artifacts documenting lifecycle transitions + telemetry; see `docs/engine/simulation-reporting.md` for CLI usage and schema.
 - `createRecordingContext(buffer)` attaches the instrumentation hook so specs can assert that stage completions mirror the trace order.
+- `pnpm --filter @wb/engine perf:ci` runs the CI performance budget harness (10 k traced ticks, deterministic demo world) and fails when throughput falls below 5 k ticks/min or heap exceeds 64 MiB; a 5 % guard band emits warnings for near-regressions requiring manual review.
 
 ---
 
