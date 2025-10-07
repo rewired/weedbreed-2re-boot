@@ -21,7 +21,7 @@ function clampNutrientRecord(
 }
 
 function sumNutrientRecords(
-  ...records: Array<Record<string, number>>
+  ...records: ReadonlyArray<Record<string, number>>
 ): Record<string, number> {
   const summed: Record<string, number> = {};
 

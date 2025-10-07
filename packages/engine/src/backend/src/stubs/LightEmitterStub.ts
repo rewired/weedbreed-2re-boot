@@ -4,7 +4,7 @@ import type {
   LightEmitterInputs,
   LightEmitterOutputs
 } from '../domain/interfaces/ILightEmitter.js';
-import { clamp, clamp01 } from '../util/math.js';
+import { clamp01 } from '../util/math.js';
 import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
 
 function ensureFiniteOutputs(outputs: LightEmitterOutputs): LightEmitterOutputs {

@@ -24,7 +24,7 @@ function ensureFiniteOutputs(
   return outputs;
 }
 
-const HUMIDITY_LOOKUP: Array<{ readonly tempC: number; readonly factor: number }> = [
+const HUMIDITY_LOOKUP: ReadonlyArray<{ readonly tempC: number; readonly factor: number }> = [
   { tempC: 15, factor: 0.12 },
   { tempC: 20, factor: 0.14 },
   { tempC: 25, factor: 0.15 },
@@ -39,13 +39,23 @@ function getHumidityFactor_k_rh(tempC: number): number {
     return 0.15;
   }
 
-  if (tempC <= HUMIDITY_LOOKUP[0]!.tempC) {
-    return clamp(HUMIDITY_LOOKUP[0]!.factor, HUMIDITY_FACTOR_MIN, HUMIDITY_FACTOR_MAX);
+  const firstEntry = HUMIDITY_LOOKUP[0];
+
+  if (!firstEntry) {
+    return clamp(0.15, HUMIDITY_FACTOR_MIN, HUMIDITY_FACTOR_MAX);
+  }
+
+  if (tempC <= firstEntry.tempC) {
+    return clamp(firstEntry.factor, HUMIDITY_FACTOR_MIN, HUMIDITY_FACTOR_MAX);
   }
 
   for (let i = 1; i < HUMIDITY_LOOKUP.length; i += 1) {
-    const lower = HUMIDITY_LOOKUP[i - 1]!;
-    const upper = HUMIDITY_LOOKUP[i]!;
+    const lower = HUMIDITY_LOOKUP[i - 1];
+    const upper = HUMIDITY_LOOKUP[i];
+
+    if (!lower || !upper) {
+      continue;
+    }
 
     if (tempC <= upper.tempC) {
       const span = upper.tempC - lower.tempC;
@@ -56,11 +66,13 @@ function getHumidityFactor_k_rh(tempC: number): number {
     }
   }
 
-  return clamp(
-    HUMIDITY_LOOKUP[HUMIDITY_LOOKUP.length - 1]!.factor,
-    HUMIDITY_FACTOR_MIN,
-    HUMIDITY_FACTOR_MAX
-  );
+  const lastEntry = HUMIDITY_LOOKUP[HUMIDITY_LOOKUP.length - 1];
+
+  if (!lastEntry) {
+    return clamp(0.15, HUMIDITY_FACTOR_MIN, HUMIDITY_FACTOR_MAX);
+  }
+
+  return clamp(lastEntry.factor, HUMIDITY_FACTOR_MIN, HUMIDITY_FACTOR_MAX);
 }
 
 function resolveCapacityGramsPerHour(

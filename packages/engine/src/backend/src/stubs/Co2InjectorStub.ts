@@ -31,12 +31,12 @@ function resolveBaseline(
     return Math.max(0, envReading);
   }
 
-  if (Number.isFinite(ambient_ppm)) {
-    return Math.max(0, ambient_ppm as number);
+  if (typeof ambient_ppm === 'number' && Number.isFinite(ambient_ppm)) {
+    return Math.max(0, ambient_ppm);
   }
 
-  if (Number.isFinite(min_ppm)) {
-    return Math.max(0, min_ppm as number);
+  if (typeof min_ppm === 'number' && Number.isFinite(min_ppm)) {
+    return Math.max(0, min_ppm);
   }
 
   return AMBIENT_CO2_PPM;
@@ -47,7 +47,7 @@ function normaliseBound(value: number | undefined, fallback: number): number {
     return fallback;
   }
 
-  return Math.max(0, value as number);
+  return Math.max(0, value);
 }
 
 function ensureFiniteOutputs(outputs: Co2InjectorOutputs): Co2InjectorOutputs {
@@ -114,12 +114,17 @@ export function createCo2InjectorStub(): ICo2Injector {
         } satisfies Co2InjectorOutputs;
       }
 
-      const min_ppm = Number.isFinite(inputs.min_ppm) ? Math.max(0, inputs.min_ppm as number) : undefined;
-      const ambient_ppm = Number.isFinite(inputs.ambient_ppm)
-        ? Math.max(0, inputs.ambient_ppm as number)
+      const min_ppm =
+        typeof inputs.min_ppm === 'number' && Number.isFinite(inputs.min_ppm)
+          ? Math.max(0, inputs.min_ppm)
+          : undefined;
+      const ambient_ppm =
+        typeof inputs.ambient_ppm === 'number' && Number.isFinite(inputs.ambient_ppm)
+          ? Math.max(0, inputs.ambient_ppm)
         : undefined;
-      const hysteresis_ppm = Number.isFinite(inputs.hysteresis_ppm)
-        ? Math.max(0, inputs.hysteresis_ppm as number)
+      const hysteresis_ppm =
+        typeof inputs.hysteresis_ppm === 'number' && Number.isFinite(inputs.hysteresis_ppm)
+          ? Math.max(0, inputs.hysteresis_ppm)
         : 0;
 
       const current_ppm = resolveBaseline(envState, ambient_ppm, min_ppm);

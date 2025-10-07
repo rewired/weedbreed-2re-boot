@@ -31,7 +31,7 @@ function multiplyNutrientRecord(
 }
 
 function sumNutrientRecords(
-  ...records: Array<Record<string, number>>
+  ...records: ReadonlyArray<Record<string, number>>
 ): Record<string, number> {
   const summed: Record<string, number> = {};
 
@@ -67,12 +67,12 @@ function zeroOutputs(): IrrigationServiceOutputs {
   return { water_L: 0, nutrients_mg: {}, uptake_mg: {}, leached_mg: {} };
 }
 
-function aggregateEventNutrients(events: IrrigationEvent[]): {
+function aggregateEventNutrients(events: ReadonlyArray<IrrigationEvent>): {
   water_L: number;
   nutrients_mg: Record<string, number>;
 } {
   let water_L = 0;
-  const nutrientTotals: Array<Record<string, number>> = [];
+  const nutrientTotals: Record<string, number>[] = [];
 
   for (const event of events) {
     const volume = Number.isFinite(event.water_L) ? Math.max(0, event.water_L) : 0;
@@ -139,7 +139,7 @@ export function createIrrigationServiceStub(
         return zeroOutputs();
       }
 
-      const events = Array.isArray(inputs.events) ? inputs.events : [];
+      const events = inputs.events;
 
       if (events.length === 0) {
         return zeroOutputs();

@@ -1,8 +1,4 @@
-import {
-  CP_AIR_J_PER_KG_K,
-  HOURS_PER_TICK,
-  SECONDS_PER_HOUR
-} from '../constants/simConstants.js';
+import { CP_AIR_J_PER_KG_K, SECONDS_PER_HOUR } from '../constants/simConstants.js';
 import type {
   IThermalActuator,
   ThermalActuatorInputs,
