@@ -1,7 +1,7 @@
 import { pathToFileURL } from 'node:url';
 
 const REQUIRED_MANAGER = 'pnpm';
-const REQUIRED_VERSION = '10.18.0';
+const REQUIRED_VERSION = '10.18.1';
 
 function parsePnpmVersion(userAgent) {
   if (typeof userAgent !== 'string' || userAgent.trim() === '') {
