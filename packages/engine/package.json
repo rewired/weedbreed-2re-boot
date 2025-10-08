@@ -10,6 +10,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "test": "vitest run",
+    "test:imports": "vitest run tests/runtime/importResolution.test.ts",
     "test:economy": "vitest run tests/integration/pipeline/economyAccrual.integration.test.ts",
     "test:conf:30d": "vitest run -t golden-30d",
     "test:conf:200d": "vitest run -t golden-200d",

@@ -11,26 +11,32 @@ export const noTsImportJsExtensionRule = {
     fixable: 'code',
     schema: [],
     messages: {
-      removeJsExtension: 'Remove the `.js` extension when importing TypeScript modules.'
+      removeJsExtension: "Use an extensionless relative specifier instead of ending in `.js`."
     }
   },
   create(context) {
     const filename = context.getFilename();
 
-    if (!filename || !/\.tsx?$/.test(filename)) {
+    if (!filename || !/\.(?:[cm]?ts|tsx)$/.test(filename)) {
       return {};
     }
 
     const isAllowedSpecifier = (value) => {
-      if (typeof value !== 'string') {
+      if (typeof value !== "string") {
         return true;
       }
 
-      if (!value.endsWith('.js')) {
+      if (!value.endsWith(".js")) {
         return true;
       }
 
-      return /^(?:https?:|node:|data:|file:)/.test(value);
+      // Absolute URLs and built-in module prefixes stay untouched.
+      if (/^(?:https?:|node:|data:|file:)/.test(value)) {
+        return true;
+      }
+
+      // Guardrail targets local/relative specifiers to keep imports extensionless.
+      return !value.startsWith("./") && !value.startsWith("../");
     };
 
     const reportLiteral = (literal) => {
@@ -42,7 +48,7 @@ export const noTsImportJsExtensionRule = {
 
       context.report({
         node: literal,
-        messageId: 'removeJsExtension',
+        messageId: "removeJsExtension",
         fix(fixer) {
           const [start, end] = literal.range ?? [NaN, NaN];
 

@@ -12,7 +12,9 @@
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
+    "test:imports": "pnpm --filter @wb/engine test:imports",
     "lint": "pnpm -r lint",
+    "lint:imports": "pnpm exec eslint --max-warnings=0 --config tools/eslint/import-guard.config.js packages tools",
     "perf:ci": "pnpm --filter @wb/engine perf:ci",
     "format": "pnpm -r format",
     "migrate:folders": "node scripts/migrate-blueprint-folders.mjs",
@@ -22,6 +24,7 @@
     "monitor:mock": "pnpm --filter @wb/tools-monitor run mock-server",
     "preinstall": "node ./tools/scripts/ensure-pnpm.mjs",
     "verify-pnpm": "node ./tools/scripts/ensure-pnpm.mjs",
+    "prepare": "simple-git-hooks",
     "report:packages": "pnpm --filter ./packages/tools run report:packages",
     "tasks:dry": "tsx tools/tasks/renumberTasks.mts --dry",
     "tasks:write": "tsx tools/tasks/renumberTasks.mts --write",
@@ -32,10 +35,14 @@
     "@types/node": "^20.12.7",
     "@vitest/coverage-v8": "^3.2.4",
     "eslint": "^9.5.0",
+    "simple-git-hooks": "^2.11.0",
     "prettier": "^3.2.5",
     "tsx": "^4.7.0",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.12.2",
     "vitest": "^3.2.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint:imports && pnpm test:imports"
   }
 }
