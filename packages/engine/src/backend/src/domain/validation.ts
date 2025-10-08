@@ -718,7 +718,23 @@ export function validateCompanyWorld(
     }
   }
 
-  company.structures.forEach((structure, structureIndex) => {
+  const rawStructures = (company as Partial<Company>).structures;
+
+  if (!Array.isArray(rawStructures)) {
+    issues.push({
+      path: 'company.structures',
+      message: 'company.structures must be an array'
+    });
+
+    return {
+      ok: false,
+      issues
+    } satisfies WorldValidationResult;
+  }
+
+  const structures = rawStructures as Company['structures'];
+
+  structures.forEach((structure, structureIndex) => {
     const structurePath = `company.structures[${String(structureIndex)}]`;
 
     if (!isValidArea(structure.floorArea_m2)) {

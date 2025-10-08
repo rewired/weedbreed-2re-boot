@@ -1,4 +1,4 @@
-import { FLOAT_TOLERANCE } from '../../constants/simConstants.js';
+import { FLOAT_TOLERANCE, SAFETY_MAX_CO2_PPM } from '../../constants/simConstants.js';
 import type { SimulationWorld, Zone } from '../../domain/world.js';
 import type { EngineRunContext } from '../Engine.js';
 import { clearDeviceEffectsRuntime, getDeviceEffectsRuntime } from './applyDeviceEffects.js';
@@ -55,6 +55,22 @@ function updateZoneHumidity(zone: Zone, deltaRH_pct: number): Zone {
   } satisfies Zone;
 }
 
+function clampCo2(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  if (value <= 0) {
+    return 0;
+  }
+
+  if (value >= SAFETY_MAX_CO2_PPM) {
+    return SAFETY_MAX_CO2_PPM;
+  }
+
+  return value;
+}
+
 function updateZoneCo2(zone: Zone, delta_ppm: number): Zone {
   if (Math.abs(delta_ppm) < FLOAT_TOLERANCE) {
     return zone;
@@ -62,7 +78,7 @@ function updateZoneCo2(zone: Zone, delta_ppm: number): Zone {
 
   const currentRaw = zone.environment.co2_ppm;
   const current = Number.isFinite(currentRaw) ? currentRaw : 0;
-  const next = Math.max(0, current + delta_ppm);
+  const next = clampCo2(current + delta_ppm);
 
   if (Math.abs(next - current) < FLOAT_TOLERANCE) {
     return zone;

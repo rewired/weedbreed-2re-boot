@@ -397,11 +397,18 @@ export interface Room extends DomainEntity, SluggedEntity, SpatialEntity {
 /**
  * Canonical representation of a structure owned by the company.
  */
+export interface StructureTariffOverride {
+  readonly price_electricity?: number;
+  readonly price_water?: number;
+}
+
 export interface Structure extends DomainEntity, SluggedEntity, SpatialEntity {
   /** Rooms contained within the structure. */
   readonly rooms: readonly Room[];
   /** Device instances mounted at the structure scope. */
   readonly devices: readonly StructureDeviceInstance[];
+  /** Optional utility tariff override applied to this structure. */
+  readonly tariffOverride?: StructureTariffOverride;
 }
 
 /**

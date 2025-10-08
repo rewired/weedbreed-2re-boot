@@ -45,7 +45,9 @@ The golden master relies on a canonical JSON savegame with schema versioning and
 ## Tests
 
 * Unit tests: schema validator, migration registry, crash-safe writer (mock fs interactions) under `packages/engine/tests/unit/save/*.spec.ts`.
-* Integration tests: load versioned fixtures, run deterministic ticks, confirm hashes and event counts match expectations.
+* Integration tests: load versioned fixtures, run deterministic ticks, confirm hashes and event counts match expectations. Cover
+  corrupt headers (non-numeric `schemaVersion`), missing `company.structures`, forward migration no-ops (v1→v1), and back-compat
+  load of `tests/fixtures/save/v0/basic.json`.
 * CI gate: conformance suite runs against migrated save to ensure deterministic behaviour remains intact.
 
 ## Affected Files (indicative)

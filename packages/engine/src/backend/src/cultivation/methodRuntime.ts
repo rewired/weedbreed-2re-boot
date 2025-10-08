@@ -2,8 +2,6 @@ import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { z } from 'zod';
-
 import type { EngineRunContext as EngineContext } from '../engine/Engine.js';
 import type {
   Room,
@@ -15,6 +13,8 @@ import type {
   WorkforceTaskInstance,
   Zone,
 } from '../domain/world.js';
+import { parseContainerBlueprint, type ContainerBlueprint } from '../domain/blueprints/containerBlueprint.js';
+import { parseCultivationMethodBlueprint } from '../domain/blueprints/cultivationMethodBlueprint.js';
 import { parseSubstrateBlueprint, type SubstrateBlueprint } from '../domain/blueprints/substrateBlueprint.js';
 import { deterministicUuid } from '../util/uuid.js';
 
@@ -25,57 +25,9 @@ const METHOD_BLUEPRINT_ROOT = path.join(BLUEPRINTS_ROOT, 'cultivation-method');
 const CONTAINER_BLUEPRINT_ROOT = path.join(BLUEPRINTS_ROOT, 'container');
 const SUBSTRATE_BLUEPRINT_ROOT = path.join(BLUEPRINTS_ROOT, 'substrate');
 
-const slugSchema = z
-  .string({ required_error: 'slug is required.' })
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case (lowercase letters, digits, hyphen).');
-
-const containerBlueprintSchema = z
-  .object({
-    id: z.string().uuid('Container blueprint id must be a UUID v4.'),
-    slug: slugSchema,
-    class: z.literal('container', {
-      invalid_type_error: 'class must be the canonical "container" domain value.',
-    }),
-    name: z.string().min(1, 'Container blueprint name must not be empty.'),
-    volumeInLiters: z.number().finite().positive('volumeInLiters must be a positive number.'),
-    footprintArea: z.number().finite().positive('footprintArea must be a positive number.'),
-    reusableCycles: z.number().int().min(1).optional(),
-  })
-  .passthrough();
-
-export type ContainerBlueprintLite = z.infer<typeof containerBlueprintSchema>;
-
-const cultivationMethodBlueprintSchema = z
-  .object({
-    id: z.string().uuid('Cultivation method blueprint id must be a UUID v4.'),
-    slug: slugSchema,
-    class: z.literal('cultivation-method', {
-      invalid_type_error: 'class must be the canonical "cultivation-method" domain value.',
-    }),
-    name: z.string().min(1, 'Cultivation method name must not be empty.'),
-    containers: z.array(slugSchema).min(1, 'Cultivation method must list at least one container option.'),
-    substrates: z.array(slugSchema).min(1, 'Cultivation method must list at least one substrate option.'),
-    maxCycles: z.number().int().min(1).optional(),
-    meta: z
-      .object({
-        defaults: z
-          .object({
-            containerSlug: slugSchema.optional(),
-            substrateSlug: slugSchema.optional(),
-          })
-          .partial()
-          .optional(),
-      })
-      .partial()
-      .optional(),
-  })
-  .passthrough();
-
-export type CultivationMethodBlueprintLite = z.infer<typeof cultivationMethodBlueprintSchema>;
-
 interface ContainerRegistry {
-  readonly byId: Map<Uuid, ContainerBlueprintLite>;
-  readonly bySlug: Map<string, ContainerBlueprintLite>;
+  readonly byId: Map<Uuid, ContainerBlueprint>;
+  readonly bySlug: Map<string, ContainerBlueprint>;
 }
 
 interface SubstrateRegistry {
@@ -121,11 +73,11 @@ function ensureContainerRegistry(): ContainerRegistry {
     return containerRegistryCache;
   }
 
-  const byId = new Map<Uuid, ContainerBlueprintLite>();
-  const bySlug = new Map<string, ContainerBlueprintLite>();
+  const byId = new Map<Uuid, ContainerBlueprint>();
+  const bySlug = new Map<string, ContainerBlueprint>();
 
   for (const filePath of listJsonFiles(CONTAINER_BLUEPRINT_ROOT)) {
-    const blueprint = containerBlueprintSchema.parse(readJsonFile(filePath));
+    const blueprint = parseContainerBlueprint(readJsonFile(filePath), { filePath });
     byId.set(blueprint.id as Uuid, blueprint);
     bySlug.set(blueprint.slug, blueprint);
   }
@@ -201,7 +153,7 @@ export interface CultivationMethodDescriptor {
 
 let cultivationMethodCatalogCache: Map<Uuid, CultivationMethodDescriptor> | null = null;
 
-function toContainerPolicy(entry: ContainerBlueprintLite): ContainerPolicy {
+function toContainerPolicy(entry: ContainerBlueprint): ContainerPolicy {
   const serviceLife = entry.reusableCycles && entry.reusableCycles > 0 ? entry.reusableCycles : 1;
 
   return {
@@ -209,7 +161,7 @@ function toContainerPolicy(entry: ContainerBlueprintLite): ContainerPolicy {
     slug: entry.slug,
     serviceLife_cycles: serviceLife,
     volume_L: entry.volumeInLiters,
-    footprintArea_m2: entry.footprintArea,
+    footprintArea_m2: entry.footprintArea
   } satisfies ContainerPolicy;
 }
 
@@ -231,10 +183,10 @@ function buildCultivationMethodCatalog(): Map<Uuid, CultivationMethodDescriptor>
   const catalog = new Map<Uuid, CultivationMethodDescriptor>();
 
   for (const filePath of listJsonFiles(METHOD_BLUEPRINT_ROOT)) {
-    const blueprint = cultivationMethodBlueprintSchema.parse(readJsonFile(filePath));
+    const blueprint = parseCultivationMethodBlueprint(readJsonFile(filePath), { filePath });
     const containerOptions = blueprint.containers
       .map((slug) => containerBySlug.get(slug))
-      .filter((entry): entry is ContainerBlueprintLite => Boolean(entry))
+      .filter((entry): entry is ContainerBlueprint => Boolean(entry))
       .map(toContainerPolicy);
 
     const substrateOptions = blueprint.substrates
@@ -255,7 +207,7 @@ function buildCultivationMethodCatalog(): Map<Uuid, CultivationMethodDescriptor>
       containerOptions,
       substrateOptions,
       defaultContainerId: defaultContainerId as Uuid | undefined,
-      defaultSubstrateId: defaultSubstrateId as Uuid | undefined,
+      defaultSubstrateId: defaultSubstrateId as Uuid | undefined
     });
   }
 

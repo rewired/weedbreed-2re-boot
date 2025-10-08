@@ -51,6 +51,9 @@ importers:
         specifier: 3.24.0
         version: 3.24.0
     devDependencies:
+      '@typescript-eslint/parser':
+        specifier: ^8.12.2
+        version: 8.45.0(eslint@9.36.0)(typescript@5.9.3)
       fast-check:
         specifier: ^3.23.2
         version: 3.23.2

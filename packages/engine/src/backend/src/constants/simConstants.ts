@@ -46,6 +46,12 @@ export interface SimulationConstants {
    */
   readonly AMBIENT_CO2_PPM: number;
   /**
+   * Hard safety ceiling for in-zone CO₂ concentration expressed in parts per
+   * million. Device effects and environment updates must clamp to this value
+   * to keep atmospheres within occupational safety bounds.
+   */
+  readonly SAFETY_MAX_CO2_PPM: number;
+  /**
    * Number of in-game hours contained in a single simulation tick.
    */
   readonly HOURS_PER_TICK: number;
@@ -162,6 +168,13 @@ export const AIR_DENSITY_KG_PER_M3 = 1.2041 as const;
 export const AMBIENT_CO2_PPM = 420 as const;
 
 /**
+ * Canonical constant describing the maximum safe CO₂ concentration in a zone,
+ * expressed in parts per million. Derived from occupational safety guidance
+ * (8-hour exposure) and enforced as a hard clamp during environment updates.
+ */
+export const SAFETY_MAX_CO2_PPM = 5_000 as const;
+
+/**
  * Canonical constant describing the number of in-game hours represented by a
  * single simulation tick.
  */
@@ -257,6 +270,7 @@ export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
   LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG,
   AIR_DENSITY_KG_PER_M3,
   AMBIENT_CO2_PPM,
+  SAFETY_MAX_CO2_PPM,
   HOURS_PER_TICK,
   HOURS_PER_DAY,
   DAYS_PER_MONTH,

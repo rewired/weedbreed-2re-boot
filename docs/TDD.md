@@ -98,6 +98,11 @@ describe('Zone schema — SEC §7.5', () => {
 });
 ```
 
+## 3a) Economy Unit Guardrails
+
+- ESLint rule `wb-sim/no-economy-per-tick` rejects monetary identifiers that use `*_per_tick` units while permitting `_per_tick` for physical telemetry/process fields.
+- `packages/engine/tests/unit/economy/noEconomyPerTickRule.test.ts` exercises positive/negative snippets so contributors see the guardrail fail fast.
+
 ---
 
 ## 4) RNG & Stream Tests (SEC §5)
@@ -213,6 +218,8 @@ it('rejects zone device in non-grow room', () => {
 - `generateSeedToHarvestReport({ ticks, scenario })` wraps the orchestrator and perf harness to emit JSON artifacts documenting lifecycle transitions + telemetry; see `docs/engine/simulation-reporting.md` for CLI usage and schema.
 - `createRecordingContext(buffer)` attaches the instrumentation hook so specs can assert that stage completions mirror the trace order.
 - `pnpm --filter @wb/engine perf:ci` runs the CI performance budget harness (10 k traced ticks, deterministic demo world) and fails when throughput falls below 5 k ticks/min or heap exceeds 64 MiB; a 5 % guard band emits warnings for near-regressions requiring manual review.
+- Perf CI enforces ms/tick budgets for determinism checkpoints: baseline demo (`createBaselinePerfWorld`) ≤ 0.20 ms/tick and target scenario (`createTargetPerfWorld`, 1 room + 5 zones fully equipped) ≤ 0.40 ms/tick. Thresholds live in `PERF_SCENARIO_THRESHOLDS`.
+- `packages/engine/tests/unit/engine/pipeline/applyDeviceEffects.invariants.test.ts` clamps humidity to [0,100] %, CO₂ to `SAFETY_MAX_CO2_PPM`, and keeps enthalpy non-negative using deterministic `fast-check` seeds to stress the stage.
 
 ---
 
@@ -232,6 +239,8 @@ it('rejects zone device in non-grow room', () => {
 - Effective tariffs computed **once at sim start**.
 
 - **Reporting cadence (ADR-0019):** Economy read-model specs assert hourly (per tick) ledger rows exist and that daily totals equal deterministic 24-hour sums; alternate cadences should fail tests.
+- `packages/engine/tests/unit/readmodels/structureTariffs.test.ts` covers per-structure tariff overrides, field-level precedence, and ensures daily roll-ups retain baseline invariants for read-model consumers.
+- `packages/engine/tests/integration/pipeline/economyAccrual.integration.test.ts` audits workforce payroll so hourly slices summed with banker’s rounding match finalized day totals and reset the current-day accumulator.
 
 ```ts
 // tests/unit/util/tariffs.spec.ts

@@ -2,6 +2,17 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Added guardrails and coverage across the simulation engine:
+  - Introduced ESLint rule `wb-sim/no-economy-per-tick` (with unit tests) to block monetary `*_per_tick` identifiers, documented the guardrail in TDD, and recorded ADR-0021.
+  - Published `docs/engine/telemetry.md` describing every telemetry topic/payload with SEC §15 cross-linking.
+  - Tightened the CI performance harness with explicit baseline (`≤ 0.20 ms/tick`) and target (`≤ 0.40 ms/tick`) scenario thresholds enforced by `ciPerfCheck.ts` and reflected in TDD.
+  - Completed the blueprint parser rollout and added `packages/engine/tests/unit/data/blueprintSchemaCoverage.test.ts` to walk `/data/blueprints/**`, rejecting missing fields/unexpected properties while emitting a coverage summary.
+  - Expanded save/load integration coverage (corrupt `schemaVersion`, missing `company.structures`, forward no-op migrations, legacy v0 fixtures) and updated `docs/tasks/0005-save-load-and-migrations.md` accordingly.
+  - Added integration checks for storage-room resolution telemetry (missing vs ambiguous storagerooms) ensuring harvest lots remain intact.
+  - Shipped the `structureTariffs` read-model with override precedence tests plus DD/TDD documentation.
+  - Added device-physics invariants: humidity clamps (0–100 %), CO₂ safety ceiling (`SAFETY_MAX_CO2_PPM`), and non-negative enthalpy backed by deterministic `fast-check` runs; updated `updateEnvironment` to honour the new clamp.
+  - Audited workforce payroll accrual so hourly slices summed with banker’s rounding match finalized daily totals (integration test in `economyAccrual.integration.test.ts`).
+
 - Published ADR-0017–ADR-0020 to close SEC §14 open questions: locked the canonical irrigation method set, ratified the piecewise quadratic stress→growth curve, mandated hourly-ledger plus daily-rollup economy reporting, and fixed zone height defaults alongside launch cultivation presets.
 - Added a deterministic CI performance budget harness (`pnpm perf:ci`) that runs 10 k demo-world ticks, fails below 5 k ticks/min throughput or above the 64 MiB heap plateau, and emits guard-band warnings so regressions surface before breaching SEC §3 success criteria.
 - Added a tools-monitor Vitest alias for `@wb/transport-sio` so terminal monitor integration tests resolve the Socket.IO transport directly from source during workspace runs, preventing missing dist artifact failures.
