@@ -2,6 +2,7 @@
 
 | ADR-ID   | Title                                                                   | Status     | Supersedes | Affects                      | Binding? | Link                                                               |
 | -------- | ----------------------------------------------------------------------- | ---------- | ---------- | ---------------------------- | -------- | ------------------------------------------------------------------ |
+| ADR-0022 | JSON Import Attributes for Node.js 22                                   | Accepted   | —          | SEC, DD, TDD, AGENTS         | Yes      | [ADR-0022](./ADR-0022-json-import-attributes.md)                    |
 | ADR-0020 | Zone Height Baseline & Cultivation Presets                              | Accepted   | —          | SEC, DD, TDD, VISION         | Yes      | [ADR-0020](./ADR-0020-zone-height-and-cultivation-presets.md)      |
 | ADR-0019 | Economy Reporting Cadence                                               | Accepted   | —          | SEC, DD, TDD, VISION         | Yes      | [ADR-0019](./ADR-0019-economy-reporting-cadence.md)                |
 | ADR-0018 | Stress→Growth Curve Model                                              | Accepted   | —          | SEC, DD, TDD, VISION         | Yes      | [ADR-0018](./ADR-0018-stress-growth-curve-model.md)                |

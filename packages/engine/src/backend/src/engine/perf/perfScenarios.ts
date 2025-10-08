@@ -8,11 +8,11 @@ import {
   type DeviceBlueprint
 } from '../../domain/blueprints/deviceBlueprint.js';
 import { clamp01 } from '../../util/math.js';
-import devicePrices from '../../../../../../../data/prices/devicePrices.json' assert { type: 'json' };
-import coolAirSplitBlueprint from '../../../../../../../data/blueprints/device/climate/cool-air-split-3000.json' assert { type: 'json' };
-import ledVegLightBlueprint from '../../../../../../../data/blueprints/device/lighting/led-veg-light-600.json' assert { type: 'json' };
-import exhaustFanBlueprint from '../../../../../../../data/blueprints/device/airflow/exhaust-fan-4-inch.json' assert { type: 'json' };
-import carbonFilterBlueprint from '../../../../../../../data/blueprints/device/filtration/carbon-filter-6-inch.json' assert { type: 'json' };
+import devicePrices from '../../../../../../../data/prices/devicePrices.json' with { type: 'json' };
+import coolAirSplitBlueprint from '../../../../../../../data/blueprints/device/climate/cool-air-split-3000.json' with { type: 'json' };
+import ledVegLightBlueprint from '../../../../../../../data/blueprints/device/lighting/led-veg-light-600.json' with { type: 'json' };
+import exhaustFanBlueprint from '../../../../../../../data/blueprints/device/airflow/exhaust-fan-4-inch.json' with { type: 'json' };
+import carbonFilterBlueprint from '../../../../../../../data/blueprints/device/filtration/carbon-filter-6-inch.json' with { type: 'json' };
 
 interface DeviceBlueprintEntry {
   readonly blueprint: DeviceBlueprint;

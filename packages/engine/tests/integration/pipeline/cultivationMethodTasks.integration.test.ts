@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import basicSoilPot from '../../../../../data/blueprints/cultivation-method/basic-soil-pot.json' assert { type: 'json' };
-import pot10L from '../../../../../data/blueprints/container/pot-10l.json' assert { type: 'json' };
-import soilMultiCycle from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' assert { type: 'json' };
+import basicSoilPot from '../../../../../data/blueprints/cultivation-method/basic-soil-pot.json' with { type: 'json' };
+import pot10L from '../../../../../data/blueprints/container/pot-10l.json' with { type: 'json' };
+import soilMultiCycle from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };
 
 import { PIPELINE_ORDER, type EngineRunContext } from '@/backend/src/engine/Engine.js';
 import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
