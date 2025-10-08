@@ -662,6 +662,7 @@ All previously listed questions now have binding ADRs. New questions MUST cite a
 - All events are reproducible and stable (no wall-clock leakage, only sim time).
 - Unit tests cover each phase with golden vectors; integration test covers a reference 30-day scenario.
 - Numeric tolerances (§1.5) and canonical hashing are respected in all golden checks.
+- Telemetry topic contracts align with [engine/telemetry](./engine/telemetry.md).
 
 ---
 

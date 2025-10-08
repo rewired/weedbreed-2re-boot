@@ -38,6 +38,18 @@ export const PERF_CI_THRESHOLDS: PerfBudgetThresholds = {
   warningGuardPercentage: PERF_WARNING_GUARD_PERCENTAGE
 } as const;
 
+export interface PerfScenarioThreshold {
+  readonly maxAverageDurationMs: number;
+}
+
+export const PERF_SCENARIO_THRESHOLDS: {
+  readonly baseline: PerfScenarioThreshold;
+  readonly target: PerfScenarioThreshold;
+} = {
+  baseline: { maxAverageDurationMs: 0.2 },
+  target: { maxAverageDurationMs: 0.4 }
+} as const;
+
 export function evaluatePerfBudget(
   result: PerfHarnessResult,
   overrides?: Partial<PerfBudgetThresholds>

@@ -7,12 +7,15 @@ import { inventoryByStructure } from '@/backend/src/readmodels/inventory/invento
 import { inventoryByStorageRoom } from '@/backend/src/readmodels/inventory/inventoryByStorageRoom.js';
 import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
 import type { Plant, Room, Zone } from '@/backend/src/domain/world.js';
+import { TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1 } from '@/backend/src/telemetry/topics.js';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
+type DemoStructure = ReturnType<typeof createDemoWorld>['company']['structures'][0];
 
-function prepareHarvestScenario() {
+function prepareHarvestScenario(mutateStructure?: (structure: Mutable<DemoStructure>) => void) {
   const world = createDemoWorld();
-  const structure = world.company.structures[0] as Mutable<typeof world.company.structures[0]>;
+  const structure = world.company.structures[0] as Mutable<DemoStructure>;
+  mutateStructure?.(structure);
   const growRoom = structure.rooms.find((room) => room.purpose === 'growroom') as Mutable<Room>;
   const zone = growRoom.zones[0] as Mutable<Zone>;
   const basePlant = zone.plants[0] ?? createTestPlant();
@@ -105,5 +108,75 @@ describe('applyHarvestAndInventory integration', () => {
     "totalLots": 1,
   },
 }`);
+  });
+
+  it('emits telemetry when no storage room can be resolved', () => {
+    const world = prepareHarvestScenario((structure) => {
+      structure.rooms = structure.rooms.filter((room) => room.purpose !== 'storageroom');
+    });
+    const telemetryEvents: Array<{ topic: string; payload: Record<string, unknown> }> = [];
+    const ctx: EngineRunContext = {
+      telemetry: {
+        emit(topic, payload) {
+          telemetryEvents.push({ topic, payload });
+        }
+      }
+    };
+
+    const { world: nextWorld } = runTick(world, ctx, { trace: false });
+    const emitted = telemetryEvents.filter((event) => event.topic === TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1);
+
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0]?.payload).toMatchObject({ reason: 'not_found', candidateRoomIds: [] });
+
+    const growRoom = nextWorld.company.structures[0]?.rooms.find((room) => room.purpose === 'growroom');
+    const zone = growRoom?.zones[0];
+    const plant = zone?.plants[0];
+
+    expect(plant?.status).toBe('active');
+    expect(plant?.readyForHarvest).toBe(true);
+
+    const lots = nextWorld.company.structures.flatMap((structure) =>
+      structure.rooms.flatMap((room) => room.inventory?.lots ?? [])
+    );
+    expect(lots).toHaveLength(0);
+  });
+
+  it('emits telemetry when storage resolution is ambiguous', () => {
+    const world = prepareHarvestScenario((structure) => {
+      const storageRoom = structure.rooms.find((room) => room.purpose === 'storageroom');
+
+      if (storageRoom) {
+        const clone: Room = { ...storageRoom, id: `${storageRoom.id}-clone` as Room['id'] };
+        structure.rooms = [...structure.rooms, clone];
+      }
+    });
+    const telemetryEvents: Array<{ topic: string; payload: Record<string, unknown> }> = [];
+    const ctx: EngineRunContext = {
+      telemetry: {
+        emit(topic, payload) {
+          telemetryEvents.push({ topic, payload });
+        }
+      }
+    };
+
+    const { world: nextWorld } = runTick(world, ctx, { trace: false });
+    const emitted = telemetryEvents.filter((event) => event.topic === TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1);
+
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0]?.payload).toMatchObject({ reason: 'ambiguous' });
+    expect((emitted[0]?.payload as { candidateRoomIds: string[] }).candidateRoomIds).toHaveLength(2);
+
+    const growRoom = nextWorld.company.structures[0]?.rooms.find((room) => room.purpose === 'growroom');
+    const zone = growRoom?.zones[0];
+    const plant = zone?.plants[0];
+
+    expect(plant?.status).toBe('active');
+    expect(plant?.readyForHarvest).toBe(true);
+
+    const lots = nextWorld.company.structures.flatMap((structure) =>
+      structure.rooms.flatMap((room) => room.inventory?.lots ?? [])
+    );
+    expect(lots).toHaveLength(0);
   });
 });

@@ -9,7 +9,7 @@
   ],
   "power_W": 0,
   "efficiency01": 0.85,
-  "coverage_m2": 0,
+  "coverage_m2": 30,
   "effects": [
     "filtration"
   ],

@@ -18,6 +18,7 @@ normalisation mandated by the SEC.
 | `LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG` | `2 260 000` | J/kg | Latent heat of vaporisation for water at 1 atm (SEC §6.3.2). |
 | `AIR_DENSITY_KG_PER_M3` | `1.2041` | kg/m³ | Density of dry air at standard conditions (20 °C, 1 atm). |
 | `AMBIENT_CO2_PPM` | `420` | ppm | Default ambient CO₂ concentration applied when no explicit zone reading exists. |
+| `SAFETY_MAX_CO2_PPM` | `5 000` | ppm | Hard safety ceiling for zone CO₂ concentrations (8 h exposure limit). |
 | `HOURS_PER_TICK` | `1` | h | Duration represented by one simulation tick (one in-game hour). |
 | `HOURS_PER_DAY` | `24` | h | Hours per in-game day (calendar invariant). |
 | `DAYS_PER_MONTH` | `30` | d | Days per in-game month. |

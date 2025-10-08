@@ -179,6 +179,7 @@ costing and scheduling remain aligned with SEC §7.5 and §10.
 - Water: `m3 = liters / 1000`; `cost = m3 * tariff.m3`.
 
 - **Reporting cadence (ADR-0019):** Engine persists hourly (per tick) ledger rows; façade/read-models expose those hourly slices plus deterministic daily rollups computed as 24-hour sums. Other cadences require a new ADR.
+- Read-model `structureTariffs` (`packages/engine/src/backend/src/readmodels/economy/structureTariffs.ts`) merges the baseline tariff map with optional per-structure overrides, clamps override fields to non-negative values, and keeps the company-wide rollup anchored to the baseline so reporting remains comparable across structures.
 
 ## 5a) Workforce Domain (SEC §10)
 
@@ -192,13 +193,14 @@ costing and scheduling remain aligned with SEC §7.5 and §10.
   - `kpis`: rolling `WorkforceKpiSnapshot` entries summarising throughput, labour hours, overtime, and aggregate morale/fatigue.
   - `warnings`: deterministic `WorkforceWarning` entries carrying `code`, `severity`, `message`, optional `structureId`/`employeeId`/`taskId`, plus metadata for diagnostics and the façade.
   - `identity`: deterministic pseudodata service that seeds `randomuser.me` calls with UUID v7, enforces a 500 ms timeout, and falls back to curated offline lists via `createRng(rngSeedUuid, "employee:<rngSeedUuid>")` so only pseudonymous records persist.
-  - `payroll`: day-indexed accumulators capturing `baseMinutes`, `otMinutes`, `baseCost`, `otCost`, and `totalLaborCost` for the
+- `payroll`: day-indexed accumulators capturing `baseMinutes`, `otMinutes`, `baseCost`, `otCost`, and `totalLaborCost` for the
     entire company as well as per-structure slices. Hourly rates follow the SEC 10.3 formula
     `rate_per_hour = (5 + 10 × relevantSkill) × locationIndex × roleBaseMult × employeeBaseMult × experienceMult × laborMarketFactor`,
     with shift premiums applied multiplicatively and overtime billed at `1.25×`. `relevantSkill` averages the required task
     skills (fallback: average of the employee’s full skill set). Location factors resolve via `/data/payroll/location_index.json`
     (city overrides beat country overrides; default is `1.0`). Daily totals close with **Banker’s rounding** before the economy
-    stage consumes the snapshot.
+    stage consumes the snapshot. `packages/engine/tests/integration/pipeline/economyAccrual.integration.test.ts` audits the
+    economy stage to ensure hourly slices summed with banker’s rounding exactly match the finalized daily payroll rollups.
 - `Employee` records now persist compensation context: `baseRateMultiplier`, `laborMarketFactor`, `timePremiumMultiplier`,
   `employmentStartDay`, `salaryExpectation_per_h`, cumulative `experience` (`hoursAccrued` + `level01` driving the experience
   multiplier), and a deterministic `raise` cadence (`cadenceSequence`, `lastDecisionDay`, `nextEligibleDay`). Experience accrues

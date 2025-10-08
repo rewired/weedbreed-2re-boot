@@ -6,6 +6,8 @@ import safeStringify from 'safe-stable-stringify';
 import { CURRENT_SAVE_SCHEMA_VERSION } from './constants.js';
 import { saveGameEnvelopeSchema, saveGameSchema, type SaveGame } from './schemas.js';
 import { type SaveGameMigrationRegistry } from './migrations/index.js';
+import { validateCompanyWorld } from '../domain/validation.js';
+import type { Company } from '../domain/entities.js';
 
 /**
  * Optional configuration for {@link loadSaveGame}.
@@ -42,6 +44,30 @@ async function readSaveFile(filePath: string): Promise<unknown> {
   }
 }
 
+function assertWorldIntegrity(save: SaveGame): void {
+  const world = (save as { world?: unknown }).world;
+
+  if (!world || typeof world !== 'object') {
+    throw new Error('Save file payload is missing the world branch');
+  }
+
+  const company = (world as { company?: unknown }).company;
+
+  if (!company || typeof company !== 'object') {
+    throw new Error('Save file world is missing the company branch');
+  }
+
+  const validation = validateCompanyWorld(company as Company);
+
+  if (!validation.ok) {
+    const description = validation.issues
+      .map((issue) => `${issue.path}: ${issue.message}`)
+      .join('; ');
+
+    throw new Error(`Save file world violates SEC guardrails: ${description}`);
+  }
+}
+
 /**
  * Load and validate a savegame from disk, applying schema migrations when
  * required.
@@ -60,7 +86,9 @@ export async function loadSaveGame(filePath: string, options: LoadSaveGameOption
   }
 
   if (envelope.schemaVersion === targetVersion) {
-    return saveGameSchema.parse(payload);
+    const parsed = saveGameSchema.parse(payload);
+    assertWorldIntegrity(parsed);
+    return parsed;
   }
 
   if (!options.migrations) {
@@ -69,7 +97,9 @@ export async function loadSaveGame(filePath: string, options: LoadSaveGameOption
 
   const migrated = await options.migrations.migrate(payload, targetVersion);
 
-  return saveGameSchema.parse(migrated);
+  const parsedMigrated = saveGameSchema.parse(migrated);
+  assertWorldIntegrity(parsedMigrated);
+  return parsedMigrated;
 }
 
 /**
