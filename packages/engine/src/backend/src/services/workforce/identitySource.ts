@@ -72,7 +72,8 @@ export async function resolveWorkforceIdentity(
     throw new Error('rngSeedUuid must be a non-empty string');
   }
 
-  const rng = createRng(rngSeedUuid, `employee:${rngSeedUuid}`);
+  const rngSeed = `${rngSeedUuid}`;
+  const rng = createRng(rngSeed, `employee:${rngSeedUuid}`);
   const selectedTraits = selectTraits(rng);
 
   const remoteIdentity = await requestRandomUserIdentity(randomUserSeed);

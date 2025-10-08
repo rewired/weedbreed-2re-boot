@@ -224,7 +224,7 @@ function resolveContextSkills(context: TraitEffectContext): readonly string[] {
   return definition.requiredSkills?.map((skill) => skill.skillKey) ?? [];
 }
 
-export const WORKFORCE_TRAIT_METADATA: ReadonlyMap<WorkforceTraitId, WorkforceTraitMetadata> = new Map(
+const WORKFORCE_TRAIT_METADATA_MUTABLE = new Map<WorkforceTraitId, WorkforceTraitMetadata>(
   RAW_TRAITS.map((trait) => {
     const behaviour = resolveBehaviour(trait.id);
     const conflicts = new Set(behaviour.conflictsWith ?? []);
@@ -242,11 +242,13 @@ export const WORKFORCE_TRAIT_METADATA: ReadonlyMap<WorkforceTraitId, WorkforceTr
   }),
 );
 
-function ensureBidirectionalConflicts(): void {
-  for (const metadata of WORKFORCE_TRAIT_METADATA.values()) {
+function ensureBidirectionalConflicts(
+  metadataMap: Map<WorkforceTraitId, WorkforceTraitMetadata>,
+): void {
+  for (const metadata of metadataMap.values()) {
     const behaviour = resolveBehaviour(metadata.id);
     for (const conflict of behaviour.conflictsWith ?? []) {
-      const other = WORKFORCE_TRAIT_METADATA.get(conflict);
+      const other = metadataMap.get(conflict);
       if (!other) {
         continue;
       }
@@ -257,7 +259,7 @@ function ensureBidirectionalConflicts(): void {
           ...resolveBehaviour(conflict),
           conflictsWith: [...otherConflicts],
         } satisfies TraitBehaviour;
-        WORKFORCE_TRAIT_METADATA.set(conflict, {
+        metadataMap.set(conflict, {
           ...other,
           conflictsWith: [...otherConflicts],
         });
@@ -266,7 +268,10 @@ function ensureBidirectionalConflicts(): void {
   }
 }
 
-ensureBidirectionalConflicts();
+ensureBidirectionalConflicts(WORKFORCE_TRAIT_METADATA_MUTABLE);
+
+export const WORKFORCE_TRAIT_METADATA: ReadonlyMap<WorkforceTraitId, WorkforceTraitMetadata> =
+  WORKFORCE_TRAIT_METADATA_MUTABLE;
 
 export function listTraitMetadata(): readonly WorkforceTraitMetadata[] {
   return Array.from(WORKFORCE_TRAIT_METADATA.values()).sort((a, b) => a.id.localeCompare(b.id));
