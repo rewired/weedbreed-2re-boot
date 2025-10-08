@@ -11,7 +11,8 @@
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "mock-server": "tsx scripts/mockTelemetryServer.mts"
   },
   "engines": {
     "node": ">=22.0.0"
