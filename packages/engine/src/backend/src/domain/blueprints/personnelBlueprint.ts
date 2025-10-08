@@ -1,46 +1,49 @@
 import { z } from 'zod';
 
+import { createFiniteNumber, createNonEmptyString } from '../schemas/primitives.ts';
 import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
 const slugSchema = z
   .string({ required_error: 'slug is required.' })
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case (lowercase letters, digits, hyphen).');
 
-const nonEmptyString = z.string().trim().min(1, 'String values must not be empty.');
+const nonEmptyString = createNonEmptyString({ message: 'String values must not be empty.' });
 
-const probability01 = z
-  .number({ invalid_type_error: 'Probability values must be numbers.' })
-  .finite('Probability values must be finite.')
+const probability01 = createFiniteNumber({
+  invalidTypeError: 'Probability values must be numbers.',
+  message: 'Probability values must be finite.'
+})
   .min(0, 'Probability values must be >= 0.')
   .max(1, 'Probability values must be <= 1.');
 
 const numericRangeSchema = z
   .object({
-    min: z.number().finite('range.min must be finite.'),
-    max: z.number().finite('range.max must be finite.')
+    min: createFiniteNumber({ message: 'range.min must be finite.' }),
+    max: createFiniteNumber({ message: 'range.max must be finite.' })
   })
   .strict();
 
 const salarySchema = z
   .object({
-    basePerTick: z
-      .number({ required_error: 'salary.basePerTick is required.' })
-      .finite('salary.basePerTick must be finite.')
+    basePerTick: createFiniteNumber({
+      requiredError: 'salary.basePerTick is required.',
+      message: 'salary.basePerTick must be finite.'
+    })
       .min(0, 'salary.basePerTick must be >= 0.'),
     skillFactor: z
       .object({
-        base: z.number().finite('skillFactor.base must be finite.'),
-        perPoint: z.number().finite('skillFactor.perPoint must be finite.'),
-        min: z.number().finite('skillFactor.min must be finite.'),
-        max: z.number().finite('skillFactor.max must be finite.')
+        base: createFiniteNumber({ message: 'skillFactor.base must be finite.' }),
+        perPoint: createFiniteNumber({ message: 'skillFactor.perPoint must be finite.' }),
+        min: createFiniteNumber({ message: 'skillFactor.min must be finite.' }),
+        max: createFiniteNumber({ message: 'skillFactor.max must be finite.' })
       })
       .strict(),
     randomRange: numericRangeSchema,
     skillWeights: z
       .object({
-        primary: z.number().finite('skillWeights.primary must be finite.'),
-        secondary: z.number().finite('skillWeights.secondary must be finite.'),
-        tertiary: z.number().finite('skillWeights.tertiary must be finite.')
+        primary: createFiniteNumber({ message: 'skillWeights.primary must be finite.' }),
+        secondary: createFiniteNumber({ message: 'skillWeights.secondary must be finite.' }),
+        tertiary: createFiniteNumber({ message: 'skillWeights.tertiary must be finite.' })
       })
       .strict()
   })
@@ -48,23 +51,27 @@ const salarySchema = z
 
 const skillRollSchema = z
   .object({
-    min: z.number().finite('skillProfile.roll.min must be finite.'),
-    max: z.number().finite('skillProfile.roll.max must be finite.')
+    min: createFiniteNumber({ message: 'skillProfile.roll.min must be finite.' }),
+    max: createFiniteNumber({ message: 'skillProfile.roll.max must be finite.' })
   })
   .strict();
 
 const skillCandidateSchema = z
   .object({
     skill: nonEmptyString,
-    startingLevel: z.number().finite('skillProfile.candidate.startingLevel must be finite.'),
-    weight: z.number().finite('skillProfile.candidate.weight must be finite.').optional()
+    startingLevel: createFiniteNumber({
+      message: 'skillProfile.candidate.startingLevel must be finite.'
+    }),
+    weight: createFiniteNumber({
+      message: 'skillProfile.candidate.weight must be finite.'
+    }).optional()
   })
   .strict();
 
 const skillProfileEntrySchema = z
   .object({
     skill: nonEmptyString,
-    startingLevel: z.number().finite('skillProfile.startingLevel must be finite.'),
+    startingLevel: createFiniteNumber({ message: 'skillProfile.startingLevel must be finite.' }),
     roll: skillRollSchema
   })
   .strict();
@@ -99,13 +106,15 @@ const personnelRoleBlueprintSchema = z
     class: personnelRoleClassSchema,
     name: nonEmptyString,
     salary: salarySchema,
-    maxMinutesPerTick: z
-      .number({ required_error: 'maxMinutesPerTick is required.' })
-      .finite('maxMinutesPerTick must be finite.')
+    maxMinutesPerTick: createFiniteNumber({
+      requiredError: 'maxMinutesPerTick is required.',
+      message: 'maxMinutesPerTick must be finite.'
+    })
       .min(0, 'maxMinutesPerTick must be >= 0.'),
-    roleWeight: z
-      .number({ required_error: 'roleWeight is required.' })
-      .finite('roleWeight must be finite.')
+    roleWeight: createFiniteNumber({
+      requiredError: 'roleWeight is required.',
+      message: 'roleWeight must be finite.'
+    })
       .min(0, 'roleWeight must be >= 0.'),
     preferredShiftId: nonEmptyString.optional(),
     skillProfile: skillProfileSchema

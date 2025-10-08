@@ -1,9 +1,10 @@
 import { z } from 'zod';
 
+import { createFiniteNumber } from '../../domain/schemas/primitives.ts';
 import { SENSOR_MEASUREMENT_TYPES } from '../../domain/entities.ts';
 import type { SensorReading } from '../../domain/interfaces/ISensor.ts';
 
-const finiteNumber = z.number().finite();
+const finiteNumber = createFiniteNumber({ message: 'Number must be finite.' });
 
 const SENSOR_READING_BASE_SCHEMA = z.object({
   measurementType: z.enum(SENSOR_MEASUREMENT_TYPES),

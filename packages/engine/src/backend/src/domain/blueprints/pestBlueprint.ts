@@ -1,22 +1,24 @@
 import { z } from 'zod';
 
+import { createFiniteNumber, createNonEmptyString } from '../schemas/primitives.ts';
 import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
 const slugSchema = z
   .string({ required_error: 'slug is required.' })
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case (lowercase letters, digits, hyphen).');
 
-const nonEmptyString = z.string().trim().min(1, 'String values must not be empty.');
+const nonEmptyString = createNonEmptyString({ message: 'String values must not be empty.' });
 
 const tupleRangeSchema = z
-  .array(z.number().finite('Ranges must contain finite numbers.'), {
+  .array(createFiniteNumber({ message: 'Ranges must contain finite numbers.' }), {
     invalid_type_error: 'Ranges must contain numeric bounds.'
   })
   .length(2, 'Ranges must contain exactly two numeric bounds.');
 
-const probability01 = z
-  .number({ invalid_type_error: 'Probability values must be numeric.' })
-  .finite('Probability values must be finite.')
+const probability01 = createFiniteNumber({
+  invalidTypeError: 'Probability values must be numeric.',
+  message: 'Probability values must be finite.'
+})
   .min(0, 'Probability values must be >= 0.')
   .max(1, 'Probability values must be <= 1.');
 
@@ -33,17 +35,20 @@ const environmentalRiskSchema = z
 
 const populationDynamicsSchema = z
   .object({
-    dailyReproductionRate: z
-      .number({ required_error: 'populationDynamics.dailyReproductionRate is required.' })
-      .finite('populationDynamics.dailyReproductionRate must be finite.')
+    dailyReproductionRate: createFiniteNumber({
+      requiredError: 'populationDynamics.dailyReproductionRate is required.',
+      message: 'populationDynamics.dailyReproductionRate must be finite.'
+    })
       .min(0, 'populationDynamics.dailyReproductionRate must be >= 0.'),
-    dailyMortalityRate: z
-      .number({ required_error: 'populationDynamics.dailyMortalityRate is required.' })
-      .finite('populationDynamics.dailyMortalityRate must be finite.')
+    dailyMortalityRate: createFiniteNumber({
+      requiredError: 'populationDynamics.dailyMortalityRate is required.',
+      message: 'populationDynamics.dailyMortalityRate must be finite.'
+    })
       .min(0, 'populationDynamics.dailyMortalityRate must be >= 0.'),
-    carryingCapacity: z
-      .number({ required_error: 'populationDynamics.carryingCapacity is required.' })
-      .finite('populationDynamics.carryingCapacity must be finite.')
+    carryingCapacity: createFiniteNumber({
+      requiredError: 'populationDynamics.carryingCapacity is required.',
+      message: 'populationDynamics.carryingCapacity must be finite.'
+    })
       .min(0, 'populationDynamics.carryingCapacity must be >= 0.')
   })
   .strict();

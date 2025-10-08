@@ -1,20 +1,22 @@
 import { z } from 'zod';
 
+import { createFiniteNumber, createNonEmptyString } from '../schemas/primitives.ts';
 import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
 const slugSchema = z
   .string({ required_error: 'slug is required.' })
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case (lowercase letters, digits, hyphen).');
 
-const nonEmptyString = z.string().trim().min(1, 'String values must not be empty.');
-const probability01 = z
-  .number({ invalid_type_error: 'Probability values must be numbers.' })
-  .finite('Probability values must be finite.')
+const nonEmptyString = createNonEmptyString({ message: 'String values must not be empty.' });
+const probability01 = createFiniteNumber({
+  invalidTypeError: 'Probability values must be numbers.',
+  message: 'Probability values must be finite.'
+})
   .min(0, 'Probability values must be >= 0.')
   .max(1, 'Probability values must be <= 1.');
 
 const tupleRangeSchema = z
-  .array(z.number().finite('Range values must be finite numbers.'), {
+  .array(createFiniteNumber({ message: 'Range values must be finite numbers.' }), {
     invalid_type_error: 'Ranges must be numeric arrays.'
   })
   .length(2, 'Ranges must contain exactly two numeric bounds.');
