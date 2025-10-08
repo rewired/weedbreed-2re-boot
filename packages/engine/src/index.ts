@@ -7,11 +7,11 @@ import {
   type ResolvedTariffs,
   type TariffConfig,
   type TariffDifficultyModifiers
-} from './backend/src/util/tariffs.js';
+} from './backend/src/util/tariffs.ts';
 import {
   DEFAULT_WORKFORCE_CONFIG,
   type WorkforceConfig,
-} from './backend/src/config/workforce.js';
+} from './backend/src/config/workforce.ts';
 
 const DEFAULT_DIFFICULTY_ID = 'normal';
 
@@ -142,9 +142,9 @@ export function createEngineBootstrapConfig(
   } satisfies EngineBootstrapConfig;
 }
 
-export * from './backend/src/constants/simConstants.js';
-export * from './backend/src/domain/world.js';
-export * from './backend/src/util/rng.js';
-export { resolveTariffs } from './backend/src/util/tariffs.js';
-export type { ResolvedTariffs } from './backend/src/util/tariffs.js';
-export type { WorkforceConfig, WorkforceMarketScanConfig } from './backend/src/config/workforce.js';
+export * from './backend/src/constants/simConstants.ts';
+export * from './backend/src/domain/world.ts';
+export * from './backend/src/util/rng.ts';
+export { resolveTariffs } from './backend/src/util/tariffs.ts';
+export type { ResolvedTariffs } from './backend/src/util/tariffs.ts';
+export type { WorkforceConfig, WorkforceMarketScanConfig } from './backend/src/config/workforce.ts';

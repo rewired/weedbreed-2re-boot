@@ -14,7 +14,7 @@ import basicSoilPot from '../../../../../data/blueprints/cultivation-method/basi
 import scrog from '../../../../../data/blueprints/cultivation-method/screen-of-green.json' with { type: 'json' };
 import sog from '../../../../../data/blueprints/cultivation-method/sea-of-green.json' with { type: 'json' };
 
-import { parseIrrigationBlueprint, type IrrigationBlueprint } from '@/backend/src/domain/world.js';
+import { parseIrrigationBlueprint, type IrrigationBlueprint } from '@/backend/src/domain/world';
 
 type CultivationBlueprint = typeof basicSoilPot;
 

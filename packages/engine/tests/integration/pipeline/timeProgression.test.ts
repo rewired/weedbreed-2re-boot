@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants.js';
-import { runTick } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import type { IrrigationEvent } from '@/backend/src/domain/interfaces/IIrrigationService.js';
+import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants';
+import { runTick } from '@/backend/src/engine/Engine';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import type { IrrigationEvent } from '@/backend/src/domain/interfaces/IIrrigationService';
 
 describe('Tick pipeline — simulation time progression', () => {
   it('only advances simulation time when the pipeline mutates the world', () => {

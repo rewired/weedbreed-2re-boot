@@ -5,9 +5,9 @@ import {
   calculateHarvestQuality,
   calculateHarvestYield,
   createHarvestLot
-} from '../../../src/backend/src/util/harvest.js';
-import type { StrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
-import type { HarvestLot, Uuid } from '../../../src/backend/src/domain/entities.js';
+} from '../../../src/backend/src/util/harvest.ts';
+import type { StrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.ts';
+import type { HarvestLot, Uuid } from '../../../src/backend/src/domain/entities.ts';
 
 const mockStrain = (): StrainBlueprint => ({
   id: '22222222-2222-2222-2222-222222222222',

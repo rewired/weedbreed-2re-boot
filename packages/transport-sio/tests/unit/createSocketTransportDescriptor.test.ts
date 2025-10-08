@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createSocketTransportDescriptor } from '../../src/index.js';
+import { createSocketTransportDescriptor } from '../../src/index.ts';
 
 describe('createSocketTransportDescriptor', () => {
   it('creates a descriptor with the expected endpoint', () => {

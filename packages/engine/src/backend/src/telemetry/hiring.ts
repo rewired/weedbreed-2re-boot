@@ -1,9 +1,9 @@
-import type { TelemetryBus } from '../engine/Engine.js';
-import type { Uuid } from '../domain/schemas/primitives.js';
+import type { TelemetryBus } from '../engine/Engine.ts';
+import type { Uuid } from '../domain/schemas/primitives.ts';
 import {
   TELEMETRY_HIRING_EMPLOYEE_ONBOARDED_V1,
   TELEMETRY_HIRING_MARKET_SCAN_COMPLETED_V1,
-} from './topics.js';
+} from './topics.ts';
 
 function emitEvent(
   bus: TelemetryBus | undefined,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { createRecordingContext, runOneTickWithTrace } from '@/backend/src/engine/testHarness.js';
-import type { StepName } from '@/backend/src/engine/trace.js';
+import { createRecordingContext, runOneTickWithTrace } from '@/backend/src/engine/testHarness';
+import type { StepName } from '@/backend/src/engine/trace';
 
 const EXPECTED_STAGE_ORDER = [
   'applyDeviceEffects',

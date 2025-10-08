@@ -1,8 +1,8 @@
 import { Command } from 'commander';
 import Table from 'cli-table3';
 
-import { generatePackageAudit, renderPackageAuditMarkdown } from '../lib/packageAudit.js';
-import { logger } from '../lib/logger.js';
+import { generatePackageAudit, renderPackageAuditMarkdown } from '../lib/packageAudit.ts';
+import { logger } from '../lib/logger.ts';
 
 const program = new Command('wb');
 

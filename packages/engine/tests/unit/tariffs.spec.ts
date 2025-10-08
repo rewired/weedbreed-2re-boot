@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   resolveTariffs,
   tariffDifficultySchema
-} from '@/backend/src/util/tariffs.js';
+} from '@/backend/src/util/tariffs';
 
 describe('resolveTariffs', () => {
   it('returns base tariffs when no difficulty modifiers are provided', () => {

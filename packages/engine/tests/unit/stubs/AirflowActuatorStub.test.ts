@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants.js';
-import { createAirflowActuatorStub } from '@/backend/src/stubs/AirflowActuatorStub.js';
-import type { AirflowActuatorInputs } from '@/backend/src/domain/interfaces/IAirflowActuator.js';
+import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants';
+import { createAirflowActuatorStub } from '@/backend/src/stubs/AirflowActuatorStub';
+import type { AirflowActuatorInputs } from '@/backend/src/domain/interfaces/IAirflowActuator';
 
 const ZONE_VOLUME_M3 = 50;
 const BASE_INPUTS: AirflowActuatorInputs = {

@@ -4,7 +4,7 @@ import {
   LATENT_HEAT_VAPORIZATION_WATER_J_PER_KG,
   ROOM_DEFAULT_HEIGHT_M,
   HOURS_PER_DAY
-} from '../../constants/simConstants.js';
+} from '../../constants/simConstants.ts';
 import type {
   AirflowActuatorInputs,
   Co2InjectorInputs,
@@ -12,9 +12,9 @@ import type {
   HumidityActuatorInputs,
   LightEmitterInputs,
   ThermalActuatorInputs
-} from '../../domain/interfaces/index.js';
-import type { ZoneDeviceInstance } from '../../domain/entities.js';
-import type { SimulationWorld, Zone, Room, Structure } from '../../domain/world.js';
+} from '../../domain/interfaces/index.ts';
+import type { ZoneDeviceInstance } from '../../domain/entities.ts';
+import type { SimulationWorld, Zone, Room, Structure } from '../../domain/world.ts';
 import {
   createAirflowActuatorStub,
   createCo2InjectorStub,
@@ -22,19 +22,19 @@ import {
   createHumidityActuatorStub,
   createLightEmitterStub,
   createThermalActuatorStub
-} from '../../stubs/index.js';
-import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
-import { resolveTickHours } from '../resolveTickHours.js';
-import { clamp01 } from '../../util/math.js';
+} from '../../stubs/index.ts';
+import type { EngineDiagnostic, EngineRunContext } from '../Engine.ts';
+import { resolveTickHours } from '../resolveTickHours.ts';
+import { clamp01 } from '../../util/math.ts';
 import {
   updateZoneDeviceLifecycle,
   type DeviceDegradationOutcome
-} from '../../device/degradation.js';
+} from '../../device/degradation.ts';
 import {
   ensureDeviceMaintenanceRuntime,
   updateDeviceMaintenanceAccrual
-} from '../../device/maintenanceRuntime.js';
-import { accumulateEnergyConsumption } from '../../economy/runtime.js';
+} from '../../device/maintenanceRuntime.ts';
+import { accumulateEnergyConsumption } from '../../economy/runtime.ts';
 
 export interface DeviceEffectsRuntime {
   readonly zoneTemperatureDeltaC: Map<Zone['id'], number>;

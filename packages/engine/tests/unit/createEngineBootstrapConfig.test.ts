@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createEngineBootstrapConfig } from '../../src/index.js';
+import { createEngineBootstrapConfig } from '../../src/index.ts';
 
 describe('createEngineBootstrapConfig', () => {
   it('creates a deterministic configuration when provided with a scenario id', () => {

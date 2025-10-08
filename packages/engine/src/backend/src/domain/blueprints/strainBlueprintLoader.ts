@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { parseStrainBlueprint, type StrainBlueprint } from './strainBlueprint.js';
-import type { Uuid } from '../schemas/primitives.js';
+import { parseStrainBlueprint, type StrainBlueprint } from './strainBlueprint.ts';
+import type { Uuid } from '../schemas/primitives.ts';
 
 export interface LoadStrainBlueprintOptions {
   readonly blueprintsRoot?: string;

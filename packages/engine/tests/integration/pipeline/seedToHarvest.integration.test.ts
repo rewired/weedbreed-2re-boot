@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { runSeedToHarvest } from '@/backend/src/engine/seedToHarvest.js';
-import type { Plant, SimulationWorld, Zone } from '@/backend/src/domain/world.js';
+import { runSeedToHarvest } from '@/backend/src/engine/seedToHarvest';
+import type { Plant, SimulationWorld, Zone } from '@/backend/src/domain/world';
 import { WHITE_WIDOW_STRAIN_ID } from '@/tests/testUtils/strainFixtures.ts';
 
 type SeedToHarvestResult = ReturnType<typeof runSeedToHarvest>;

@@ -1,6 +1,6 @@
-import { clamp, clamp01 } from '../util/math.js';
-import type { ZoneEnvironment } from '../domain/world.js';
-import type { PestDiseaseRiskLevel } from '../domain/health/pestDisease.js';
+import { clamp, clamp01 } from '../util/math.ts';
+import type { ZoneEnvironment } from '../domain/world.ts';
+import type { PestDiseaseRiskLevel } from '../domain/health/pestDisease.ts';
 
 export interface PestDiseaseRiskInputs {
   readonly environment: ZoneEnvironment;

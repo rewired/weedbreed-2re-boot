@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { InventorySchema } from '@/backend/src/domain/schemas/InventorySchema.js';
-import type { HarvestLot, Inventory } from '@/backend/src/domain/world.js';
+import { InventorySchema } from '@/backend/src/domain/schemas/InventorySchema';
+import type { HarvestLot, Inventory } from '@/backend/src/domain/world';
 
 const LOT: HarvestLot = {
   id: '00000000-0000-0000-0000-000000000f00' as HarvestLot['id'],

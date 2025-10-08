@@ -1,17 +1,17 @@
-import { HOURS_PER_DAY } from '../../constants/simConstants.js';
-import type { SimulationWorld, WorkforcePayrollState } from '../../domain/world.js';
-import type { EngineRunContext } from '../Engine.js';
-import { consumeWorkforcePayrollAccrual } from './applyWorkforce.js';
+import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
+import type { SimulationWorld, WorkforcePayrollState } from '../../domain/world.ts';
+import type { EngineRunContext } from '../Engine.ts';
+import { consumeWorkforcePayrollAccrual } from './applyWorkforce.ts';
 import {
   consumeDeviceMaintenanceAccrual,
   type DeviceMaintenanceAccrualState,
   type DeviceMaintenanceAccrualSnapshot,
-} from '../../device/maintenanceRuntime.js';
-import { consumeEconomyUsageRuntime } from '../../economy/runtime.js';
-import { resolveEffectiveTariffs } from '../../economy/tariffs.js';
-import { resolveTickHours } from '../resolveTickHours.js';
+} from '../../device/maintenanceRuntime.ts';
+import { consumeEconomyUsageRuntime } from '../../economy/runtime.ts';
+import { resolveEffectiveTariffs } from '../../economy/tariffs.ts';
+import { resolveTickHours } from '../resolveTickHours.ts';
 import cultivationMethodPriceMapJson from '../../../../../../../data/prices/cultivationMethodPrices.json' with { type: 'json' };
-import { parseCultivationMethodPriceMap } from '../../domain/pricing/cultivationMethodPriceMap.js';
+import { parseCultivationMethodPriceMap } from '../../domain/pricing/cultivationMethodPriceMap.ts';
 
 const cultivationMethodPriceMap = parseCultivationMethodPriceMap(cultivationMethodPriceMapJson);
 

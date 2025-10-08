@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { withPerfHarness } from '@/backend/src/engine/testHarness.js';
+import { withPerfHarness } from '@/backend/src/engine/testHarness';
 
 const PERF_TICK_COUNT = 25;
 const PERF_MAX_AVERAGE_DURATION_NS = 5_000_000;

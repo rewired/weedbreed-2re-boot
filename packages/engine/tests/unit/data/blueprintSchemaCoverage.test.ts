@@ -16,8 +16,8 @@ import {
   parseStructureBlueprint,
   parseStrainBlueprint,
   parseSubstrateBlueprint
-} from '@/backend/src/domain/blueprints/index.js';
-import { resolveBlueprintPath } from '../../testUtils/paths.js';
+} from '@/backend/src/domain/blueprints/index';
+import { resolveBlueprintPath } from '../../testUtils/paths.ts';
 
 type ParserFn = (input: unknown, context: { readonly filePath: string; readonly relativePath: string }) => void;
 

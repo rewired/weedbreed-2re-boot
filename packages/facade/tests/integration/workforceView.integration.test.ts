@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   createWorkforceView,
   type WorkforceViewOptions
-} from '../../src/index.js';
+} from '../../src/index.ts';
 import type {
   Employee,
   EmployeeRole,

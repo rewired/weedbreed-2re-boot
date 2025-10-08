@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 // Leaf schema: never import from '../schemas.ts' to avoid barrel cycles.
-import { finiteNumber, nonNegativeNumber, unitIntervalNumber, uuidSchema } from './primitives.js';
-import type { HarvestLot } from '../types/HarvestLot.js';
+import { finiteNumber, nonNegativeNumber, unitIntervalNumber, uuidSchema } from './primitives.ts';
+import type { HarvestLot } from '../types/HarvestLot.ts';
 
 const createdAtTickSchema = finiteNumber
   .min(0, 'createdAt_tick must be greater than or equal to zero.')

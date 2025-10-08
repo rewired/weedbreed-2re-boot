@@ -3,13 +3,13 @@ import type {
   IrrigationEvent,
   IrrigationServiceInputs,
   IrrigationServiceOutputs,
-} from '../domain/interfaces/IIrrigationService.js';
+} from '../domain/interfaces/IIrrigationService.ts';
 import type {
   INutrientBuffer,
   NutrientBufferInputs,
-} from '../domain/interfaces/INutrientBuffer.js';
-import { clamp } from '../util/math.js';
-import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
+} from '../domain/interfaces/INutrientBuffer.ts';
+import { clamp } from '../util/math.ts';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
 
 function multiplyNutrientRecord(
   record: Record<string, number>,

@@ -1,7 +1,7 @@
-import type { PlantLifecycleStage, ZoneEnvironment } from '../domain/entities.js';
-import type { EnvBand, StrainBlueprint } from '../domain/blueprints/strainBlueprint.js';
-import { clamp01 } from '../util/math.js';
-import { computeVpd_kPa } from './vpd.js';
+import type { PlantLifecycleStage, ZoneEnvironment } from '../domain/entities.ts';
+import type { EnvBand, StrainBlueprint } from '../domain/blueprints/strainBlueprint.ts';
+import { clamp01 } from '../util/math.ts';
+import { computeVpd_kPa } from './vpd.ts';
 
 function toStageEnvBand(
   strain: StrainBlueprint,

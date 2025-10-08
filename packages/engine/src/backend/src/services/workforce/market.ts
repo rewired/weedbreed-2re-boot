@@ -5,20 +5,20 @@ import type {
   WorkforceMarketCandidateTrait,
   WorkforceMarketState,
   WorkforceMarketStructureState,
-} from '../../domain/world.js';
-import type { Uuid } from '../../domain/schemas/primitives.js';
-import { HOURS_PER_DAY } from '../../constants/simConstants.js';
-import type { WorkforceMarketScanConfig } from '../../config/workforce.js';
-import { createRng, type RandomNumberGenerator } from '../../util/rng.js';
-import { deterministicUuid } from '../../util/uuid.js';
+} from '../../domain/world.ts';
+import type { Uuid } from '../../domain/schemas/primitives.ts';
+import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
+import type { WorkforceMarketScanConfig } from '../../config/workforce.ts';
+import { createRng, type RandomNumberGenerator } from '../../util/rng.ts';
+import { deterministicUuid } from '../../util/uuid.ts';
 import {
   assignTraitStrength,
   applyTraitEffects,
   sampleTraitSet,
   type EmployeeTraitAssignment,
   type TraitSubject,
-} from '../../domain/workforce/traits.js';
-import type { EmployeeSkillLevel, EmployeeSkillTriad } from '../../domain/workforce/Employee.js';
+} from '../../domain/workforce/traits.ts';
+import type { EmployeeSkillLevel, EmployeeSkillTriad } from '../../domain/workforce/Employee.ts';
 
 const FALLBACK_SKILLS = [
   'gardening',

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants.js';
-import { createFiltrationStub } from '@/backend/src/stubs/FiltrationStub.js';
-import type { FiltrationUnitInputs } from '@/backend/src/domain/interfaces/IFiltrationUnit.js';
+import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants';
+import { createFiltrationStub } from '@/backend/src/stubs/FiltrationStub';
+import type { FiltrationUnitInputs } from '@/backend/src/domain/interfaces/IFiltrationUnit';
 
 const BASE_INPUTS: FiltrationUnitInputs = {
   airflow_m3_per_h: 200,

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { getIrrigationNutrientsRuntime } from '@/backend/src/engine/pipeline/applyIrrigationAndNutrients.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import type { IrrigationEvent } from '@/backend/src/domain/interfaces/IIrrigationService.js';
+import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
+import { getIrrigationNutrientsRuntime } from '@/backend/src/engine/pipeline/applyIrrigationAndNutrients';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import type { IrrigationEvent } from '@/backend/src/domain/interfaces/IIrrigationService';
 
 interface NutrientSnapshot {
   readonly uptake: Record<string, number>;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveEffectiveTariffs } from '@/backend/src/economy/tariffs.js';
-import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
+import { resolveEffectiveTariffs } from '@/backend/src/economy/tariffs';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
 import utilityPrices from '../../../../../data/prices/utilityPrices.json' with { type: 'json' };
 
 describe('resolveEffectiveTariffs', () => {

@@ -1,4 +1,4 @@
-import type { Uuid } from '../schemas/primitives.js';
+import type { Uuid } from '../schemas/primitives.ts';
 
 export type PestDiseaseRiskLevel = 'low' | 'moderate' | 'high';
 

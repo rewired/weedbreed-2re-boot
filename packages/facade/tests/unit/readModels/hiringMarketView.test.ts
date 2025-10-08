@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   createHiringMarketView,
   type HiringMarketViewOptions,
-} from '../../../src/readModels/hiringMarketView.js';
+} from '../../../src/readModels/hiringMarketView.ts';
 import type {
   Structure,
   WorkforceState,

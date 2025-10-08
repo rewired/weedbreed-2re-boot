@@ -6,7 +6,7 @@ import {
   type TransportAck,
 } from '@wb/transport-sio';
 import { io, type Socket } from 'socket.io-client';
-import type { TelemetryClient, TelemetryClientEventMap, TelemetryMessage } from './runtime.js';
+import type { TelemetryClient, TelemetryClientEventMap, TelemetryMessage } from './runtime.ts';
 
 export interface SocketTelemetryClientOptions {
   readonly transports?: ('websocket' | 'polling')[];

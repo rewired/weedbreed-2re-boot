@@ -1,4 +1,4 @@
-import type { ZoneEnvironment } from '../entities.js';
+import type { ZoneEnvironment } from '../entities.ts';
 
 /**
  * Inputs required for humidity actuators that add or remove moisture from air.

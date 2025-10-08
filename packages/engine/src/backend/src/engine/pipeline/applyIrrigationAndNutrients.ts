@@ -1,13 +1,13 @@
-import { resolveTickHours } from '../resolveTickHours.js';
-import { createIrrigationServiceStub, createNutrientBufferStub } from '../../stubs/index.js';
-import type { SimulationWorld, Zone } from '../../domain/world.js';
-import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
-import { accumulateWaterConsumption } from '../../economy/runtime.js';
+import { resolveTickHours } from '../resolveTickHours.ts';
+import { createIrrigationServiceStub, createNutrientBufferStub } from '../../stubs/index.ts';
+import type { SimulationWorld, Zone } from '../../domain/world.ts';
+import type { EngineDiagnostic, EngineRunContext } from '../Engine.ts';
+import { accumulateWaterConsumption } from '../../economy/runtime.ts';
 import type {
   IrrigationEvent,
   IrrigationServiceInputs,
-} from '../../domain/interfaces/IIrrigationService.js';
-import type { NutrientBufferInputs } from '../../domain/interfaces/INutrientBuffer.js';
+} from '../../domain/interfaces/IIrrigationService.ts';
+import type { NutrientBufferInputs } from '../../domain/interfaces/INutrientBuffer.ts';
 
 export interface IrrigationNutrientsRuntime {
   readonly zoneWaterDelivered_L: Map<Zone['id'], number>;

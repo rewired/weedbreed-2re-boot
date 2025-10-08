@@ -1,9 +1,9 @@
-import { createDemoWorld } from './testHarness.js';
-import { runTick, type EngineRunContext, type EngineInstrumentation } from './Engine.js';
-import { TELEMETRY_HARVEST_CREATED_V1 } from '../telemetry/topics.js';
-import { deterministicUuid } from '../util/uuid.js';
-import { calculateAccumulatedLightHours } from '../util/photoperiod.js';
-import { HOURS_PER_DAY, HOURS_PER_TICK } from '../constants/simConstants.js';
+import { createDemoWorld } from './testHarness.ts';
+import { runTick, type EngineRunContext, type EngineInstrumentation } from './Engine.ts';
+import { TELEMETRY_HARVEST_CREATED_V1 } from '../telemetry/topics.ts';
+import { deterministicUuid } from '../util/uuid.ts';
+import { calculateAccumulatedLightHours } from '../util/photoperiod.ts';
+import { HOURS_PER_DAY, HOURS_PER_TICK } from '../constants/simConstants.ts';
 import type {
   HarvestLot,
   LightSchedule,
@@ -14,10 +14,10 @@ import type {
   SimulationWorld,
   Structure,
   Zone
-} from '../domain/world.js';
-import type { Uuid } from '../domain/schemas/primitives.js';
-import { loadStrainBlueprint } from '../domain/blueprints/strainBlueprintLoader.js';
-import type { StrainBlueprint } from '../domain/blueprints/strainBlueprint.js';
+} from '../domain/world.ts';
+import type { Uuid } from '../domain/schemas/primitives.ts';
+import { loadStrainBlueprint } from '../domain/blueprints/strainBlueprintLoader.ts';
+import type { StrainBlueprint } from '../domain/blueprints/strainBlueprint.ts';
 
 const DEFAULT_STRAIN_ID = '550e8400-e29b-41d4-a716-446655440001' as Uuid;
 const DEFAULT_PLANT_COUNT = 6;

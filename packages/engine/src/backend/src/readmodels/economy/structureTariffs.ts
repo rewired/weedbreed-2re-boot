@@ -1,5 +1,5 @@
-import type { SimulationWorld, Structure, StructureTariffOverride } from '../../domain/world.js';
-import type { ResolvedTariffs } from '../../util/tariffs.js';
+import type { SimulationWorld, Structure, StructureTariffOverride } from '../../domain/world.ts';
+import type { ResolvedTariffs } from '../../util/tariffs.ts';
 
 export interface StructureTariffView {
   readonly structureId: Structure['id'];

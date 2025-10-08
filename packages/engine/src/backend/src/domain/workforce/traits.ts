@@ -1,9 +1,9 @@
 import traitsJson from '../../../../../../../data/personnel/traits.json' with { type: 'json' };
 
-import { clamp01 } from '../../util/math.js';
-import type { RandomNumberGenerator } from '../../util/rng.js';
-import type { EmployeeSchedule, EmployeeSkillLevel, EmployeeSkillTriad } from './Employee.js';
-import type { WorkforceTaskDefinition } from './tasks.js';
+import { clamp01 } from '../../util/math.ts';
+import type { RandomNumberGenerator } from '../../util/rng.ts';
+import type { EmployeeSchedule, EmployeeSkillLevel, EmployeeSkillTriad } from './Employee.ts';
+import type { WorkforceTaskDefinition } from './tasks.ts';
 
 export type WorkforceTraitId = (typeof traitsJson)[number]['id'];
 export type WorkforceTraitKind = (typeof traitsJson)[number]['type'];

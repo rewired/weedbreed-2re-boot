@@ -5,7 +5,7 @@ import {
   loadLocationIndexTable,
   resolveLocationIndex,
   type LocationIndexTable,
-} from '@/backend/src/domain/payroll/locationIndex.js';
+} from '@/backend/src/domain/payroll/locationIndex';
 
 const HAMBURG = {
   lon: 10,

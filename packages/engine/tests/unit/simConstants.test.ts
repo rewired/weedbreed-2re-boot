@@ -13,7 +13,7 @@ import {
   MONTHS_PER_YEAR,
   ROOM_DEFAULT_HEIGHT_M,
   SIM_CONSTANTS
-} from '@/backend/src/constants/simConstants.js';
+} from '@/backend/src/constants/simConstants';
 
 describe('simConstants', () => {
   it('exposes canonical SEC values', () => {

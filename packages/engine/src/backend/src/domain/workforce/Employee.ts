@@ -1,9 +1,9 @@
 import type { BRAND } from 'zod';
 
-import type { DomainEntity } from '../entities.js';
-import type { Uuid } from '../schemas/primitives.js';
-import type { EmployeeSkillRequirement } from './EmployeeRole.js';
-import type { EmployeeTraitAssignment, TraitSubject } from './traits.js';
+import type { DomainEntity } from '../entities.ts';
+import type { Uuid } from '../schemas/primitives.ts';
+import type { EmployeeSkillRequirement } from './EmployeeRole.ts';
+import type { EmployeeTraitAssignment, TraitSubject } from './traits.ts';
 
 /**
  * Brand describing UUID v7 identifiers that seed RNG streams.

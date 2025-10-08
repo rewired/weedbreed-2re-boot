@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants.js';
-import { createNutrientBufferStub } from '@/backend/src/stubs/NutrientBufferStub.js';
-import type { NutrientBufferInputs } from '@/backend/src/domain/interfaces/INutrientBuffer.js';
+import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants';
+import { createNutrientBufferStub } from '@/backend/src/stubs/NutrientBufferStub';
+import type { NutrientBufferInputs } from '@/backend/src/domain/interfaces/INutrientBuffer';
 
 const BASE_CAPACITY_MG: Record<string, number> = { N: 10_000, P: 5_000, K: 8_000 };
 const BASE_BUFFER_MG: Record<string, number> = { N: 1_000, P: 500, K: 800 };

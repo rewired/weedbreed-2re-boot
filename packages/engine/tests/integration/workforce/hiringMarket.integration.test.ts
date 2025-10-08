@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
-import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { consumeWorkforceMarketCharges } from '@/backend/src/engine/pipeline/applyWorkforce.js';
-import { DEFAULT_WORKFORCE_CONFIG } from '@/backend/src/config/workforce.js';
-import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants.js';
-import type { EmployeeRole, SimulationWorld, WorkforceState } from '@/backend/src/domain/world.js';
+import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
+import { consumeWorkforceMarketCharges } from '@/backend/src/engine/pipeline/applyWorkforce';
+import { DEFAULT_WORKFORCE_CONFIG } from '@/backend/src/config/workforce';
+import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
+import type { EmployeeRole, SimulationWorld, WorkforceState } from '@/backend/src/domain/world';
 
 function createRole(): EmployeeRole {
   return {

@@ -1,4 +1,4 @@
-import type { Uuid } from '../schemas/primitives.js';
+import type { Uuid } from '../schemas/primitives.ts';
 
 /**
  * Event describing a single irrigation action dispatched during a tick.

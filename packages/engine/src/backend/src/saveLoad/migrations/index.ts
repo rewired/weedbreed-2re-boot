@@ -1,7 +1,7 @@
-import { CURRENT_SAVE_SCHEMA_VERSION } from '../constants.js';
+import { CURRENT_SAVE_SCHEMA_VERSION } from '../constants.ts';
 
-import { SaveGameMigrationRegistry } from './registry.js';
-import { migrateV0ToV1 } from './v0ToV1.js';
+import { SaveGameMigrationRegistry } from './registry.ts';
+import { migrateV0ToV1 } from './v0ToV1.ts';
 
 export function createDefaultSaveGameMigrationRegistry(): SaveGameMigrationRegistry {
   const registry = new SaveGameMigrationRegistry(CURRENT_SAVE_SCHEMA_VERSION);
@@ -9,4 +9,4 @@ export function createDefaultSaveGameMigrationRegistry(): SaveGameMigrationRegis
   return registry;
 }
 
-export type { SaveGameMigrationRegistry, SaveGameMigrationStep } from './registry.js';
+export type { SaveGameMigrationRegistry, SaveGameMigrationStep } from './registry.ts';

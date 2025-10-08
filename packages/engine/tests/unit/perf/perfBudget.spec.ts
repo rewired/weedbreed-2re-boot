@@ -4,9 +4,9 @@ import {
   evaluatePerfBudget,
   PERF_CI_THRESHOLDS,
   type PerfBudgetEvaluation
-} from '@/backend/src/engine/perf/perfBudget.js';
-import { type PerfHarnessResult } from '@/backend/src/engine/testHarness.js';
-import { type TickTrace } from '@/backend/src/engine/trace.js';
+} from '@/backend/src/engine/perf/perfBudget';
+import { type PerfHarnessResult } from '@/backend/src/engine/testHarness';
+import { type TickTrace } from '@/backend/src/engine/trace';
 
 interface MockPerfInput {
   readonly tickCount: number;

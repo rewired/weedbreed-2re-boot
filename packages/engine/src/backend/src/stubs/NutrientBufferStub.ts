@@ -2,9 +2,9 @@ import type {
   INutrientBuffer,
   NutrientBufferInputs,
   NutrientBufferOutputs,
-} from '../domain/interfaces/INutrientBuffer.js';
-import { clamp } from '../util/math.js';
-import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
+} from '../domain/interfaces/INutrientBuffer.ts';
+import { clamp } from '../util/math.ts';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
 
 function clampNutrientRecord(
   record: Record<string, number>,

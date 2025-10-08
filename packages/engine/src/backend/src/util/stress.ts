@@ -4,4 +4,4 @@ export {
   calculateLightStress,
   calculateTemperatureStress,
   calculateVpdStress
-} from '../physiology/stressModel.js';
+} from '../physiology/stressModel.ts';

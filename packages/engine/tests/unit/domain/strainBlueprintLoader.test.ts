@@ -7,10 +7,10 @@ import {
   clearStrainBlueprintCache,
   loadAllStrainBlueprints,
   loadStrainBlueprint
-} from '@/backend/src/domain/blueprints/strainBlueprintLoader.js';
-import type { StrainBlueprint } from '@/backend/src/domain/blueprints/strainBlueprint.js';
-import type { Uuid } from '@/backend/src/domain/entities.js';
-import { resolveBlueprintPath } from '../../testUtils/paths.js';
+} from '@/backend/src/domain/blueprints/strainBlueprintLoader';
+import type { StrainBlueprint } from '@/backend/src/domain/blueprints/strainBlueprint';
+import type { Uuid } from '@/backend/src/domain/entities';
+import { resolveBlueprintPath } from '../../testUtils/paths.ts';
 import {
   AK47_STRAIN_ID,
   WHITE_WIDOW_STRAIN_ID

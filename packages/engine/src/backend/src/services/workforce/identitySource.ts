@@ -1,10 +1,10 @@
-import { createRng, type RandomNumberGenerator } from '../../util/rng.js';
-import type { EmployeeRngSeedUuid } from '../../domain/workforce/Employee.js';
+import { createRng, type RandomNumberGenerator } from '../../util/rng.ts';
+import type { EmployeeRngSeedUuid } from '../../domain/workforce/Employee.ts';
 
 import firstNamesFemaleJson from '../../../../../../../data/personnel/names/firstNamesFemale.json' with { type: 'json' };
 import firstNamesMaleJson from '../../../../../../../data/personnel/names/firstNamesMale.json' with { type: 'json' };
 import lastNamesJson from '../../../../../../../data/personnel/names/lastNames.json' with { type: 'json' };
-import { sampleTraitSet } from '../../domain/workforce/traits.js';
+import { sampleTraitSet } from '../../domain/workforce/traits.ts';
 
 const RANDOM_USER_ENDPOINT = 'https://randomuser.me/api/';
 const RANDOM_USER_TIMEOUT_MS = 500;

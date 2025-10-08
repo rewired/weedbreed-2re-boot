@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import { structureTariffs } from '@/backend/src/readmodels/economy/structureTariffs.js';
-import type { ResolvedTariffs } from '@/backend/src/util/tariffs.js';
-import type { StructureTariffOverride } from '@/backend/src/domain/world.js';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import { structureTariffs } from '@/backend/src/readmodels/economy/structureTariffs';
+import type { ResolvedTariffs } from '@/backend/src/util/tariffs';
+import type { StructureTariffOverride } from '@/backend/src/domain/world';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { estimateIrrigationCharge } from '@/backend/src/domain/world.js';
+import { estimateIrrigationCharge } from '@/backend/src/domain/world';
 
 const SUBSTRATE = { densityFactor_L_per_kg: 1.4 } as const;
 

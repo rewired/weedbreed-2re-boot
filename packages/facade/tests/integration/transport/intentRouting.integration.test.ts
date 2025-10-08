@@ -5,8 +5,8 @@ import {
   SOCKET_ERROR_CODES,
   type TransportAck,
   type TransportIntentEnvelope,
-} from '../../../src/transport/adapter.js';
-import { createNamespaceClient, createTransportHarness, disconnectClient } from './helpers.js';
+} from '../../../src/transport/adapter.ts';
+import { createNamespaceClient, createTransportHarness, disconnectClient } from './helpers.ts';
 
 describe('transport adapter — intent namespace', () => {
   it('routes valid intents to the provided handler', async () => {

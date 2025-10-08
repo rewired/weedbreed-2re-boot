@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AIR_DENSITY_KG_PER_M3, ROOM_DEFAULT_HEIGHT_M } from '@/backend/src/constants/simConstants.js';
+import { AIR_DENSITY_KG_PER_M3, ROOM_DEFAULT_HEIGHT_M } from '@/backend/src/constants/simConstants';
 import {
   companySchema,
   parseCompanyWorld,
@@ -8,8 +8,8 @@ import {
   type ParsedCompanyWorld,
   type Uuid
 } from '@wb/engine';
-import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
-import { deviceQuality } from '../../testUtils/deviceHelpers.js';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint';
+import { deviceQuality } from '../../testUtils/deviceHelpers.ts';
 
 type DeepMutable<T> = T extends (...args: unknown[]) => unknown
   ? T

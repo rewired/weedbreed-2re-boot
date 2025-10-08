@@ -1,6 +1,6 @@
-import { HOURS_PER_DAY } from '../../constants/simConstants.js';
-import { DEFAULT_WORKFORCE_CONFIG, type WorkforceConfig } from '../../config/workforce.js';
-import { bankersRound, clamp01 } from '../../util/math.js';
+import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
+import { DEFAULT_WORKFORCE_CONFIG, type WorkforceConfig } from '../../config/workforce.ts';
+import { bankersRound, clamp01 } from '../../util/math.ts';
 import {
   emitWorkforceKpiSnapshot,
   emitWorkforceWarnings,
@@ -9,11 +9,11 @@ import {
   emitWorkforceTermination,
   type WorkforceRaiseTelemetryEvent,
   type WorkforceTerminationTelemetryEvent,
-} from '../../telemetry/workforce.js';
+} from '../../telemetry/workforce.ts';
 import {
   emitHiringEmployeeOnboarded,
   emitHiringMarketScanCompleted,
-} from '../../telemetry/hiring.js';
+} from '../../telemetry/hiring.ts';
 import type {
   CompanyLocation,
   Employee,
@@ -36,32 +36,32 @@ import type {
   WorkforceIntent,
   WorkforceRaiseIntent,
   WorkforceTerminationIntent,
-} from '../../domain/world.js';
+} from '../../domain/world.ts';
 import {
   createEmptyLocationIndexTable,
   resolveLocationIndex,
   type LocationIndexTable,
-} from '../../domain/payroll/locationIndex.js';
-import { performMarketHire, performMarketScan } from '../../services/workforce/market.js';
-import { applyRaiseIntent, createInitialRaiseState } from '../../services/workforce/raises.js';
-import type { EngineRunContext as EngineContext } from '../Engine.js';
-import { deterministicUuid, deterministicUuidV7 } from '../../util/uuid.js';
+} from '../../domain/payroll/locationIndex.ts';
+import { performMarketHire, performMarketScan } from '../../services/workforce/market.ts';
+import { applyRaiseIntent, createInitialRaiseState } from '../../services/workforce/raises.ts';
+import type { EngineRunContext as EngineContext } from '../Engine.ts';
+import { deterministicUuid, deterministicUuidV7 } from '../../util/uuid.ts';
 import {
   applyTraitEffects,
   type TraitEffectBreakdownEntry,
-} from '../../domain/workforce/traits.js';
-import { evaluatePestDiseaseSystem } from '../../health/pestDiseaseSystem.js';
-import { emitPestDiseaseRiskWarnings, emitPestDiseaseTaskEvents } from '../../telemetry/health.js';
+} from '../../domain/workforce/traits.ts';
+import { evaluatePestDiseaseSystem } from '../../health/pestDiseaseSystem.ts';
+import { emitPestDiseaseRiskWarnings, emitPestDiseaseTaskEvents } from '../../telemetry/health.ts';
 import {
   ensureCultivationTaskRuntime,
   getCultivationMethodCatalog,
   scheduleCultivationTasksForZone,
-} from '../../cultivation/methodRuntime.js';
-import { consumeDeviceMaintenanceRuntime } from '../../device/maintenanceRuntime.js';
+} from '../../cultivation/methodRuntime.ts';
+import { consumeDeviceMaintenanceRuntime } from '../../device/maintenanceRuntime.ts';
 import {
   TELEMETRY_DEVICE_MAINTENANCE_SCHEDULED_V1,
   TELEMETRY_DEVICE_REPLACEMENT_RECOMMENDED_V1,
-} from '../../telemetry/topics.js';
+} from '../../telemetry/topics.ts';
 
 const SCORE_EPSILON = 1e-6;
 const OVERTIME_MORALE_PENALTY_PER_HOUR = 0.02;

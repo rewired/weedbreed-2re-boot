@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 import {
   AMBIENT_CO2_PPM,
   HOURS_PER_TICK
-} from '@/backend/src/constants/simConstants.js';
-import { createCo2InjectorStub } from '@/backend/src/stubs/Co2InjectorStub.js';
-import type { Co2InjectorInputs } from '@/backend/src/domain/interfaces/ICo2Injector.js';
-import type { ZoneEnvironment } from '@/backend/src/domain/entities.js';
+} from '@/backend/src/constants/simConstants';
+import { createCo2InjectorStub } from '@/backend/src/stubs/Co2InjectorStub';
+import type { Co2InjectorInputs } from '@/backend/src/domain/interfaces/ICo2Injector';
+import type { ZoneEnvironment } from '@/backend/src/domain/entities';
 
 const BASE_ENVIRONMENT: ZoneEnvironment = {
   airTemperatureC: 24,

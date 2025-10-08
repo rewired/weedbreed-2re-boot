@@ -9,7 +9,7 @@ import {
   DEFAULT_COMPANY_LOCATION_LAT,
   DEFAULT_COMPANY_LOCATION_CITY,
   DEFAULT_COMPANY_LOCATION_COUNTRY
-} from '@/backend/src/constants/simConstants.js';
+} from '@/backend/src/constants/simConstants';
 import {
   type Company,
   type HarvestLot,
@@ -23,9 +23,9 @@ import {
   type Uuid,
   type DeviceQualityPolicy,
   validateCompanyWorld
-} from '@/backend/src/domain/world.js';
-import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
-import { deviceQuality } from '../../testUtils/deviceHelpers.js';
+} from '@/backend/src/domain/world';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint';
+import { deviceQuality } from '../../testUtils/deviceHelpers.ts';
 
 const QUALITY_POLICY: DeviceQualityPolicy = {
   sampleQuality01: (rng) => rng()

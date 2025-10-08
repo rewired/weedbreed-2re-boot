@@ -4,10 +4,10 @@ import {
   AIR_DENSITY_KG_PER_M3,
   AMBIENT_CO2_PPM,
   HOURS_PER_TICK
-} from '@/backend/src/constants/simConstants.js';
-import { createHumidityActuatorStub } from '@/backend/src/stubs/HumidityActuatorStub.js';
-import type { HumidityActuatorInputs } from '@/backend/src/domain/interfaces/IHumidityActuator.js';
-import type { ZoneEnvironment } from '@/backend/src/domain/entities.js';
+} from '@/backend/src/constants/simConstants';
+import { createHumidityActuatorStub } from '@/backend/src/stubs/HumidityActuatorStub';
+import type { HumidityActuatorInputs } from '@/backend/src/domain/interfaces/IHumidityActuator';
+import type { ZoneEnvironment } from '@/backend/src/domain/entities';
 
 const ZONE_VOLUME_M3 = 50;
 const AIR_MASS_KG = ZONE_VOLUME_M3 * AIR_DENSITY_KG_PER_M3;

@@ -3,7 +3,7 @@ import parser from '@typescript-eslint/parser';
 import { Linter } from 'eslint';
 import { describe, expect, it } from 'vitest';
 
-import { noEconomyPerTickRule } from '../../../../../tools/eslint/rules/no-economy-per-tick.js';
+import { noEconomyPerTickRule } from '../../../../../tools/eslint/rules/no-economy-per-tick';
 
 const linter = new Linter({ configType: 'eslintrc' });
 linter.defineParser('@typescript-eslint/parser', parser as unknown as Linter.ParserModule);

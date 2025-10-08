@@ -5,10 +5,10 @@ import {
   calculateHumidityStress,
   calculateTemperatureStress,
   calculateVpdStress
-} from '../../../src/backend/src/physiology/stressModel.js';
-import type { ZoneEnvironment } from '../../../src/backend/src/domain/entities.js';
-import type { EnvBand, StrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
-import { AMBIENT_CO2_PPM } from '../../../src/backend/src/constants/simConstants.js';
+} from '../../../src/backend/src/physiology/stressModel.ts';
+import type { ZoneEnvironment } from '../../../src/backend/src/domain/entities.ts';
+import type { EnvBand, StrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.ts';
+import { AMBIENT_CO2_PPM } from '../../../src/backend/src/constants/simConstants.ts';
 
 const envBand = (overrides: Partial<EnvBand> = {}): EnvBand => ({
   green: [20, 25],

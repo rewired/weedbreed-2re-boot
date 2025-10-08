@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { DeviceInstance } from '@wb/engine';
-import { mapDeviceToView } from '../../../src/readModels/deviceView.js';
+import { mapDeviceToView } from '../../../src/readModels/deviceView.ts';
 
 function createDevice(overrides: Partial<DeviceInstance> = {}): DeviceInstance {
   const base: DeviceInstance = {

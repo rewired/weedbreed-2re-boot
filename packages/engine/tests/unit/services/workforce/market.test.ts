@@ -5,14 +5,14 @@ import {
   performMarketScan,
   type PerformMarketHireOptions,
   type PerformMarketScanOptions,
-} from '@/backend/src/services/workforce/market.js';
-import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants.js';
+} from '@/backend/src/services/workforce/market';
+import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
 import type {
   EmployeeRole,
   WorkforceMarketState,
   WorkforceState,
-} from '@/backend/src/domain/workforce/WorkforceState.js';
-import type { WorkforceConfig } from '@/backend/src/config/workforce.js';
+} from '@/backend/src/domain/workforce/WorkforceState';
+import type { WorkforceConfig } from '@/backend/src/config/workforce';
 
 const baseRoles: EmployeeRole[] = [
   {

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Employee, WorkforceState } from '@wb/engine';
-import { createTraitBreakdown } from '../../../src/readModels/traitBreakdownView.js';
-import type { TraitBreakdownView } from '../../../src/readModels/traitBreakdownView.js';
+import { createTraitBreakdown } from '../../../src/readModels/traitBreakdownView.ts';
+import type { TraitBreakdownView } from '../../../src/readModels/traitBreakdownView.ts';
 
 function buildEmployee(partial: Partial<Employee>): Employee {
   return {

@@ -3,7 +3,7 @@ import type Blessed from 'blessed';
 import type { Widgets } from 'blessed';
 
 const typedBlessed = blessed as unknown as typeof Blessed;
-import type { MonitorUi, MonitorViewModel } from '../runtime.js';
+import type { MonitorUi, MonitorViewModel } from '../runtime.ts';
 
 export interface BlessedMonitorOptions {
   readonly targetUrl: string;

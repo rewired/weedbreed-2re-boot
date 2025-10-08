@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { applyEconomyAccrual } from '@/backend/src/engine/pipeline/applyEconomyAccrual.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
+import { applyEconomyAccrual } from '@/backend/src/engine/pipeline/applyEconomyAccrual';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
 import type {
   SimulationWorld,
   WorkforcePayrollState,
   ZoneDeviceInstance,
   Uuid,
-} from '@/backend/src/domain/world.js';
-import { bankersRound } from '@/backend/src/util/math.js';
+} from '@/backend/src/domain/world';
+import { bankersRound } from '@/backend/src/util/math';
 import devicePrices from '../../../../../data/prices/devicePrices.json' with { type: 'json' };
 import dryboxBlueprint from '../../../../../data/blueprints/device/climate/drybox-200.json' with { type: 'json' };
 

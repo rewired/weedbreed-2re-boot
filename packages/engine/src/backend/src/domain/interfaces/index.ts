@@ -11,33 +11,33 @@
  *
  * @see Abschnitt 4 der konsolidierten Referenz für Details
  */
-export * from './IThermalActuator.js';
-export * from './IHumidityActuator.js';
-export * from './ILightEmitter.js';
-export * from './INutrientBuffer.js';
-export * from './IIrrigationService.js';
-export * from './IAirflowActuator.js';
-export * from './IFiltrationUnit.js';
-export * from './ISensor.js';
-export * from './ICo2Injector.js';
+export * from './IThermalActuator.ts';
+export * from './IHumidityActuator.ts';
+export * from './ILightEmitter.ts';
+export * from './INutrientBuffer.ts';
+export * from './IIrrigationService.ts';
+export * from './IAirflowActuator.ts';
+export * from './IFiltrationUnit.ts';
+export * from './ISensor.ts';
+export * from './ICo2Injector.ts';
 
 export type {
   IThermalActuator,
   ThermalActuatorInputs,
   ThermalActuatorOutputs
-} from './IThermalActuator.js';
+} from './IThermalActuator.ts';
 export type {
   IHumidityActuator,
   HumidityActuatorInputs,
   HumidityActuatorOutputs
-} from './IHumidityActuator.js';
+} from './IHumidityActuator.ts';
 export type {
   ILightEmitter,
   LightEmitterInputs,
   LightEmitterOutputs
-} from './ILightEmitter.js';
+} from './ILightEmitter.ts';
 export type {
   ICo2Injector,
   Co2InjectorInputs,
   Co2InjectorOutputs
-} from './ICo2Injector.js';
+} from './ICo2Injector.ts';

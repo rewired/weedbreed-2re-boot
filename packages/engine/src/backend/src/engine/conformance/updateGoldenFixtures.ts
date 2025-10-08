@@ -2,7 +2,7 @@ import path from 'node:path';
 
 import { fileURLToPath } from 'node:url';
 
-import { runDeterministic } from '../testHarness.js';
+import { runDeterministic } from '../testHarness.ts';
 
 const FIXTURE_ROOT = fileURLToPath(
   new URL('../../../../../tests/fixtures/golden/', import.meta.url)

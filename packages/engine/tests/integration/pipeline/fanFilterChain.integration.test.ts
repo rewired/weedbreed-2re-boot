@@ -4,12 +4,12 @@ import {
   AIR_DENSITY_KG_PER_M3,
   HOURS_PER_TICK,
   ROOM_DEFAULT_HEIGHT_M
-} from '@/backend/src/constants/simConstants.js';
-import type { EngineDiagnostic, EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { runTick } from '@/backend/src/engine/Engine.js';
-import { getDeviceEffectsRuntime } from '@/backend/src/engine/pipeline/applyDeviceEffects.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import type { ZoneDeviceInstance, Uuid } from '@/backend/src/domain/world.js';
+} from '@/backend/src/constants/simConstants';
+import type { EngineDiagnostic, EngineRunContext } from '@/backend/src/engine/Engine';
+import { runTick } from '@/backend/src/engine/Engine';
+import { getDeviceEffectsRuntime } from '@/backend/src/engine/pipeline/applyDeviceEffects';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import type { ZoneDeviceInstance, Uuid } from '@/backend/src/domain/world';
 
 function uuid(value: string): Uuid {
   return value as Uuid;

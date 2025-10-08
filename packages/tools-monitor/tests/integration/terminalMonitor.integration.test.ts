@@ -6,8 +6,8 @@ import {
   type MonitorRuntime,
   type MonitorUi,
   type MonitorViewModel,
-} from '../../src/runtime.js';
-import { createSocketTelemetryClient } from '../../src/socketTelemetryClient.js';
+} from '../../src/runtime.ts';
+import { createSocketTelemetryClient } from '../../src/socketTelemetryClient.ts';
 import {
   createSocketTransportAdapter,
   type SocketTransportAdapter,

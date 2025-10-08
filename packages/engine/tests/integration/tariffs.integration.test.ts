@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createEngineBootstrapConfig } from '../../src/index.js';
+import { createEngineBootstrapConfig } from '../../src/index.ts';
 
 describe('tariff resolution (integration)', () => {
   it('memoises tariffs for identical scenario requests', () => {

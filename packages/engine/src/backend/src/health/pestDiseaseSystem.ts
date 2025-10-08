@@ -3,7 +3,7 @@ import {
   type HealthState,
   type PestDiseaseRiskLevel,
   type PestDiseaseZoneRiskState
-} from '../domain/health/pestDisease.js';
+} from '../domain/health/pestDisease.ts';
 import type {
   Room,
   SimulationWorld,
@@ -11,9 +11,9 @@ import type {
   WorkforceState,
   WorkforceTaskInstance,
   Zone,
-} from '../domain/world.js';
-import { evaluatePestDiseaseRisk, resolveRiskLevel } from './pestDiseaseRisk.js';
-import { deterministicUuid } from '../util/uuid.js';
+} from '../domain/world.ts';
+import { evaluatePestDiseaseRisk, resolveRiskLevel } from './pestDiseaseRisk.ts';
+import { deterministicUuid } from '../util/uuid.ts';
 
 export const PEST_INSPECTION_TASK_CODE = 'task.pest.inspection';
 export const PEST_TREATMENT_TASK_CODE = 'task.pest.treatment';

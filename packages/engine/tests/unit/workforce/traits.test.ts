@@ -7,7 +7,7 @@ import {
   resolveSkillLevel,
   sampleTraitSet,
   type TraitSubject,
-} from '@/backend/src/domain/workforce/traits.js';
+} from '@/backend/src/domain/workforce/traits';
 
 function createSubject(partial: Partial<TraitSubject>): TraitSubject {
   return {

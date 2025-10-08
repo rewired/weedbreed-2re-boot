@@ -4,13 +4,15 @@ import { noDuplicateSimConstantsRule } from "./tools/eslint/rules/no-duplicate-s
 import { noEconomyPerTickRule } from "./tools/eslint/rules/no-economy-per-tick.js";
 import { noEnginePercentIdentifiersRule } from "./tools/eslint/rules/no-engine-percent-identifiers.js";
 import { noMathRandomRule } from "./tools/eslint/rules/no-math-random.js";
+import { noTsImportJsExtensionRule } from "./tools/eslint/rules/no-ts-import-js-extension.js";
 
 const wbSimPlugin = {
   rules: {
     "no-duplicate-sim-constants": noDuplicateSimConstantsRule,
     "no-economy-per-tick": noEconomyPerTickRule,
     "no-engine-percent-identifiers": noEnginePercentIdentifiersRule,
-    "no-math-random": noMathRandomRule
+    "no-math-random": noMathRandomRule,
+    "no-ts-import-js-extension": noTsImportJsExtensionRule
   }
 };
 
@@ -35,7 +37,8 @@ export default tseslint.config(
     rules: {
       "@typescript-eslint/explicit-module-boundary-types": "error",
       "wb-sim/no-duplicate-sim-constants": "error",
-      "wb-sim/no-math-random": "error"
+      "wb-sim/no-math-random": "error",
+      "wb-sim/no-ts-import-js-extension": "error"
     }
   },
   {

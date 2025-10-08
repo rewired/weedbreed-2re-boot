@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { assertBlueprintClassMatchesPath, type BlueprintPathOptions, deriveBlueprintClassFromPath } from './taxonomy.js';
+import { assertBlueprintClassMatchesPath, type BlueprintPathOptions, deriveBlueprintClassFromPath } from './taxonomy.ts';
 
 const finiteNumber = z.number().finite('Value must be a finite number.');
 const positiveNumber = finiteNumber.gt(0, 'Value must be greater than zero.');

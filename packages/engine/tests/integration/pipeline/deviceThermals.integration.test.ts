@@ -4,13 +4,13 @@ import {
   CP_AIR_J_PER_KG_K,
   HOURS_PER_TICK,
   SECONDS_PER_HOUR
-} from '@/backend/src/constants/simConstants.js';
-import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { runTick } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import { type DeviceQualityPolicy, type Uuid, type ZoneDeviceInstance } from '@/backend/src/domain/world.js';
-import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
-import { deviceQuality } from '../../testUtils/deviceHelpers.js';
+} from '@/backend/src/constants/simConstants';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
+import { runTick } from '@/backend/src/engine/Engine';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import { type DeviceQualityPolicy, type Uuid, type ZoneDeviceInstance } from '@/backend/src/domain/world';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint';
+import { deviceQuality } from '../../testUtils/deviceHelpers.ts';
 
 function uuid(value: string): Uuid {
   return value as Uuid;

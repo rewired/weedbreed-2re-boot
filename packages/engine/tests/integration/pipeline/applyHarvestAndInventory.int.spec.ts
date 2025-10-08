@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { runTick } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import { runTick } from '@/backend/src/engine/Engine';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
 import { createTestPlant } from '@/tests/testUtils/strainFixtures.ts';
-import { inventoryByStructure } from '@/backend/src/readmodels/inventory/inventoryByStructure.js';
-import { inventoryByStorageRoom } from '@/backend/src/readmodels/inventory/inventoryByStorageRoom.js';
-import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
-import type { Plant, Room, Zone } from '@/backend/src/domain/world.js';
-import { TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1 } from '@/backend/src/telemetry/topics.js';
+import { inventoryByStructure } from '@/backend/src/readmodels/inventory/inventoryByStructure';
+import { inventoryByStorageRoom } from '@/backend/src/readmodels/inventory/inventoryByStorageRoom';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
+import type { Plant, Room, Zone } from '@/backend/src/domain/world';
+import { TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1 } from '@/backend/src/telemetry/topics';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 type DemoStructure = ReturnType<typeof createDemoWorld>['company']['structures'][0];

@@ -4,8 +4,8 @@ import {
   accumulateEnergyConsumption,
   accumulateWaterConsumption,
   consumeEconomyUsageRuntime
-} from '@/backend/src/economy/runtime.js';
-import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
+} from '@/backend/src/economy/runtime';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
 
 describe('economy usage runtime', () => {
   it('accumulates energy and water usage and resets after consumption', () => {

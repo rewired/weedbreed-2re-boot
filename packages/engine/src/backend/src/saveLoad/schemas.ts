@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { CURRENT_SAVE_SCHEMA_VERSION } from './constants.js';
+import { CURRENT_SAVE_SCHEMA_VERSION } from './constants.ts';
 
 /**
  * Base schema that only asserts the presence and type of `schemaVersion`.

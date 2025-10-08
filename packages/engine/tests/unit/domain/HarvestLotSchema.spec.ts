@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { HarvestLotSchema } from '@/backend/src/domain/schemas/HarvestLotSchema.js';
-import type { HarvestLot } from '@/backend/src/domain/world.js';
+import { HarvestLotSchema } from '@/backend/src/domain/schemas/HarvestLotSchema';
+import type { HarvestLot } from '@/backend/src/domain/world';
 
 const BASE_LOT: HarvestLot = {
   id: '00000000-0000-0000-0000-000000000a00' as HarvestLot['id'],

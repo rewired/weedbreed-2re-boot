@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants.js';
-import { runTick } from '@/backend/src/engine/Engine.js';
-import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
+import { runTick } from '@/backend/src/engine/Engine';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
 import {
   mMaintenance,
-} from '@/backend/src/device/degradation.js';
+} from '@/backend/src/device/degradation';
 import type {
   DeviceMaintenancePolicy,
   DeviceMaintenanceState,
@@ -16,7 +16,7 @@ import type {
   Zone,
   ZoneDeviceInstance,
   Uuid,
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 const MAINTAIN_TASK_DEFINITION: WorkforceTaskDefinition = {
   taskCode: 'maintain_device',

@@ -1,11 +1,11 @@
-import { type DeviceEffectConfigs, type DeviceEffectType } from '../domain/entities.js';
-import type { Uuid } from '../domain/schemas/primitives.js';
+import { type DeviceEffectConfigs, type DeviceEffectType } from '../domain/entities.ts';
+import type { Uuid } from '../domain/schemas/primitives.ts';
 import {
   toDeviceInstanceEffectConfigs,
   type DeviceBlueprint
-} from '../domain/blueprints/deviceBlueprint.js';
-import { createRng, type RandomNumberGenerator } from '../util/rng.js';
-import { clamp01 } from '../util/math.js';
+} from '../domain/blueprints/deviceBlueprint.ts';
+import { createRng, type RandomNumberGenerator } from '../util/rng.ts';
+import { clamp01 } from '../util/math.ts';
 
 export interface DeviceQualityPolicy {
   sampleQuality01(rng: RandomNumberGenerator): number;

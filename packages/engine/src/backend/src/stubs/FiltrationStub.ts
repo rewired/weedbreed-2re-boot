@@ -2,9 +2,9 @@ import type {
   FiltrationUnitInputs,
   FiltrationUnitOutputs,
   IFiltrationUnit
-} from '../domain/interfaces/IFiltrationUnit.js';
-import { clamp01 } from '../util/math.js';
-import { resolveAirflow } from '../util/environment.js';
+} from '../domain/interfaces/IFiltrationUnit.ts';
+import { clamp01 } from '../util/math.ts';
+import { resolveAirflow } from '../util/environment.ts';
 
 function resolveBasePressureDrop(value: number): number {
   if (!Number.isFinite(value) || value <= 0) {

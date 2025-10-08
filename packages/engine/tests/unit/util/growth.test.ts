@@ -7,9 +7,9 @@ import {
   calculateTemperatureGrowthFactor,
   getDryMatterFraction,
   getHarvestIndex
-} from '../../../src/backend/src/util/growth.js';
-import type { StrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
-import type { RandomNumberGenerator } from '../../../src/backend/src/util/rng.js';
+} from '../../../src/backend/src/util/growth.ts';
+import type { StrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.ts';
+import type { RandomNumberGenerator } from '../../../src/backend/src/util/rng.ts';
 
 const mockStrain = (): StrainBlueprint => ({
   id: '22222222-2222-2222-2222-222222222222',

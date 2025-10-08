@@ -1,12 +1,12 @@
-import { clamp01 } from '../../util/math.js';
-import { deterministicUuid } from '../../util/uuid.js';
-import { InventorySchema } from '../../domain/schemas/InventorySchema.js';
-import { HarvestLotSchema } from '../../domain/schemas/HarvestLotSchema.js';
-import { resolveStorageRoomForStructure } from '../../services/storage/resolveStorageRoom.js';
+import { clamp01 } from '../../util/math.ts';
+import { deterministicUuid } from '../../util/uuid.ts';
+import { InventorySchema } from '../../domain/schemas/InventorySchema.ts';
+import { HarvestLotSchema } from '../../domain/schemas/HarvestLotSchema.ts';
+import { resolveStorageRoomForStructure } from '../../services/storage/resolveStorageRoom.ts';
 import {
   TELEMETRY_HARVEST_CREATED_V1,
   TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1
-} from '../../telemetry/topics.js';
+} from '../../telemetry/topics.ts';
 import type {
   HarvestLot,
   Plant,
@@ -14,9 +14,9 @@ import type {
   SimulationWorld,
   Structure,
   Zone,
-} from '../../domain/world.js';
-import type { Uuid } from '../../domain/schemas/primitives.js';
-import type { EngineRunContext } from '../Engine.js';
+} from '../../domain/world.ts';
+import type { Uuid } from '../../domain/schemas/primitives.ts';
+import type { EngineRunContext } from '../Engine.ts';
 
 interface HarvestComputationContext {
   readonly world: SimulationWorld;

@@ -4,8 +4,8 @@ import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { writeSaveGame } from '@/backend/src/saveLoad/saveManager.js';
-import type { SaveGame } from '@/backend/src/saveLoad/saveManager.js';
+import { writeSaveGame } from '@/backend/src/saveLoad/saveManager';
+import type { SaveGame } from '@/backend/src/saveLoad/saveManager';
 
 const BASE_PAYLOAD: SaveGame = {
   schemaVersion: 1,

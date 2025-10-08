@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { assertValidSensorReading } from '@/backend/src/engine/pipeline/sensorReadingSchema.js';
-import type { SensorReading } from '@/backend/src/domain/interfaces/ISensor.js';
+import { assertValidSensorReading } from '@/backend/src/engine/pipeline/sensorReadingSchema';
+import type { SensorReading } from '@/backend/src/domain/interfaces/ISensor';
 
 const BASE_READING: SensorReading<number> = {
   measurementType: 'temperature',

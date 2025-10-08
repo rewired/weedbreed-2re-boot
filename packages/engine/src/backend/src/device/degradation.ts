@@ -1,5 +1,5 @@
-import { clamp01 } from '../util/math.js';
-import { deterministicUuid } from '../util/uuid.js';
+import { clamp01 } from '../util/math.ts';
+import { deterministicUuid } from '../util/uuid.ts';
 import type {
   DeviceMaintenancePolicy,
   DeviceMaintenanceState,
@@ -8,8 +8,8 @@ import type {
   Structure,
   Zone,
   ZoneDeviceInstance
-} from '../domain/entities.js';
-import type { Uuid } from '../domain/schemas/primitives.js';
+} from '../domain/entities.ts';
+import type { Uuid } from '../domain/schemas/primitives.ts';
 
 const DEFAULT_BASE_LIFETIME_HOURS = 8_760; // One year of continuous runtime.
 const MIN_TICK_HOURS = 1e-6;

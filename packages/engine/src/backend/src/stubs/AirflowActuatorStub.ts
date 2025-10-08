@@ -2,10 +2,10 @@ import type {
   AirflowActuatorInputs,
   AirflowActuatorOutputs,
   IAirflowActuator
-} from '../domain/interfaces/IAirflowActuator.js';
-import { clamp01 } from '../util/math.js';
-import { resolveAirflow } from '../util/environment.js';
-import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
+} from '../domain/interfaces/IAirflowActuator.ts';
+import { clamp01 } from '../util/math.ts';
+import { resolveAirflow } from '../util/environment.ts';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
 
 const ZERO_OUTPUT: AirflowActuatorOutputs = {
   effective_airflow_m3_per_h: 0,

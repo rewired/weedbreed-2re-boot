@@ -2,6 +2,8 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Fixed TypeScript imports to drop `.js` extensions in favour of `.ts` paths, ensuring engine code resolves the canonical
+  `simConstants` module and adding an ESLint guardrail against future regressions.
 - Domain schemas decoupled: primitives/HarvestLot/Inventory split to avoid circular imports.
 - applyHarvestAndInventory: immutable write-back, direct leaf schemas.
 - simConstants: alias sync; string vs numeric env parsing fixed.

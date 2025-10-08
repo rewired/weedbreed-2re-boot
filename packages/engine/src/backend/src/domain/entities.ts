@@ -1,7 +1,7 @@
-import type { HealthState } from './health/pestDisease.js';
-import type { Inventory } from './types/Inventory.js';
-import type { WorkforceState } from './workforce/WorkforceState.js';
-import type { Uuid as SchemaUuid } from './schemas/primitives.js';
+import type { HealthState } from './health/pestDisease.ts';
+import type { Inventory } from './types/Inventory.ts';
+import type { WorkforceState } from './workforce/WorkforceState.ts';
+import type { Uuid as SchemaUuid } from './schemas/primitives.ts';
 
 /**
  * Branded string type representing a UUID v4 identifier.

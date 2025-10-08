@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.js';
+import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
 const slugString = z
   .string({ required_error: 'slug is required.' })

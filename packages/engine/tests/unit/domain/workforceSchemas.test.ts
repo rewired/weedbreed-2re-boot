@@ -4,7 +4,7 @@ import {
   employeeSchema,
   workforceStateSchema,
   workforceTaskDefinitionSchema
-} from '@/backend/src/domain/schemas.js';
+} from '@/backend/src/domain/schemas';
 
 const VALID_EMPLOYEE = {
   id: '00000000-0000-0000-0000-000000002001',

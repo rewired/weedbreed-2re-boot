@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Leaf schema: always import sibling schemas directly to avoid barrel cycles.
-import { HarvestLotSchema } from './HarvestLotSchema.js';
+import { HarvestLotSchema } from './HarvestLotSchema.ts';
 
 export const InventorySchema = z
   .object({

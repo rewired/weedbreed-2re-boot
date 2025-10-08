@@ -5,11 +5,11 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
-import { runDeterministic } from '@/backend/src/engine/testHarness.js';
+import { runDeterministic } from '@/backend/src/engine/testHarness';
 import type {
   DailyRecord,
   ScenarioSummary,
-} from '@/backend/src/engine/conformance/goldenScenario.js';
+} from '@/backend/src/engine/conformance/goldenScenario';
 
 const EPS_ABS = 1e-9;
 const EPS_REL = 1e-6;

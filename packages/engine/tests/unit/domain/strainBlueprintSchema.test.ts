@@ -3,9 +3,9 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { parseStrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
-import { BlueprintTaxonomyMismatchError } from '../../../src/backend/src/domain/blueprints/taxonomy.js';
-import { resolveBlueprintPath } from '../../testUtils/paths.js';
+import { parseStrainBlueprint } from '../../../src/backend/src/domain/blueprints/strainBlueprint.ts';
+import { BlueprintTaxonomyMismatchError } from '../../../src/backend/src/domain/blueprints/taxonomy.ts';
+import { resolveBlueprintPath } from '../../testUtils/paths.ts';
 
 const fixturePath = resolveBlueprintPath('strain/white-widow.json');
 const blueprintsRoot = path.resolve(fixturePath, '..', '..');

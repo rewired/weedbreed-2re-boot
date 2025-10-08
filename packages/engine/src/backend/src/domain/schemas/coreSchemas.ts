@@ -10,7 +10,7 @@ import {
   LONGITUDE_MAX_DEG,
   LONGITUDE_MIN_DEG,
   ROOM_DEFAULT_HEIGHT_M
-} from '../constants/simConstants.js';
+} from '../../constants/simConstants.ts';
 import {
   DEVICE_PLACEMENT_SCOPES,
   PLANT_LIFECYCLE_STAGES,
@@ -29,15 +29,15 @@ import {
   type Zone,
   type ZoneDeviceInstance,
   type ZoneEnvironment
-} from '../entities.js';
-import { InventorySchema } from './InventorySchema.js';
+} from '../entities.ts';
+import { InventorySchema } from './InventorySchema.ts';
 import {
   finiteNumber,
   integerNumber,
   nonEmptyString,
   unitIntervalNumber,
   uuidSchema
-} from './primitives.js';
+} from './primitives.ts';
 import type {
   Employee,
   EmployeeExperience,
@@ -46,9 +46,9 @@ import type {
   EmployeeSchedule,
   EmployeeSkillLevel,
   EmployeeSkillTriad,
-} from '../workforce/Employee.js';
-import type { EmployeeTraitAssignment } from '../workforce/traits.js';
-import type { EmployeeRole, EmployeeSkillRequirement } from '../workforce/EmployeeRole.js';
+} from '../workforce/Employee.ts';
+import type { EmployeeTraitAssignment } from '../workforce/traits.ts';
+import type { EmployeeRole, EmployeeSkillRequirement } from '../workforce/EmployeeRole.ts';
 import type {
   WorkforceMarketCandidate,
   WorkforceMarketCandidateSkill,
@@ -56,14 +56,14 @@ import type {
   WorkforceMarketState,
   WorkforceMarketStructureState,
   WorkforceState,
-} from '../workforce/WorkforceState.js';
-import type { WorkforceKpiSnapshot } from '../workforce/kpis.js';
-import type { WorkforceWarning } from '../workforce/warnings.js';
+} from '../workforce/WorkforceState.ts';
+import type { WorkforceKpiSnapshot } from '../workforce/kpis.ts';
+import type { WorkforceWarning } from '../workforce/warnings.ts';
 import type {
   WorkforceTaskCostModel,
   WorkforceTaskDefinition,
   WorkforceTaskInstance
-} from '../workforce/tasks.js';
+} from '../workforce/tasks.ts';
 
 const [STRUCTURE_SCOPE, ROOM_SCOPE, ZONE_SCOPE] = DEVICE_PLACEMENT_SCOPES;
 

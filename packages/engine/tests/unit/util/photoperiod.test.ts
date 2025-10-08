@@ -6,13 +6,13 @@ import {
   shouldTransitionToFlowering,
   shouldTransitionToHarvestReady,
   shouldTransitionToVegetative
-} from '../../../src/backend/src/util/photoperiod.js';
-import type { LightSchedule, Plant, Zone } from '../../../src/backend/src/domain/entities.js';
+} from '../../../src/backend/src/util/photoperiod.ts';
+import type { LightSchedule, Plant, Zone } from '../../../src/backend/src/domain/entities.ts';
 import type {
   PhaseDurations,
   StageChangeThresholds
-} from '../../../src/backend/src/domain/blueprints/strainBlueprint.js';
-import { AMBIENT_CO2_PPM } from '../../../src/backend/src/constants/simConstants.js';
+} from '../../../src/backend/src/domain/blueprints/strainBlueprint.ts';
+import { AMBIENT_CO2_PPM } from '../../../src/backend/src/constants/simConstants.ts';
 
 describe('photoperiod utilities', () => {
   const schedule = (overrides: Partial<LightSchedule> = {}): LightSchedule => ({

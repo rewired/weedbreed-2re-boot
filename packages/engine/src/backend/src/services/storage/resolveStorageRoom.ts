@@ -1,5 +1,5 @@
-import type { SimulationWorld, Room, Structure } from '../../domain/world.js';
-import type { Uuid } from '../../domain/schemas/primitives.js';
+import type { SimulationWorld, Room, Structure } from '../../domain/world.ts';
+import type { Uuid } from '../../domain/schemas/primitives.ts';
 
 type ResolutionFailureReason = 'not_found' | 'ambiguous';
 

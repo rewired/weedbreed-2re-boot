@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { saveGameEnvelopeSchema } from '../schemas.js';
+import { saveGameEnvelopeSchema } from '../schemas.ts';
 
 export interface SaveGameMigrationStep {
   readonly fromVersion: number;

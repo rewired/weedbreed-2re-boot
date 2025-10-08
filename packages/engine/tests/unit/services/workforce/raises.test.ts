@@ -5,9 +5,9 @@ import {
   createInitialRaiseState,
   RAISE_BASE_COOLDOWN_DAYS,
   RAISE_MIN_EMPLOYMENT_DAYS,
-} from '@/backend/src/services/workforce/raises.js';
-import { createRng } from '@/backend/src/util/rng.js';
-import type { Employee, WorkforceRaiseIntent } from '@/backend/src/domain/world.js';
+} from '@/backend/src/services/workforce/raises';
+import { createRng } from '@/backend/src/util/rng';
+import type { Employee, WorkforceRaiseIntent } from '@/backend/src/domain/world';
 
 function createEmployee(overrides: Partial<Employee> = {}): Employee {
   const base: Employee = {

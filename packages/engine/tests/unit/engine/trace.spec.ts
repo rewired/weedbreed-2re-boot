@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { PIPELINE_ORDER } from '@/backend/src/engine/Engine.js';
-import { runOneTickWithTrace } from '@/backend/src/engine/testHarness.js';
+import { PIPELINE_ORDER } from '@/backend/src/engine/Engine';
+import { runOneTickWithTrace } from '@/backend/src/engine/testHarness';
 
 describe('Tick trace schema', () => {
   it('captures monotonic timings and heap deltas for each pipeline step', () => {

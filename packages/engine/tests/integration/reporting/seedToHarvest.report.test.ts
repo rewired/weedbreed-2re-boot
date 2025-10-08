@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { generateSeedToHarvestReport } from '@/backend/src/engine/reporting/generateSeedToHarvestReport.js';
+import { generateSeedToHarvestReport } from '@/backend/src/engine/reporting/generateSeedToHarvestReport';
 
 describe('Seed-to-harvest reporting generator', () => {
   it('produces a persisted report with consistent summaries', async () => {

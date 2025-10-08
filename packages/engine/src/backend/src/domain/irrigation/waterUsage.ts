@@ -1,10 +1,10 @@
-import { convertSubstrateVolumeLToMassKg } from '../blueprints/substrateBlueprint.js';
-import type { SubstratePhysicalProfile } from '../blueprints/substrateBlueprint.js';
+import { convertSubstrateVolumeLToMassKg } from '../blueprints/substrateBlueprint.ts';
+import type { SubstratePhysicalProfile } from '../blueprints/substrateBlueprint.ts';
 import {
   assertPositiveFinite,
   assertNonNegativeFinite,
   ensureFraction01
-} from '../../util/validation.js';
+} from '../../util/validation.ts';
 
 export interface IrrigationChargeInput {
   readonly substrate: SubstratePhysicalProfile;

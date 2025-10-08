@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { EngineRunContext as EngineContext } from '../engine/Engine.js';
+import type { EngineRunContext as EngineContext } from '../engine/Engine.ts';
 import type {
   Room,
   SimulationWorld,
@@ -11,12 +11,12 @@ import type {
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
   Zone,
-} from '../domain/world.js';
-import type { Uuid } from '../domain/schemas/primitives.js';
-import { parseContainerBlueprint, type ContainerBlueprint } from '../domain/blueprints/containerBlueprint.js';
-import { parseCultivationMethodBlueprint } from '../domain/blueprints/cultivationMethodBlueprint.js';
-import { parseSubstrateBlueprint, type SubstrateBlueprint } from '../domain/blueprints/substrateBlueprint.js';
-import { deterministicUuid } from '../util/uuid.js';
+} from '../domain/world.ts';
+import type { Uuid } from '../domain/schemas/primitives.ts';
+import { parseContainerBlueprint, type ContainerBlueprint } from '../domain/blueprints/containerBlueprint.ts';
+import { parseCultivationMethodBlueprint } from '../domain/blueprints/cultivationMethodBlueprint.ts';
+import { parseSubstrateBlueprint, type SubstrateBlueprint } from '../domain/blueprints/substrateBlueprint.ts';
+import { deterministicUuid } from '../util/uuid.ts';
 
 const CURRENT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(CURRENT_DIR, '../../../../../../');

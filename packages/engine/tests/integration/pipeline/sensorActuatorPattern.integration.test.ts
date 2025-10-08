@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { getSensorReadingsRuntime } from '@/backend/src/engine/pipeline/applySensors.js';
-import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import type { SensorReading } from '@/backend/src/domain/interfaces/ISensor.js';
-import type { ZoneDeviceInstance, Uuid } from '@/backend/src/domain/world.js';
+import { getSensorReadingsRuntime } from '@/backend/src/engine/pipeline/applySensors';
+import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import type { SensorReading } from '@/backend/src/domain/interfaces/ISensor';
+import type { ZoneDeviceInstance, Uuid } from '@/backend/src/domain/world';
 
 function uuid(value: string): Uuid {
   return value as Uuid;

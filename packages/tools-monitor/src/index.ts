@@ -1,7 +1,7 @@
 import process from 'node:process';
-import { createMonitorRuntime, type MonitorRuntime } from './runtime.js';
-import { createSocketTelemetryClient } from './socketTelemetryClient.js';
-import { createBlessedMonitorUi } from './ui/blessedUi.js';
+import { createMonitorRuntime, type MonitorRuntime } from './runtime.ts';
+import { createSocketTelemetryClient } from './socketTelemetryClient.ts';
+import { createBlessedMonitorUi } from './ui/blessedUi.ts';
 
 interface CliOptions {
   readonly baseUrl: string;
@@ -137,7 +137,7 @@ if (process.argv[1] && import.meta.url === new URL(process.argv[1], 'file:').hre
   runCli();
 }
 
-export { createMonitorRuntime } from './runtime.js';
+export { createMonitorRuntime } from './runtime.ts';
 export type {
   EconomyPanelView,
   EnergyPanelView,
@@ -153,7 +153,7 @@ export type {
   TelemetryConnectionState,
   TelemetryMessage,
   WorkforcePanelView,
-} from './runtime.js';
-export { createSocketTelemetryClient } from './socketTelemetryClient.js';
-export { createBlessedMonitorUi } from './ui/blessedUi.js';
-export type { BlessedMonitorOptions } from './ui/blessedUi.js';
+} from './runtime.ts';
+export { createSocketTelemetryClient } from './socketTelemetryClient.ts';
+export { createBlessedMonitorUi } from './ui/blessedUi.ts';
+export type { BlessedMonitorOptions } from './ui/blessedUi.ts';
