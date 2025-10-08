@@ -14,14 +14,36 @@ providing a quick-look operational view aligned with the experience pillar in
 
 ## Running the monitor
 
+The terminal dashboard expects an interactive TTY. When launched inside tools
+that buffer stdout (e.g. CI logs) the neo-blessed screen will not render.
+
+### 1. Start a telemetry source
+
+The monitor only subscribes to the read-only Socket.IO namespace. Point it at
+either a running façade/transport instance or the deterministic mock server
+shipped with this package:
+
 ```bash
-pnpm monitor:terminal [--base-url=http://host:port] [--refresh-ms=1000]
+pnpm monitor:mock [-- --host=127.0.0.1 --port=4000 --interval-ms=1000]
 ```
 
-- The CLI automatically appends `/telemetry` to the provided base URL and only
-  listens to the read-only namespace. No commands are sent upstream.
+- CLI flags mirror the env vars below. The defaults match the monitor CLI so
+  both tools align on `http://127.0.0.1:4000/telemetry`.
+- Environment overrides for the mock harness:
+  - `WB_MOCK_TELEMETRY_HOST`
+  - `WB_MOCK_TELEMETRY_PORT`
+  - `WB_MOCK_TELEMETRY_INTERVAL_MS`
+
+### 2. Launch the monitor
+
+```bash
+pnpm monitor:terminal -- --base-url=http://127.0.0.1:4000 --refresh-ms=1000
+```
+
+- The CLI automatically appends `/telemetry` to the base URL. No commands are
+  ever emitted upstream.
 - Environment overrides:
-  - `WB_MONITOR_BASE_URL` — default telemetry host (defaults to
+  - `WB_MONITOR_BASE_URL` — telemetry host (defaults to
     `http://127.0.0.1:4000`).
   - `WB_MONITOR_REFRESH_MS` — deterministic refresh cadence in milliseconds
     (defaults to `1000`).
