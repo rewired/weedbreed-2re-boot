@@ -2,6 +2,9 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Added import hygiene guardrails: `simple-git-hooks` pre-commit runs lint + import resolution specs, ESLint now blocks local
+  `.js` suffixes in TypeScript, and a Vitest probe dynamically `import()`s engine schemas/pipeline stages to catch bad specifiers
+  before CI.
 - Audited simulation constant usage across the engine: replaced duplicated physics and
   calendar literals with imports from `simConstants`, updated tolerance handling to
   reuse the canonical `FLOAT_TOLERANCE`, and extended `simConstants.test.ts` with
