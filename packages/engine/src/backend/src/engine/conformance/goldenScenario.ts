@@ -24,6 +24,7 @@ import northernLightsStrain from '../../../../../../../data/blueprints/strain/no
 import skunk1Strain from '../../../../../../../data/blueprints/strain/skunk-1.json' with { type: 'json' };
 
 import { createRng } from '../../util/rng.js';
+import type { RoomPurpose } from '../../domain/entities.js';
 
 const HOURS_PER_DAY = 24;
 const BREAK_DURATION_MINUTES = 30;
@@ -44,14 +45,14 @@ interface BlueprintLite {
 
 interface LightingBlueprint extends BlueprintLite {
   readonly coverage_m2: number;
-  readonly allowedRoomPurposes: readonly string[];
+  readonly allowedRoomPurposes: ReadonlyArray<RoomPurpose>;
   readonly placementScope: string;
 }
 
 interface ClimateBlueprint extends BlueprintLite {
   readonly airflow_m3_per_h: number;
   readonly placementScope: string;
-  readonly allowedRoomPurposes: readonly string[];
+  readonly allowedRoomPurposes: ReadonlyArray<RoomPurpose>;
 }
 
 interface CultivationBlueprint extends BlueprintLite {
