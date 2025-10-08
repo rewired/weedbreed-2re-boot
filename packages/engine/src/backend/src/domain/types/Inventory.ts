@@ -1,5 +1,1 @@
-import type { HarvestLot } from './HarvestLot.js';
-
-export interface Inventory {
-  readonly lots: readonly HarvestLot[];
-}
+export type { Inventory } from '../schemas/InventorySchema.js';

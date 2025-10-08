@@ -1,12 +1,12 @@
 import type {
   EmployeeRole,
-  Uuid,
   WorkforceMarketCandidate,
   WorkforceMarketCandidateSkill,
   WorkforceMarketCandidateTrait,
   WorkforceMarketState,
   WorkforceMarketStructureState,
 } from '../../domain/world.js';
+import type { Uuid } from '../../domain/schemas/primitives.js';
 import { HOURS_PER_DAY } from '../../constants/simConstants.js';
 import type { WorkforceMarketScanConfig } from '../../config/workforce.js';
 import { createRng, type RandomNumberGenerator } from '../../util/rng.js';

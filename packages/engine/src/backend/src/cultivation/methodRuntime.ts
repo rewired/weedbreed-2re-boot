@@ -7,12 +7,12 @@ import type {
   Room,
   SimulationWorld,
   Structure,
-  Uuid,
   WorkforceState,
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
   Zone,
 } from '../domain/world.js';
+import type { Uuid } from '../domain/schemas/primitives.js';
 import { parseContainerBlueprint, type ContainerBlueprint } from '../domain/blueprints/containerBlueprint.js';
 import { parseCultivationMethodBlueprint } from '../domain/blueprints/cultivationMethodBlueprint.js';
 import { parseSubstrateBlueprint, type SubstrateBlueprint } from '../domain/blueprints/substrateBlueprint.js';

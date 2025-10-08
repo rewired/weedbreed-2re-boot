@@ -1,15 +1,8 @@
 import { z } from 'zod';
 
-import { uuidSchema } from '../schemas.js';
+import { finiteNumber, nonNegativeNumber, unitIntervalNumber, uuidSchema } from './primitives.js';
 import type { HarvestLot } from '../types/HarvestLot.js';
 
-const finiteNumber = z
-  .number({ invalid_type_error: 'Expected a number.' })
-  .finite({ message: 'Value must be finite.' });
-const nonNegativeNumber = finiteNumber.min(0, 'Value must be greater than or equal to zero.');
-const unitIntervalNumber = finiteNumber
-  .min(0, 'Value must be greater than or equal to zero.')
-  .max(1, 'Value must be less than or equal to one.');
 const createdAtTickSchema = finiteNumber
   .min(0, 'createdAt_tick must be greater than or equal to zero.')
   .transform((value) => Math.trunc(value));

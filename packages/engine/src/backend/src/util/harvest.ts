@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 
-import type { HarvestLot, PlantLifecycleStage, Uuid } from '../domain/world.js';
+import type { HarvestLot, PlantLifecycleStage } from '../domain/world.js';
+import type { Uuid } from '../domain/schemas/primitives.js';
 import type { StrainBlueprint } from '../domain/blueprints/strainBlueprint.js';
 import { clamp01 } from './math.js';
 import { getDryMatterFraction, getHarvestIndex } from './growth.js';

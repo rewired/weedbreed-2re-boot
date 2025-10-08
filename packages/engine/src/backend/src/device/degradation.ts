@@ -7,9 +7,9 @@ import type {
   Room,
   Structure,
   Zone,
-  ZoneDeviceInstance,
-  Uuid
+  ZoneDeviceInstance
 } from '../domain/entities.js';
+import type { Uuid } from '../domain/schemas/primitives.js';
 
 const DEFAULT_BASE_LIFETIME_HOURS = 8_760; // One year of continuous runtime.
 const MIN_TICK_HOURS = 1e-6;

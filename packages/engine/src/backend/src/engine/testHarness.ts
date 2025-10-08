@@ -1,5 +1,6 @@
 import { AIR_DENSITY_KG_PER_M3, AMBIENT_CO2_PPM } from '../constants/simConstants.js';
-import type { SimulationWorld, Uuid, WorkforceState } from '../domain/world.js';
+import type { SimulationWorld, WorkforceState } from '../domain/world.js';
+import type { Uuid } from '../domain/schemas/primitives.js';
 import {
   resolvePipelineStage,
   runTick,

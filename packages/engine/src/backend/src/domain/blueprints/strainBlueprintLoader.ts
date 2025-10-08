@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { parseStrainBlueprint, type StrainBlueprint } from './strainBlueprint.js';
-import type { Uuid } from '../entities.js';
+import type { Uuid } from '../schemas/primitives.js';
 
 export interface LoadStrainBlueprintOptions {
   readonly blueprintsRoot?: string;
