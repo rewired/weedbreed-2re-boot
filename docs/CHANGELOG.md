@@ -2,6 +2,7 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Migrated JSON module imports to Node.js 22 import attributes (`with { type: 'json' }`) across engine runtime and test suites to resolve TS2880 and align with the ESM baseline.
 - Fixed CO₂ injector clamp reporting (Task 0019) and extended tariff bootstrap tests:
   - Corrected `clampedByTarget` so it only flips when the requested delta exceeds deliverable output, and added coverage to verify satisfied requests remain unclamped.
   - Exercised difficulty-specific tariff overrides and cache reuse in `createEngineBootstrapConfig` while syncing SEC/ADR typos with the Node.js 22 baseline.

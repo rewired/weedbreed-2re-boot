@@ -2,26 +2,26 @@ import { createHash } from 'node:crypto';
 
 import safeStringify from 'safe-stable-stringify';
 
-import ledVegLightBlueprint from '../../../../../../../data/blueprints/device/lighting/led-veg-light-600.json' assert { type: 'json' };
-import coolAirSplitBlueprint from '../../../../../../../data/blueprints/device/climate/cool-air-split-3000.json' assert { type: 'json' };
-import dripInlineFertigationBlueprint from '../../../../../../../data/blueprints/irrigation/drip-inline-fertigation-basic.json' assert { type: 'json' };
-import ebbFlowTableBlueprint from '../../../../../../../data/blueprints/irrigation/ebb-flow-table-small.json' assert { type: 'json' };
-import manualWateringBlueprint from '../../../../../../../data/blueprints/irrigation/manual-watering-can.json' assert { type: 'json' };
-import topFeedPumpBlueprint from '../../../../../../../data/blueprints/irrigation/top-feed-pump-timer.json' assert { type: 'json' };
-import pot10LBlueprint from '../../../../../../../data/blueprints/container/pot-10l.json' assert { type: 'json' };
-import pot11LBlueprint from '../../../../../../../data/blueprints/container/pot-11l.json' assert { type: 'json' };
-import pot25LBlueprint from '../../../../../../../data/blueprints/container/pot-25l.json' assert { type: 'json' };
-import soilSingleCycleBlueprint from '../../../../../../../data/blueprints/substrate/soil-single-cycle.json' assert { type: 'json' };
-import soilMultiCycleBlueprint from '../../../../../../../data/blueprints/substrate/soil-multi-cycle.json' assert { type: 'json' };
-import cocoCoirBlueprint from '../../../../../../../data/blueprints/substrate/coco-coir.json' assert { type: 'json' };
-import seaOfGreenBlueprint from '../../../../../../../data/blueprints/cultivation-method/sea-of-green.json' assert { type: 'json' };
-import screenOfGreenBlueprint from '../../../../../../../data/blueprints/cultivation-method/screen-of-green.json' assert { type: 'json' };
-import basicSoilPotBlueprint from '../../../../../../../data/blueprints/cultivation-method/basic-soil-pot.json' assert { type: 'json' };
-import ak47Strain from '../../../../../../../data/blueprints/strain/ak47.json' assert { type: 'json' };
-import sourDieselStrain from '../../../../../../../data/blueprints/strain/sour-diesel.json' assert { type: 'json' };
-import whiteWidowStrain from '../../../../../../../data/blueprints/strain/white-widow.json' assert { type: 'json' };
-import northernLightsStrain from '../../../../../../../data/blueprints/strain/northern-lights.json' assert { type: 'json' };
-import skunk1Strain from '../../../../../../../data/blueprints/strain/skunk-1.json' assert { type: 'json' };
+import ledVegLightBlueprint from '../../../../../../../data/blueprints/device/lighting/led-veg-light-600.json' with { type: 'json' };
+import coolAirSplitBlueprint from '../../../../../../../data/blueprints/device/climate/cool-air-split-3000.json' with { type: 'json' };
+import dripInlineFertigationBlueprint from '../../../../../../../data/blueprints/irrigation/drip-inline-fertigation-basic.json' with { type: 'json' };
+import ebbFlowTableBlueprint from '../../../../../../../data/blueprints/irrigation/ebb-flow-table-small.json' with { type: 'json' };
+import manualWateringBlueprint from '../../../../../../../data/blueprints/irrigation/manual-watering-can.json' with { type: 'json' };
+import topFeedPumpBlueprint from '../../../../../../../data/blueprints/irrigation/top-feed-pump-timer.json' with { type: 'json' };
+import pot10LBlueprint from '../../../../../../../data/blueprints/container/pot-10l.json' with { type: 'json' };
+import pot11LBlueprint from '../../../../../../../data/blueprints/container/pot-11l.json' with { type: 'json' };
+import pot25LBlueprint from '../../../../../../../data/blueprints/container/pot-25l.json' with { type: 'json' };
+import soilSingleCycleBlueprint from '../../../../../../../data/blueprints/substrate/soil-single-cycle.json' with { type: 'json' };
+import soilMultiCycleBlueprint from '../../../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };
+import cocoCoirBlueprint from '../../../../../../../data/blueprints/substrate/coco-coir.json' with { type: 'json' };
+import seaOfGreenBlueprint from '../../../../../../../data/blueprints/cultivation-method/sea-of-green.json' with { type: 'json' };
+import screenOfGreenBlueprint from '../../../../../../../data/blueprints/cultivation-method/screen-of-green.json' with { type: 'json' };
+import basicSoilPotBlueprint from '../../../../../../../data/blueprints/cultivation-method/basic-soil-pot.json' with { type: 'json' };
+import ak47Strain from '../../../../../../../data/blueprints/strain/ak47.json' with { type: 'json' };
+import sourDieselStrain from '../../../../../../../data/blueprints/strain/sour-diesel.json' with { type: 'json' };
+import whiteWidowStrain from '../../../../../../../data/blueprints/strain/white-widow.json' with { type: 'json' };
+import northernLightsStrain from '../../../../../../../data/blueprints/strain/northern-lights.json' with { type: 'json' };
+import skunk1Strain from '../../../../../../../data/blueprints/strain/skunk-1.json' with { type: 'json' };
 
 import { createRng } from '../../util/rng.js';
 

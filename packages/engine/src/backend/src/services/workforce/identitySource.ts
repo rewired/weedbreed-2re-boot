@@ -1,9 +1,9 @@
 import { createRng, type RandomNumberGenerator } from '../../util/rng.js';
 import type { EmployeeRngSeedUuid } from '../../domain/workforce/Employee.js';
 
-import firstNamesFemaleJson from '../../../../../../../data/personnel/names/firstNamesFemale.json' assert { type: 'json' };
-import firstNamesMaleJson from '../../../../../../../data/personnel/names/firstNamesMale.json' assert { type: 'json' };
-import lastNamesJson from '../../../../../../../data/personnel/names/lastNames.json' assert { type: 'json' };
+import firstNamesFemaleJson from '../../../../../../../data/personnel/names/firstNamesFemale.json' with { type: 'json' };
+import firstNamesMaleJson from '../../../../../../../data/personnel/names/firstNamesMale.json' with { type: 'json' };
+import lastNamesJson from '../../../../../../../data/personnel/names/lastNames.json' with { type: 'json' };
 import { sampleTraitSet } from '../../domain/workforce/traits.js';
 
 const RANDOM_USER_ENDPOINT = 'https://randomuser.me/api/';
