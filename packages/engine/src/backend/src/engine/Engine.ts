@@ -1,4 +1,5 @@
-import type { SimulationWorld, Uuid } from '../domain/world.js';
+import type { SimulationWorld } from '../domain/world.js';
+import type { Uuid } from '../domain/schemas/primitives.js';
 import type { IrrigationEvent } from '../domain/interfaces/IIrrigationService.js';
 import { applyDeviceEffects } from './pipeline/applyDeviceEffects.js';
 import { updateEnvironment } from './pipeline/updateEnvironment.js';

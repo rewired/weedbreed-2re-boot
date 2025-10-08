@@ -43,9 +43,14 @@ describe('InventorySchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects inventories without a lots array', () => {
+  it('defaults to an empty lots array when omitted', () => {
     const result = InventorySchema.safeParse({});
 
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      return;
+    }
+
+    expect(result.data.lots).toHaveLength(0);
   });
 });

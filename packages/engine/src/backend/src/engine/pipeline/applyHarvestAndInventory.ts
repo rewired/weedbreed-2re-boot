@@ -14,8 +14,8 @@ import type {
   SimulationWorld,
   Structure,
   Zone,
-  Uuid
 } from '../../domain/world.js';
+import type { Uuid } from '../../domain/schemas/primitives.js';
 import type { EngineRunContext } from '../Engine.js';
 
 interface HarvestComputationContext {

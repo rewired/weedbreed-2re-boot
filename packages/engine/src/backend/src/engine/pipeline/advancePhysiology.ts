@@ -5,9 +5,9 @@ import type {
   Room,
   SimulationWorld,
   Structure,
-  Uuid,
   Zone
 } from '../../domain/world.js';
+import type { Uuid } from '../../domain/schemas/primitives.js';
 import type { EngineRunContext } from '../Engine.js';
 import type { StrainBlueprint } from '../../domain/blueprints/strainBlueprint.js';
 import { loadStrainBlueprint } from '../../domain/blueprints/strainBlueprintLoader.js';

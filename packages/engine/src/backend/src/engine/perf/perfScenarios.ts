@@ -1,4 +1,5 @@
-import type { SimulationWorld, Structure, Room, Zone, ZoneDeviceInstance, Uuid } from '../../domain/world.js';
+import type { SimulationWorld, Structure, Room, Zone, ZoneDeviceInstance } from '../../domain/world.js';
+import type { Uuid } from '../../domain/schemas/primitives.js';
 import { createDemoWorld } from '../testHarness.js';
 import { deterministicUuid } from '../../util/uuid.js';
 import { HOURS_PER_DAY } from '../../constants/simConstants.js';

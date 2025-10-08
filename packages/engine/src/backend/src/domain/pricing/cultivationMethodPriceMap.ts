@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { Uuid } from '../entities.js';
+import type { Uuid } from '../schemas/primitives.js';
 
 const uuidString = z.string().uuid('Cultivation method price keys must be UUID v4 identifiers.');
 

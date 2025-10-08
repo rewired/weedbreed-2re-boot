@@ -1,13 +1,12 @@
-import type { BRAND } from 'zod';
-
 import type { HealthState } from './health/pestDisease.js';
 import type { Inventory } from './types/Inventory.js';
 import type { WorkforceState } from './workforce/WorkforceState.js';
+import type { Uuid as SchemaUuid } from './schemas/primitives.js';
 
 /**
  * Branded string type representing a UUID v4 identifier.
  */
-export type Uuid = string & BRAND<'Uuid'>;
+export type Uuid = SchemaUuid;
 
 /**
  * Canonical list of supported room purposes as mandated by SEC §2.1.

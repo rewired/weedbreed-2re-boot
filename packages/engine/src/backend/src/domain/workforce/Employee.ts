@@ -1,6 +1,7 @@
 import type { BRAND } from 'zod';
 
-import type { DomainEntity, Uuid } from '../entities.js';
+import type { DomainEntity } from '../entities.js';
+import type { Uuid } from '../schemas/primitives.js';
 import type { EmployeeSkillRequirement } from './EmployeeRole.js';
 import type { EmployeeTraitAssignment, TraitSubject } from './traits.js';
 

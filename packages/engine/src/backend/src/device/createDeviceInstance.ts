@@ -1,8 +1,5 @@
-import {
-  type DeviceEffectConfigs,
-  type DeviceEffectType,
-  type Uuid
-} from '../domain/entities.js';
+import { type DeviceEffectConfigs, type DeviceEffectType } from '../domain/entities.js';
+import type { Uuid } from '../domain/schemas/primitives.js';
 import {
   toDeviceInstanceEffectConfigs,
   type DeviceBlueprint

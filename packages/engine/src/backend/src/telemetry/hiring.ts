@@ -1,5 +1,5 @@
 import type { TelemetryBus } from '../engine/Engine.js';
-import type { Uuid } from '../domain/entities.js';
+import type { Uuid } from '../domain/schemas/primitives.js';
 import {
   TELEMETRY_HIRING_EMPLOYEE_ONBOARDED_V1,
   TELEMETRY_HIRING_MARKET_SCAN_COMPLETED_V1,

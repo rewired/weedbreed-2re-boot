@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import type { Uuid } from '../domain/entities.js';
+import type { Uuid } from '../domain/schemas/primitives.js';
 import type { EmployeeRngSeedUuid } from '../domain/workforce/Employee.js';
 
 function formatUuid<T extends string>(bytes: Uint8Array): T {
