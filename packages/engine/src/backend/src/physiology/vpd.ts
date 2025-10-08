@@ -1,9 +1,10 @@
+import { FLOAT_TOLERANCE } from '@/backend/src/constants/simConstants';
 import { clamp01 } from '../util/math.ts';
 
 const SATURATION_COEFF_A = 17.27;
 const SATURATION_COEFF_B_C = 237.3;
 const SATURATION_BASE_KPA = 0.6108;
-const MIN_RELATIVE_HUMIDITY_FRACTION = 1e-6;
+const MIN_RELATIVE_HUMIDITY_FRACTION = FLOAT_TOLERANCE;
 const MAX_RELATIVE_HUMIDITY_FRACTION = 1 - MIN_RELATIVE_HUMIDITY_FRACTION;
 
 function clampRelativeHumidityFraction(value: number): number {

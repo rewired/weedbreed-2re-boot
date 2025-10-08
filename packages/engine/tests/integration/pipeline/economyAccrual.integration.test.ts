@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { FLOAT_TOLERANCE } from '@/backend/src/constants/simConstants';
 import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
 import { applyEconomyAccrual } from '@/backend/src/engine/pipeline/applyEconomyAccrual';
 import { createDemoWorld } from '@/backend/src/engine/testHarness';
@@ -13,7 +14,7 @@ import { bankersRound } from '@/backend/src/util/math';
 import devicePrices from '../../../../../data/prices/devicePrices.json' with { type: 'json' };
 import dryboxBlueprint from '../../../../../data/blueprints/device/climate/drybox-200.json' with { type: 'json' };
 
-const EPS = 1e-6;
+const EPS = FLOAT_TOLERANCE;
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 

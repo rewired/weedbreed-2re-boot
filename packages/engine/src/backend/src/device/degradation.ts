@@ -1,3 +1,4 @@
+import { FLOAT_TOLERANCE } from '@/backend/src/constants/simConstants';
 import { clamp01 } from '../util/math.ts';
 import { deterministicUuid } from '../util/uuid.ts';
 import type {
@@ -12,7 +13,7 @@ import type {
 import type { Uuid } from '../domain/schemas/primitives.ts';
 
 const DEFAULT_BASE_LIFETIME_HOURS = 8_760; // One year of continuous runtime.
-const MIN_TICK_HOURS = 1e-6;
+const MIN_TICK_HOURS = FLOAT_TOLERANCE;
 
 export function mDegrade(quality01: number): number {
   const quality = clamp01(Number.isFinite(quality01) ? quality01 : 0.5);

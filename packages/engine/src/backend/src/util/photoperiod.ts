@@ -1,6 +1,12 @@
-import { HOURS_PER_DAY, LIGHT_SCHEDULE_GRID_HOURS } from '../constants/simConstants.ts';
+import {
+  FLOAT_TOLERANCE,
+  HOURS_PER_DAY,
+  LIGHT_SCHEDULE_GRID_HOURS,
+} from '@/backend/src/constants/simConstants';
 import type { LightSchedule, Plant, Zone } from '../domain/entities.ts';
 import type { PhaseDurations, StageChangeThresholds } from '../domain/blueprints/strainBlueprint.ts';
+
+const INTEGRATION_EPSILON = FLOAT_TOLERANCE * 1e-3;
 
 function normaliseHour(value: number): number {
   if (!Number.isFinite(value)) {
@@ -94,10 +100,10 @@ export function calculateAccumulatedLightHours(ageHours: number, schedule: Light
     return total;
   }
 
-  const step = Math.max(1e-6, Math.min(LIGHT_SCHEDULE_GRID_HOURS, remainder));
+  const step = Math.max(FLOAT_TOLERANCE, Math.min(LIGHT_SCHEDULE_GRID_HOURS, remainder));
   const baseTime = fullDays * HOURS_PER_DAY;
 
-  for (let cursor = 0; cursor < remainder - 1e-9; cursor += step) {
+  for (let cursor = 0; cursor < remainder - INTEGRATION_EPSILON; cursor += step) {
     const slice = Math.min(step, remainder - cursor);
     const sampleTime = baseTime + cursor + slice / 2;
 

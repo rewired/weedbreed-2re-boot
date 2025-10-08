@@ -1,7 +1,11 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
-import { CP_AIR_J_PER_KG_K, SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
+import {
+  CP_AIR_J_PER_KG_K,
+  FLOAT_TOLERANCE,
+  SAFETY_MAX_CO2_PPM
+} from '@/backend/src/constants/simConstants';
 import type { EngineRunContext } from '@/backend/src/engine/Engine';
 import { applyDeviceEffects } from '@/backend/src/engine/pipeline/applyDeviceEffects';
 import { updateEnvironment } from '@/backend/src/engine/pipeline/updateEnvironment';
@@ -28,7 +32,7 @@ function computeSpecificEnthalpy_kJ_per_kg(temperatureC: number, humidityPct: nu
     : Math.max(
         0,
         (0.621945 * partialPressure_kPa) /
-          Math.max(1e-6, totalPressure_kPa - partialPressure_kPa),
+          Math.max(FLOAT_TOLERANCE, totalPressure_kPa - partialPressure_kPa),
       );
   const dryAirContribution = (CP_AIR_J_PER_KG_K * Tk) / 1_000;
   const latentContribution = humidityRatio * (2_501 + 1.86 * T);

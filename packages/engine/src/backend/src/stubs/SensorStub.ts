@@ -1,3 +1,4 @@
+import { SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
 import type { ISensor, SensorInputs, SensorOutputs } from '../domain/interfaces/ISensor.ts';
 import type { SensorMeasurementType } from '../domain/entities.ts';
 import type { RandomNumberGenerator } from '../util/rng.ts';
@@ -28,7 +29,7 @@ function clampMeasuredValue(measurementType: SensorMeasurementType, value: numbe
     case 'humidity':
       return clamp(value, 0, 100);
     case 'co2':
-      return clamp(value, 0, 5_000);
+      return clamp(value, 0, SAFETY_MAX_CO2_PPM);
     case 'ppfd':
     default:
       return Math.max(0, value);
