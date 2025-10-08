@@ -27,6 +27,7 @@ import {
   type Structure,
   type StructureDeviceInstance,
   type Zone,
+  type Uuid,
   type ZoneDeviceInstance,
   type ZoneEnvironment
 } from './entities.js';
@@ -60,7 +61,10 @@ import type {
 
 const [STRUCTURE_SCOPE, ROOM_SCOPE, ZONE_SCOPE] = DEVICE_PLACEMENT_SCOPES;
 
-const uuidSchema = z.string().uuid('Expected a UUID v4 identifier.').brand<'Uuid'>();
+export const uuidSchema: z.ZodType<Uuid> = z
+  .string()
+  .uuid('Expected a UUID v4 identifier.')
+  .brand<'Uuid'>();
 const uuidV7Pattern = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const uuidV7Schema: z.ZodBranded<string, EmployeeRngSeedUuid> = z
   .string()
