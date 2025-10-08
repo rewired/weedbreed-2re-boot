@@ -1,7 +1,26 @@
 export * from './entities.js';
 export * from './schemas.js';
 export * from './validation.js';
-export * from './blueprints/deviceBlueprint.js';
+export {
+  deviceBlueprintSchema,
+  parseDeviceBlueprint,
+  toDeviceInstanceCapacity,
+  toDeviceInstanceEffectConfigs
+} from './blueprints/deviceBlueprint.js';
+export type {
+  AirflowConfig,
+  Co2Config,
+  DeviceBlueprint,
+  DeviceEffect,
+  DeviceInstanceCapacity,
+  DeviceInstanceEffectConfigProjection,
+  FiltrationConfig,
+  HumidityConfig,
+  LightingConfig,
+  ParseDeviceBlueprintOptions,
+  SensorConfig,
+  ThermalConfig
+} from './blueprints/deviceBlueprint.js';
 export * from './blueprints/strainBlueprint.js';
 export * from './blueprints/substrateBlueprint.js';
 export * from './blueprints/irrigationBlueprint.js';
