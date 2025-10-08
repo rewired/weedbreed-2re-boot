@@ -47,14 +47,14 @@ export interface ResolveWorkforceIdentityOptions {
 
 type RandomUserGender = 'male' | 'female' | string;
 
-type RandomUserResponse = {
+interface RandomUserResponse {
   readonly results?: readonly [
     {
       readonly gender?: RandomUserGender;
       readonly name?: { readonly first?: string; readonly last?: string };
     },
   ];
-};
+}
 
 /**
  * Resolves a deterministic workforce identity by preferring the randomuser.me API and falling back to local pseudodata.
@@ -72,7 +72,7 @@ export async function resolveWorkforceIdentity(
     throw new Error('rngSeedUuid must be a non-empty string');
   }
 
-  const rngSeed = `${rngSeedUuid}`;
+  const rngSeed = rngSeedUuid;
   const rng = createRng(rngSeed, `employee:${rngSeedUuid}`);
   const selectedTraits = selectTraits(rng);
 
@@ -99,7 +99,7 @@ async function requestRandomUserIdentity(
   randomUserSeed: string,
 ): Promise<Pick<WorkforceIdentity, 'firstName' | 'lastName' | 'gender'> | null> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), RANDOM_USER_TIMEOUT_MS);
+  const timeout = setTimeout(() => { controller.abort(); }, RANDOM_USER_TIMEOUT_MS);
 
   try {
     const url = new URL(RANDOM_USER_ENDPOINT);

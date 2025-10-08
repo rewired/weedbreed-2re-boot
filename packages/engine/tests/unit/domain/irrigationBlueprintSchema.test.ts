@@ -15,9 +15,9 @@ import { parseIrrigationBlueprint } from '@/backend/src/domain/world.js';
 
 describe('parseIrrigationBlueprint', () => {
   const substrateSlugs = new Set([
-    cocoCoir.slug as string,
-    soilMulti.slug as string,
-    soilSingle.slug as string
+    cocoCoir.slug,
+    soilMulti.slug,
+    soilSingle.slug
   ]);
 
 const fixtures = [

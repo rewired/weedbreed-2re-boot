@@ -69,7 +69,7 @@ function buildTask(): WorkforceTaskDefinition {
 
 describe('workforce trait effects integration', () => {
   it('records trait-adjusted assignment metadata', () => {
-    const world = createDemoWorld() as SimulationWorld;
+    const world = createDemoWorld();
     const role = buildRole('00000000-0000-0000-0000-00000000aaaa', 'gardener');
     const taskDefinition = buildTask();
     const task: WorkforceTaskInstance = {

@@ -114,7 +114,7 @@ describe('applyHarvestAndInventory integration', () => {
     const world = prepareHarvestScenario((structure) => {
       structure.rooms = structure.rooms.filter((room) => room.purpose !== 'storageroom');
     });
-    const telemetryEvents: Array<{ topic: string; payload: Record<string, unknown> }> = [];
+    const telemetryEvents: { topic: string; payload: Record<string, unknown> }[] = [];
     const ctx: EngineRunContext = {
       telemetry: {
         emit(topic, payload) {
@@ -151,7 +151,7 @@ describe('applyHarvestAndInventory integration', () => {
         structure.rooms = [...structure.rooms, clone];
       }
     });
-    const telemetryEvents: Array<{ topic: string; payload: Record<string, unknown> }> = [];
+    const telemetryEvents: { topic: string; payload: Record<string, unknown> }[] = [];
     const ctx: EngineRunContext = {
       telemetry: {
         emit(topic, payload) {

@@ -106,10 +106,10 @@ export interface WorkforceRuntime {
   readonly kpiSnapshot?: WorkforceKpiSnapshot;
 }
 
-type WorkforceRuntimeMutable = {
+interface WorkforceRuntimeMutable {
   assignments: WorkforceAssignment[];
   kpiSnapshot?: WorkforceKpiSnapshot;
-};
+}
 
 export interface WorkforcePayrollAccrualSnapshot {
   readonly current: WorkforcePayrollState;
@@ -375,13 +375,13 @@ function ensureUsage(map: Map<Employee['id'], EmployeeUsage>, employeeId: Employ
   return usage;
 }
 
-type PayrollAccumulator = {
+interface PayrollAccumulator {
   baseMinutes: number;
   otMinutes: number;
   baseCost: number;
   otCost: number;
   totalLaborCost: number;
-};
+}
 
 function createEmptyPayrollTotals(): PayrollAccumulator {
   return { baseMinutes: 0, otMinutes: 0, baseCost: 0, otCost: 0, totalLaborCost: 0 };
@@ -501,7 +501,7 @@ function resolveStructureLocation(
 ): CompanyLocation {
   const candidate = (structure as Structure & { location?: CompanyLocation })?.location;
 
-  if (candidate && candidate.cityName && candidate.countryName) {
+  if (candidate?.cityName && candidate.countryName) {
     return candidate;
   }
 
@@ -581,7 +581,7 @@ function resolveStructureId(
   task: WorkforceTaskInstance,
   lookups: ReturnType<typeof resolveStructureLookups>,
 ): Structure['id'] | null {
-  const context = (task.context ?? {}) as Record<string, unknown>;
+  const context = (task.context ?? {});
   const explicitStructure = typeof context.structureId === 'string' ? context.structureId : null;
 
   if (explicitStructure) {
@@ -612,7 +612,7 @@ function resolveTaskDemandMinutes(
   definition: WorkforceTaskDefinition,
 ): number {
   const baseMinutes = Math.max(0, Number(definition.costModel.laborMinutes) || 0);
-  const context = (task.context ?? {}) as Record<string, unknown>;
+  const context = (task.context ?? {});
 
   if (baseMinutes <= 0) {
     return 0;
@@ -756,11 +756,11 @@ function selectCandidate(
   const ordered = [...bestCandidates].sort((a, b) => a.employee.id.localeCompare(b.employee.id));
   const rotation = Math.abs(Math.trunc(simTimeHours) + structureIndex);
   const index = rotation % ordered.length;
-  return ordered[index] as CandidateEvaluation;
+  return ordered[index];
 }
 
 function isBreakroomTask(task: WorkforceTaskInstance): boolean {
-  const context = (task.context ?? {}) as Record<string, unknown>;
+  const context = (task.context ?? {});
   const purpose = String(context.roomPurpose ?? context.purpose ?? '').toLowerCase();
 
   if (purpose === 'breakroom') {
@@ -780,7 +780,7 @@ function isMaintenanceTask(task: WorkforceTaskInstance): boolean {
     return true;
   }
 
-  const context = (task.context ?? {}) as Record<string, unknown>;
+  const context = (task.context ?? {});
   const category = String(context.taskCategory ?? context.category ?? '').toLowerCase();
   return category === 'maintenance';
 }
@@ -1002,7 +1002,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
 
   for (const intent of intents) {
     if (intent.type === 'hiring.market.scan') {
-      const scanIntent = intent as HiringMarketScanIntent;
+      const scanIntent = intent;
       const result = performMarketScan({
         market: marketState,
         config: workforceConfig.market,
@@ -1032,7 +1032,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     }
 
     if (intent.type === 'hiring.market.hire') {
-      const hireIntent = intent as HiringMarketHireIntent;
+      const hireIntent = intent;
       const result = performMarketHire({
         market: marketState,
         structureId: hireIntent.candidate.structureId,
@@ -1070,7 +1070,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineContext): Simu
     }
 
     if (intent.type === 'workforce.employee.terminate') {
-      terminationIntents.push(intent as WorkforceTerminationIntent);
+      terminationIntents.push(intent);
     }
   }
 

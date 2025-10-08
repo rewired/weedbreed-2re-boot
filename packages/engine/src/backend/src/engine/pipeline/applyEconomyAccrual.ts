@@ -168,9 +168,7 @@ export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContex
   const currentDayIndex = Math.floor(currentSimHours / HOURS_PER_DAY);
 
   const carrier = ctx as EconomyAccrualCarrier;
-  const economyAccruals = (carrier.economyAccruals ?? {}) as NonNullable<
-    EconomyAccrualCarrier['economyAccruals']
-  >;
+  const economyAccruals = (carrier.economyAccruals ?? {});
 
   if (payrollSnapshot) {
     const existingWorkforce = economyAccruals.workforce ?? { finalizedDays: [] };

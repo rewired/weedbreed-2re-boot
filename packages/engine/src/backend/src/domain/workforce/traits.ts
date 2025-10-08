@@ -295,7 +295,7 @@ export function sampleTraitSet(options: SampleTraitSetOptions): readonly Workfor
 
   while (selected.length < count && available.length > 0) {
     const index = Math.floor(rng() * available.length) % available.length;
-    const candidate = available.splice(index, 1)[0] as WorkforceTraitMetadata;
+    const candidate = available.splice(index, 1)[0];
     const conflicts = new Set(resolveBehaviour(candidate.id).conflictsWith ?? []);
     const hasConflict = selected.some((entry) => conflicts.has(entry.id));
 

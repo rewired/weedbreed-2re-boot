@@ -53,7 +53,7 @@ function freezeEffects(effects?: readonly DeviceEffectType[]): readonly DeviceEf
     return undefined;
   }
 
-  return Object.freeze([...effects]) as readonly DeviceEffectType[];
+  return Object.freeze([...effects]);
 }
 
 function freezeEffectConfigs(

@@ -279,10 +279,10 @@ export function evaluatePestDiseaseSystem(
     }
   }
 
-  const immutableRiskStates = Object.freeze([...updatedRiskStates]) as readonly PestDiseaseZoneRiskState[];
-  const immutableTasks = Object.freeze([...scheduledTasks]) as readonly WorkforceTaskInstance[];
-  const immutableWarnings = Object.freeze([...warnings]) as readonly PestDiseaseRiskWarning[];
-  const immutableEvents = Object.freeze([...taskEvents]) as readonly PestDiseaseTaskEvent[];
+  const immutableRiskStates = Object.freeze([...updatedRiskStates]);
+  const immutableTasks = Object.freeze([...scheduledTasks]);
+  const immutableWarnings = Object.freeze([...warnings]);
+  const immutableEvents = Object.freeze([...taskEvents]);
 
   const nextHealth = Object.freeze({
     pestDisease: Object.freeze({

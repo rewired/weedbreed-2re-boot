@@ -197,7 +197,7 @@ describe('cultivation method runtime task scheduling', () => {
     const taskCodes = thirdPassTasks.map((task) => task.taskCode).sort();
     expect(taskCodes).toEqual(['cultivation.repot', steriliseCode].sort());
 
-    const contexts = thirdPassTasks.map((task) => task.context ?? {}) as Record<string, unknown>[];
+    const contexts = thirdPassTasks.map((task) => task.context ?? {});
     contexts.forEach((context) => {
       expect(context.zoneId).toBe(zone.id);
       expect(context.structureId).toBe(structure.id);

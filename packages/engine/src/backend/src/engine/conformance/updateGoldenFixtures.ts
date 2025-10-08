@@ -12,7 +12,7 @@ const RUNS = [30, 200] as const;
 
 for (const days of RUNS) {
   const outDir = path.join(FIXTURE_ROOT, `${days}d`);
-  // eslint-disable-next-line no-console -- developer utility script
+   
   console.log(`Updating golden fixtures for ${days}-day run at ${outDir}`);
   runDeterministic({ days, seed: 'gm-001', outDir });
 }

@@ -137,7 +137,7 @@ describe('updateZoneDeviceLifecycle', () => {
     } satisfies DeviceMaintenanceState;
 
     const structure = createStructure();
-    const room = structure.rooms[0] as Room;
+    const room = structure.rooms[0];
     const zone = { ...room.zones[0], devices: [] } as Zone;
     const device = createDevice(maintenance);
 
@@ -170,7 +170,7 @@ describe('updateZoneDeviceLifecycle', () => {
     } satisfies DeviceMaintenanceState;
 
     const structure = createStructure();
-    const room = structure.rooms[0] as Room;
+    const room = structure.rooms[0];
     const zone = { ...room.zones[0], devices: [] } as Zone;
     const device = createDevice(maintenance);
 
@@ -201,7 +201,7 @@ describe('updateZoneDeviceLifecycle', () => {
     } satisfies DeviceMaintenanceState;
 
     const structure = createStructure();
-    const room = structure.rooms[0] as Room;
+    const room = structure.rooms[0];
     const zone = { ...room.zones[0], devices: [] } as Zone;
     const device = createDevice(maintenance);
 

@@ -85,7 +85,7 @@ describe('strainBlueprintLoader', () => {
     const afterFirstReads = readSpy.mock.calls.length;
 
     const second = loadStrainBlueprint(AK47_STRAIN_ID, { blueprintsRoot });
-    expect(second).toBe(first as StrainBlueprint);
+    expect(second).toBe(first!);
     expect(readSpy.mock.calls.length).toBe(afterFirstReads);
   });
 });

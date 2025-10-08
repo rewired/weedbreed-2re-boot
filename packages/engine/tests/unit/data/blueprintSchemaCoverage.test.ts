@@ -219,7 +219,7 @@ describe('blueprint schema coverage', () => {
 
     for (const relative of relativePaths) {
       const parser = resolveParser(relative);
-      expect(() => parser.parse(readBlueprint(relative), { filePath: resolveBlueprintPath(relative), relativePath: relative }))
+      expect(() => { parser.parse(readBlueprint(relative), { filePath: resolveBlueprintPath(relative), relativePath: relative }); })
         .not.toThrow();
 
       summary.set(parser.label, (summary.get(parser.label) ?? 0) + 1);
@@ -240,14 +240,14 @@ describe('blueprint schema coverage', () => {
       const invalid = { ...blueprint };
       delete invalid.id;
 
-      expect(() => testCase.parse(invalid, { filePath, relativePath: testCase.samplePath })).toThrow();
+      expect(() => { testCase.parse(invalid, { filePath, relativePath: testCase.samplePath }); }).toThrow();
     });
 
     it('rejects unexpected top-level properties', () => {
       const blueprint = readBlueprint(testCase.samplePath) as Record<string, unknown>;
       const invalid = { ...blueprint, __unexpected: true };
 
-      expect(() => testCase.parse(invalid, { filePath, relativePath: testCase.samplePath })).toThrow();
+      expect(() => { testCase.parse(invalid, { filePath, relativePath: testCase.samplePath }); }).toThrow();
     });
   });
 });

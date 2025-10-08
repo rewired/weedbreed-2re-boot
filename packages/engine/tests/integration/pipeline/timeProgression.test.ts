@@ -7,7 +7,7 @@ import type { IrrigationEvent } from '@/backend/src/domain/interfaces/IIrrigatio
 
 describe('Tick pipeline — simulation time progression', () => {
   it('only advances simulation time when the pipeline mutates the world', () => {
-    let world = createDemoWorld();
+    const world = createDemoWorld();
 
     const initialKpiCount = world.workforce.kpis.length;
 

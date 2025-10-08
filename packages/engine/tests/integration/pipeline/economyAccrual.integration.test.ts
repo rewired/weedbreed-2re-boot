@@ -215,7 +215,7 @@ describe('economy accrual integration', () => {
     };
 
     for (let hour = 0; hour < hourlySlices.length; hour += 1) {
-      const slice = hourlySlices[hour]!;
+      const slice = hourlySlices[hour];
 
       cumulative = {
         baseMinutes: cumulative.baseMinutes + slice.baseMinutes,
@@ -236,7 +236,7 @@ describe('economy accrual integration', () => {
         current: currentState,
       } satisfies { current: WorkforcePayrollState };
 
-      (world as Mutable<SimulationWorld>).simTimeHours = hour;
+      (world).simTimeHours = hour;
       world = applyEconomyAccrual(world, ctx) as Mutable<SimulationWorld>;
     }
 
@@ -274,7 +274,7 @@ describe('economy accrual integration', () => {
       finalized,
     } satisfies { current: WorkforcePayrollState; finalized: WorkforcePayrollState };
 
-    (world as Mutable<SimulationWorld>).simTimeHours = hourlySlices.length;
+    (world).simTimeHours = hourlySlices.length;
     world = applyEconomyAccrual(world, ctx) as Mutable<SimulationWorld>;
 
     const workforceAccrual = (ctx as {
