@@ -258,10 +258,13 @@ export const DEFAULT_COMPANY_LOCATION_CITY = 'Hamburg' as const;
 export const DEFAULT_COMPANY_LOCATION_COUNTRY = 'Deutschland' as const;
 
 /**
- * Frozen object literal bundling all canonical simulation constants for
- * ergonomic bulk imports.
+ * Single source of truth that stores the canonical simulation constants.
+ *
+ * The registry is frozen once to guarantee immutability and shared between
+ * direct imports (`@/backend/src/constants/simConstants`) and the public
+ * engine entry point (`@wb/engine`).
  */
-export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
+const SIMULATION_CONSTANT_REGISTRY = Object.freeze({
   AREA_QUANTUM_M2,
   LIGHT_SCHEDULE_GRID_HOURS,
   SECONDS_PER_HOUR,
@@ -286,12 +289,21 @@ export const SIM_CONSTANTS: Readonly<SimulationConstants> = Object.freeze({
   LATITUDE_MAX_DEG,
   DEFAULT_COMPANY_LOCATION_CITY,
   DEFAULT_COMPANY_LOCATION_COUNTRY
-});
+} satisfies Readonly<SimulationConstants>);
+
+/**
+ * Frozen object literal bundling all canonical simulation constants for
+ * ergonomic bulk imports.
+ */
+export const SIM_CONSTANTS: Readonly<SimulationConstants> =
+  SIMULATION_CONSTANT_REGISTRY;
 
 /**
  * Exhaustive list of valid simulation constant identifiers.
  */
-export type SimulationConstantName = keyof SimulationConstants;
+type SimulationConstantRegistry = typeof SIMULATION_CONSTANT_REGISTRY;
+
+export type SimulationConstantName = keyof SimulationConstantRegistry;
 
 /**
  * Returns the canonical value for a simulation constant by its identifier.
@@ -299,26 +311,8 @@ export type SimulationConstantName = keyof SimulationConstants;
  * @param name - Identifier of the canonical simulation constant.
  * @returns The canonical value associated with {@link name}.
  */
-function coerceNumericConstant(
-  value: SimulationConstants[SimulationConstantName]
-): number {
-  if (typeof value === 'number') {
-    return value;
-  }
-
-  const parsed = Number.parseFloat(value);
-
-  if (Number.isFinite(parsed)) {
-    return parsed;
-  }
-
-  return 0;
-}
-
-export function getSimulationConstant(
-  name: SimulationConstantName
-): number {
-  const value = SIM_CONSTANTS[name];
-
-  return coerceNumericConstant(value);
+export function getSimulationConstant<N extends SimulationConstantName>(
+  name: N
+): SimulationConstantRegistry[N] {
+  return SIMULATION_CONSTANT_REGISTRY[name];
 }
