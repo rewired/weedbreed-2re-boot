@@ -39,7 +39,7 @@ describe('blueprint taxonomy layout', () => {
 
       expect(payload.class, `${path.relative(blueprintsRoot, filePath)} missing class`).toBeTruthy();
       expect(() =>
-        assertBlueprintClassMatchesPath(payload.class as string, filePath, { blueprintsRoot })
+        { assertBlueprintClassMatchesPath(payload.class!, filePath, { blueprintsRoot }); }
       ).not.toThrow();
     }
   });

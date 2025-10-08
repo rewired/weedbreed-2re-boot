@@ -27,17 +27,17 @@ const BASE_DEVICE_BLUEPRINTS: readonly DeviceBlueprintEntry[] = [
   { blueprint: carbonFilterBlueprint as DeviceBlueprint, dutyCycle01: 1 }
 ];
 
-type DevicePriceEntry = {
+interface DevicePriceEntry {
   readonly capitalExpenditure: number;
   readonly baseMaintenanceCostPerHour: number;
   readonly costIncreasePer1000Hours: number;
   readonly maintenanceServiceCost: number;
-};
+}
 
 function resolvePriceEntry(blueprint: DeviceBlueprint): DevicePriceEntry | null {
   const entry =
     (devicePrices as { readonly devicePrices?: Record<string, DevicePriceEntry> }).devicePrices?.[
-      blueprint.id as string
+      blueprint.id
     ];
 
   return entry ?? null;
@@ -69,7 +69,7 @@ function instantiateZoneDevice(
   zoneSeed: string,
   deviceIndex: number
 ): ZoneDeviceInstance {
-  const id = deterministicUuid('perf-target', `${zoneSeed}:${blueprint.slug}:${deviceIndex}`) as Uuid;
+  const id = deterministicUuid('perf-target', `${zoneSeed}:${blueprint.slug}:${deviceIndex}`);
   const qualityPolicy = { sampleQuality01: () => clamp01((blueprint as { quality?: number }).quality ?? 0.85) };
   const seeded = createDeviceInstance(qualityPolicy, zoneSeed, id, blueprint);
   const { effects } = seeded;
@@ -147,7 +147,7 @@ function createPerfZone(baseZone: Zone, index: number): Zone {
   const zoneSeed = `perf-target-zone-${index}`;
   return {
     ...baseZone,
-    id: deterministicUuid('perf-target', `${zoneSeed}:id`) as Zone['id'],
+    id: deterministicUuid('perf-target', `${zoneSeed}:id`),
     slug: `${baseZone.slug}-perf-${index + 1}`,
     name: `${baseZone.name} Perf ${index + 1}`,
     devices: buildZoneDevices(index),

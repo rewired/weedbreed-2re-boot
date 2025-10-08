@@ -5,11 +5,11 @@ import { getIrrigationNutrientsRuntime } from '@/backend/src/engine/pipeline/app
 import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
 import type { IrrigationEvent } from '@/backend/src/domain/interfaces/IIrrigationService.js';
 
-type NutrientSnapshot = {
+interface NutrientSnapshot {
   readonly uptake: Record<string, number>;
   readonly leached: Record<string, number>;
   readonly buffer: Record<string, number>;
-};
+}
 
 describe('Tick pipeline — irrigation + nutrient buffer pattern', () => {
   it('Pattern E: Irrigation service + nutrient buffer', () => {

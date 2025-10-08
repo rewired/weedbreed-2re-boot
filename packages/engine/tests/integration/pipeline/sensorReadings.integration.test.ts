@@ -364,9 +364,7 @@ describe('Tick pipeline — sensor readings', () => {
           }
 
           const runtime = getSensorReadingsRuntime(ctx);
-          const readings = runtime?.deviceSensorReadings.values().next().value as
-            | SensorReading<number>[]
-            | undefined;
+          const readings = runtime?.deviceSensorReadings.values().next().value;
 
           if (readings?.[0]) {
             expect(readings[0].measuredValue).toBe(zone.ppfd_umol_m2s);

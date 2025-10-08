@@ -45,14 +45,14 @@ interface BlueprintLite {
 
 interface LightingBlueprint extends BlueprintLite {
   readonly coverage_m2: number;
-  readonly allowedRoomPurposes: ReadonlyArray<RoomPurpose>;
+  readonly allowedRoomPurposes: readonly RoomPurpose[];
   readonly placementScope: string;
 }
 
 interface ClimateBlueprint extends BlueprintLite {
   readonly airflow_m3_per_h: number;
   readonly placementScope: string;
-  readonly allowedRoomPurposes: ReadonlyArray<RoomPurpose>;
+  readonly allowedRoomPurposes: readonly RoomPurpose[];
 }
 
 interface CultivationBlueprint extends BlueprintLite {
@@ -731,12 +731,12 @@ export function generateGoldenScenarioRun(days: number, seed: string): ScenarioR
             cultivationMethodSlug: zone.cultivationMethod.slug,
             lighting: {
               blueprintId: LIGHT_BLUEPRINT.id,
-              count: lightingCountPerZone[index]!,
+              count: lightingCountPerZone[index],
               coverageRatio: Number(lightingCoveragePerZone[index]?.toFixed(3) ?? '0'),
             },
             climate: {
               blueprintId: CLIMATE_BLUEPRINT.id,
-              count: climateCountPerZone[index]!,
+              count: climateCountPerZone[index],
               airChangesPerHour: Number(adjustedAirChangesPerHourPerZone[index]?.toFixed(3) ?? '0'),
             },
           })),

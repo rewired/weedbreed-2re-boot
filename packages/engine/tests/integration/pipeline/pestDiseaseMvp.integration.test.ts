@@ -119,7 +119,7 @@ describe('pest & disease system MVP integration', () => {
     let world = rebuildWorldForScenario(createDemoWorld());
     const maybeZoneId = world.company.structures[0]?.rooms[0]?.zones[0]?.id;
     expect(maybeZoneId).toBeDefined();
-    const targetZoneId = maybeZoneId as Zone['id'];
+    const targetZoneId = maybeZoneId;
     const telemetryEvents: { topic: string; payload: any }[] = [];
     const ctx: EngineRunContext = {
       telemetry: {
@@ -159,10 +159,10 @@ describe('pest & disease system MVP integration', () => {
 
     const inspectionTask = world.workforce.taskQueue.find(
       (task) => task.taskCode === PEST_INSPECTION_TASK_CODE,
-    ) as WorkforceTaskInstance | undefined;
+    );
     const treatmentTask = world.workforce.taskQueue.find(
       (task) => task.taskCode === PEST_TREATMENT_TASK_CODE,
-    ) as WorkforceTaskInstance | undefined;
+    );
 
     expect(inspectionTask).toBeDefined();
     expect(treatmentTask).toBeDefined();

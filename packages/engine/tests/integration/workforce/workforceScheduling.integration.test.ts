@@ -107,7 +107,7 @@ function buildDefinition(options: {
 function createWorldWithWorkforce(workforce: WorkforceState): SimulationWorld {
   const world = createDemoWorld() as Mutable<SimulationWorld>;
   world.simTimeHours = 12;
-  (world as Mutable<SimulationWorld>).workforce = workforce;
+  (world).workforce = workforce;
   return world;
 }
 

@@ -14,7 +14,7 @@ export function createTestPlant(overrides: Partial<Plant> = {}): Plant {
     id: (overrides.id ?? randomUUID()) as Plant['id'],
     name: overrides.name ?? 'Test Plant',
     slug: overrides.slug ?? 'test-plant',
-    strainId: (overrides.strainId ?? WHITE_WIDOW_STRAIN_ID) as Plant['strainId'],
+    strainId: (overrides.strainId ?? WHITE_WIDOW_STRAIN_ID),
     lifecycleStage: overrides.lifecycleStage ?? 'seedling',
     ageHours: overrides.ageHours ?? 0,
     health01: overrides.health01 ?? 1,

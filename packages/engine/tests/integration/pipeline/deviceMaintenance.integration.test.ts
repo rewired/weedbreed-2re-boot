@@ -104,9 +104,9 @@ function computeExpectedMaintenanceCost(
 describe('Tick pipeline — device maintenance lifecycle', () => {
   it('degrades condition, schedules maintenance, and accrues expected costs over 120 days', () => {
     let world = createDemoWorld();
-    const structure = world.company.structures[0] as Structure;
-    const growRoom = structure.rooms[0] as Room;
-    const zone = growRoom.zones[0] as Zone;
+    const structure = world.company.structures[0];
+    const growRoom = structure.rooms[0];
+    const zone = growRoom.zones[0];
 
     const maintenanceState: DeviceMaintenanceState = {
       runtimeHours: 0,

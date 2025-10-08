@@ -46,12 +46,12 @@ const positiveNumberSchema = z
   .finite('Tariff factors must be finite numbers.')
   .positive('Tariff factors must be positive.');
 
-type MutableTariffDifficulty = {
+interface MutableTariffDifficulty {
   energyPriceFactor?: number;
   energyPriceOverride?: number;
   waterPriceFactor?: number;
   waterPriceOverride?: number;
-};
+}
 
 /**
  * Zod schema that sanitises tariff difficulty modifiers so overrides take precedence

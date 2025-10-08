@@ -2,6 +2,9 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Domain schemas decoupled: primitives/HarvestLot/Inventory split to avoid circular imports.
+- applyHarvestAndInventory: immutable write-back, direct leaf schemas.
+- simConstants: alias sync; string vs numeric env parsing fixed.
 - Migrated JSON module imports to Node.js 22 import attributes (`with { type: 'json' }`) across engine runtime and test suites to resolve TS2880 and align with the ESM baseline.
 - Normalised workforce trait metadata conflict resolution to avoid mutating read-only maps and aligned identity RNG seeding with branded employee UUIDs for TS 5.4 compatibility.
 - Broke the domain schema circular dependency chain by introducing `schemas/primitives.ts` for shared Zod scalars, moving `InventorySchema` into its own module, and updating every `Uuid`/inventory/harvest import across the engine so inventory parsing no longer dereferences undefined schemas at runtime.

@@ -205,7 +205,7 @@ export function updateZoneDeviceLifecycle(
   const serviceHours = resolveServiceHours(policy, tickHours);
   const serviceVisitCostCc = computeServiceVisitCost(policy);
 
-  let runtimeHours = previousRuntime + hoursThisTick;
+  const runtimeHours = previousRuntime + hoursThisTick;
   let hoursSinceService = previousHoursSinceService + hoursThisTick;
   let condition01 = clamp01(Number.isFinite(device.condition01) ? device.condition01 : 1);
   let totalMaintenanceCostCc = previousTotalCost;

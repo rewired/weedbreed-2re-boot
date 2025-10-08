@@ -50,7 +50,7 @@ function createTelemetryCollector(): {
 
 describe('hiring market pipeline integration', () => {
   it('performs scans, enforces cooldowns, and hires candidates', () => {
-    const world = createDemoWorld() as SimulationWorld;
+    const world = createDemoWorld();
     const structureId = world.company.structures[0].id;
     const role = createRole();
     world.simTimeHours = 2 * HOURS_PER_DAY;

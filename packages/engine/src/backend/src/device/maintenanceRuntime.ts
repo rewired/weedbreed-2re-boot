@@ -8,11 +8,11 @@ import type {
 const DEVICE_MAINTENANCE_RUNTIME_KEY = '__wb_deviceMaintenanceRuntime' as const;
 const DEVICE_MAINTENANCE_ACCRUAL_KEY = '__wb_deviceMaintenanceAccrual' as const;
 
-type DeviceMaintenanceRuntimeMutable = {
+interface DeviceMaintenanceRuntimeMutable {
   scheduledTasks: DeviceMaintenanceTaskPlan[];
   completedTasks: DeviceMaintenanceCompletion[];
   replacements: DeviceReplacementRecommendation[];
-};
+}
 
 type DeviceMaintenanceRuntimeCarrier = EngineRunContext & {
   [DEVICE_MAINTENANCE_RUNTIME_KEY]?: DeviceMaintenanceRuntimeMutable;
@@ -50,7 +50,7 @@ export function ensureDeviceMaintenanceRuntime(ctx: EngineRunContext): DeviceMai
     } satisfies DeviceMaintenanceRuntimeMutable;
   }
 
-  return carrier[DEVICE_MAINTENANCE_RUNTIME_KEY] as DeviceMaintenanceRuntimeMutable;
+  return carrier[DEVICE_MAINTENANCE_RUNTIME_KEY];
 }
 
 export function consumeDeviceMaintenanceRuntime(ctx: EngineRunContext): DeviceMaintenanceRuntime | undefined {

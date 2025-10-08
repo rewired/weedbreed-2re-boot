@@ -21,7 +21,7 @@ function ensureEconomyUsageRuntime(ctx: EngineRunContext): EconomyUsageRuntimeMu
     } satisfies EconomyUsageRuntimeMutable;
   }
 
-  return carrier[ECONOMY_USAGE_CONTEXT_KEY] as EconomyUsageRuntimeMutable;
+  return carrier[ECONOMY_USAGE_CONTEXT_KEY];
 }
 
 export interface EconomyUsageSnapshot {

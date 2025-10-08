@@ -126,7 +126,7 @@ function createPayrollState(dayIndex: number): WorkforcePayrollState {
 
 describe('workforce payroll accruals', () => {
   it('accrues base and overtime minutes with location index scaling', () => {
-    const world = createDemoWorld() as SimulationWorld;
+    const world = createDemoWorld();
     const structureId = world.company.structures[0].id;
     world.simTimeHours = 10;
 
@@ -207,7 +207,7 @@ describe('workforce payroll accruals', () => {
   });
 
   it('applies city-level location index overrides when available', () => {
-    const world = createDemoWorld() as SimulationWorld;
+    const world = createDemoWorld();
     const structureId = world.company.structures[0].id;
     world.simTimeHours = 8;
 
@@ -284,7 +284,7 @@ describe('workforce payroll accruals', () => {
   });
 
   it('scales payroll with role, experience, labor market, and premium multipliers', () => {
-    const world = createDemoWorld() as SimulationWorld;
+    const world = createDemoWorld();
     const structureId = world.company.structures[0].id;
     world.simTimeHours = 20;
 
@@ -374,7 +374,7 @@ describe('workforce payroll accruals', () => {
   });
 
   it('finalizes previous day payroll with banker rounding when day rolls over', () => {
-    const world = createDemoWorld() as SimulationWorld;
+    const world = createDemoWorld();
     const structureId = world.company.structures[0].id;
     world.simTimeHours = 24;
 

@@ -54,7 +54,7 @@ export class SaveGameMigrationRegistry {
         throw new Error(`No migration registered for schemaVersion ${version}`);
       }
 
-      // eslint-disable-next-line no-await-in-loop -- sequential migrations are required
+       
       working = await step.migrate(working);
       version = extractSchemaVersion(working);
 

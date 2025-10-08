@@ -59,7 +59,7 @@ describe('blueprint taxonomy guards', () => {
     const filePath = resolveBlueprintPath('device/climate/cool-air-split-3000.json');
 
     expect(() =>
-      assertBlueprintClassMatchesPath('device.lighting', filePath, { blueprintsRoot })
+      { assertBlueprintClassMatchesPath('device.lighting', filePath, { blueprintsRoot }); }
     ).toThrow(BlueprintTaxonomyMismatchError);
   });
 });

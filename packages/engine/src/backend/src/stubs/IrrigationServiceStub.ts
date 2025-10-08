@@ -31,7 +31,7 @@ function multiplyNutrientRecord(
 }
 
 function sumNutrientRecords(
-  ...records: Array<Record<string, number>>
+  ...records: Record<string, number>[]
 ): Record<string, number> {
   const summed: Record<string, number> = {};
 
@@ -72,7 +72,7 @@ function aggregateEventNutrients(events: IrrigationEvent[]): {
   nutrients_mg: Record<string, number>;
 } {
   let water_L = 0;
-  const nutrientTotals: Array<Record<string, number>> = [];
+  const nutrientTotals: Record<string, number>[] = [];
 
   for (const event of events) {
     const volume = Number.isFinite(event.water_L) ? Math.max(0, event.water_L) : 0;

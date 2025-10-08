@@ -372,10 +372,10 @@ export function scheduleCultivationTasksForZone(
 
   const containerPolicy =
     descriptor?.containerOptions.find((option) => option.id === zone.containerId) ??
-    resolveContainerPolicyById(zone.containerId as Uuid);
+    resolveContainerPolicyById(zone.containerId);
   const substratePolicy =
     descriptor?.substrateOptions.find((option) => option.id === zone.substrateId) ??
-    resolveSubstratePolicyById(zone.substrateId as Uuid);
+    resolveSubstratePolicyById(zone.substrateId);
 
   if (!containerPolicy || !substratePolicy) {
     return [];
