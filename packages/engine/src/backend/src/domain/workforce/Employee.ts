@@ -1,3 +1,5 @@
+import type { BRAND } from 'zod';
+
 import type { DomainEntity, Uuid } from '../entities.js';
 import type { EmployeeSkillRequirement } from './EmployeeRole.js';
 import type { EmployeeTraitAssignment, TraitSubject } from './traits.js';
@@ -5,7 +7,7 @@ import type { EmployeeTraitAssignment, TraitSubject } from './traits.js';
 /**
  * Brand describing UUID v7 identifiers that seed RNG streams.
  */
-export type EmployeeRngSeedUuid = string & { readonly __brand: unique symbol };
+export type EmployeeRngSeedUuid = string & BRAND<'EmployeeRngSeedUuid'>;
 
 /**
  * Captures the proficiency of an employee for a specific skill key.
