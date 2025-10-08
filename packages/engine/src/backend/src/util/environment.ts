@@ -1,18 +1,45 @@
 /**
  * Environment-related numeric helpers.
  */
-export function resolveAirflow(value: number | undefined): number {
-  if (!Number.isFinite(value) || value <= 0) {
-    return 0;
+
+function coercePositiveFiniteNumber(candidate: unknown): number | null {
+  if (typeof candidate === 'number') {
+    return Number.isFinite(candidate) ? candidate : null;
   }
 
-  return value;
+  if (typeof candidate === 'string') {
+    const trimmed = candidate.trim();
+
+    if (trimmed.length === 0) {
+      return null;
+    }
+
+    const parsed = Number.parseFloat(trimmed);
+
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+
+    return null;
+  }
+
+  return null;
 }
 
-export function resolveAirMassKg(value: number | undefined): number {
-  if (!Number.isFinite(value) || value <= 0) {
+function resolvePositiveFinite(candidate: unknown): number {
+  const numericValue = coercePositiveFiniteNumber(candidate);
+
+  if (numericValue === null || numericValue <= 0) {
     return 0;
   }
 
-  return value;
+  return numericValue;
+}
+
+export function resolveAirflow(value: unknown): number {
+  return resolvePositiveFinite(value);
+}
+
+export function resolveAirMassKg(value: unknown): number {
+  return resolvePositiveFinite(value);
 }

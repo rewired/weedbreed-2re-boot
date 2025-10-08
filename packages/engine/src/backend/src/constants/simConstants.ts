@@ -299,8 +299,26 @@ export type SimulationConstantName = keyof SimulationConstants;
  * @param name - Identifier of the canonical simulation constant.
  * @returns The canonical value associated with {@link name}.
  */
+function coerceNumericConstant(
+  value: SimulationConstants[SimulationConstantName]
+): number {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  const parsed = Number.parseFloat(value);
+
+  if (Number.isFinite(parsed)) {
+    return parsed;
+  }
+
+  return 0;
+}
+
 export function getSimulationConstant(
   name: SimulationConstantName
 ): number {
-  return SIM_CONSTANTS[name];
+  const value = SIM_CONSTANTS[name];
+
+  return coerceNumericConstant(value);
 }
