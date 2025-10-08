@@ -27,4 +27,20 @@ describe('createEngineBootstrapConfig', () => {
       /scenarioId must be a non-empty string/
     );
   });
+
+  it('honours difficulty overrides when they exist', () => {
+    const config = createEngineBootstrapConfig('hard');
+
+    expect(config.tariffs).toEqual({
+      price_electricity: 0.35 * 1.25,
+      price_water: 2.5
+    });
+  });
+
+  it('reuses cached tariffs for repeated difficulty lookups', () => {
+    const first = createEngineBootstrapConfig('hard');
+    const second = createEngineBootstrapConfig('hard');
+
+    expect(second.tariffs).toBe(first.tariffs);
+  });
 });

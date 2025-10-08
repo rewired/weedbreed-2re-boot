@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Fixed CO₂ injector clamp reporting (Task 0019) and extended tariff bootstrap tests:
+  - Corrected `clampedByTarget` so it only flips when the requested delta exceeds deliverable output, and added coverage to verify satisfied requests remain unclamped.
+  - Exercised difficulty-specific tariff overrides and cache reuse in `createEngineBootstrapConfig` while syncing SEC/ADR typos with the Node.js 22 baseline.
+
 - Added guardrails and coverage across the simulation engine:
   - Introduced ESLint rule `wb-sim/no-economy-per-tick` (with unit tests) to block monetary `*_per_tick` identifiers, documented the guardrail in TDD, and recorded ADR-0021.
   - Published `docs/engine/telemetry.md` describing every telemetry topic/payload with SEC §15 cross-linking.

@@ -48,7 +48,7 @@ describe('Co2InjectorStub', () => {
     expect(result.delta_ppm).toBeCloseTo(50, 6);
     expect(result.effectiveDuty01).toBeCloseTo(0.25, 6);
     expect(result.energy_Wh).toBeCloseTo(150 * 0.25, 6);
-    expect(result.clampedByTarget).toBe(true);
+    expect(result.clampedByTarget).toBe(false);
   });
 
   it('respects the safety ceiling clamp', () => {
@@ -88,5 +88,25 @@ describe('Co2InjectorStub', () => {
     expect(result.delta_ppm).toBe(0);
     expect(result.energy_Wh).toBe(0);
     expect(result.clampedByTarget).toBe(true);
+  });
+
+  it('flags clamping only when the request cannot be met', () => {
+    const satisfied = stub.computeEffect(
+      inputs({ target_ppm: AMBIENT_CO2_PPM + 20 }),
+      BASE_ENVIRONMENT,
+      HOURS_PER_TICK
+    );
+
+    expect(satisfied.delta_ppm).toBeCloseTo(20, 6);
+    expect(satisfied.clampedByTarget).toBe(false);
+
+    const limited = stub.computeEffect(
+      inputs({ dutyCycle01: 0.25 }),
+      BASE_ENVIRONMENT,
+      HOURS_PER_TICK
+    );
+
+    expect(limited.delta_ppm).toBeLessThan(limited.requestedDelta_ppm);
+    expect(limited.clampedByTarget).toBe(true);
   });
 });
