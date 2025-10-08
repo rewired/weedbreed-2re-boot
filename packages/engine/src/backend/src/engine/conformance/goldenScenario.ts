@@ -23,10 +23,9 @@ import whiteWidowStrain from '../../../../../../../data/blueprints/strain/white-
 import northernLightsStrain from '../../../../../../../data/blueprints/strain/northern-lights.json' with { type: 'json' };
 import skunk1Strain from '../../../../../../../data/blueprints/strain/skunk-1.json' with { type: 'json' };
 
+import { FLOAT_TOLERANCE, HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
 import { createRng } from '../../util/rng.ts';
 import type { RoomPurpose } from '../../domain/entities.ts';
-
-const HOURS_PER_DAY = 24;
 const BREAK_DURATION_MINUTES = 30;
 const BREAK_ROOM_ID = '8c3c2f06-6c5a-4f36-8f43-52a6901c1d3a';
 const STORAGE_ROOM_ID = 'c4545aab-8e71-4d39-bb3c-e9c5ce3d6f56';
@@ -34,8 +33,8 @@ const GROW_ROOM_ID = '7f43b718-86bd-4dc6-92f4-01a08357b6f4';
 const STRUCTURE_ID = '1c6c5e04-0d0c-4c59-b7d3-dfb2f548f8a8';
 const COMPANY_ID = '5d1f24be-9565-4e50-956b-16d4f557c6df';
 
-const EPS_ABS = 1e-9;
-const EPS_REL = 1e-6;
+const EPS_ABS = FLOAT_TOLERANCE * 1e-3;
+const EPS_REL = FLOAT_TOLERANCE;
 
 interface BlueprintLite {
   readonly id: string;

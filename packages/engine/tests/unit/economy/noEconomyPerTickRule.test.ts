@@ -1,12 +1,15 @@
 /* eslint-disable wb-sim/no-economy-per-tick */
-import parser from '@typescript-eslint/parser';
+import { parser as typescriptEslintParser } from 'typescript-eslint';
 import { Linter } from 'eslint';
 import { describe, expect, it } from 'vitest';
 
 import { noEconomyPerTickRule } from '../../../../../tools/eslint/rules/no-economy-per-tick';
 
 const linter = new Linter({ configType: 'eslintrc' });
-linter.defineParser('@typescript-eslint/parser', parser as unknown as Linter.ParserModule);
+linter.defineParser(
+  '@typescript-eslint/parser',
+  typescriptEslintParser as unknown as Linter.ParserModule
+);
 linter.defineRule('wb-sim/no-economy-per-tick', noEconomyPerTickRule);
 
 function lint(code: string) {

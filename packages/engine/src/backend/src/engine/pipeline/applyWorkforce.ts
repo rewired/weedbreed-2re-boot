@@ -1,4 +1,4 @@
-import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
+import { FLOAT_TOLERANCE, HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
 import { DEFAULT_WORKFORCE_CONFIG, type WorkforceConfig } from '../../config/workforce.ts';
 import { bankersRound, clamp01 } from '../../util/math.ts';
 import {
@@ -63,7 +63,7 @@ import {
   TELEMETRY_DEVICE_REPLACEMENT_RECOMMENDED_V1,
 } from '../../telemetry/topics.ts';
 
-const SCORE_EPSILON = 1e-6;
+const SCORE_EPSILON = FLOAT_TOLERANCE;
 const OVERTIME_MORALE_PENALTY_PER_HOUR = 0.02;
 const MAX_DAILY_MORALE_PENALTY = 0.1;
 const FATIGUE_GAIN_PER_HOUR = 0.01;

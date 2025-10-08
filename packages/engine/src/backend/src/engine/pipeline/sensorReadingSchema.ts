@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
 import { createFiniteNumber } from '../../domain/schemas/primitives.ts';
 import { SENSOR_MEASUREMENT_TYPES } from '../../domain/entities.ts';
 import type { SensorReading } from '../../domain/interfaces/ISensor.ts';
@@ -30,7 +31,7 @@ function isMeasurementWithinRange(
     case 'humidity':
       return value >= 0 && value <= 100;
     case 'co2':
-      return value >= 0 && value <= 5_000;
+      return value >= 0 && value <= SAFETY_MAX_CO2_PPM;
     case 'ppfd':
     default:
       return value >= 0;
