@@ -641,7 +641,7 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 - **Quality scale:** adopt **[0,1]** engine scale; façade/read-model maps to 0–100 where needed.
 - **Save schema:** save files carry `schemaVersion`; the engine ships a migration registry (`packages/engine/src/backend/src/saveLoad/migrations`) with deterministic fixtures validating legacy upgrades (current: v0 → v1 normalises `simTime`).
 
-- Water + **Electricity tariff:** ensure backend config exposes `price_electricity` for electricity in kWh and `price_water` for water per m^3; difficulty layer provides `energyPriceFactor` and/or `energyPriceOverride`aswell as `waterPriceFactor` and/or `waterPriceOverride`.
+- Water + **Electricity tariff:** ensure backend config exposes `price_electricity` for electricity in kWh and `price_water` for water per m^3; difficulty layer provides `energyPriceFactor` and/or `energyPriceOverride` as well as `waterPriceFactor` and/or `waterPriceOverride`.
 
 ---
 

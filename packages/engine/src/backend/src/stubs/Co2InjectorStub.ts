@@ -167,7 +167,8 @@ export function createCo2InjectorStub(): ICo2Injector {
           requestedDelta_ppm,
           energy_Wh: 0,
           effectiveDuty01: 0,
-          clampedByTarget: requestedDelta_ppm > FLOAT_TOLERANCE,
+          clampedByTarget:
+            requestedDelta_ppm > deliverable_ppm + FLOAT_TOLERANCE,
           clampedBySafety: safetyHeadroom_ppm <= FLOAT_TOLERANCE
         });
       }
@@ -177,7 +178,8 @@ export function createCo2InjectorStub(): ICo2Injector {
       );
       const power_W = Math.max(0, ensureFinite(inputs.power_W, 0));
       const energy_Wh = power_W * resolvedDt_h * effectiveDuty01;
-      const clampedByTarget = requestedDelta_ppm > FLOAT_TOLERANCE;
+      const clampedByTarget =
+        requestedDelta_ppm > deliverable_ppm + FLOAT_TOLERANCE;
       const clampedBySafety =
         Number.isFinite(safetyCeiling_ppm) && safetyHeadroom_ppm <= deliverable_ppm + FLOAT_TOLERANCE;
 

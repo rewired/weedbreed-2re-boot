@@ -15,7 +15,7 @@
 
 ## Context
 
-The monorepo targets Node.js 23+ in production and CI, matching the Simulation Engine Contract (SEC) guidance captured in root tooling metadata. However, developers frequently rely on environment managers such as `nvm`, `fnm`, `nodenv`, or `asdf` to synchronise their local runtimes. Without explicit version files, onboarding engineers must manually inspect `package.json` to discover the expected Node release, leading to mismatches between local shells, editor integrations, and automated scripts. The upcoming migration workstream for Node.js 22 LTS requires a deterministic mechanism to coordinate contributor upgrades and smoke-test the toolchain before flipping the enforced `engines.node` constraint.
+The monorepo now targets **Node.js 22 LTS** for production and CI, in line with the Simulation Engine Contract (SEC) and the markers documented in `AGENTS.md` and workspace manifests. Historically, the runtime alignment effort aimed at Node.js 23+, which is why some legacy notes still reference that target. Regardless of that history, developers rely on environment managers such as `nvm`, `fnm`, `nodenv`, or `asdf` to synchronise their local runtimes. Without explicit version files, onboarding engineers must manually inspect `package.json` to discover the expected Node release, leading to mismatches between local shells, editor integrations, and automated scripts. The Node.js 22 LTS standard therefore requires a deterministic mechanism to coordinate contributor upgrades and smoke-test the toolchain before flipping the enforced `engines.node` constraint.
 
 ## Decision
 
