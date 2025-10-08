@@ -1,9 +1,7 @@
 import { z } from 'zod';
 
+import { uuidSchema } from '../schemas.js';
 import type { HarvestLot } from '../types/HarvestLot.js';
-import type { Uuid } from '../entities.js';
-
-const uuidSchema: z.ZodType<Uuid> = z.string().uuid().brand<'Uuid'>();
 
 const finiteNumber = z
   .number({ invalid_type_error: 'Expected a number.' })
