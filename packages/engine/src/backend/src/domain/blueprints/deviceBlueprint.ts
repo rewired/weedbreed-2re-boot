@@ -114,7 +114,8 @@ const deviceBlueprintObjectSchema = z
       .array(roomPurposeSchema, {
         invalid_type_error: 'allowedRoomPurposes must be an array of room purposes.'
       })
-      .nonempty('allowedRoomPurposes must contain at least one room purpose.'),
+      .nonempty('allowedRoomPurposes must contain at least one room purpose.')
+      .readonly(),
     power_W: finiteNumber.min(0, 'power_W must be non-negative.'),
     efficiency01: finiteNumber
       .min(0, 'efficiency01 must be >= 0.')
