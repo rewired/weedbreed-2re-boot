@@ -19,17 +19,23 @@ function sanitizeOverride(override: StructureTariffOverride | undefined): Struct
     return undefined;
   }
 
-  const sanitized: StructureTariffOverride = {};
+  const price_electricity =
+    typeof override.price_electricity === 'number' && override.price_electricity >= 0
+      ? override.price_electricity
+      : undefined;
+  const price_water =
+    typeof override.price_water === 'number' && override.price_water >= 0
+      ? override.price_water
+      : undefined;
 
-  if (typeof override.price_electricity === 'number' && override.price_electricity >= 0) {
-    sanitized.price_electricity = override.price_electricity;
+  if (price_electricity === undefined && price_water === undefined) {
+    return undefined;
   }
 
-  if (typeof override.price_water === 'number' && override.price_water >= 0) {
-    sanitized.price_water = override.price_water;
-  }
-
-  return Object.keys(sanitized).length > 0 ? sanitized : undefined;
+  return Object.freeze({
+    ...(price_electricity !== undefined ? { price_electricity } : {}),
+    ...(price_water !== undefined ? { price_water } : {})
+  } satisfies StructureTariffOverride);
 }
 
 function mergeTariffs(baseline: ResolvedTariffs, override?: StructureTariffOverride): ResolvedTariffs {

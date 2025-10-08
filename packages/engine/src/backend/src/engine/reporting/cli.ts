@@ -43,7 +43,10 @@ async function main(): Promise<void> {
 }
 
 function parseArgs(argv: readonly string[]): CliArguments {
-  const result: CliArguments = {};
+  let ticks: number | undefined;
+  let scenario: string | undefined;
+  let output: string | undefined;
+  let help = false;
 
   for (let index = 0; index < argv.length; index += 1) {
     const raw = argv[index];
@@ -53,7 +56,7 @@ function parseArgs(argv: readonly string[]): CliArguments {
     }
 
     if (raw === '--help' || raw === '-h') {
-      result.help = true;
+      help = true;
       continue;
     }
 
@@ -73,7 +76,7 @@ function parseArgs(argv: readonly string[]): CliArguments {
           throw new Error('--ticks must be a finite number.');
         }
 
-        result.ticks = parsed;
+        ticks = parsed;
         break;
       }
 
@@ -84,7 +87,7 @@ function parseArgs(argv: readonly string[]): CliArguments {
           throw new Error('--scenario requires a value.');
         }
 
-        result.scenario = value;
+        scenario = value;
         break;
       }
 
@@ -95,7 +98,7 @@ function parseArgs(argv: readonly string[]): CliArguments {
           throw new Error('--output requires a value.');
         }
 
-        result.output = value;
+        output = value;
         break;
       }
 
@@ -105,7 +108,12 @@ function parseArgs(argv: readonly string[]): CliArguments {
     }
   }
 
-  return result;
+  return {
+    ...(ticks !== undefined ? { ticks } : {}),
+    ...(scenario ? { scenario } : {}),
+    ...(output ? { output } : {}),
+    ...(help ? { help: true } : {})
+  } satisfies CliArguments;
 }
 
 function printUsage(): void {
