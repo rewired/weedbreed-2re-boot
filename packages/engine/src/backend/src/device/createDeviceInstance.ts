@@ -66,35 +66,25 @@ function freezeEffectConfigs(
     return undefined;
   }
 
-  const next: DeviceEffectConfigs = {};
+  const thermal = configs.thermal ? Object.freeze({ ...configs.thermal }) : undefined;
+  const humidity = configs.humidity ? Object.freeze({ ...configs.humidity }) : undefined;
+  const lighting = configs.lighting ? Object.freeze({ ...configs.lighting }) : undefined;
+  const airflow = configs.airflow ? Object.freeze({ ...configs.airflow }) : undefined;
+  const filtration = configs.filtration ? Object.freeze({ ...configs.filtration }) : undefined;
+  const sensor = configs.sensor ? Object.freeze({ ...configs.sensor }) : undefined;
+  const co2 = configs.co2 ? Object.freeze({ ...configs.co2 }) : undefined;
 
-  if (configs.thermal) {
-    next.thermal = Object.freeze({ ...configs.thermal });
+  if (!thermal && !humidity && !lighting && !airflow && !filtration && !sensor && !co2) {
+    return undefined;
   }
 
-  if (configs.humidity) {
-    next.humidity = Object.freeze({ ...configs.humidity });
-  }
-
-  if (configs.lighting) {
-    next.lighting = Object.freeze({ ...configs.lighting });
-  }
-
-  if (configs.airflow) {
-    next.airflow = Object.freeze({ ...configs.airflow });
-  }
-
-  if (configs.filtration) {
-    next.filtration = Object.freeze({ ...configs.filtration });
-  }
-
-  if (configs.sensor) {
-    next.sensor = Object.freeze({ ...configs.sensor });
-  }
-
-  if (configs.co2) {
-    next.co2 = Object.freeze({ ...configs.co2 });
-  }
-
-  return Object.freeze(next);
+  return Object.freeze({
+    ...(thermal ? { thermal } : {}),
+    ...(humidity ? { humidity } : {}),
+    ...(lighting ? { lighting } : {}),
+    ...(airflow ? { airflow } : {}),
+    ...(filtration ? { filtration } : {}),
+    ...(sensor ? { sensor } : {}),
+    ...(co2 ? { co2 } : {})
+  } satisfies DeviceEffectConfigs);
 }

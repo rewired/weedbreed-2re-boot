@@ -1,4 +1,9 @@
-import { DEFAULT_HEALTH_STATE, type HealthState, type PestDiseaseRiskLevel } from '../domain/health/pestDisease.js';
+import {
+  DEFAULT_HEALTH_STATE,
+  type HealthState,
+  type PestDiseaseRiskLevel,
+  type PestDiseaseZoneRiskState
+} from '../domain/health/pestDisease.js';
 import type {
   Room,
   SimulationWorld,
@@ -60,10 +65,7 @@ function collectHygieneSignals(world: SimulationWorld): Map<Room['id'], HygieneS
   return signals;
 }
 
-function resolveHygieneScore(
-  roomId: Room['id'],
-  hygieneSignals: Map<Room['id'], HygieneSignalLookup>,
-): number {
+function resolveHygieneScore(roomId: Room['id'], hygieneSignals: Map<Room['id'], HygieneSignalLookup>): number {
   const signal = hygieneSignals.get(roomId);
   if (!signal) {
     return DEFAULT_ROOM_HYGIENE_SCORE01;
@@ -155,7 +157,7 @@ export function evaluatePestDiseaseSystem(
   const scheduledTasks: WorkforceTaskInstance[] = [];
   const warnings: PestDiseaseRiskWarning[] = [];
   const taskEvents: PestDiseaseTaskEvent[] = [];
-  const updatedRiskStates: typeof health.pestDisease.zoneRisks = [];
+  const updatedRiskStates: PestDiseaseZoneRiskState[] = [];
 
   for (const structure of world.company.structures) {
     for (const room of structure.rooms) {
@@ -277,17 +279,22 @@ export function evaluatePestDiseaseSystem(
     }
   }
 
-  const nextHealth: HealthState = {
-    pestDisease: {
-      zoneRisks: updatedRiskStates,
-      hygieneSignals: health.pestDisease.hygieneSignals,
-    },
-  };
+  const immutableRiskStates = Object.freeze([...updatedRiskStates]) as readonly PestDiseaseZoneRiskState[];
+  const immutableTasks = Object.freeze([...scheduledTasks]) as readonly WorkforceTaskInstance[];
+  const immutableWarnings = Object.freeze([...warnings]) as readonly PestDiseaseRiskWarning[];
+  const immutableEvents = Object.freeze([...taskEvents]) as readonly PestDiseaseTaskEvent[];
 
-  return {
+  const nextHealth = Object.freeze({
+    pestDisease: Object.freeze({
+      zoneRisks: immutableRiskStates,
+      hygieneSignals: health.pestDisease.hygieneSignals,
+    }),
+  } satisfies HealthState) as HealthState;
+
+  return Object.freeze({
     health: nextHealth,
-    scheduledTasks,
-    warnings,
-    taskEvents,
-  } satisfies PestDiseaseEvaluationResult;
+    scheduledTasks: immutableTasks,
+    warnings: immutableWarnings,
+    taskEvents: immutableEvents,
+  } satisfies PestDiseaseEvaluationResult);
 }
