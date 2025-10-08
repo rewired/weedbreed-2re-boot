@@ -1,7 +1,7 @@
 import type { BRAND } from 'zod';
 
-import type { Inventory } from './types/Inventory.js';
 import type { HealthState } from './health/pestDisease.js';
+import type { Inventory } from './types/Inventory.js';
 import type { WorkforceState } from './workforce/WorkforceState.js';
 
 /**
@@ -285,7 +285,6 @@ export type ZoneDeviceInstance = DeviceInstance & {
 /**
  * Canonical representation of a plant instance within a zone.
  */
-import type { Inventory } from './types/Inventory.js';
 
 export interface Plant extends DomainEntity, SluggedEntity {
   /** Identifier of the strain blueprint driving this plant. */

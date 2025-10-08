@@ -6,7 +6,7 @@ import type {
   WorkforceMarketCandidateTrait,
   WorkforceMarketState,
   WorkforceMarketStructureState,
-} from '../../domain/workforce/WorkforceState.js';
+} from '../../domain/world.js';
 import { HOURS_PER_DAY } from '../../constants/simConstants.js';
 import type { WorkforceMarketScanConfig } from '../../config/workforce.js';
 import { createRng, type RandomNumberGenerator } from '../../util/rng.js';
