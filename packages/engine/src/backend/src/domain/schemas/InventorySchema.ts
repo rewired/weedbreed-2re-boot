@@ -4,7 +4,7 @@ import { HarvestLotSchema } from './HarvestLotSchema.js';
 
 export const InventorySchema = z
   .object({
-    lots: z.readonly(z.array(HarvestLotSchema)).default([])
+    lots: z.array(HarvestLotSchema).readonly().default([])
   })
   .strip();
 

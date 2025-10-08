@@ -19,7 +19,11 @@ import {
   PLANT_LIFECYCLE_STAGES,
   ROOM_PURPOSES
 } from './entities.js';
-import { isHarvestLot } from './schemas/HarvestLotSchema.js';
+import {
+  HarvestLotSchema,
+  isHarvestLot
+} from './schemas/HarvestLotSchema.js';
+import { InventorySchema } from './schemas/InventorySchema.js';
 
 const VALID_ROOM_PURPOSES = new Set(ROOM_PURPOSES);
 const VALID_PHOTOPERIOD_PHASES = new Set<PhotoperiodPhase>([
@@ -589,6 +593,11 @@ function validateRoom(
   const isStoragePurpose = room.purpose === 'storageroom';
   const isStorageRoom = isStorageClass || hasStorageTag || isStoragePurpose;
 
+  const inventoryParseResult =
+    room.inventory !== undefined
+      ? InventorySchema.safeParse(room.inventory)
+      : undefined;
+
   if (room.inventory) {
     if (!Array.isArray(room.inventory.lots)) {
       issues.push({
@@ -607,21 +616,32 @@ function validateRoom(
           return;
         }
 
-        if (lot.freshWeight_kg < 0) {
+        const lotParseResult = HarvestLotSchema.safeParse(lot);
+        if (!lotParseResult.success) {
+          issues.push({
+            path: lotPath,
+            message: 'inventory lot is not a valid HarvestLot'
+          });
+          return;
+        }
+
+        const harvestLot = lotParseResult.data;
+
+        if (harvestLot.freshWeight_kg < 0) {
           issues.push({
             path: `${lotPath}.freshWeight_kg`,
             message: 'harvest lot fresh weight must be non-negative'
           });
         }
 
-        if (!isWithinUnitInterval(lot.moisture01)) {
+        if (!isWithinUnitInterval(harvestLot.moisture01)) {
           issues.push({
             path: `${lotPath}.moisture01`,
             message: 'harvest lot moisture01 must lie within [0,1]'
           });
         }
 
-        if (!isWithinUnitInterval(lot.quality01)) {
+        if (!isWithinUnitInterval(harvestLot.quality01)) {
           issues.push({
             path: `${lotPath}.quality01`,
             message: 'harvest lot quality01 must lie within [0,1]'
@@ -634,6 +654,13 @@ function validateRoom(
             message: 'harvest lot createdAt_tick must be a non-negative integer'
           });
         }
+      });
+    }
+
+    if (!inventoryParseResult?.success) {
+      issues.push({
+        path: `${path}.inventory`,
+        message: 'inventory is not a valid Inventory'
       });
     }
   }
