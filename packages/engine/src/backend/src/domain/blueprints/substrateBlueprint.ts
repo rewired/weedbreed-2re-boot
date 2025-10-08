@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
+import { finiteNumber, nonEmptyString } from '../schemas/primitives.ts';
 import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
-const nonEmptyString = z.string().trim().min(1, 'String fields must not be empty.');
-const finiteNumber = z.number().finite('Value must be a finite number.');
 const positiveNumber = finiteNumber.gt(0, 'Value must be greater than zero.');
 const nonNegativeNumber = finiteNumber.min(0, 'Value cannot be negative.');
 const slugString = z

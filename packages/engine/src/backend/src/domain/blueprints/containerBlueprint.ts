@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { createFiniteNumber } from '../schemas/primitives.ts';
 import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
 export interface ContainerBlueprintMeta {
@@ -29,6 +30,8 @@ const containerBlueprintMetaSchema = z
   })
   .partial();
 
+const finiteContainerNumber = createFiniteNumber({ message: 'Number must be finite.' });
+
 const containerBlueprintSchema = z
   .object({
     id: z.string().uuid('Container blueprint id must be a UUID v4.'),
@@ -39,10 +42,10 @@ const containerBlueprintSchema = z
       invalid_type_error: 'class must be the canonical "container" domain value.'
     }),
     name: z.string().min(1, 'Container blueprint name must not be empty.'),
-    volumeInLiters: z.number().finite().positive('volumeInLiters must be a positive number.'),
-    footprintArea: z.number().finite().positive('footprintArea must be a positive number.'),
+    volumeInLiters: finiteContainerNumber.positive('volumeInLiters must be a positive number.'),
+    footprintArea: finiteContainerNumber.positive('footprintArea must be a positive number.'),
     reusableCycles: z.number().int().min(1).optional(),
-    packingDensity: z.number().finite().positive('packingDensity must be positive.').optional(),
+    packingDensity: finiteContainerNumber.positive('packingDensity must be positive.').optional(),
     meta: containerBlueprintMetaSchema.optional(),
     containerType: z.string().optional()
   })

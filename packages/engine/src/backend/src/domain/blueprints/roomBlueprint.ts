@@ -1,17 +1,20 @@
 import { z } from 'zod';
 
+import { createFiniteNumber, createNonEmptyString } from '../schemas/primitives.ts';
 import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
 const slugSchema = z
   .string({ required_error: 'slug is required.' })
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case (lowercase letters, digits, hyphen).');
 
+const economyAreaCost = createFiniteNumber({
+  requiredError: 'economy.areaCost is required.',
+  message: 'economy.areaCost must be a finite number.'
+});
+
 const economySchema = z
   .object({
-    areaCost: z
-      .number({ required_error: 'economy.areaCost is required.' })
-      .finite('economy.areaCost must be a finite number.')
-      .min(0, 'economy.areaCost must be >= 0.')
+    areaCost: economyAreaCost.min(0, 'economy.areaCost must be >= 0.')
   })
   .strict();
 
@@ -27,8 +30,8 @@ const roomPurposeBlueprintSchema = z
     id: z.string().uuid('Room blueprint id must be a UUID v4.'),
     slug: slugSchema,
     class: roomClassSchema,
-    name: z.string().trim().min(1, 'Room name must not be empty.'),
-    description: z.string().trim().min(1).optional(),
+    name: createNonEmptyString({ message: 'Room name must not be empty.' }),
+    description: createNonEmptyString({ message: 'Room description must not be empty.' }).optional(),
     economy: economySchema
   })
   .strict();

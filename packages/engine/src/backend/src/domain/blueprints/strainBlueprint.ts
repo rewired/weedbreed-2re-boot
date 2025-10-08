@@ -1,10 +1,9 @@
 import { z } from 'zod';
 
+import { finiteNumber, nonEmptyString } from '../schemas/primitives.ts';
 import { assertBlueprintClassMatchesPath, type BlueprintPathOptions, deriveBlueprintClassFromPath } from './taxonomy.ts';
 
-const finiteNumber = z.number().finite('Value must be a finite number.');
 const positiveNumber = finiteNumber.gt(0, 'Value must be greater than zero.');
-const nonEmptyString = z.string().trim().min(1, 'String fields must not be empty.');
 const slugString = z
   .string({ required_error: 'slug is required.' })
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case (lowercase, digits, hyphen).');

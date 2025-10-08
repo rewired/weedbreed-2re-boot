@@ -1,15 +1,16 @@
 import { z } from 'zod';
 
+import { createNonEmptyString } from '../schemas/primitives.ts';
 import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
 const slugString = z
   .string({ required_error: 'slug is required.' })
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case (lowercase, digits, hyphen).');
 
-const nonEmptyString = z
-  .string({ required_error: 'value is required.' })
-  .trim()
-  .min(1, 'String fields must not be empty.');
+const nonEmptyString = createNonEmptyString({
+  requiredError: 'value is required.',
+  message: 'String fields must not be empty.'
+});
 
 const classSchema = z.literal('irrigation', {
   required_error: 'class is required.',
