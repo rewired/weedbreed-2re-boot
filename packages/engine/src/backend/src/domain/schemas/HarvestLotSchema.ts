@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+// Leaf schema: never import from '../schemas.ts' to avoid barrel cycles.
 import { finiteNumber, nonNegativeNumber, unitIntervalNumber, uuidSchema } from './primitives.js';
 import type { HarvestLot } from '../types/HarvestLot.js';
 

@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+/**
+ * Leaf schema primitives.
+ *
+ * NOTE: Leaf schemas must never import from the domain schemas barrel. Doing so
+ * reintroduces circular dependencies; always import other leaves directly.
+ */
+
 export const nonEmptyString = z
   .string({ invalid_type_error: 'Expected a string.' })
   .trim()
