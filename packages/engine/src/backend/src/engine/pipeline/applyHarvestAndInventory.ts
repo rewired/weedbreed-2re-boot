@@ -1,7 +1,7 @@
 import { clamp01 } from '../../util/math.js';
 import { deterministicUuid } from '../../util/uuid.js';
-import { HarvestLotSchema } from '../../domain/schemas/HarvestLotSchema.js';
 import { InventorySchema } from '../../domain/schemas/InventorySchema.js';
+import { HarvestLotSchema } from '../../domain/schemas/HarvestLotSchema.js';
 import { resolveStorageRoomForStructure } from '../../services/storage/resolveStorageRoom.js';
 import {
   TELEMETRY_HARVEST_CREATED_V1,
@@ -121,7 +121,7 @@ export function applyHarvestAndInventory(world: SimulationWorld, ctx: EngineRunC
       storageResolution,
       storageTelemetryEmitted: false
     };
-    const pendingLots: HarvestLot[] = [];
+    let pendingLots: HarvestLot[] = [];
     let structureChanged = false;
 
     const nextRooms = structure.rooms.map((room) => {
@@ -160,7 +160,7 @@ export function applyHarvestAndInventory(world: SimulationWorld, ctx: EngineRunC
             continue;
           }
 
-          pendingLots.push(lot);
+          pendingLots = [...pendingLots, lot];
           ctx.telemetry?.emit(TELEMETRY_HARVEST_CREATED_V1, {
             structureId: lot.structureId,
             roomId: lot.roomId,
@@ -211,12 +211,10 @@ export function applyHarvestAndInventory(world: SimulationWorld, ctx: EngineRunC
         const inventory = InventorySchema.parse({
           lots: [...existingLots, ...pendingLots]
         });
-        const updatedRoom: Room = {
-          ...storageRoom,
-          inventory
-        };
-        const roomsWithInventory = nextRooms.slice();
-        roomsWithInventory[storageIndex] = updatedRoom;
+        const nextStorage = { ...storageRoom, inventory } as const;
+        const roomsWithInventory = nextRooms.map((room, index) =>
+          index === storageIndex ? (nextStorage as Room) : room
+        );
         structureChanged = true;
         roomsSnapshot = roomsWithInventory;
       }
