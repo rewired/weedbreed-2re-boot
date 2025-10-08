@@ -19,6 +19,7 @@
   - Shipped the `structureTariffs` read-model with override precedence tests plus DD/TDD documentation.
   - Added device-physics invariants: humidity clamps (0–100 %), CO₂ safety ceiling (`SAFETY_MAX_CO2_PPM`), and non-negative enthalpy backed by deterministic `fast-check` runs; updated `updateEnvironment` to honour the new clamp.
   - Audited workforce payroll accrual so hourly slices summed with banker’s rounding match finalized daily totals (integration test in `economyAccrual.integration.test.ts`).
+- Synced `getSimulationConstant` with the frozen registry shared by `@/backend` and `@wb/engine`, keeping string defaults like `DEFAULT_COMPANY_LOCATION_CITY` intact while satisfying the alias sync integration test.
 
 - Published ADR-0017–ADR-0020 to close SEC §14 open questions: locked the canonical irrigation method set, ratified the piecewise quadratic stress→growth curve, mandated hourly-ledger plus daily-rollup economy reporting, and fixed zone height defaults alongside launch cultivation presets.
 - Added a deterministic CI performance budget harness (`pnpm perf:ci`) that runs 10 k demo-world ticks, fails below 5 k ticks/min throughput or above the 64 MiB heap plateau, and emits guard-band warnings so regressions surface before breaching SEC §3 success criteria.
