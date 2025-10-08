@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { initializeFacade } from '../../src/index.js';
+import { initializeFacade } from '../../src/index.ts';
 
 describe('initializeFacade', () => {
   it('composes the engine bootstrap configuration using shared path aliases', () => {

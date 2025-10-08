@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 
-import type { Uuid } from '../domain/schemas/primitives.js';
-import type { EmployeeRngSeedUuid } from '../domain/workforce/Employee.js';
+import type { Uuid } from '../domain/schemas/primitives.ts';
+import type { EmployeeRngSeedUuid } from '../domain/workforce/Employee.ts';
 
 function formatUuid<T extends string>(bytes: Uint8Array): T {
   const hex = Buffer.from(bytes).toString('hex');

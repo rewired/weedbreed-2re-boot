@@ -1,4 +1,4 @@
-import type { ZoneEnvironment } from '../entities.js';
+import type { ZoneEnvironment } from '../entities.ts';
 
 /**
  * Inputs required for computing the thermal effect of an actuator device.

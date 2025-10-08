@@ -1,7 +1,7 @@
-import type { ISensor, SensorInputs, SensorOutputs } from '../domain/interfaces/ISensor.js';
-import type { SensorMeasurementType } from '../domain/entities.js';
-import type { RandomNumberGenerator } from '../util/rng.js';
-import { clamp } from '../util/math.js';
+import type { ISensor, SensorInputs, SensorOutputs } from '../domain/interfaces/ISensor.ts';
+import type { SensorMeasurementType } from '../domain/entities.ts';
+import type { RandomNumberGenerator } from '../util/rng.ts';
+import { clamp } from '../util/math.ts';
 
 function boxMullerTransform(rng: RandomNumberGenerator): number {
   let u1 = 0;

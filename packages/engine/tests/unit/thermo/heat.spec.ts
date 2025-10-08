@@ -5,8 +5,8 @@ import {
   CP_AIR_J_PER_KG_K,
   HOURS_PER_TICK,
   SECONDS_PER_HOUR
-} from '@/backend/src/constants/simConstants.js';
-import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat.js';
+} from '@/backend/src/constants/simConstants';
+import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat';
 
 const ZONE_FLOOR_AREA_M2 = 50;
 const ZONE_HEIGHT_M = 3;

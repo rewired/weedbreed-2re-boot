@@ -1,4 +1,4 @@
-import { FLOAT_TOLERANCE } from '../../constants/simConstants.js';
+import { FLOAT_TOLERANCE } from '../../constants/simConstants.ts';
 import type {
   Plant,
   PlantLifecycleStage,
@@ -6,25 +6,25 @@ import type {
   SimulationWorld,
   Structure,
   Zone
-} from '../../domain/world.js';
-import type { Uuid } from '../../domain/schemas/primitives.js';
-import type { EngineRunContext } from '../Engine.js';
-import type { StrainBlueprint } from '../../domain/blueprints/strainBlueprint.js';
-import { loadStrainBlueprint } from '../../domain/blueprints/strainBlueprintLoader.js';
-import { createRng } from '../../util/rng.js';
+} from '../../domain/world.ts';
+import type { Uuid } from '../../domain/schemas/primitives.ts';
+import type { EngineRunContext } from '../Engine.ts';
+import type { StrainBlueprint } from '../../domain/blueprints/strainBlueprint.ts';
+import { loadStrainBlueprint } from '../../domain/blueprints/strainBlueprintLoader.ts';
+import { createRng } from '../../util/rng.ts';
 import {
   calculateBiomassIncrement,
   calculateHealthDecay,
   calculateHealthRecovery
-} from '../../util/growth.js';
-import { calculateCombinedStress } from '../../physiology/stressModel.js';
+} from '../../util/growth.ts';
+import { calculateCombinedStress } from '../../physiology/stressModel.ts';
 import {
   shouldTransitionToFlowering,
   shouldTransitionToHarvestReady,
   shouldTransitionToVegetative
-} from '../../util/photoperiod.js';
-import { resolveTickHours } from '../resolveTickHours.js';
-import { clamp01 } from '../../util/math.js';
+} from '../../util/photoperiod.ts';
+import { resolveTickHours } from '../resolveTickHours.ts';
+import { clamp01 } from '../../util/math.ts';
 
 interface PhysiologyRuntime {
   readonly strainBlueprints: Map<Uuid, StrainBlueprint>;

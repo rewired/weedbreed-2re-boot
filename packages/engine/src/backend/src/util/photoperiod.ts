@@ -1,6 +1,6 @@
-import { HOURS_PER_DAY, LIGHT_SCHEDULE_GRID_HOURS } from '../constants/simConstants.js';
-import type { LightSchedule, Plant, Zone } from '../domain/entities.js';
-import type { PhaseDurations, StageChangeThresholds } from '../domain/blueprints/strainBlueprint.js';
+import { HOURS_PER_DAY, LIGHT_SCHEDULE_GRID_HOURS } from '../constants/simConstants.ts';
+import type { LightSchedule, Plant, Zone } from '../domain/entities.ts';
+import type { PhaseDurations, StageChangeThresholds } from '../domain/blueprints/strainBlueprint.ts';
 
 function normaliseHour(value: number): number {
   if (!Number.isFinite(value)) {

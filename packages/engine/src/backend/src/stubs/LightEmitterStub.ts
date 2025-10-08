@@ -1,11 +1,11 @@
-import { SECONDS_PER_HOUR } from '../constants/simConstants.js';
+import { SECONDS_PER_HOUR } from '../constants/simConstants.ts';
 import type {
   ILightEmitter,
   LightEmitterInputs,
   LightEmitterOutputs
-} from '../domain/interfaces/ILightEmitter.js';
-import { clamp, clamp01 } from '../util/math.js';
-import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
+} from '../domain/interfaces/ILightEmitter.ts';
+import { clamp, clamp01 } from '../util/math.ts';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
 
 function ensureFiniteOutputs(outputs: LightEmitterOutputs): LightEmitterOutputs {
   const { ppfd_effective_umol_m2s, dli_mol_m2d_inc, energy_Wh } = outputs;

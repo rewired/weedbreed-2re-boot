@@ -4,22 +4,22 @@ import {
   AIR_DENSITY_KG_PER_M3,
   HOURS_PER_TICK,
   ROOM_DEFAULT_HEIGHT_M
-} from '@/backend/src/constants/simConstants.js';
-import type { EngineDiagnostic, EngineRunContext } from '@/backend/src/engine/Engine.js';
+} from '@/backend/src/constants/simConstants';
+import type { EngineDiagnostic, EngineRunContext } from '@/backend/src/engine/Engine';
 import {
   applyDeviceEffects,
   getDeviceEffectsRuntime
-} from '@/backend/src/engine/pipeline/applyDeviceEffects.js';
-import { updateEnvironment } from '@/backend/src/engine/pipeline/updateEnvironment.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat.js';
+} from '@/backend/src/engine/pipeline/applyDeviceEffects';
+import { updateEnvironment } from '@/backend/src/engine/pipeline/updateEnvironment';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat';
 import {
   type DeviceQualityPolicy,
   type ZoneDeviceInstance,
   type Uuid
-} from '@/backend/src/domain/world.js';
-import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
-import { deviceQuality } from '../../testUtils/deviceHelpers.js';
+} from '@/backend/src/domain/world';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint';
+import { deviceQuality } from '../../testUtils/deviceHelpers.ts';
 
 function uuid(value: string): Uuid {
   return value as Uuid;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
+import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
 import type {
   Employee,
   EmployeeRole,
@@ -8,7 +8,7 @@ import type {
   WorkforceState,
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 

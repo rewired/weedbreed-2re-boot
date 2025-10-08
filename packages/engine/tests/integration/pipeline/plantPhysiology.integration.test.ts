@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
-import type { EngineDiagnostic } from '@/backend/src/engine/Engine.js';
-import type { Plant, Zone } from '@/backend/src/domain/world.js';
-import * as strainLoader from '@/backend/src/domain/blueprints/strainBlueprintLoader.js';
-import { clearStrainBlueprintCache } from '@/backend/src/domain/blueprints/strainBlueprintLoader.js';
-import { AMBIENT_CO2_PPM } from '@/backend/src/constants/simConstants.js';
+import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
+import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
+import type { EngineDiagnostic } from '@/backend/src/engine/Engine';
+import type { Plant, Zone } from '@/backend/src/domain/world';
+import * as strainLoader from '@/backend/src/domain/blueprints/strainBlueprintLoader';
+import { clearStrainBlueprintCache } from '@/backend/src/domain/blueprints/strainBlueprintLoader';
+import { AMBIENT_CO2_PPM } from '@/backend/src/constants/simConstants';
 import {
   AK47_STRAIN_ID,
   WHITE_WIDOW_STRAIN_ID,

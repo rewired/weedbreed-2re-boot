@@ -1,4 +1,4 @@
-import type { DomainEntity, SluggedEntity } from '../entities.js';
+import type { DomainEntity, SluggedEntity } from '../entities.ts';
 
 /**
  * Describes a unique skill requirement expressed on the normalised 0..1 scale.

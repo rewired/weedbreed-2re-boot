@@ -2,11 +2,11 @@ import {
   CP_AIR_J_PER_KG_K,
   HOURS_PER_TICK,
   SECONDS_PER_HOUR
-} from '../../constants/simConstants.js';
-import type { Zone, ZoneDeviceInstance } from '../../domain/world.js';
-import { clamp01 } from '../../util/math.js';
-import { resolveAirMassKg } from '../../util/environment.js';
-import { resolveTickHoursValue } from '../resolveTickHours.js';
+} from '../../constants/simConstants.ts';
+import type { Zone, ZoneDeviceInstance } from '../../domain/world.ts';
+import { clamp01 } from '../../util/math.ts';
+import { resolveAirMassKg } from '../../util/environment.ts';
+import { resolveTickHoursValue } from '../resolveTickHours.ts';
 
 /**
  * @deprecated Heating-only implementation (waste heat).

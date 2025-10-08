@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { newV7 } from '../../../../src/shared/determinism/ids.js';
+import { newV7 } from '../../../../src/shared/determinism/ids.ts';
 
 describe('newV7', () => {
   const uuidV7Pattern =

@@ -1,13 +1,13 @@
-import { clamp01 } from '../../util/math.js';
-import { createRng } from '../../util/rng.js';
+import { clamp01 } from '../../util/math.ts';
+import { createRng } from '../../util/rng.ts';
 import type {
   Employee,
   EmployeeRaiseState,
-} from '../../domain/workforce/Employee.js';
+} from '../../domain/workforce/Employee.ts';
 import type {
   WorkforceRaiseBonusIntent,
   WorkforceRaiseIntent,
-} from '../../domain/workforce/intents.js';
+} from '../../domain/workforce/intents.ts';
 
 const RAISE_ACCEPT_DEFAULT_RATE_INCREASE = 0.05;
 const RAISE_BONUS_DEFAULT_RATE_INCREASE = 0.03;

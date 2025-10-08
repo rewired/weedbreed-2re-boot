@@ -7,7 +7,7 @@ import {
   type TelemetryClient,
   type TelemetryClientEventMap,
   type TelemetryMessage,
-} from '../../src/runtime.js';
+} from '../../src/runtime.ts';
 
 class StubTelemetryClient
   extends EventEmitter<TelemetryClientEventMap>

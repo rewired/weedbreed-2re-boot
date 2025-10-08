@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import { calculateCombinedStress } from '@/backend/src/physiology/stressModel.js';
-import { clearStrainBlueprintCache, loadStrainBlueprint } from '@/backend/src/domain/blueprints/strainBlueprintLoader.js';
-import type { PlantLifecycleStage, Zone } from '@/backend/src/domain/world.js';
-import { AMBIENT_CO2_PPM } from '@/backend/src/constants/simConstants.js';
+import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import { calculateCombinedStress } from '@/backend/src/physiology/stressModel';
+import { clearStrainBlueprintCache, loadStrainBlueprint } from '@/backend/src/domain/blueprints/strainBlueprintLoader';
+import type { PlantLifecycleStage, Zone } from '@/backend/src/domain/world';
+import { AMBIENT_CO2_PPM } from '@/backend/src/constants/simConstants';
 import {
   WHITE_WIDOW_STRAIN_ID,
   createTestPlant

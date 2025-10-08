@@ -1,17 +1,17 @@
 import process from 'node:process';
 
-import { withPerfHarness } from '../../src/backend/src/engine/testHarness.js';
+import { withPerfHarness } from '../../src/backend/src/engine/testHarness.ts';
 import {
   evaluatePerfBudget,
   PERF_CI_TICK_COUNT,
   PERF_CI_THRESHOLDS,
   PERF_SCENARIO_THRESHOLDS,
   type PerfBudgetThresholds
-} from '../../src/backend/src/engine/perf/perfBudget.js';
+} from '../../src/backend/src/engine/perf/perfBudget.ts';
 import {
   createBaselinePerfWorld,
   createTargetPerfWorld
-} from '../../src/backend/src/engine/perf/perfScenarios.js';
+} from '../../src/backend/src/engine/perf/perfScenarios.ts';
 
 function parseThresholdOverrides(): Partial<PerfBudgetThresholds> {
   const overrides: Partial<PerfBudgetThresholds> = {};

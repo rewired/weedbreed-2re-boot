@@ -6,10 +6,10 @@ import {
   CP_AIR_J_PER_KG_K,
   HOURS_PER_TICK,
   SECONDS_PER_HOUR
-} from '@/backend/src/constants/simConstants.js';
-import { createThermalActuatorStub } from '@/backend/src/stubs/ThermalActuatorStub.js';
-import type { ThermalActuatorInputs } from '@/backend/src/domain/interfaces/IThermalActuator.js';
-import type { ZoneEnvironment } from '@/backend/src/domain/entities.js';
+} from '@/backend/src/constants/simConstants';
+import { createThermalActuatorStub } from '@/backend/src/stubs/ThermalActuatorStub';
+import type { ThermalActuatorInputs } from '@/backend/src/domain/interfaces/IThermalActuator';
+import type { ZoneEnvironment } from '@/backend/src/domain/entities';
 
 const ZONE_VOLUME_M3 = 50;
 const AIR_MASS_KG = ZONE_VOLUME_M3 * AIR_DENSITY_KG_PER_M3;

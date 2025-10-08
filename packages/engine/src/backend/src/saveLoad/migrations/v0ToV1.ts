@@ -1,6 +1,6 @@
-import { legacySaveGameSchemaV0, saveGameSchema, type SaveGame } from '../schemas.js';
+import { legacySaveGameSchemaV0, saveGameSchema, type SaveGame } from '../schemas.ts';
 
-import type { SaveGameMigrationStep } from './registry.js';
+import type { SaveGameMigrationStep } from './registry.ts';
 
 export const migrateV0ToV1: SaveGameMigrationStep = {
   fromVersion: 0,

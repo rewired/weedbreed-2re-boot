@@ -1,4 +1,4 @@
-import type { Uuid } from '../schemas/primitives.js';
+import type { Uuid } from '../schemas/primitives.ts';
 
 export interface WorkforceRaiseAcceptIntent {
   readonly type: 'workforce.raise.accept';

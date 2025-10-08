@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-import { DEVICE_PLACEMENT_SCOPES, ROOM_PURPOSES } from '../entities.js';
+import { DEVICE_PLACEMENT_SCOPES, ROOM_PURPOSES } from '../entities.ts';
 import {
   assertBlueprintClassMatchesPath,
   type BlueprintPathOptions,
   deriveBlueprintClassFromPath
-} from './taxonomy.js';
+} from './taxonomy.ts';
 
 const nonEmptyString = z.string().trim().min(1, 'String fields must not be empty.');
 const finiteNumber = z.number().finite('Value must be a finite number.');

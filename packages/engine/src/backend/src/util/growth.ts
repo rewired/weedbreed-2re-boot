@@ -1,13 +1,13 @@
-import { HOURS_PER_DAY } from '../constants/simConstants.js';
-import type { PlantLifecycleStage } from '../domain/entities.js';
+import { HOURS_PER_DAY } from '../constants/simConstants.ts';
+import type { PlantLifecycleStage } from '../domain/entities.ts';
 import type {
   GrowthModel,
   HarvestIndexConfig,
   DryMatterFractionConfig,
   StrainBlueprint
-} from '../domain/blueprints/strainBlueprint.js';
-import type { RandomNumberGenerator } from './rng.js';
-import { clamp, clamp01 } from './math.js';
+} from '../domain/blueprints/strainBlueprint.ts';
+import type { RandomNumberGenerator } from './rng.ts';
+import { clamp, clamp01 } from './math.ts';
 
 const DEFAULT_DRY_MATTER_FRACTION = 0.2;
 const DEFAULT_HARVEST_INDEX = 0.7;

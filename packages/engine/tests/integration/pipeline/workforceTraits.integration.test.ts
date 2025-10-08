@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
-import { getWorkforceRuntime } from '@/backend/src/engine/pipeline/applyWorkforce.js';
-import type { WorkforceAssignment } from '@/backend/src/engine/pipeline/applyWorkforce.js';
-import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
+import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
+import { getWorkforceRuntime } from '@/backend/src/engine/pipeline/applyWorkforce';
+import type { WorkforceAssignment } from '@/backend/src/engine/pipeline/applyWorkforce';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
 import type {
   Employee,
   EmployeeRole,
@@ -11,7 +11,7 @@ import type {
   WorkforceState,
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 function buildRole(id: string, slug: string): EmployeeRole {
   return {

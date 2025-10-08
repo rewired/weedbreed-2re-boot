@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import {
   HOURS_PER_TICK,
   SECONDS_PER_HOUR
-} from '@/backend/src/constants/simConstants.js';
-import { createLightEmitterStub } from '@/backend/src/stubs/LightEmitterStub.js';
-import type { LightEmitterInputs } from '@/backend/src/domain/interfaces/ILightEmitter.js';
+} from '@/backend/src/constants/simConstants';
+import { createLightEmitterStub } from '@/backend/src/stubs/LightEmitterStub';
+import type { LightEmitterInputs } from '@/backend/src/domain/interfaces/ILightEmitter';
 
 function createInputs(overrides: Partial<LightEmitterInputs> = {}): LightEmitterInputs {
   return {

@@ -23,8 +23,8 @@ import whiteWidowStrain from '../../../../../../../data/blueprints/strain/white-
 import northernLightsStrain from '../../../../../../../data/blueprints/strain/northern-lights.json' with { type: 'json' };
 import skunk1Strain from '../../../../../../../data/blueprints/strain/skunk-1.json' with { type: 'json' };
 
-import { createRng } from '../../util/rng.js';
-import type { RoomPurpose } from '../../domain/entities.js';
+import { createRng } from '../../util/rng.ts';
+import type { RoomPurpose } from '../../domain/entities.ts';
 
 const HOURS_PER_DAY = 24;
 const BREAK_DURATION_MINUTES = 30;

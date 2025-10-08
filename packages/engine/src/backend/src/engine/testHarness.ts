@@ -1,16 +1,16 @@
-import { AIR_DENSITY_KG_PER_M3, AMBIENT_CO2_PPM } from '../constants/simConstants.js';
-import type { SimulationWorld, WorkforceState } from '../domain/world.js';
-import type { Uuid } from '../domain/schemas/primitives.js';
+import { AIR_DENSITY_KG_PER_M3, AMBIENT_CO2_PPM } from '../constants/simConstants.ts';
+import type { SimulationWorld, WorkforceState } from '../domain/world.ts';
+import type { Uuid } from '../domain/schemas/primitives.ts';
 import {
   resolvePipelineStage,
   runTick,
   type EngineRunContext,
   type RunTickOptions
-} from './Engine.js';
-import { clearSensorReadingsRuntime } from './pipeline/applySensors.js';
-import { clearIrrigationNutrientsRuntime } from './pipeline/applyIrrigationAndNutrients.js';
-import { clearWorkforceRuntime } from './pipeline/applyWorkforce.js';
-import type { StepName, TickTrace } from './trace.js';
+} from './Engine.ts';
+import { clearSensorReadingsRuntime } from './pipeline/applySensors.ts';
+import { clearIrrigationNutrientsRuntime } from './pipeline/applyIrrigationAndNutrients.ts';
+import { clearWorkforceRuntime } from './pipeline/applyWorkforce.ts';
+import type { StepName, TickTrace } from './trace.ts';
 
 const DEMO_WORLD_ID = '00000000-0000-4000-8000-000000000000' as Uuid;
 const DEMO_COMPANY_ID = '00000000-0000-4000-8000-000000000001' as Uuid;
@@ -261,4 +261,4 @@ export function createRecordingContext(buffer: StepName[]): EngineRunContext {
   } satisfies EngineRunContext;
 }
 
-export { runDeterministic } from './conformance/runDeterministic.js';
+export { runDeterministic } from './conformance/runDeterministic.ts';

@@ -1,4 +1,4 @@
-import type { Zone } from '../entities.js';
+import type { Zone } from '../entities.ts';
 
 /**
  * Helper type describing the zone properties used to derive air volume.

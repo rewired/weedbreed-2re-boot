@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { EmployeeRngSeedUuid } from '@/backend/src/domain/workforce/Employee.js';
-import { getTraitMetadata } from '@/backend/src/domain/workforce/traits.js';
-import { resolveWorkforceIdentity } from '@/backend/src/services/workforce/identitySource.js';
+import type { EmployeeRngSeedUuid } from '@/backend/src/domain/workforce/Employee';
+import { getTraitMetadata } from '@/backend/src/domain/workforce/traits';
+import { resolveWorkforceIdentity } from '@/backend/src/services/workforce/identitySource';
 
 describe('resolveWorkforceIdentity', () => {
   const ONLINE_SEED = 'online-seed';

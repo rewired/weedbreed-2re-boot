@@ -1,4 +1,4 @@
-import { withPerfStage } from '../util/perf.js';
+import { withPerfStage } from '../util/perf.ts';
 
 export type StepName =
   | 'applyDeviceEffects'

@@ -1,12 +1,12 @@
-import type { SensorReading } from '../../domain/interfaces/ISensor.js';
-import type { SensorMeasurementType, ZoneDeviceInstance } from '../../domain/entities.js';
-import type { SimulationWorld, Zone } from '../../domain/world.js';
-import { createSensorStub } from '../../stubs/index.js';
-import type { EngineDiagnostic, EngineRunContext } from '../Engine.js';
-import { createRng } from '../../util/rng.js';
-import { resolveTickHours } from '../resolveTickHours.js';
-import { HOURS_PER_TICK } from '../../constants/simConstants.js';
-import { assertValidSensorReading } from './sensorReadingSchema.js';
+import type { SensorReading } from '../../domain/interfaces/ISensor.ts';
+import type { SensorMeasurementType, ZoneDeviceInstance } from '../../domain/entities.ts';
+import type { SimulationWorld, Zone } from '../../domain/world.ts';
+import { createSensorStub } from '../../stubs/index.ts';
+import type { EngineDiagnostic, EngineRunContext } from '../Engine.ts';
+import { createRng } from '../../util/rng.ts';
+import { resolveTickHours } from '../resolveTickHours.ts';
+import { HOURS_PER_TICK } from '../../constants/simConstants.ts';
+import { assertValidSensorReading } from './sensorReadingSchema.ts';
 
 export interface SensorReadingsRuntime {
   readonly sampledAtSimTimeHours: number;

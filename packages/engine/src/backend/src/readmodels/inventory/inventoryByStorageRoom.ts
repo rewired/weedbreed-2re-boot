@@ -1,4 +1,4 @@
-import type { SimulationWorld, Structure, Room } from '../../domain/world.js';
+import type { SimulationWorld, Structure, Room } from '../../domain/world.ts';
 
 export interface StorageRoomInventorySummary {
   readonly structureId: Structure['id'];

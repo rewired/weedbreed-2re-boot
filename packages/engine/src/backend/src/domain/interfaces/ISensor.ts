@@ -1,5 +1,5 @@
-import type { DeviceInstance, SensorMeasurementType } from '../entities.js';
-import type { RandomNumberGenerator } from '../../util/rng.js';
+import type { DeviceInstance, SensorMeasurementType } from '../entities.ts';
+import type { RandomNumberGenerator } from '../../util/rng.ts';
 
 /**
  * Helper type describing device condition metadata influencing sensor performance.

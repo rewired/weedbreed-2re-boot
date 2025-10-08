@@ -4,8 +4,8 @@ import basicSoilPot from '../../../../../data/blueprints/cultivation-method/basi
 import pot10L from '../../../../../data/blueprints/container/pot-10l.json' with { type: 'json' };
 import soilMultiCycle from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };
 
-import { PIPELINE_ORDER, type EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
+import { PIPELINE_ORDER, type EngineRunContext } from '@/backend/src/engine/Engine';
+import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
 import type {
   Plant,
   SimulationWorld,
@@ -16,7 +16,7 @@ import type {
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
   Uuid,
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 function createTaskDefinition(taskCode: string, priority = 60): WorkforceTaskDefinition {
   return {

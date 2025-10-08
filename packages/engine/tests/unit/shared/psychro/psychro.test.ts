@@ -1,7 +1,7 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
-import { computeVpd_kPa } from '../../../../src/shared/psychro/psychro.js';
+import { computeVpd_kPa } from '../../../../src/shared/psychro/psychro.ts';
 
 describe('computeVpd_kPa', () => {
   it('matches a known reference point (25°C, 50% RH)', () => {

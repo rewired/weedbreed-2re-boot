@@ -1,9 +1,9 @@
-import type { TelemetryBus } from '../engine/Engine.js';
+import type { TelemetryBus } from '../engine/Engine.ts';
 import type {
   WorkforceKpiSnapshot,
   WorkforcePayrollState,
   WorkforceWarning,
-} from '../domain/world.js';
+} from '../domain/world.ts';
 import {
   TELEMETRY_WORKFORCE_KPI_V1,
   TELEMETRY_WORKFORCE_WARNING_V1,
@@ -12,7 +12,7 @@ import {
   TELEMETRY_WORKFORCE_RAISE_BONUS_V1,
   TELEMETRY_WORKFORCE_RAISE_IGNORED_V1,
   TELEMETRY_WORKFORCE_EMPLOYEE_TERMINATED_V1,
-} from './topics.js';
+} from './topics.ts';
 
 function emitEvent(
   bus: TelemetryBus | undefined,

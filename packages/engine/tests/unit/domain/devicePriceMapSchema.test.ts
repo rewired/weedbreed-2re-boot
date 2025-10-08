@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { devicePriceMapSchema, parseDevicePriceMap } from '@/backend/src/domain/world.js';
+import { devicePriceMapSchema, parseDevicePriceMap } from '@/backend/src/domain/world';
 
 import devicePriceMap from '../../../../../data/prices/devicePrices.json' with { type: 'json' };
 

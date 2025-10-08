@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
-import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
+import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
 import type {
   Employee,
   EmployeeRole,
@@ -10,7 +10,7 @@ import type {
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
   WorkforcePayrollState,
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 function buildRole(
   id: string,

@@ -2,15 +2,15 @@ import {
   AMBIENT_CO2_PPM,
   FLOAT_TOLERANCE,
   HOURS_PER_TICK
-} from '../constants/simConstants.js';
+} from '../constants/simConstants.ts';
 import type {
   Co2InjectorInputs,
   Co2InjectorOutputs,
   ICo2Injector
-} from '../domain/interfaces/ICo2Injector.js';
-import type { ZoneEnvironment } from '../domain/entities.js';
-import { clamp01 } from '../util/math.js';
-import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
+} from '../domain/interfaces/ICo2Injector.ts';
+import type { ZoneEnvironment } from '../domain/entities.ts';
+import { clamp01 } from '../util/math.ts';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
 
 function ensureFinite(value: unknown, fallback: number): number {
   if (typeof value !== 'number' || Number.isNaN(value)) {

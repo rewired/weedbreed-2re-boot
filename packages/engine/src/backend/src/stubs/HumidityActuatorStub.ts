@@ -2,11 +2,11 @@ import type {
   HumidityActuatorInputs,
   HumidityActuatorOutputs,
   IHumidityActuator
-} from '../domain/interfaces/IHumidityActuator.js';
-import type { ZoneEnvironment } from '../domain/entities.js';
-import { clamp } from '../util/math.js';
-import { resolveAirMassKg } from '../util/environment.js';
-import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
+} from '../domain/interfaces/IHumidityActuator.ts';
+import type { ZoneEnvironment } from '../domain/entities.ts';
+import { clamp } from '../util/math.ts';
+import { resolveAirMassKg } from '../util/environment.ts';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
 
 function ensureFiniteOutputs(
   outputs: HumidityActuatorOutputs

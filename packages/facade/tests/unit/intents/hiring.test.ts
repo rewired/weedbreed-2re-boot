@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   createHiringMarketHireIntent,
   createHiringMarketScanIntent,
-} from '../../../src/intents/hiring.js';
+} from '../../../src/intents/hiring.ts';
 
 describe('hiring intents', () => {
   it('creates a scan intent for the given structure', () => {

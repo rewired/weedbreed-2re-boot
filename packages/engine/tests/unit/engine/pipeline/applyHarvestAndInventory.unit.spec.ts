@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { applyHarvestAndInventory } from '@/backend/src/engine/pipeline/applyHarvestAndInventory.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import { applyHarvestAndInventory } from '@/backend/src/engine/pipeline/applyHarvestAndInventory';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
 import { createTestPlant } from '@/tests/testUtils/strainFixtures.ts';
-import type { EngineDiagnostic, EngineRunContext } from '@/backend/src/engine/Engine.js';
-import type { Plant, Room, Zone } from '@/backend/src/domain/world.js';
+import type { EngineDiagnostic, EngineRunContext } from '@/backend/src/engine/Engine';
+import type { Plant, Room, Zone } from '@/backend/src/domain/world';
 import {
   TELEMETRY_HARVEST_CREATED_V1,
   TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1
-} from '@/backend/src/telemetry/topics.js';
+} from '@/backend/src/telemetry/topics';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 

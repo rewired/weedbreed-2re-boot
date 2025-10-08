@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.js';
+import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
 const nonEmptyString = z.string().trim().min(1, 'String fields must not be empty.');
 const finiteNumber = z.number().finite('Value must be a finite number.');

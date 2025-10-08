@@ -7,8 +7,8 @@ import {
   BlueprintPathError,
   BlueprintTaxonomyMismatchError,
   deriveBlueprintClassFromPath
-} from '@/backend/src/domain/blueprints/taxonomy.js';
-import { resolveBlueprintPath } from '../../testUtils/paths.js';
+} from '@/backend/src/domain/blueprints/taxonomy';
+import { resolveBlueprintPath } from '../../testUtils/paths.ts';
 
 const blueprintsRoot = path.resolve(resolveBlueprintPath(''));
 

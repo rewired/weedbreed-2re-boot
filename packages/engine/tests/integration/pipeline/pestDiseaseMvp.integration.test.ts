@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { PIPELINE_ORDER, type EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness.js';
+import { PIPELINE_ORDER, type EngineRunContext } from '@/backend/src/engine/Engine';
+import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
 import {
   PEST_INSPECTION_TASK_CODE,
   PEST_TREATMENT_TASK_CODE,
-} from '@/backend/src/health/pestDiseaseSystem.js';
+} from '@/backend/src/health/pestDiseaseSystem';
 import type {
   EmployeeRole,
   HealthState,
@@ -14,7 +14,7 @@ import type {
   WorkforceTaskDefinition,
   WorkforceTaskInstance,
   Zone,
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 function createRole(): EmployeeRole {
   return {

@@ -8,7 +8,7 @@
  * without rewriting call sites.
  */
 
-import { clamp01 } from '../util/math.js';
+import { clamp01 } from '../util/math.ts';
 
 const BASE_WEAR_RATE01 = 0.01;
 const QUALITY_WEAR_SLOPE = 0.5;

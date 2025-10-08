@@ -7,7 +7,7 @@ import {
   deviceBlueprintSchema,
   parseDeviceBlueprint,
   toDeviceInstanceCapacity
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 import climateUnit from '../../../../../data/blueprints/device/climate/cool-air-split-3000.json' with { type: 'json' };
 import co2Injector from '../../../../../data/blueprints/device/climate/co2-pulse.json' with { type: 'json' };

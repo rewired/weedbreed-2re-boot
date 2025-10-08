@@ -6,20 +6,20 @@
  *
  * @see Consolidated Reference Document: Interfaces & Stubs (Engine v1, Phase 1)
  */
-export * from './ThermalActuatorStub.js';
-export * from './HumidityActuatorStub.js';
-export * from './LightEmitterStub.js';
-export * from './NutrientBufferStub.js';
-export * from './IrrigationServiceStub.js';
-export * from './SensorStub.js';
-export * from './AirflowActuatorStub.js';
-export * from './FiltrationStub.js';
-export * from './Co2InjectorStub.js';
+export * from './ThermalActuatorStub.ts';
+export * from './HumidityActuatorStub.ts';
+export * from './LightEmitterStub.ts';
+export * from './NutrientBufferStub.ts';
+export * from './IrrigationServiceStub.ts';
+export * from './SensorStub.ts';
+export * from './AirflowActuatorStub.ts';
+export * from './FiltrationStub.ts';
+export * from './Co2InjectorStub.ts';
 
-export { createThermalActuatorStub } from './ThermalActuatorStub.js';
-export { createHumidityActuatorStub } from './HumidityActuatorStub.js';
-export { createLightEmitterStub } from './LightEmitterStub.js';
-export { createSensorStub } from './SensorStub.js';
-export { createAirflowActuatorStub } from './AirflowActuatorStub.js';
-export { createFiltrationStub } from './FiltrationStub.js';
-export { createCo2InjectorStub } from './Co2InjectorStub.js';
+export { createThermalActuatorStub } from './ThermalActuatorStub.ts';
+export { createHumidityActuatorStub } from './HumidityActuatorStub.ts';
+export { createLightEmitterStub } from './LightEmitterStub.ts';
+export { createSensorStub } from './SensorStub.ts';
+export { createAirflowActuatorStub } from './AirflowActuatorStub.ts';
+export { createFiltrationStub } from './FiltrationStub.ts';
+export { createCo2InjectorStub } from './Co2InjectorStub.ts';

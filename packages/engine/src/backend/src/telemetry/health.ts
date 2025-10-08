@@ -1,12 +1,12 @@
-import type { TelemetryBus } from '../engine/Engine.js';
+import type { TelemetryBus } from '../engine/Engine.ts';
 import type {
   PestDiseaseRiskWarning,
   PestDiseaseTaskEvent,
-} from '../health/pestDiseaseSystem.js';
+} from '../health/pestDiseaseSystem.ts';
 import {
   TELEMETRY_HEALTH_PEST_DISEASE_RISK_V1,
   TELEMETRY_HEALTH_PEST_DISEASE_TASK_V1,
-} from './topics.js';
+} from './topics.ts';
 
 function emitEvent(
   bus: TelemetryBus | undefined,

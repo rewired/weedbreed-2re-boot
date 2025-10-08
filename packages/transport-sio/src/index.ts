@@ -10,7 +10,7 @@ export {
   type TelemetryEvent,
   type TransportAck,
   type TransportIntentEnvelope,
-} from './adapter.js';
+} from './adapter.ts';
 
 /**
  * Configuration options required to initialise the Socket.IO transport adapter.

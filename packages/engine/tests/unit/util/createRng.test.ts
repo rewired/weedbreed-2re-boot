@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createRng } from '@/backend/src/util/rng.js';
+import { createRng } from '@/backend/src/util/rng';
 
 const SEQUENCE_LENGTH = 16;
 const SAMPLE_LENGTH = 8;

@@ -7,7 +7,7 @@ import {
 
 export type { ParsedCompanyWorld } from '@wb/engine';
 export { parseCompanyWorld } from '@wb/engine';
-export { mapDeviceToView, type DeviceView } from './readModels/deviceView.js';
+export { mapDeviceToView, type DeviceView } from './readModels/deviceView.ts';
 export {
   createWorkforceView,
   type WorkforceDirectoryFilters,
@@ -22,13 +22,13 @@ export {
   type WorkforceView,
   type WorkforceViewOptions,
   type WorkforceWarningView
-} from './readModels/workforceView.js';
+} from './readModels/workforceView.ts';
 export {
   createTraitBreakdown,
   type TraitBreakdownEntry,
   type TraitBreakdownTotals,
   type TraitBreakdownView,
-} from './readModels/traitBreakdownView.js';
+} from './readModels/traitBreakdownView.ts';
 export {
   createHiringMarketView,
   type HiringMarketCandidateSkillView,
@@ -38,11 +38,11 @@ export {
   type HiringMarketStructureView,
   type HiringMarketView,
   type HiringMarketViewOptions,
-} from './readModels/hiringMarketView.js';
+} from './readModels/hiringMarketView.ts';
 export {
   createHiringMarketHireIntent,
   createHiringMarketScanIntent,
-} from './intents/hiring.js';
+} from './intents/hiring.ts';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.

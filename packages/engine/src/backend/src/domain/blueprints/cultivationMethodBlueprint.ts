@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.js';
+import { assertBlueprintClassMatchesPath, type BlueprintPathOptions } from './taxonomy.ts';
 
 export interface CultivationMethodDefaults {
   readonly containerSlug?: string;

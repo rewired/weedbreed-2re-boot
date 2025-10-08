@@ -1,19 +1,19 @@
-import type { SimulationWorld } from '../domain/world.js';
-import type { Uuid } from '../domain/schemas/primitives.js';
-import type { IrrigationEvent } from '../domain/interfaces/IIrrigationService.js';
-import { applyDeviceEffects } from './pipeline/applyDeviceEffects.js';
-import { updateEnvironment } from './pipeline/updateEnvironment.js';
-import { applySensors, clearSensorReadingsRuntime } from './pipeline/applySensors.js';
+import type { SimulationWorld } from '../domain/world.ts';
+import type { Uuid } from '../domain/schemas/primitives.ts';
+import type { IrrigationEvent } from '../domain/interfaces/IIrrigationService.ts';
+import { applyDeviceEffects } from './pipeline/applyDeviceEffects.ts';
+import { updateEnvironment } from './pipeline/updateEnvironment.ts';
+import { applySensors, clearSensorReadingsRuntime } from './pipeline/applySensors.ts';
 import {
   applyIrrigationAndNutrients,
   clearIrrigationNutrientsRuntime,
-} from './pipeline/applyIrrigationAndNutrients.js';
-import { applyWorkforce, clearWorkforceRuntime } from './pipeline/applyWorkforce.js';
-import { advancePhysiology } from './pipeline/advancePhysiology.js';
-import { applyHarvestAndInventory } from './pipeline/applyHarvestAndInventory.js';
-import { applyEconomyAccrual } from './pipeline/applyEconomyAccrual.js';
-import { commitAndTelemetry } from './pipeline/commitAndTelemetry.js';
-import { createTickTraceCollector, type StepName, type TickTrace } from './trace.js';
+} from './pipeline/applyIrrigationAndNutrients.ts';
+import { applyWorkforce, clearWorkforceRuntime } from './pipeline/applyWorkforce.ts';
+import { advancePhysiology } from './pipeline/advancePhysiology.ts';
+import { applyHarvestAndInventory } from './pipeline/applyHarvestAndInventory.ts';
+import { applyEconomyAccrual } from './pipeline/applyEconomyAccrual.ts';
+import { commitAndTelemetry } from './pipeline/commitAndTelemetry.ts';
+import { createTickTraceCollector, type StepName, type TickTrace } from './trace.ts';
 
 export interface EngineInstrumentation {
   readonly onStageComplete?: (stage: StepName, world: SimulationWorld) => void;

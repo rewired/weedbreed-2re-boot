@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseCultivationMethodPriceMap } from '@/backend/src/domain/pricing/cultivationMethodPriceMap.js';
+import { parseCultivationMethodPriceMap } from '@/backend/src/domain/pricing/cultivationMethodPriceMap';
 
 describe('parseCultivationMethodPriceMap', () => {
   it('normalises setupCost to per-hour units', () => {

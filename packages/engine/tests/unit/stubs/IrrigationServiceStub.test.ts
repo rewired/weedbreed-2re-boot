@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants.js';
-import { createIrrigationServiceStub } from '@/backend/src/stubs/IrrigationServiceStub.js';
-import { createNutrientBufferStub } from '@/backend/src/stubs/NutrientBufferStub.js';
+import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants';
+import { createIrrigationServiceStub } from '@/backend/src/stubs/IrrigationServiceStub';
+import { createNutrientBufferStub } from '@/backend/src/stubs/NutrientBufferStub';
 import type {
   IrrigationEvent,
   IrrigationServiceInputs,
-} from '@/backend/src/domain/interfaces/IIrrigationService.js';
-import type { INutrientBuffer } from '@/backend/src/domain/interfaces/INutrientBuffer.js';
-import type { Uuid } from '@/backend/src/domain/entities.js';
+} from '@/backend/src/domain/interfaces/IIrrigationService';
+import type { INutrientBuffer } from '@/backend/src/domain/interfaces/INutrientBuffer';
+import type { Uuid } from '@/backend/src/domain/entities';
 
 const MOCK_ZONE_ID = 'zone-123' as Uuid;
 const MOCK_PLANT_ID = 'plant-456' as Uuid;

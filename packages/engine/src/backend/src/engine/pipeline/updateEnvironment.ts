@@ -1,7 +1,7 @@
-import { FLOAT_TOLERANCE, SAFETY_MAX_CO2_PPM } from '../../constants/simConstants.js';
-import type { SimulationWorld, Zone } from '../../domain/world.js';
-import type { EngineRunContext } from '../Engine.js';
-import { clearDeviceEffectsRuntime, getDeviceEffectsRuntime } from './applyDeviceEffects.js';
+import { FLOAT_TOLERANCE, SAFETY_MAX_CO2_PPM } from '../../constants/simConstants.ts';
+import type { SimulationWorld, Zone } from '../../domain/world.ts';
+import type { EngineRunContext } from '../Engine.ts';
+import { clearDeviceEffectsRuntime, getDeviceEffectsRuntime } from './applyDeviceEffects.ts';
 
 function updateZoneTemperature(zone: Zone, netDeltaC: number): Zone {
   if (Math.abs(netDeltaC) < FLOAT_TOLERANCE) {

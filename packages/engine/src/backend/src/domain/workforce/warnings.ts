@@ -1,6 +1,6 @@
-import type { Uuid } from '../schemas/primitives.js';
-import type { Employee } from './Employee.js';
-import type { WorkforceTaskInstance } from './tasks.js';
+import type { Uuid } from '../schemas/primitives.ts';
+import type { Employee } from './Employee.ts';
+import type { WorkforceTaskInstance } from './tasks.ts';
 
 export type WorkforceWarningSeverity = 'info' | 'warning' | 'critical';
 

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveStorageRoomForStructure } from '@/backend/src/services/storage/resolveStorageRoom.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import type { Room } from '@/backend/src/domain/world.js';
+import { resolveStorageRoomForStructure } from '@/backend/src/services/storage/resolveStorageRoom';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import type { Room } from '@/backend/src/domain/world';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 

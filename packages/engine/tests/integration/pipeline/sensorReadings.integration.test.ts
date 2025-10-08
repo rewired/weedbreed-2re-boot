@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { getSensorReadingsRuntime } from '@/backend/src/engine/pipeline/applySensors.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
-import type { SensorReading } from '@/backend/src/domain/interfaces/ISensor.js';
-import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
-import { type DeviceQualityPolicy, type Uuid, type ZoneDeviceInstance } from '@/backend/src/domain/world.js';
-import { deviceQuality } from '../../testUtils/deviceHelpers.js';
+import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
+import { getSensorReadingsRuntime } from '@/backend/src/engine/pipeline/applySensors';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
+import type { SensorReading } from '@/backend/src/domain/interfaces/ISensor';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint';
+import { type DeviceQualityPolicy, type Uuid, type ZoneDeviceInstance } from '@/backend/src/domain/world';
+import { deviceQuality } from '../../testUtils/deviceHelpers.ts';
 
 function uuid(value: string): Uuid {
   return value as Uuid;

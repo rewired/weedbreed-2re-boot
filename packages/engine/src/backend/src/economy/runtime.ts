@@ -1,4 +1,4 @@
-import type { EngineRunContext } from '../engine/Engine.js';
+import type { EngineRunContext } from '../engine/Engine.ts';
 
 const ECONOMY_USAGE_CONTEXT_KEY = '__wb_economyUsage' as const;
 

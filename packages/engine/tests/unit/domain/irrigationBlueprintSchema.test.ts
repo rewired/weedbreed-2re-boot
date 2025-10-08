@@ -11,7 +11,7 @@ import cocoCoir from '../../../../../data/blueprints/substrate/coco-coir.json' w
 import soilMulti from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };
 import soilSingle from '../../../../../data/blueprints/substrate/soil-single-cycle.json' with { type: 'json' };
 
-import { parseIrrigationBlueprint } from '@/backend/src/domain/world.js';
+import { parseIrrigationBlueprint } from '@/backend/src/domain/world';
 
 describe('parseIrrigationBlueprint', () => {
   const substrateSlugs = new Set([

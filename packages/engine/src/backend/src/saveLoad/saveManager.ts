@@ -3,11 +3,11 @@ import path from 'node:path';
 
 import safeStringify from 'safe-stable-stringify';
 
-import { CURRENT_SAVE_SCHEMA_VERSION } from './constants.js';
-import { saveGameEnvelopeSchema, saveGameSchema, type SaveGame } from './schemas.js';
-import { type SaveGameMigrationRegistry } from './migrations/index.js';
-import { validateCompanyWorld } from '../domain/validation.js';
-import type { Company } from '../domain/entities.js';
+import { CURRENT_SAVE_SCHEMA_VERSION } from './constants.ts';
+import { saveGameEnvelopeSchema, saveGameSchema, type SaveGame } from './schemas.ts';
+import { type SaveGameMigrationRegistry } from './migrations/index.ts';
+import { validateCompanyWorld } from '../domain/validation.ts';
+import type { Company } from '../domain/entities.ts';
 
 /**
  * Optional configuration for {@link loadSaveGame}.
@@ -142,4 +142,4 @@ export async function writeSaveGame(
   }
 }
 
-export type { SaveGame } from './schemas.js';
+export type { SaveGame } from './schemas.ts';

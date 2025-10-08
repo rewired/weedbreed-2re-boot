@@ -1,9 +1,9 @@
-import type { Uuid } from '../schemas/primitives.js';
-import type { Employee } from './Employee.js';
-import type { EmployeeRole } from './EmployeeRole.js';
-import type { WorkforceKpiSnapshot } from './kpis.js';
-import type { WorkforceTaskDefinition, WorkforceTaskInstance } from './tasks.js';
-import type { WorkforceWarning } from './warnings.js';
+import type { Uuid } from '../schemas/primitives.ts';
+import type { Employee } from './Employee.ts';
+import type { EmployeeRole } from './EmployeeRole.ts';
+import type { WorkforceKpiSnapshot } from './kpis.ts';
+import type { WorkforceTaskDefinition, WorkforceTaskInstance } from './tasks.ts';
+import type { WorkforceWarning } from './warnings.ts';
 
 export interface WorkforceMarketCandidateSkill {
   readonly slug: string;

@@ -1,16 +1,16 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
-import { CP_AIR_J_PER_KG_K, SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants.js';
-import type { EngineRunContext } from '@/backend/src/engine/Engine.js';
-import { applyDeviceEffects } from '@/backend/src/engine/pipeline/applyDeviceEffects.js';
-import { updateEnvironment } from '@/backend/src/engine/pipeline/updateEnvironment.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import { CP_AIR_J_PER_KG_K, SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
+import { applyDeviceEffects } from '@/backend/src/engine/pipeline/applyDeviceEffects';
+import { updateEnvironment } from '@/backend/src/engine/pipeline/updateEnvironment';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
 import type {
   SimulationWorld,
   ZoneDeviceInstance,
   Uuid,
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 

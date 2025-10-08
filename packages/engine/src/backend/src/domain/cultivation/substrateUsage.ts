@@ -1,6 +1,6 @@
-import { convertSubstrateVolumeLToMassKg } from '../blueprints/substrateBlueprint.js';
-import type { SubstratePhysicalProfile } from '../blueprints/substrateBlueprint.js';
-import { assertPositiveFinite, ensureFraction01 } from '../../util/validation.js';
+import { convertSubstrateVolumeLToMassKg } from '../blueprints/substrateBlueprint.ts';
+import type { SubstratePhysicalProfile } from '../blueprints/substrateBlueprint.ts';
+import { assertPositiveFinite, ensureFraction01 } from '../../util/validation.ts';
 
 export interface ContainerFillProfile {
   readonly substrate: SubstratePhysicalProfile;

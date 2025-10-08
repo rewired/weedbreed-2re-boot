@@ -4,7 +4,7 @@ import {
   evaluatePestDiseaseRisk,
   resolveRiskLevel,
   PEST_DISEASE_RISK_LEVEL_THRESHOLDS,
-} from '@/backend/src/health/pestDiseaseRisk.js';
+} from '@/backend/src/health/pestDiseaseRisk';
 
 const IDEAL_ENVIRONMENT = {
   airTemperatureC: 23,

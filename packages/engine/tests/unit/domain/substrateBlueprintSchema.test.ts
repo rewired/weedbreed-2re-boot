@@ -8,7 +8,7 @@ import {
   convertSubstrateVolumeLToMassKg,
   parseSubstrateBlueprint,
   substrateBlueprintSchema
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 import cocoCoir from '../../../../../data/blueprints/substrate/coco-coir.json' with { type: 'json' };
 import soilMulti from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };

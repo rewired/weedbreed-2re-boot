@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { saveGameSchema } from '@/backend/src/saveLoad/schemas.js';
+import { saveGameSchema } from '@/backend/src/saveLoad/schemas';
 
 describe('saveGameSchema', () => {
   it('accepts a valid payload', () => {

@@ -8,7 +8,7 @@ import {
   DEFAULT_COMPANY_LOCATION_LAT,
   DEFAULT_COMPANY_LOCATION_CITY,
   DEFAULT_COMPANY_LOCATION_COUNTRY
-} from '@/backend/src/constants/simConstants.js';
+} from '@/backend/src/constants/simConstants';
 import {
   type Company,
   type PhotoperiodPhase,
@@ -19,7 +19,7 @@ import {
   type Uuid,
   type ZoneDeviceInstance,
   validateCompanyWorld
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 function uuid(value: string): Uuid {
   return value as Uuid;

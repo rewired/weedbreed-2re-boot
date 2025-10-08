@@ -1,5 +1,5 @@
-import type { Uuid } from '../schemas/primitives.js';
-import type { EmployeeSkillRequirement } from './EmployeeRole.js';
+import type { Uuid } from '../schemas/primitives.ts';
+import type { EmployeeSkillRequirement } from './EmployeeRole.ts';
 
 /**
  * Supported bases for labour cost estimations inside task definitions.

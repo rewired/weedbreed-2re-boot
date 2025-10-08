@@ -1,9 +1,9 @@
-import type { EngineRunContext } from '../engine/Engine.js';
+import type { EngineRunContext } from '../engine/Engine.ts';
 import type {
   DeviceMaintenanceTaskPlan,
   DeviceMaintenanceCompletion,
   DeviceReplacementRecommendation
-} from './degradation.js';
+} from './degradation.ts';
 
 const DEVICE_MAINTENANCE_RUNTIME_KEY = '__wb_deviceMaintenanceRuntime' as const;
 const DEVICE_MAINTENANCE_ACCRUAL_KEY = '__wb_deviceMaintenanceAccrual' as const;

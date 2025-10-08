@@ -5,12 +5,12 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it, vi } from 'vitest';
 
-import { hashCanonicalJson } from '@/shared/determinism/hash.js';
+import { hashCanonicalJson } from '@/shared/determinism/hash';
 import {
   CURRENT_SAVE_SCHEMA_VERSION,
   createDefaultSaveGameMigrationRegistry,
   loadSaveGame
-} from '@/backend/src/saveLoad/index.js';
+} from '@/backend/src/saveLoad/index';
 
 const fixtureDir = fileURLToPath(new URL('../../fixtures/save/', import.meta.url));
 

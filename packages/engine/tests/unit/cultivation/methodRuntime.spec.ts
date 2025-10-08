@@ -4,15 +4,15 @@ import basicSoilPot from '../../../../../data/blueprints/cultivation-method/basi
 import pot10L from '../../../../../data/blueprints/container/pot-10l.json' with { type: 'json' };
 import soilMultiCycle from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };
 
-import { createDemoWorld } from '@/backend/src/engine/testHarness.js';
+import { createDemoWorld } from '@/backend/src/engine/testHarness';
 import {
   ensureCultivationTaskRuntime,
   getCultivationMethodCatalog,
   scheduleCultivationTasksForZone,
-} from '@/backend/src/cultivation/methodRuntime.js';
+} from '@/backend/src/cultivation/methodRuntime';
 import type {
   EngineRunContext as EngineContext,
-} from '@/backend/src/engine/Engine.js';
+} from '@/backend/src/engine/Engine';
 import type {
   Plant,
   SimulationWorld,
@@ -22,7 +22,7 @@ import type {
   Structure,
   Room,
   Uuid,
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 function createTaskDefinition(taskCode: string): WorkforceTaskDefinition {
   return {

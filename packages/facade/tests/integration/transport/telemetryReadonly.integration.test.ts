@@ -5,8 +5,8 @@ import {
   TELEMETRY_EVENT,
   type TelemetryEvent,
   type TransportAck,
-} from '../../../src/transport/adapter.js';
-import { createNamespaceClient, createTransportHarness, disconnectClient } from './helpers.js';
+} from '../../../src/transport/adapter.ts';
+import { createNamespaceClient, createTransportHarness, disconnectClient } from './helpers.ts';
 
 describe('transport adapter — telemetry namespace', () => {
   it('broadcasts telemetry events to subscribed clients', async () => {

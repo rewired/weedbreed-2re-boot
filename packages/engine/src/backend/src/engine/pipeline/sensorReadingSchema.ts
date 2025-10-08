@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { SENSOR_MEASUREMENT_TYPES } from '../../domain/entities.js';
-import type { SensorReading } from '../../domain/interfaces/ISensor.js';
+import { SENSOR_MEASUREMENT_TYPES } from '../../domain/entities.ts';
+import type { SensorReading } from '../../domain/interfaces/ISensor.ts';
 
 const finiteNumber = z.number().finite();
 

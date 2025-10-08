@@ -1,14 +1,14 @@
-import type { SimulationWorld, Structure, Room, Zone, ZoneDeviceInstance } from '../../domain/world.js';
-import type { Uuid } from '../../domain/schemas/primitives.js';
-import { createDemoWorld } from '../testHarness.js';
-import { deterministicUuid } from '../../util/uuid.js';
-import { HOURS_PER_DAY } from '../../constants/simConstants.js';
-import { createDeviceInstance } from '../../device/createDeviceInstance.js';
+import type { SimulationWorld, Structure, Room, Zone, ZoneDeviceInstance } from '../../domain/world.ts';
+import type { Uuid } from '../../domain/schemas/primitives.ts';
+import { createDemoWorld } from '../testHarness.ts';
+import { deterministicUuid } from '../../util/uuid.ts';
+import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
+import { createDeviceInstance } from '../../device/createDeviceInstance.ts';
 import {
   toDeviceInstanceEffectConfigs,
   type DeviceBlueprint
-} from '../../domain/blueprints/deviceBlueprint.js';
-import { clamp01 } from '../../util/math.js';
+} from '../../domain/blueprints/deviceBlueprint.ts';
+import { clamp01 } from '../../util/math.ts';
 import devicePrices from '../../../../../../../data/prices/devicePrices.json' with { type: 'json' };
 import coolAirSplitBlueprint from '../../../../../../../data/blueprints/device/climate/cool-air-split-3000.json' with { type: 'json' };
 import ledVegLightBlueprint from '../../../../../../../data/blueprints/device/lighting/led-veg-light-600.json' with { type: 'json' };

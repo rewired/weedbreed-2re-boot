@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import safeStringify from 'safe-stable-stringify';
 
-import { generateGoldenScenarioRun } from './goldenScenario.js';
+import { generateGoldenScenarioRun } from './goldenScenario.ts';
 
 export interface DeterministicRunOptions {
   readonly days: number;

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import type { Plant, Zone, Uuid } from '@/backend/src/domain/entities.js';
-import { AMBIENT_CO2_PPM } from '@/backend/src/constants/simConstants.js';
+import type { Plant, Zone, Uuid } from '@/backend/src/domain/entities';
+import { AMBIENT_CO2_PPM } from '@/backend/src/constants/simConstants';
 
 export const WHITE_WIDOW_STRAIN_ID = '550e8400-e29b-41d4-a716-446655440001' as Uuid;
 export const AK47_STRAIN_ID = '550e8400-e29b-41d4-a716-446655440000' as Uuid;

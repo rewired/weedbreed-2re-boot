@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { createSensorStub } from '@/backend/src/stubs/SensorStub.js';
-import { createRng } from '@/backend/src/util/rng.js';
+import { createSensorStub } from '@/backend/src/stubs/SensorStub';
+import { createRng } from '@/backend/src/util/rng';
 
 const TEMPERATURE_STUB = createSensorStub('temperature');
 const HUMIDITY_STUB = createSensorStub('humidity');

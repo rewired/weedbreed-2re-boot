@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { z } from 'zod';
 
-import type { CompanyLocation } from '../entities.js';
+import type { CompanyLocation } from '../entities.ts';
 
 const positiveNumber = z
   .number({ invalid_type_error: 'Location index values must be numbers.' })

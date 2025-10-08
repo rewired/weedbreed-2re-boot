@@ -4,7 +4,7 @@ import {
   mDegrade,
   mMaintenance,
   updateZoneDeviceLifecycle,
-} from '@/backend/src/device/degradation.js';
+} from '@/backend/src/device/degradation';
 import type {
   DeviceMaintenancePolicy,
   DeviceMaintenanceState,
@@ -13,7 +13,7 @@ import type {
   Zone,
   ZoneDeviceInstance,
   Uuid,
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 const STRUCTURE_ID = '00000000-0000-4000-8000-000000000010' as Uuid;
 const ROOM_ID = '00000000-0000-4000-8000-000000000011' as Uuid;

@@ -2,16 +2,16 @@ import {
   CP_AIR_J_PER_KG_K,
   HOURS_PER_TICK,
   SECONDS_PER_HOUR
-} from '../constants/simConstants.js';
+} from '../constants/simConstants.ts';
 import type {
   IThermalActuator,
   ThermalActuatorInputs,
   ThermalActuatorOutputs
-} from '../domain/interfaces/IThermalActuator.js';
-import type { ZoneEnvironment } from '../domain/entities.js';
-import { clamp, clamp01 } from '../util/math.js';
-import { resolveAirMassKg } from '../util/environment.js';
-import { resolveTickHoursValue } from '../engine/resolveTickHours.js';
+} from '../domain/interfaces/IThermalActuator.ts';
+import type { ZoneEnvironment } from '../domain/entities.ts';
+import { clamp, clamp01 } from '../util/math.ts';
+import { resolveAirMassKg } from '../util/environment.ts';
+import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
 
 function ensureFiniteOutputs(outputs: ThermalActuatorOutputs): ThermalActuatorOutputs {
   const { deltaT_K, energy_Wh, used_W } = outputs;

@@ -1,13 +1,13 @@
-import { runSeedToHarvest, type SeedToHarvestConfig } from '../seedToHarvest.js';
-import { withPerfHarness } from '../testHarness.js';
+import { runSeedToHarvest, type SeedToHarvestConfig } from '../seedToHarvest.ts';
+import { withPerfHarness } from '../testHarness.ts';
 import type {
   HarvestTelemetryEvent,
   PhotoperiodTransitionEvent,
   SeedToHarvestResult,
   StageTransitionEvent
-} from '../seedToHarvest.js';
-import type { TickTrace } from '../trace.js';
-import type { PlantLifecycleStage } from '../../domain/entities.js';
+} from '../seedToHarvest.ts';
+import type { TickTrace } from '../trace.ts';
+import type { PlantLifecycleStage } from '../../domain/entities.ts';
 
 export interface SeedToHarvestReportOptions {
   readonly scenario?: string;

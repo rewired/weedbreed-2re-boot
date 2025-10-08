@@ -1,7 +1,7 @@
 import utilityPrices from '../../../../../../data/prices/utilityPrices.json' with { type: 'json' };
 
-import type { EngineRunContext } from '../engine/Engine.js';
-import { resolveTariffs, type ResolvedTariffs } from '../util/tariffs.js';
+import type { EngineRunContext } from '../engine/Engine.ts';
+import { resolveTariffs, type ResolvedTariffs } from '../util/tariffs.ts';
 
 type TariffCarrier = EngineRunContext & { tariffs?: ResolvedTariffs };
 

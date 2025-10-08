@@ -5,7 +5,7 @@ import {
   createSocketTransportAdapter,
   type SocketTransportAdapter,
   type TransportIntentEnvelope,
-} from '../../../src/transport/adapter.js';
+} from '../../../src/transport/adapter.ts';
 
 export interface TransportHarness {
   readonly port: number;

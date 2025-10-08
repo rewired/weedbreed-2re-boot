@@ -1,4 +1,4 @@
-import { clamp01 } from '../util/math.js';
+import { clamp01 } from '../util/math.ts';
 
 const SATURATION_COEFF_A = 17.27;
 const SATURATION_COEFF_B_C = 237.3;

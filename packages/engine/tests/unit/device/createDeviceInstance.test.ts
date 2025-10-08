@@ -4,8 +4,8 @@ import {
   createDeviceInstance,
   type DeviceQualityPolicy,
   type Uuid
-} from '@/backend/src/domain/world.js';
-import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint.js';
+} from '@/backend/src/domain/world';
+import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint';
 
 const QUALITY_POLICY: DeviceQualityPolicy = {
   sampleQuality01: (rng) => rng()

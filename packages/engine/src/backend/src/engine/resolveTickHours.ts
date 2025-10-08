@@ -1,5 +1,5 @@
-import { HOURS_PER_TICK } from '../constants/simConstants.js';
-import type { EngineRunContext } from './Engine.js';
+import { HOURS_PER_TICK } from '../constants/simConstants.ts';
+import type { EngineRunContext } from './Engine.ts';
 
 function isPositiveFinite(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;

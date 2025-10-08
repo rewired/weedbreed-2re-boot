@@ -6,7 +6,7 @@ import {
   degradeCondition,
   needsMaintenance,
   type RepairOptions
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 describe('degradeCondition', () => {
   it('reduces wear as quality improves', () => {

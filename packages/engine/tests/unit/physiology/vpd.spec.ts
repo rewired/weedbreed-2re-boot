@@ -4,7 +4,7 @@ import {
   computeDewPoint_C,
   computeSaturationVapourPressure_kPa,
   computeVpd_kPa
-} from '../../../src/backend/src/physiology/vpd.js';
+} from '../../../src/backend/src/physiology/vpd.ts';
 
 describe('physiology VPD utilities', () => {
   it('computes saturation vapour pressure using Magnus approximation', () => {

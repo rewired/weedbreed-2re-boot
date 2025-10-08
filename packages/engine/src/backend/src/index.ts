@@ -1,1 +1,1 @@
-export * from './constants/simConstants.js';
+export * from './constants/simConstants.ts';

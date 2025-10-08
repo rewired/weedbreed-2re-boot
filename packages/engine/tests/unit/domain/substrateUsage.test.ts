@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   estimateSubstrateMassForPlanting,
   estimateSubstrateMassPerContainer
-} from '@/backend/src/domain/world.js';
+} from '@/backend/src/domain/world';
 
 const SUBSTRATE = { densityFactor_L_per_kg: 1.25 } as const;
 

@@ -7,7 +7,7 @@ import {
   LIGHT_SCHEDULE_GRID_HOURS,
   LONGITUDE_MAX_DEG,
   LONGITUDE_MIN_DEG
-} from '@/backend/src/constants/simConstants.js';
+} from '@/backend/src/constants/simConstants';
 
 import {
   type Company,
@@ -18,12 +18,12 @@ import {
   type Room,
   PLANT_LIFECYCLE_STAGES,
   ROOM_PURPOSES
-} from './entities.js';
+} from './entities.ts';
 import {
   HarvestLotSchema,
   isHarvestLot
-} from './schemas/HarvestLotSchema.js';
-import { InventorySchema } from './schemas/InventorySchema.js';
+} from './schemas/HarvestLotSchema.ts';
+import { InventorySchema } from './schemas/InventorySchema.ts';
 
 const VALID_ROOM_PURPOSES = new Set(ROOM_PURPOSES);
 const VALID_PHOTOPERIOD_PHASES = new Set<PhotoperiodPhase>([

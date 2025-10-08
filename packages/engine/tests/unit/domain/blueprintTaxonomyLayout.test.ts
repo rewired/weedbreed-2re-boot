@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { assertBlueprintClassMatchesPath, deriveBlueprintClassFromPath } from '@/backend/src/domain/blueprints/taxonomy.js';
-import { resolveBlueprintPath } from '../../testUtils/paths.js';
+import { assertBlueprintClassMatchesPath, deriveBlueprintClassFromPath } from '@/backend/src/domain/blueprints/taxonomy';
+import { resolveBlueprintPath } from '../../testUtils/paths.ts';
 
 const blueprintsRoot = path.resolve(resolveBlueprintPath(''));
 

@@ -1,4 +1,4 @@
-import { type PerfHarnessResult } from '../testHarness.js';
+import { type PerfHarnessResult } from '../testHarness.ts';
 
 const NS_PER_SECOND = 1_000_000_000;
 const SECONDS_PER_MINUTE = 60;
