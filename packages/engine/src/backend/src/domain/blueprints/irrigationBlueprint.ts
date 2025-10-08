@@ -46,11 +46,13 @@ const compatibilitySchema = z.object({
       required_error: 'compatibility.substrates is required.',
       invalid_type_error: 'compatibility.substrates must be an array of substrate slugs.'
     })
-    .min(1, 'compatibility.substrates must contain at least one substrate slug.'),
+    .min(1, 'compatibility.substrates must contain at least one substrate slug.')
+    .readonly(),
   methods: z
     .array(nonEmptyString, {
       invalid_type_error: 'compatibility.methods must be an array of strings.'
     })
+    .readonly()
     .default([])
 });
 

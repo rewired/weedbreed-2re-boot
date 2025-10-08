@@ -14,6 +14,16 @@ export interface CultivationMethodMeta {
   readonly defaults?: CultivationMethodDefaults;
 }
 
+export interface CultivationMethodTraitCompatibilityRange {
+  readonly min?: number;
+  readonly max?: number;
+}
+
+export interface CultivationMethodTraitCompatibility {
+  readonly preferred?: Record<string, CultivationMethodTraitCompatibilityRange>;
+  readonly conflicting?: Record<string, CultivationMethodTraitCompatibilityRange>;
+}
+
 export interface CultivationMethodBlueprint {
   readonly id: string;
   readonly slug: string;
@@ -26,7 +36,7 @@ export interface CultivationMethodBlueprint {
   readonly maxCycles?: number;
   readonly substrates: readonly string[];
   readonly containers: readonly string[];
-  readonly strainTraitCompatibility?: Record<string, Record<string, number>>;
+  readonly strainTraitCompatibility?: CultivationMethodTraitCompatibility;
   readonly envBias?: Record<string, number>;
   readonly capacityHints?: { readonly plantsPer_m2?: number; readonly canopyHeight_m?: number };
   readonly idealConditions?: {
