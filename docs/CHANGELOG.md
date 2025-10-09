@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Modularized the conformance golden scenario harness: split the 800+ LOC
+  implementation into dedicated recipe, builder, fixture I/O, and hash
+  verification modules, centralised blueprint imports, and kept the exported
+  API stable so 30-day/200-day golden hashes remain bit-identical.
 - Refactored the workforce pipeline: extracted scheduling, payroll, market, intent,
   trait, and telemetry logic into dedicated modules under `src/workforce/**`, kept
   each file under 500 LOC, and routed all workforce side-effects through a single
