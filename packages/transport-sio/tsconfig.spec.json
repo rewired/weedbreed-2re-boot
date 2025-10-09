@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "types": ["vitest/globals", "node"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.mts",
+    "tests/**/*.ts",
+    "tests/**/*.mts",
+    "scripts/**/*.ts",
+    "scripts/**/*.mts",
+    "vitest.config.ts"
+  ],
+  "exclude": ["dist", "node_modules"]
+}

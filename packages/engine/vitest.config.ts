@@ -3,14 +3,14 @@ import { fileURLToPath } from 'node:url';
 
 import { defineConfig } from 'vitest/config';
 
-const packageDir = fileURLToPath(new URL('.', import.meta.url));
+const packageDir = path.dirname(fileURLToPath(new URL('.', import.meta.url)));
 
 export default defineConfig({
   resolve: {
     alias: {
+      '@': path.resolve(packageDir, 'src'),
+      '@/backend': path.resolve(packageDir, 'src/backend/src'),
       '@wb/engine': path.resolve(packageDir, 'src/index.ts'),
-      '@/backend': path.resolve(packageDir, 'src/backend'),
-      '@/shared': path.resolve(packageDir, 'src/shared'),
       '@/tests': path.resolve(packageDir, 'tests')
     }
   },
