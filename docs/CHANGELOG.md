@@ -2,6 +2,12 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Published the transport acknowledgement contract: extracted the shared error
+  code registry/TypeScript types into `@wb/transport-sio`, added the
+  `assertTransportAck` runtime guard with unit coverage, re-exported the
+  helpers via the façade adapter, and documented the codes in
+  `docs/constants/transport-error-codes.md` with SEC §1/TDD §11 references.
+
 - Bootstrapped the façade transport server factory exposing `/telemetry` and
   `/intents` namespaces, shipped integration coverage for the namespace wiring
   and health endpoint, added a dev script for local runs, and documented the

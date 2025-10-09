@@ -5,10 +5,13 @@ export {
   SOCKET_ERROR_CODES,
   TELEMETRY_ERROR_EVENT,
   TELEMETRY_EVENT,
+  assertTransportAck,
   type SocketTransportAdapter,
   type SocketTransportAdapterOptions,
   type TelemetryEvent,
   type TransportAck,
+  type TransportAckError,
+  type TransportAckErrorCode,
   type TransportIntentEnvelope,
 } from './adapter.ts';
 

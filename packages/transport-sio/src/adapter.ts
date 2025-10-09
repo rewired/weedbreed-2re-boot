@@ -1,5 +1,10 @@
 import type { Server as HttpServer } from 'node:http';
 import { Server, type Namespace, type ServerOptions } from 'socket.io';
+import { SOCKET_ERROR_CODES } from './contracts/ack.ts';
+import type { TransportAck } from './contracts/ack.ts';
+
+export { SOCKET_ERROR_CODES, assertTransportAck } from './contracts/ack.ts';
+export type { TransportAck, TransportAckError, TransportAckErrorCode } from './contracts/ack.ts';
 
 /**
  * Event payload emitted to telemetry subscribers.
@@ -30,41 +35,12 @@ export interface TransportIntentEnvelope {
 }
 
 /**
- * Deterministic error codes surfaced by the transport adapter.
- */
-export const SOCKET_ERROR_CODES = {
-  TELEMETRY_WRITE_REJECTED: 'WB_TEL_READONLY',
-  INTENT_CHANNEL_INVALID: 'WB_INTENT_CHANNEL_INVALID',
-  INTENT_INVALID: 'WB_INTENT_INVALID',
-  INTENT_HANDLER_ERROR: 'WB_INTENT_HANDLER_ERROR'
-} as const;
-
-/**
  * Namespace event identifiers used by the Socket.IO adapter.
  */
 export const TELEMETRY_EVENT = 'telemetry:event' as const;
 export const TELEMETRY_ERROR_EVENT = 'telemetry:error' as const;
 export const INTENT_EVENT = 'intent:submit' as const;
 export const INTENT_ERROR_EVENT = 'intent:error' as const;
-
-/**
- * Shape returned to clients when acknowledging intent submissions.
- */
-export interface TransportAck {
-  /**
-   * Indicates whether the submission succeeded.
-   */
-  readonly ok: boolean;
-  /**
-   * Optional error details when `ok` is false.
-   */
-  readonly error?: {
-    /** Deterministic error code matching {@link SOCKET_ERROR_CODES}. */
-    readonly code: (typeof SOCKET_ERROR_CODES)[keyof typeof SOCKET_ERROR_CODES];
-    /** Human-readable explanation aligned to SEC §11.3. */
-    readonly message: string;
-  };
-}
 
 /**
  * Options required to initialise the Socket.IO transport adapter.
