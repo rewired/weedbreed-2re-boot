@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-02: Restored ESLint's type-aware parser wiring by pointing the
+  workspace config at package build + spec tsconfigs and adding the
+  missing `tsconfig.spec.json` manifests so unsafe-any rules only flag
+  real issues.
+
 - Published the transport acknowledgement contract: extracted the shared error
   code registry/TypeScript types into `@wb/transport-sio`, added the
   `assertTransportAck` runtime guard with unit coverage, re-exported the
