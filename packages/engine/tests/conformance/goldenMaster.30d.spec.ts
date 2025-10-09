@@ -5,25 +5,24 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
-import { FLOAT_TOLERANCE } from '@/backend/src/constants/simConstants';
+import { GM_DAYS_SHORT } from '@/backend/src/constants/goldenMaster';
+import { EPS_ABS, EPS_REL, HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
+import { fmtNum } from '@/backend/src/util/format';
 import { runDeterministic } from '@/backend/src/engine/testHarness';
 import type {
   DailyRecord,
   ScenarioSummary,
 } from '@/backend/src/engine/conformance/goldenScenario';
 
-const EPS_ABS = FLOAT_TOLERANCE * 1e-3;
-const EPS_REL = FLOAT_TOLERANCE;
-
 const FIXTURE_ROOT = fileURLToPath(new URL('../fixtures/golden/', import.meta.url));
 
 function loadSummary(days: number) {
-  const fixturePath = path.join(FIXTURE_ROOT, `${days}d/summary.json`);
+  const fixturePath = path.join(FIXTURE_ROOT, `${fmtNum(days)}d/summary.json`);
   return JSON.parse(fs.readFileSync(fixturePath, 'utf8')) as Record<string, unknown>;
 }
 
 function loadDaily(days: number) {
-  const fixturePath = path.join(FIXTURE_ROOT, `${days}d/daily.jsonl`);
+  const fixturePath = path.join(FIXTURE_ROOT, `${fmtNum(days)}d/daily.jsonl`);
   return fs
     .readFileSync(fixturePath, 'utf8')
     .split(/\r?\n/)
@@ -42,14 +41,14 @@ function approximatelyEqual(a: number, b: number): boolean {
 
 describe('golden master 30-day conformance', () => {
   it('golden-30d::replays the recorded fixture with deterministic hashes and metrics', () => {
-    const expectedSummary = loadSummary(30);
-    const expectedDaily = loadDaily(30);
+    const expectedSummary = loadSummary(GM_DAYS_SHORT);
+    const expectedDaily = loadDaily(GM_DAYS_SHORT);
 
-    const result = runDeterministic({ days: 30, seed: 'gm-001' });
+    const result = runDeterministic({ days: GM_DAYS_SHORT, seed: 'gm-001' });
 
     expect(result.summary).toEqual(expectedSummary);
     expect(result.daily).toEqual(expectedDaily);
-    expect(result.daily).toHaveLength(30);
+    expect(result.daily).toHaveLength(GM_DAYS_SHORT);
     expect(result.dailyPath).toMatch(/daily.jsonl$/);
     expect(result.summaryPath).toMatch(/summary.json$/);
 
@@ -58,7 +57,7 @@ describe('golden master 30-day conformance', () => {
 
     const recordedTicks = typedSummary.run.ticks;
     if (typeof recordedTicks === 'number') {
-      expect(approximatelyEqual(recordedTicks, 720)).toBe(true);
+      expect(approximatelyEqual(recordedTicks, HOURS_PER_DAY * GM_DAYS_SHORT)).toBe(true);
     }
 
     const structure = typedSummary.topology.structure;
@@ -105,8 +104,8 @@ describe('golden master 30-day conformance', () => {
   });
 
   it('golden-30d::emits artifacts when an output directory is provided', () => {
-    const outDir = path.resolve(process.cwd(), 'reporting', '30d');
-    const result = runDeterministic({ days: 30, seed: 'gm-001', outDir });
+    const outDir = path.resolve(process.cwd(), 'reporting', `${fmtNum(GM_DAYS_SHORT)}d`);
+    const result = runDeterministic({ days: GM_DAYS_SHORT, seed: 'gm-001', outDir });
 
     const summaryOnDisk = JSON.parse(
       fs.readFileSync(path.join(outDir, 'summary.json'), 'utf8')

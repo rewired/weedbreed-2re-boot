@@ -26,6 +26,11 @@ normalisation mandated by the SEC.
 | `HOURS_PER_MONTH` | `720` | h | Derived: `HOURS_PER_DAY × DAYS_PER_MONTH`. |
 | `HOURS_PER_YEAR` | `8 640` | h | Derived: `HOURS_PER_MONTH × MONTHS_PER_YEAR`. |
 | `FLOAT_TOLERANCE` | `1e-6` | — | Canonical tolerance for floating-point comparisons. |
+| `EPS_REL` | `1e-6` | — | Relative tolerance used for golden master hash and metric comparisons. |
+| `EPS_ABS` | `1e-9` | — | Absolute tolerance paired with `EPS_REL` for floating-point comparisons. |
+| `BYTES_PER_MEBIBYTE` | `1 048 576` | B | Bytes per MiB (2^20) for performance and memory diagnostics. |
+| `HASH_KEY_BYTES` | `16` | hex chars | Default SHA-256 digest truncation length for daily golden hashes. |
+| `HASH_TRUNC_BYTES` | `24` | hex chars | Default SHA-256 digest truncation length for summary golden hashes. |
 | `DEFAULT_COMPANY_LOCATION_LON` | `9.9937` | ° | Default headquarters longitude (Hamburg) until UI capture lands. |
 | `DEFAULT_COMPANY_LOCATION_LAT` | `53.5511` | ° | Default headquarters latitude (Hamburg) until UI capture lands. |
 | `LONGITUDE_MIN_DEG` | `-180` | ° | Minimal permissible longitude for world metadata. |

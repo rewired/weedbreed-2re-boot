@@ -1,12 +1,13 @@
+import { BYTES_PER_MEBIBYTE } from '@/backend/src/constants/simConstants';
+
 import { type PerfHarnessResult } from '../testHarness.ts';
 
 const NS_PER_SECOND = 1_000_000_000;
 const SECONDS_PER_MINUTE = 60;
-const BYTES_PER_MIB = 1024 * 1024;
 
 export const PERF_CI_TICK_COUNT = 10_000;
 export const PERF_MIN_TICKS_PER_MINUTE = 5_000;
-export const PERF_MAX_HEAP_BYTES = 64 * BYTES_PER_MIB;
+export const PERF_MAX_HEAP_BYTES = 64 * BYTES_PER_MEBIBYTE;
 export const PERF_WARNING_GUARD_PERCENTAGE = 0.05;
 
 export interface PerfBudgetThresholds {
@@ -66,7 +67,7 @@ export function evaluatePerfBudget(
   const ticksPerMinute =
     totalDurationMinutes > 0 ? tickCount / totalDurationMinutes : Number.POSITIVE_INFINITY;
   const maxHeapUsedBytes = result.maxHeapUsedBytes;
-  const maxHeapUsedMiB = maxHeapUsedBytes / BYTES_PER_MIB;
+  const maxHeapUsedMiB = maxHeapUsedBytes / BYTES_PER_MEBIBYTE;
 
   const failures: string[] = [];
   const warnings: string[] = [];
@@ -99,7 +100,7 @@ export function evaluatePerfBudget(
 
   if (maxHeapUsedBytes > thresholds.maxHeapBytes) {
     failures.push(
-      `Heap peak ${(maxHeapUsedMiB).toFixed(2)} MiB exceeds ${(thresholds.maxHeapBytes / BYTES_PER_MIB).toFixed(
+      `Heap peak ${(maxHeapUsedMiB).toFixed(2)} MiB exceeds ${(thresholds.maxHeapBytes / BYTES_PER_MEBIBYTE).toFixed(
         2
       )} MiB budget.`
     );
