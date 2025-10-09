@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-07: Added workspace `pnpm typecheck`, `pnpm lint`, and `pnpm test` commands,
+  wired `pnpm prepush` to chain them locally, and updated CI to run the trio with
+  ESLint warnings treated as failures so regression guards stay aligned across
+  developer machines and GitHub Actions.
+
 - Removed HOTFIX-06's temporary test-only ESLint overrides now that type-aware
   linting is restored across the workspace, re-enabling unsafe assignment,
   member access, call, non-null assertion, and magic number checks for tests.

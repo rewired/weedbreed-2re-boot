@@ -11,9 +11,10 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
+    "typecheck": "pnpm -w tsc -p packages/engine/tsconfig.spec.json --noEmit",
+    "lint": "pnpm exec eslint --max-warnings 0 \"packages/**/*.{ts,tsx}\"",
     "test": "pnpm -r test",
     "test:imports": "pnpm --filter @wb/engine test:imports",
-    "lint": "pnpm -r lint",
     "lint:imports": "pnpm exec eslint --max-warnings=0 --config tools/eslint/import-guard.config.js packages tools",
     "loc:guard": "node ./tools/scripts/loc-guard.mjs",
     "perf:ci": "pnpm --filter @wb/engine perf:ci",
@@ -30,7 +31,8 @@
     "tasks:dry": "tsx tools/tasks/renumberTasks.mts --dry",
     "tasks:write": "tsx tools/tasks/renumberTasks.mts --write",
     "tasks:check": "tsx tools/tasks/renumberTasks.mts --dry --verify",
-    "scan:magic": "node ./tools/scripts/scan-magic-numbers.mjs"
+    "scan:magic": "node ./tools/scripts/scan-magic-numbers.mjs",
+    "prepush": "pnpm typecheck && pnpm lint && pnpm test"
   },
   "devDependencies": {
     "@eslint/js": "^9.5.0",
@@ -45,6 +47,7 @@
     "vitest": "^3.2.4"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint:imports && pnpm test:imports"
+    "pre-commit": "pnpm lint:imports && pnpm test:imports",
+    "pre-push": "pnpm prepush"
   }
 }

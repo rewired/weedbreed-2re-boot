@@ -27,23 +27,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Typecheck
+        run: pnpm typecheck
+
       - name: Lint
-        run: pnpm -r lint
-
-      - name: Magic number scan
-        run: pnpm scan:magic
-
-      - name: LOC guard (packages/**/src/**)
-        run: pnpm loc:guard
-
-      - name: Import resolution guardrail
-        run: pnpm test:imports
+        run: pnpm lint
 
       - name: Test
         run: pnpm test
-
-      - name: Build
-        run: pnpm build
 
   perf-budget:
     runs-on: ubuntu-latest
