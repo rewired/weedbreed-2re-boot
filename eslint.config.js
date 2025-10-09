@@ -29,7 +29,8 @@ export default tseslint.config(
       parserOptions: {
         project: [
           "./packages/*/tsconfig.json",
-          "./packages/*/tsconfig.spec.json"
+          "./packages/*/tsconfig.spec.json",
+          "./packages/engine/tsconfig.eslint.json"
         ],
         tsconfigRootDir: import.meta.dirname,
         sourceType: "module"
