@@ -209,14 +209,16 @@ function ensureWorkforceState(state: WorkforceState | undefined, simDay: number)
 
 function appendCultivationTasks(
   world: SimulationWorld,
-  workforceState: WorkforceState,
+  workforceState: WorkforceState | undefined,
   ctx: EngineRunContext,
   currentSimHours: number,
-): WorkforceState {
+  currentSimDay: number,
+): WorkforceState | undefined {
   const cultivationRuntime = ensureCultivationTaskRuntime(ctx);
   const cultivationCatalog = getCultivationMethodCatalog();
   const currentTick = Math.trunc(currentSimHours);
   const tasks: WorkforceTaskInstance[] = [];
+  const schedulingState = workforceState ?? ensureWorkforceState(undefined, currentSimDay);
 
   for (const structure of world.company.structures) {
     for (const room of structure.rooms) {
@@ -226,7 +228,7 @@ function appendCultivationTasks(
           structure,
           room,
           zone,
-          workforce: workforceState,
+          workforce: schedulingState,
           runtime: cultivationRuntime,
           currentTick,
           methodCatalog: cultivationCatalog,
@@ -243,7 +245,8 @@ function appendCultivationTasks(
     return workforceState;
   }
 
-  const existingTaskIds = new Set(workforceState.taskQueue.map((task) => task.id));
+  const baseState = workforceState ?? schedulingState;
+  const existingTaskIds = new Set(baseState.taskQueue.map((task) => task.id));
   const filtered = tasks.filter((task) => !existingTaskIds.has(task.id));
 
   if (filtered.length === 0) {
@@ -251,8 +254,8 @@ function appendCultivationTasks(
   }
 
   return {
-    ...workforceState,
-    taskQueue: [...workforceState.taskQueue, ...filtered],
+    ...baseState,
+    taskQueue: [...baseState.taskQueue, ...filtered],
   } satisfies WorkforceState;
 }
 
@@ -454,9 +457,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
   const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
   const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
 
-  if (workforceState) {
-    workforceState = appendCultivationTasks(world, workforceState, ctx, currentSimHours);
-  }
+  workforceState = appendCultivationTasks(world, workforceState, ctx, currentSimHours, currentSimDay);
 
   const pestEvaluation = evaluatePestDiseaseSystem(world, currentSimHours);
 
