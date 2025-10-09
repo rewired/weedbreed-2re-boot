@@ -7,6 +7,11 @@
   `validateCompanyWorld`'s public surface intact while reducing the
   original 788 LOC module below our 500 LOC guardrail and preserving all
   existing error messages.
+- Decomposed the 694 LOC device blueprint monolith into `device/schemaBase.ts`,
+  `device/schemaByClass.ts`, `device/guardTaxonomy.ts`, and `device/parse.ts`
+  to isolate shared schema fragments, per-class refinements, taxonomy guards,
+  and parsing helpers while keeping taxonomy mismatches as hard errors and
+  rejecting all monetary fields in blueprints.
 - Modularized the conformance golden scenario harness: split the 800+ LOC
   implementation into dedicated recipe, builder, fixture I/O, and hash
   verification modules, centralised blueprint imports, and kept the exported
