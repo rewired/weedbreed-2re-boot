@@ -9,6 +9,7 @@ import {
   parseSubstrateBlueprint,
   substrateBlueprintSchema
 } from '@/backend/src/domain/world';
+import { unwrapErr } from '../../util/expectors';
 
 import cocoCoir from '../../../../../data/blueprints/substrate/coco-coir.json' with { type: 'json' };
 import soilMulti from '../../../../../data/blueprints/substrate/soil-multi-cycle.json' with { type: 'json' };
@@ -50,10 +51,12 @@ describe('substrateBlueprintSchema', () => {
     const result = substrateBlueprintSchema.safeParse(invalid);
 
     expect(result.success).toBe(false);
-    if (!result.success) {
-      const paths = result.error.issues.map((issue) => issue.path.join('.'));
-      expect(paths).toContain('densityFactor_L_per_kg');
+    if (result.success) {
+      throw new Error('Expected density factor omission to fail validation');
     }
+
+    const paths = unwrapErr(result).issues.map((issue) => issue.path.join('.'));
+    expect(paths).toContain('densityFactor_L_per_kg');
   });
 
   it('requires sterilization metadata when a substrate supports reuse', () => {
@@ -63,12 +66,12 @@ describe('substrateBlueprintSchema', () => {
     const result = substrateBlueprintSchema.safeParse(invalid);
 
     expect(result.success).toBe(false);
-    if (!result.success) {
-      const messages = result.error.issues.map((issue) => issue.message);
-      expect(messages).toContain(
-        'Sterilization task code is required when reusePolicy.maxCycles exceeds 1.'
-      );
+    if (result.success) {
+      throw new Error('Expected reuse policy without sterilization metadata to fail');
     }
+
+    const messages = unwrapErr(result).issues.map((issue) => issue.message);
+    expect(messages).toContain('Sterilization task code is required when reusePolicy.maxCycles exceeds 1.');
   });
 
   it('enforces purchase unit specific price fields', () => {
@@ -78,10 +81,12 @@ describe('substrateBlueprintSchema', () => {
     const result = substrateBlueprintSchema.safeParse(invalid);
 
     expect(result.success).toBe(false);
-    if (!result.success) {
-      const messages = result.error.issues.map((issue) => issue.message);
-      expect(messages).toContain('unitPrice_per_L is required when purchaseUnit is "liter".');
+    if (result.success) {
+      throw new Error('Expected missing unit price to fail validation');
     }
+
+    const messages = unwrapErr(result).issues.map((issue) => issue.message);
+    expect(messages).toContain('unitPrice_per_L is required when purchaseUnit is "liter".');
   });
 
   it('requires material and cycle descriptors', () => {
@@ -93,17 +98,21 @@ describe('substrateBlueprintSchema', () => {
 
     const missingMaterial = substrateBlueprintSchema.safeParse(invalidMaterial);
     expect(missingMaterial.success).toBe(false);
-    if (!missingMaterial.success) {
-      const paths = missingMaterial.error.issues.map((issue) => issue.path.join('.'));
-      expect(paths).toContain('material');
+    if (missingMaterial.success) {
+      throw new Error('Expected missing material to fail validation');
     }
+
+    const materialIssues = unwrapErr(missingMaterial).issues.map((issue) => issue.path.join('.'));
+    expect(materialIssues).toContain('material');
 
     const missingCycle = substrateBlueprintSchema.safeParse(invalidCycle);
     expect(missingCycle.success).toBe(false);
-    if (!missingCycle.success) {
-      const paths = missingCycle.error.issues.map((issue) => issue.path.join('.'));
-      expect(paths).toContain('cycle');
+    if (missingCycle.success) {
+      throw new Error('Expected missing cycle to fail validation');
     }
+
+    const cycleIssues = unwrapErr(missingCycle).issues.map((issue) => issue.path.join('.'));
+    expect(cycleIssues).toContain('cycle');
   });
 
   it('converts mass and volume using the declared density factor', () => {

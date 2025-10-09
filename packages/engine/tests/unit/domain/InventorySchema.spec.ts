@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { InventorySchema } from '@/backend/src/domain/schemas/InventorySchema';
 import type { HarvestLot, Inventory } from '@/backend/src/domain/world';
+import { unwrap } from '../../util/expectors';
 
 const LOT: HarvestLot = {
   id: '00000000-0000-0000-0000-000000000f00' as HarvestLot['id'],
@@ -24,10 +25,11 @@ describe('InventorySchema', () => {
 
     expect(result.success).toBe(true);
     if (!result.success) {
-      return;
+      throw new Error('Inventory schema should accept valid lots');
     }
 
-    expect(result.data.lots).toHaveLength(1);
+    const parsed = unwrap(result);
+    expect(parsed.lots).toHaveLength(1);
   });
 
   it('rejects inventories containing invalid lots', () => {
@@ -48,9 +50,10 @@ describe('InventorySchema', () => {
 
     expect(result.success).toBe(true);
     if (!result.success) {
-      return;
+      throw new Error('Inventory schema should default lots to an empty array');
     }
 
-    expect(result.data.lots).toHaveLength(0);
+    const parsed = unwrap(result);
+    expect(parsed.lots).toHaveLength(0);
   });
 });
