@@ -17,6 +17,10 @@
   `workforce.ts`) plus a barrel that re-exports the existing Zod API,
   improving readability and staying under the 500 LOC guardrail without
   changing consumers.
+- Refactored the `@wb/tools-monitor` runtime: extracted API/types, state helpers,
+  and telemetry/view-model logic into dedicated modules so the Socket.IO
+  telemetry client stays read-only while the CLI/runtime public surface remains
+  unchanged and each module sits comfortably under the 500 LOC guardrail.
 - Modularized the conformance golden scenario harness: split the 800+ LOC
   implementation into dedicated recipe, builder, fixture I/O, and hash
   verification modules, centralised blueprint imports, and kept the exported
