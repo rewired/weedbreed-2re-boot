@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Split the domain world validation suite into `validation/company.ts`,
+  `validation/devices.ts`, and `validation/roomsZones.ts`, keeping
+  `validateCompanyWorld`'s public surface intact while reducing the
+  original 788 LOC module below our 500 LOC guardrail and preserving all
+  existing error messages.
 - Modularized the conformance golden scenario harness: split the 800+ LOC
   implementation into dedicated recipe, builder, fixture I/O, and hash
   verification modules, centralised blueprint imports, and kept the exported

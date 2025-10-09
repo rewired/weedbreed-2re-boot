@@ -23,8 +23,9 @@ obscuring the distinct invariants that apply at the room boundary.
 
 - Extract the room-specific checks (room geometry, growroom zone restrictions,
   nested zone/plant/device validation) into a dedicated `validateRoom` helper
-  colocated with `validateDevice` inside
-  `packages/engine/src/backend/src/domain/validation.ts`.
+  colocated with `validateDevice` (initially inside
+  `packages/engine/src/backend/src/domain/validation.ts`, now housed in
+  `domain/validation/roomsZones.ts` alongside the zone helpers).
 - Delegate each room iteration inside `validateCompanyWorld` to the new helper
   while reusing the pre-existing path computation so issue reporting remains
   stable for integrators and tooling that rely on those JSON-pointer style
@@ -40,3 +41,7 @@ obscuring the distinct invariants that apply at the room boundary.
   refactors.
 - `validateCompanyWorld` is shorter and highlights the structure-level
   invariants, improving readability during reviews and incident response.
+- Follow-up modularisation (2025-03-18) split the validation stack into
+  `validation/company.ts`, `validation/devices.ts`, and
+  `validation/roomsZones.ts`, keeping this ADR's helper contract intact
+  while aligning the module with the 500 LOC guidance from DD §12.
