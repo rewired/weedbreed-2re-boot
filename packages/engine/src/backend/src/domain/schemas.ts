@@ -7,4 +7,30 @@
 export * from './schemas/primitives.ts';
 export * from './schemas/HarvestLotSchema.ts';
 export * from './schemas/InventorySchema.ts';
-export * from './schemas/coreSchemas.ts';
+export {
+  employeeSkillRequirementSchema,
+  employeeRoleSchema,
+  employeeSkillLevelSchema,
+  employeeSkillTriadSchema,
+  employeeTraitAssignmentSchema,
+  employeeScheduleSchema,
+  employeeSchema,
+  employeeCollectionSchema,
+  employeeRoleCollectionSchema,
+  workforceTaskCostBasisSchema,
+  workforceTaskCostModelSchema,
+  workforceTaskDefinitionSchema,
+  workforceTaskInstanceSchema,
+  workforceKpiSnapshotSchema,
+  workforceWarningSchema,
+  workforceStateSchema,
+} from './schemas/workforce.ts';
+export { lightScheduleSchema, zoneSchema } from './schemas/zone.ts';
+export { roomSchema } from './schemas/room.ts';
+export { structureSchema } from './schemas/structure.ts';
+export {
+  companyLocationSchema,
+  companySchema,
+  parseCompanyWorld,
+} from './schemas/company.ts';
+export type { ParsedCompanyWorld } from './schemas/company.ts';

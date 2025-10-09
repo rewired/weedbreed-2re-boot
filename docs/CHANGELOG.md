@@ -12,6 +12,11 @@
   to isolate shared schema fragments, per-class refinements, taxonomy guards,
   and parsing helpers while keeping taxonomy mismatches as hard errors and
   rejecting all monetary fields in blueprints.
+- Split the 662 LOC domain world schema module into entity-focused files
+  (`schemas/company.ts`, `structure.ts`, `room.ts`, `zone.ts`, `plant.ts`,
+  `workforce.ts`) plus a barrel that re-exports the existing Zod API,
+  improving readability and staying under the 500 LOC guardrail without
+  changing consumers.
 - Modularized the conformance golden scenario harness: split the 800+ LOC
   implementation into dedicated recipe, builder, fixture I/O, and hash
   verification modules, centralised blueprint imports, and kept the exported
