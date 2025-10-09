@@ -30,6 +30,9 @@ jobs:
       - name: Lint
         run: pnpm -r lint
 
+      - name: Magic number scan
+        run: pnpm scan:magic
+
       - name: Import resolution guardrail
         run: pnpm test:imports
 

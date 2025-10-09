@@ -36,6 +36,16 @@ export default tseslint.config(
     },
     rules: {
       "@typescript-eslint/explicit-module-boundary-types": "error",
+      "@typescript-eslint/no-magic-numbers": [
+        "warn",
+        {
+          ignore: [-1, 0, 1, 2, 10, 60, 100, 1000],
+          ignoreArrayIndexes: true,
+          ignoreDefaultValues: true,
+          enforceConst: true,
+          detectObjects: true
+        }
+      ],
       "wb-sim/no-duplicate-sim-constants": "error",
       "wb-sim/no-math-random": "error",
       "wb-sim/no-ts-import-js-extension": "error"
@@ -49,6 +59,12 @@ export default tseslint.config(
     rules: {
       "wb-sim/no-economy-per-tick": "error",
       "wb-sim/no-engine-percent-identifiers": "error"
+    }
+  },
+  {
+    files: ["**/*.test.ts", "**/*.spec.ts"],
+    rules: {
+      "@typescript-eslint/no-magic-numbers": "off"
     }
   }
 );

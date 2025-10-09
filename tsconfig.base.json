@@ -42,6 +42,9 @@
       "@wb/tools-monitor": [
         "packages/tools-monitor/src/index.ts"
       ],
+      "@engine/constants/*": [
+        "packages/engine/src/backend/src/constants/*"
+      ],
       "@/backend/*": [
         "packages/engine/src/backend/*"
       ],
