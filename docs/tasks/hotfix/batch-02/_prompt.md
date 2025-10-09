@@ -1,4 +1,4 @@
-# Execute Task 0041 end‑to‑end (SEC/TDD/DD aligned)
+# Execute Task 0042 end‑to‑end (SEC/TDD/DD aligned)
 
 You are Codex. Execute the task **exactly** as written in this file:
 - **TASK_FILE:** `/docs/tasks/hotfix/batch-02/XXXX-<short-title>.md`
