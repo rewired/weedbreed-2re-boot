@@ -2,6 +2,7 @@ export {
   createSocketTransportAdapter,
   INTENT_ERROR_EVENT,
   INTENT_EVENT,
+  assertTransportAck,
   SOCKET_ERROR_CODES,
   TELEMETRY_ERROR_EVENT,
   TELEMETRY_EVENT,
@@ -9,5 +10,7 @@ export {
   type SocketTransportAdapterOptions,
   type TelemetryEvent,
   type TransportAck,
+  type TransportAckError,
+  type TransportAckErrorCode,
   type TransportIntentEnvelope,
 } from '@wb/transport-sio';
