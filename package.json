@@ -15,6 +15,7 @@
     "test:imports": "pnpm --filter @wb/engine test:imports",
     "lint": "pnpm -r lint",
     "lint:imports": "pnpm exec eslint --max-warnings=0 --config tools/eslint/import-guard.config.js packages tools",
+    "loc:guard": "node ./tools/scripts/loc-guard.mjs",
     "perf:ci": "pnpm --filter @wb/engine perf:ci",
     "format": "pnpm -r format",
     "migrate:folders": "node scripts/migrate-blueprint-folders.mjs",

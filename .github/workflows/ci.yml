@@ -33,6 +33,9 @@ jobs:
       - name: Magic number scan
         run: pnpm scan:magic
 
+      - name: LOC guard (packages/**/src/**)
+        run: pnpm loc:guard
+
       - name: Import resolution guardrail
         run: pnpm test:imports
 
