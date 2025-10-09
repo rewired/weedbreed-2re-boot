@@ -20,6 +20,15 @@ import {
   type TraitSubject,
 } from '../../domain/workforce/traits.ts';
 import type { EmployeeSkillLevel, EmployeeSkillTriad } from '../../domain/workforce/Employee.ts';
+import {
+  WORKFORCE_MARKET_BASE_SALARY_MULTIPLIER,
+  WORKFORCE_MARKET_BASE_SALARY_OFFSET_PER_H,
+  WORKFORCE_MARKET_MAX_FALLBACK_SKILL_COUNT,
+  WORKFORCE_MARKET_PRIMARY_SKILL_BASELINE01,
+  WORKFORCE_MARKET_PRIMARY_SKILL_RANGE01,
+  WORKFORCE_MARKET_SECONDARY_SKILL_BASELINE01,
+  WORKFORCE_MARKET_SECONDARY_SKILL_RANGE01
+} from '../../constants/workforceMarket.ts';
 
 const FALLBACK_SKILLS = [
   'gardening',
@@ -68,7 +77,7 @@ function resolveSkillUniverse(roles: readonly EmployeeRole[]): string[] {
   const universe = new Set<string>();
 
   for (const role of roles) {
-    for (const requirement of role.coreSkills ?? []) {
+    for (const requirement of role.coreSkills) {
       if (requirement.skillKey) {
         universe.add(requirement.skillKey);
       }
@@ -82,7 +91,7 @@ function resolveSkillUniverse(roles: readonly EmployeeRole[]): string[] {
   const enriched = new Set(universe);
 
   for (const fallback of FALLBACK_SKILLS) {
-    if (enriched.size >= 5) {
+    if (enriched.size >= WORKFORCE_MARKET_MAX_FALLBACK_SKILL_COUNT) {
       break;
     }
 
@@ -160,17 +169,23 @@ function buildSkillBundle(
 
   const main: WorkforceMarketCandidateSkill = {
     slug: mainSkill,
-    value01: 0.25 + rng() * 0.25,
+    value01:
+      WORKFORCE_MARKET_PRIMARY_SKILL_BASELINE01 +
+      rng() * WORKFORCE_MARKET_PRIMARY_SKILL_RANGE01,
   } satisfies WorkforceMarketCandidateSkill;
 
   const secondary: [WorkforceMarketCandidateSkill, WorkforceMarketCandidateSkill] = [
     {
       slug: secondaryA,
-      value01: 0.01 + rng() * 0.34,
+      value01:
+        WORKFORCE_MARKET_SECONDARY_SKILL_BASELINE01 +
+        rng() * WORKFORCE_MARKET_SECONDARY_SKILL_RANGE01,
     },
     {
       slug: secondaryB,
-      value01: 0.01 + rng() * 0.34,
+      value01:
+        WORKFORCE_MARKET_SECONDARY_SKILL_BASELINE01 +
+        rng() * WORKFORCE_MARKET_SECONDARY_SKILL_RANGE01,
     },
   ];
 
@@ -206,11 +221,12 @@ function toSkillLevels(skills3: WorkforceMarketCandidate['skills3']): EmployeeSk
 }
 
 function toSkillTriad(skills3: WorkforceMarketCandidate['skills3']): EmployeeSkillTriad {
+  const [secondaryFirst, secondarySecond] = skills3.secondary;
   return {
     main: { skillKey: skills3.main.slug, level01: skills3.main.value01 },
     secondary: [
-      { skillKey: skills3.secondary[0]?.slug ?? skills3.main.slug, level01: skills3.secondary[0]?.value01 ?? 0 },
-      { skillKey: skills3.secondary[1]?.slug ?? skills3.main.slug, level01: skills3.secondary[1]?.value01 ?? 0 },
+      { skillKey: secondaryFirst.slug, level01: secondaryFirst.value01 },
+      { skillKey: secondarySecond.slug, level01: secondarySecond.value01 }
     ],
   } satisfies EmployeeSkillTriad;
 }
@@ -259,7 +275,9 @@ export function generateCandidatePool(
     const rng = createRng(worldSeed, candidateStreamId);
     const skills3 = buildSkillBundle(role, skillUniverse, rng);
     const traits = buildTraitSet(rng);
-    const baseSalary_per_h = 5 + 10 * skills3.main.value01;
+    const baseSalary_per_h =
+      WORKFORCE_MARKET_BASE_SALARY_OFFSET_PER_H +
+      WORKFORCE_MARKET_BASE_SALARY_MULTIPLIER * skills3.main.value01;
     const subject = createTraitSubject(skills3, traits);
     const salaryEffect = applyTraitEffects(subject, {
       salaryExpectation_per_h: baseSalary_per_h,

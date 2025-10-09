@@ -4,6 +4,18 @@ import { createDemoWorld } from '../testHarness.ts';
 import { deterministicUuid } from '../../util/uuid.ts';
 import { fmtNum } from '../../util/format.ts';
 import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
+import {
+  PERF_HARNESS_COOL_AIR_DUTY01,
+  PERF_HARNESS_DEVICE_EFFICIENCY_BASELINE01,
+  PERF_HARNESS_DEVICE_LIFETIME_HOURS,
+  PERF_HARNESS_DEVICE_QUALITY_BASELINE01,
+  PERF_HARNESS_EXHAUST_FAN_DUTY01,
+  PERF_HARNESS_LED_VEG_LIGHT_DUTY01,
+  PERF_HARNESS_MAINTENANCE_INTERVAL_DAYS,
+  PERF_HARNESS_MAINTENANCE_RESTORE01,
+  PERF_HARNESS_MAINTENANCE_THRESHOLD01,
+  PERF_HARNESS_ZONE_CLONE_COUNT
+} from '../../constants/perfHarness.ts';
 import { createDeviceInstance } from '../../device/createDeviceInstance.ts';
 import {
   toDeviceInstanceEffectConfigs,
@@ -22,9 +34,9 @@ interface DeviceBlueprintEntry {
 }
 
 const BASE_DEVICE_BLUEPRINTS: readonly DeviceBlueprintEntry[] = [
-  { blueprint: coolAirSplitBlueprint as DeviceBlueprint, dutyCycle01: 0.8 },
-  { blueprint: ledVegLightBlueprint as DeviceBlueprint, dutyCycle01: 0.75 },
-  { blueprint: exhaustFanBlueprint as DeviceBlueprint, dutyCycle01: 0.9 },
+  { blueprint: coolAirSplitBlueprint as DeviceBlueprint, dutyCycle01: PERF_HARNESS_COOL_AIR_DUTY01 },
+  { blueprint: ledVegLightBlueprint as DeviceBlueprint, dutyCycle01: PERF_HARNESS_LED_VEG_LIGHT_DUTY01 },
+  { blueprint: exhaustFanBlueprint as DeviceBlueprint, dutyCycle01: PERF_HARNESS_EXHAUST_FAN_DUTY01 },
   { blueprint: carbonFilterBlueprint as DeviceBlueprint, dutyCycle01: 1 }
 ];
 
@@ -42,6 +54,10 @@ function resolvePriceEntry(blueprint: DeviceBlueprint): DevicePriceEntry | null 
     ];
 
   return entry ?? null;
+}
+
+function toFiniteNumber(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
 }
 
 function computeSensibleCapacityW(blueprint: DeviceBlueprint): number {
@@ -74,13 +90,19 @@ function instantiateZoneDevice(
     'perf-target',
     `${zoneSeed}:${blueprint.slug}:${fmtNum(deviceIndex)}`
   );
-  const qualityPolicy = { sampleQuality01: () => clamp01((blueprint as { quality?: number }).quality ?? 0.85) };
+  const qualityPolicy = {
+    sampleQuality01: () =>
+      clamp01(
+        (blueprint as { quality?: number }).quality ?? PERF_HARNESS_DEVICE_QUALITY_BASELINE01
+      )
+  };
   const seeded = createDeviceInstance(qualityPolicy, zoneSeed, id, blueprint);
   const { effects } = seeded;
   const { effectConfigs } = toDeviceInstanceEffectConfigs(blueprint);
   const priceEntry = resolvePriceEntry(blueprint);
   const maintenanceIntervalDays =
-    (blueprint as { maintenance?: { intervalDays?: number } }).maintenance?.intervalDays ?? 90;
+    (blueprint as { maintenance?: { intervalDays?: number } }).maintenance?.intervalDays ??
+    PERF_HARNESS_MAINTENANCE_INTERVAL_DAYS;
   const maintenanceServiceHours =
     (blueprint as { maintenance?: { hoursPerService?: number } }).maintenance?.hoursPerService ?? 1;
 
@@ -95,15 +117,16 @@ function instantiateZoneDevice(
         maintenanceWindow: undefined,
         recommendedReplacement: false,
         policy: {
-          lifetimeHours: (blueprint as { lifetime_h?: number }).lifetime_h ?? 8_760,
+          lifetimeHours:
+            (blueprint as { lifetime_h?: number }).lifetime_h ?? PERF_HARNESS_DEVICE_LIFETIME_HOURS,
           maintenanceIntervalHours: maintenanceIntervalDays * HOURS_PER_DAY,
           serviceHours: maintenanceServiceHours,
           baseCostPerHourCc: priceEntry.baseMaintenanceCostPerHour,
           costIncreasePer1000HoursCc: priceEntry.costIncreasePer1000Hours,
           serviceVisitCostCc: priceEntry.maintenanceServiceCost,
           replacementCostCc: priceEntry.capitalExpenditure,
-          maintenanceConditionThreshold01: 0.4,
-          restoreAmount01: 0.3
+          maintenanceConditionThreshold01: PERF_HARNESS_MAINTENANCE_THRESHOLD01,
+          restoreAmount01: PERF_HARNESS_MAINTENANCE_RESTORE01
         }
       }
     : undefined;
@@ -116,11 +139,14 @@ function instantiateZoneDevice(
     placementScope: 'zone',
     quality01: seeded.quality01,
     condition01: 1,
-    powerDraw_W: Number((blueprint as { power_W?: number }).power_W ?? 0),
+    powerDraw_W: toFiniteNumber((blueprint as { power_W?: number }).power_W),
     dutyCycle01: clamp01(dutyCycle01),
-    efficiency01: clamp01((blueprint as { efficiency01?: number }).efficiency01 ?? 0.75),
-    coverage_m2: Number((blueprint as { coverage_m2?: number }).coverage_m2 ?? 0),
-    airflow_m3_per_h: Number((blueprint as { airflow_m3_per_h?: number }).airflow_m3_per_h ?? 0),
+    efficiency01: clamp01(
+      (blueprint as { efficiency01?: number }).efficiency01 ??
+        PERF_HARNESS_DEVICE_EFFICIENCY_BASELINE01
+    ),
+    coverage_m2: toFiniteNumber((blueprint as { coverage_m2?: number }).coverage_m2),
+    airflow_m3_per_h: toFiniteNumber((blueprint as { airflow_m3_per_h?: number }).airflow_m3_per_h),
     sensibleHeatRemovalCapacity_W: computeSensibleCapacityW(blueprint),
     effects: effects ?? [],
     effectConfigs,
@@ -169,13 +195,15 @@ function createPerfStructure(structure: Structure): Structure {
   }
 
   const growroom = rooms[growroomIndex];
-  const baseZone = growroom.zones[0];
-
-  if (!baseZone) {
+  if (growroom.zones.length === 0) {
     return { ...structure, rooms } satisfies Structure;
   }
 
-  const perfZones = Array.from({ length: 5 }, (_, idx) => createPerfZone(baseZone, idx));
+  const baseZone = growroom.zones[0];
+
+  const perfZones = Array.from({ length: PERF_HARNESS_ZONE_CLONE_COUNT }, (_, idx) =>
+    createPerfZone(baseZone, idx)
+  );
   const nextGrowroom: Room = {
     ...growroom,
     zones: perfZones

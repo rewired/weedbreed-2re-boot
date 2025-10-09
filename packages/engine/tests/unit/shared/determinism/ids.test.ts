@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { DETERMINISTIC_ID_SAMPLE_COUNT } from '../../../constants';
+
 import { newV7 } from '../../../../src/shared/determinism/ids.ts';
 
 describe('newV7', () => {
@@ -12,7 +14,7 @@ describe('newV7', () => {
   });
 
   it('produces low collision risk across short bursts', () => {
-    const samples = Array.from({ length: 16 }, () => newV7());
+    const samples = Array.from({ length: DETERMINISTIC_ID_SAMPLE_COUNT }, () => newV7());
     const unique = new Set(samples);
     expect(unique.size).toBe(samples.length);
   });

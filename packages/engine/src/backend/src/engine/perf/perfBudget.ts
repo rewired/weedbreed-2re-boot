@@ -1,19 +1,26 @@
 import { BYTES_PER_MEBIBYTE } from '@/backend/src/constants/simConstants';
+import {
+  PERF_BUDGET_BASELINE_MAX_AVG_DURATION_MS,
+  PERF_BUDGET_CI_TICK_COUNT,
+  PERF_BUDGET_MAX_HEAP_MEBIBYTES,
+  PERF_BUDGET_MIN_TICKS_PER_MINUTE,
+  PERF_BUDGET_NS_PER_SECOND,
+  PERF_BUDGET_SECONDS_PER_MINUTE,
+  PERF_BUDGET_TARGET_MAX_AVG_DURATION_MS,
+  PERF_BUDGET_WARNING_GUARD_BAND_01
+} from '@/backend/src/constants/perfBudget';
 
 import { type PerfHarnessResult } from '../testHarness.ts';
 
-const NS_PER_SECOND = 1_000_000_000;
-const SECONDS_PER_MINUTE = 60;
-
-export const PERF_CI_TICK_COUNT = 10_000;
-export const PERF_MIN_TICKS_PER_MINUTE = 5_000;
-export const PERF_MAX_HEAP_BYTES = 64 * BYTES_PER_MEBIBYTE;
-export const PERF_WARNING_GUARD_PERCENTAGE = 0.05;
+export const PERF_CI_TICK_COUNT = PERF_BUDGET_CI_TICK_COUNT;
+export const PERF_MIN_TICKS_PER_MINUTE = PERF_BUDGET_MIN_TICKS_PER_MINUTE;
+export const PERF_MAX_HEAP_BYTES = PERF_BUDGET_MAX_HEAP_MEBIBYTES * BYTES_PER_MEBIBYTE;
+export const PERF_WARNING_GUARD_BAND_01 = PERF_BUDGET_WARNING_GUARD_BAND_01;
 
 export interface PerfBudgetThresholds {
   readonly minTicksPerMinute: number;
   readonly maxHeapBytes: number;
-  readonly warningGuardPercentage: number;
+  readonly warningGuard01: number;
 }
 
 export interface PerfBudgetMetrics {
@@ -36,19 +43,26 @@ export interface PerfBudgetEvaluation {
 export const PERF_CI_THRESHOLDS: PerfBudgetThresholds = {
   minTicksPerMinute: PERF_MIN_TICKS_PER_MINUTE,
   maxHeapBytes: PERF_MAX_HEAP_BYTES,
-  warningGuardPercentage: PERF_WARNING_GUARD_PERCENTAGE
+  warningGuard01: PERF_WARNING_GUARD_BAND_01
 } as const;
 
 export interface PerfScenarioThreshold {
   readonly maxAverageDurationMs: number;
 }
 
+/** Maximum average ms/tick budget for the baseline perf scenario. */
+export const PERF_BASELINE_MAX_AVERAGE_DURATION_MS =
+  PERF_BUDGET_BASELINE_MAX_AVG_DURATION_MS;
+
+/** Maximum average ms/tick budget for the fully equipped target perf scenario. */
+export const PERF_TARGET_MAX_AVERAGE_DURATION_MS = PERF_BUDGET_TARGET_MAX_AVG_DURATION_MS;
+
 export const PERF_SCENARIO_THRESHOLDS: {
   readonly baseline: PerfScenarioThreshold;
   readonly target: PerfScenarioThreshold;
 } = {
-  baseline: { maxAverageDurationMs: 0.2 },
-  target: { maxAverageDurationMs: 0.4 }
+  baseline: { maxAverageDurationMs: PERF_BASELINE_MAX_AVERAGE_DURATION_MS },
+  target: { maxAverageDurationMs: PERF_TARGET_MAX_AVERAGE_DURATION_MS }
 } as const;
 
 export function evaluatePerfBudget(
@@ -63,7 +77,8 @@ export function evaluatePerfBudget(
   const tickCount = result.traces.length;
   const totalDurationNs = result.totalDurationNs;
   const averageDurationNs = result.averageDurationNs;
-  const totalDurationMinutes = totalDurationNs / NS_PER_SECOND / SECONDS_PER_MINUTE;
+  const totalDurationMinutes =
+    totalDurationNs / PERF_BUDGET_NS_PER_SECOND / PERF_BUDGET_SECONDS_PER_MINUTE;
   const ticksPerMinute =
     totalDurationMinutes > 0 ? tickCount / totalDurationMinutes : Number.POSITIVE_INFINITY;
   const maxHeapUsedBytes = result.maxHeapUsedBytes;
@@ -87,12 +102,12 @@ export function evaluatePerfBudget(
       )} ticks/min requirement.`
     );
   } else {
-    const throughputWarningFloor = thresholds.minTicksPerMinute * (1 + thresholds.warningGuardPercentage);
+    const throughputWarningFloor = thresholds.minTicksPerMinute * (1 + thresholds.warningGuard01);
 
     if (ticksPerMinute < throughputWarningFloor) {
       warnings.push(
         `Throughput ${ticksPerMinute.toFixed(2)} ticks/min is within ${(
-          thresholds.warningGuardPercentage * 100
+          thresholds.warningGuard01 * 100
         ).toFixed(1)}% of the failure threshold.`
       );
     }
@@ -105,12 +120,12 @@ export function evaluatePerfBudget(
       )} MiB budget.`
     );
   } else {
-    const heapWarningCeiling = thresholds.maxHeapBytes * (1 - thresholds.warningGuardPercentage);
+    const heapWarningCeiling = thresholds.maxHeapBytes * (1 - thresholds.warningGuard01);
 
     if (maxHeapUsedBytes > heapWarningCeiling) {
       warnings.push(
         `Heap peak ${maxHeapUsedMiB.toFixed(2)} MiB is within ${(
-          thresholds.warningGuardPercentage * 100
+          thresholds.warningGuard01 * 100
         ).toFixed(1)}% of the budget.`
       );
     }

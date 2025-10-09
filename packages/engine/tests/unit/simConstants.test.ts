@@ -14,6 +14,18 @@ import {
   ROOM_DEFAULT_HEIGHT_M,
   SIM_CONSTANTS
 } from '@/backend/src/constants/simConstants';
+import {
+  SEC_AIR_DENSITY_KG_PER_M3,
+  SEC_CP_AIR_J_PER_KG_K,
+  SEC_DAYS_PER_MONTH,
+  SEC_HOURS_PER_DAY,
+  SEC_LIGHT_SCHEDULE_GRID_HOURS,
+  SEC_MONTHS_PER_YEAR,
+  SEC_ROOM_DEFAULT_HEIGHT_M,
+  SIM_DEW_POINT_REFERENCE_TEMP_C,
+  SIM_MOCKED_CO2_LIMIT_PPM,
+  SIM_TOLERANCE_MOCK
+} from '../constants';
 import type { SensorReading } from '@/backend/src/domain/interfaces/ISensor';
 
 describe('simConstants', () => {
@@ -25,16 +37,18 @@ describe('simConstants', () => {
 
   it('exposes canonical SEC values', () => {
     expect(AREA_QUANTUM_M2).toBe(LIGHT_SCHEDULE_GRID_HOURS);
-    expect(LIGHT_SCHEDULE_GRID_HOURS).toBeCloseTo(1 / 4);
-    expect(ROOM_DEFAULT_HEIGHT_M).toBe(3);
-    expect(CP_AIR_J_PER_KG_K).toBe(1_005);
-    expect(AIR_DENSITY_KG_PER_M3).toBeCloseTo(1.2041);
+    expect(LIGHT_SCHEDULE_GRID_HOURS).toBeCloseTo(SEC_LIGHT_SCHEDULE_GRID_HOURS);
+    expect(ROOM_DEFAULT_HEIGHT_M).toBe(SEC_ROOM_DEFAULT_HEIGHT_M);
+    expect(CP_AIR_J_PER_KG_K).toBe(SEC_CP_AIR_J_PER_KG_K);
+    expect(AIR_DENSITY_KG_PER_M3).toBeCloseTo(SEC_AIR_DENSITY_KG_PER_M3);
     expect(HOURS_PER_TICK).toBe(1);
-    expect(HOURS_PER_DAY).toBe(24);
-    expect(DAYS_PER_MONTH).toBe(30);
-    expect(MONTHS_PER_YEAR).toBe(12);
-    expect(HOURS_PER_MONTH).toBe(24 * 30);
-    expect(HOURS_PER_YEAR).toBe(24 * 30 * 12);
+    expect(HOURS_PER_DAY).toBe(SEC_HOURS_PER_DAY);
+    expect(DAYS_PER_MONTH).toBe(SEC_DAYS_PER_MONTH);
+    expect(MONTHS_PER_YEAR).toBe(SEC_MONTHS_PER_YEAR);
+    expect(HOURS_PER_MONTH).toBe(SEC_HOURS_PER_DAY * SEC_DAYS_PER_MONTH);
+    expect(HOURS_PER_YEAR).toBe(
+      SEC_HOURS_PER_DAY * SEC_DAYS_PER_MONTH * SEC_MONTHS_PER_YEAR
+    );
   });
 
   it('provides immutable aggregate exports', () => {
@@ -49,13 +63,13 @@ describe('simConstants', () => {
   });
 
   it('allows sensor pipeline modules to consume canonical CO2 safety bounds', async () => {
-    const mockedSafetyLimit = 1_234;
+    const mockedSafetyLimit = SIM_MOCKED_CO2_LIMIT_PPM;
 
     vi.resetModules();
     vi.doMock('@/backend/src/constants/simConstants', async () => {
-      const actual = (await vi.importActual(
+      const actual = await vi.importActual<typeof import('@/backend/src/constants/simConstants')>(
         '@/backend/src/constants/simConstants'
-      )) as typeof import('@/backend/src/constants/simConstants');
+      );
 
       return {
         ...actual,
@@ -71,7 +85,7 @@ describe('simConstants', () => {
         noise01: 0,
         condition01: 1
       },
-      () => 0.5
+      () => SIM_TOLERANCE_MOCK
     );
 
     expect(reading.measuredValue).toBe(mockedSafetyLimit);
@@ -92,7 +106,7 @@ describe('simConstants', () => {
       noise01: 0,
       condition01: 1,
       noiseSample: 0
-    } as const;
+    };
 
     expect(() => assertValidSensorReading(baseReading)).not.toThrow();
     expect(() =>
@@ -104,13 +118,13 @@ describe('simConstants', () => {
   });
 
   it('allows physiology modules to clamp humidity using the canonical float tolerance', async () => {
-    const mockedTolerance = 0.5;
+    const mockedTolerance = SIM_TOLERANCE_MOCK;
 
     vi.resetModules();
     vi.doMock('@/backend/src/constants/simConstants', async () => {
-      const actual = (await vi.importActual(
+      const actual = await vi.importActual<typeof import('@/backend/src/constants/simConstants')>(
         '@/backend/src/constants/simConstants'
-      )) as typeof import('@/backend/src/constants/simConstants');
+      );
 
       return {
         ...actual,
@@ -120,8 +134,11 @@ describe('simConstants', () => {
 
     const { computeDewPoint_C } = await import('@/backend/src/physiology/vpd');
 
-    const dewPointAtZero = computeDewPoint_C(20, 0);
-    const dewPointAtTolerance = computeDewPoint_C(20, mockedTolerance);
+    const dewPointAtZero = computeDewPoint_C(SIM_DEW_POINT_REFERENCE_TEMP_C, 0);
+    const dewPointAtTolerance = computeDewPoint_C(
+      SIM_DEW_POINT_REFERENCE_TEMP_C,
+      mockedTolerance
+    );
 
     expect(dewPointAtZero).toBeCloseTo(dewPointAtTolerance);
   });
