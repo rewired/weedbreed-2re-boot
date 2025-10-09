@@ -8,7 +8,7 @@ import {
 
 const IDEAL_ENVIRONMENT = {
   airTemperatureC: 23,
-  relativeHumidity_pct: 55,
+  relativeHumidity01: 0.55,
   co2_ppm: 400,
 } as const;
 
@@ -29,7 +29,7 @@ describe('pest & disease risk evaluation', () => {
     const result = evaluatePestDiseaseRisk({
       environment: {
         airTemperatureC: 30,
-        relativeHumidity_pct: 85,
+        relativeHumidity01: 0.85,
         co2_ppm: 400,
       },
       hygieneScore01: 0.3,
@@ -45,7 +45,7 @@ describe('pest & disease risk evaluation', () => {
     const activeRisk = evaluatePestDiseaseRisk({
       environment: {
         airTemperatureC: 28,
-        relativeHumidity_pct: 75,
+        relativeHumidity01: 0.75,
         co2_ppm: 400,
       },
       hygieneScore01: 0.6,
@@ -56,7 +56,7 @@ describe('pest & disease risk evaluation', () => {
     const quarantinedRisk = evaluatePestDiseaseRisk({
       environment: {
         airTemperatureC: 24,
-        relativeHumidity_pct: 50,
+        relativeHumidity01: 0.5,
         co2_ppm: 400,
       },
       hygieneScore01: 0.9,

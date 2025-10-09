@@ -147,11 +147,11 @@ describe('Tick pipeline — multi-effect devices', () => {
 
     zone.environment = {
       ...zone.environment,
-      relativeHumidity_pct: 60
+      relativeHumidity01: 0.6
     };
 
     const initialTemperatureC = zone.environment.airTemperatureC;
-    const initialHumidity = zone.environment.relativeHumidity_pct;
+    const initialHumidity = zone.environment.relativeHumidity01;
 
     const deviceId = uuid('30000000-0000-0000-0000-000000000001');
     const multiEffectDevice: ZoneDeviceInstance = {
@@ -208,7 +208,7 @@ describe('Tick pipeline — multi-effect devices', () => {
       initialTemperatureC + expectedDeltaC,
       5
     );
-    expect(nextZone.environment.relativeHumidity_pct).toBeLessThan(initialHumidity);
+    expect(nextZone.environment.relativeHumidity01).toBeLessThan(initialHumidity);
     expect((ctx as Record<string, unknown>).__wb_deviceEffects).toBeUndefined();
   });
 
@@ -220,7 +220,7 @@ describe('Tick pipeline — multi-effect devices', () => {
 
     zone.environment = {
       ...zone.environment,
-      relativeHumidity_pct: 65
+      relativeHumidity01: 0.65
     };
 
     const heaterId = uuid('30000000-0000-0000-0000-000000000003');
@@ -293,8 +293,8 @@ describe('Tick pipeline — multi-effect devices', () => {
     const expectedTemp = zone.environment.airTemperatureC + totalDeltaC;
 
     expect(nextZone.environment.airTemperatureC).toBeCloseTo(expectedTemp, 5);
-    expect(nextZone.environment.relativeHumidity_pct).toBeLessThan(
-      zone.environment.relativeHumidity_pct
+    expect(nextZone.environment.relativeHumidity01).toBeLessThan(
+      zone.environment.relativeHumidity01
     );
   });
 
@@ -351,11 +351,11 @@ describe('Tick pipeline — multi-effect devices', () => {
 
     zone.environment = {
       ...zone.environment,
-      relativeHumidity_pct: 62
+      relativeHumidity01: 0.62
     };
 
     const initialTemperatureC = zone.environment.airTemperatureC;
-    const initialHumidity = zone.environment.relativeHumidity_pct;
+    const initialHumidity = zone.environment.relativeHumidity01;
 
     const deviceId = uuid('30000000-0000-0000-0000-000000000009');
     const splitAC: ZoneDeviceInstance = {
@@ -391,7 +391,7 @@ describe('Tick pipeline — multi-effect devices', () => {
             const zoneId = zone.id;
             const log = {
               thermalDeltaC: runtime?.zoneTemperatureDeltaC.get(zoneId) ?? 0,
-              humidityDeltaPct: runtime?.zoneHumidityDeltaPct.get(zoneId) ?? 0,
+              humidityDelta01: runtime?.zoneHumidityDelta01.get(zoneId) ?? 0,
               airflow_m3_per_h: runtime?.zoneAirflowTotals_m3_per_h.get(zoneId) ?? 0,
               coverageEffectiveness01:
                 runtime?.zoneCoverageEffectiveness01.get(zoneId) ?? 0
@@ -430,7 +430,7 @@ describe('Tick pipeline — multi-effect devices', () => {
       initialTemperatureC + expectedDeltaC,
       5
     );
-    expect(nextZone.environment.relativeHumidity_pct).toBeLessThan(initialHumidity);
+    expect(nextZone.environment.relativeHumidity01).toBeLessThan(initialHumidity);
   });
 
   it('Pattern B: Dehumidifier with reheat', () => {
@@ -439,7 +439,7 @@ describe('Tick pipeline — multi-effect devices', () => {
 
     zone.environment = {
       ...zone.environment,
-      relativeHumidity_pct: 68
+      relativeHumidity01: 0.68
     };
 
     const deviceId = uuid('30000000-0000-0000-0000-00000000000b');
@@ -474,7 +474,7 @@ describe('Tick pipeline — multi-effect devices', () => {
             const zoneId = zone.id;
             const log = {
               thermalDeltaC: runtime?.zoneTemperatureDeltaC.get(zoneId) ?? 0,
-              humidityDeltaPct: runtime?.zoneHumidityDeltaPct.get(zoneId) ?? 0,
+              humidityDelta01: runtime?.zoneHumidityDelta01.get(zoneId) ?? 0,
               airflow_m3_per_h: runtime?.zoneAirflowTotals_m3_per_h.get(zoneId) ?? 0,
               coverageEffectiveness01:
                 runtime?.zoneCoverageEffectiveness01.get(zoneId) ?? 0
@@ -512,8 +512,8 @@ describe('Tick pipeline — multi-effect devices', () => {
       zone.environment.airTemperatureC + expectedTempIncrease,
       5
     );
-    expect(nextZone.environment.relativeHumidity_pct).toBeLessThan(
-      zone.environment.relativeHumidity_pct
+    expect(nextZone.environment.relativeHumidity01).toBeLessThan(
+      zone.environment.relativeHumidity01
     );
   });
 
@@ -523,7 +523,7 @@ describe('Tick pipeline — multi-effect devices', () => {
 
     zone.environment = {
       ...zone.environment,
-      relativeHumidity_pct: 70
+      relativeHumidity01: 0.7
     };
 
     const legacyId = uuid('30000000-0000-0000-0000-00000000000d');
@@ -548,8 +548,8 @@ describe('Tick pipeline — multi-effect devices', () => {
     const { world: nextWorld } = runTick(world, {});
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
 
-    expect(nextZone.environment.relativeHumidity_pct).toBeLessThan(
-      zone.environment.relativeHumidity_pct
+    expect(nextZone.environment.relativeHumidity01).toBeLessThan(
+      zone.environment.relativeHumidity01
     );
   });
 });

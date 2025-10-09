@@ -57,8 +57,8 @@ function resolveMeasurement(measurementType: SensorMeasurementType, zone: Zone):
         ? zone.environment.airTemperatureC
         : 0;
     case 'humidity':
-      return Number.isFinite(zone.environment.relativeHumidity_pct)
-        ? zone.environment.relativeHumidity_pct
+      return Number.isFinite(zone.environment.relativeHumidity01)
+        ? zone.environment.relativeHumidity01
         : 0;
     case 'ppfd':
       return Number.isFinite(zone.ppfd_umol_m2s) ? zone.ppfd_umol_m2s : 0;

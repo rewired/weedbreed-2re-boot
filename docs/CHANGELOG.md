@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0044): Normalised engine humidity and filtration metrics to the
+  canonical [0,1] scale by renaming percent-based identifiers, updating stubs,
+  pipelines, schemas, and sensor validation, and refreshing tests/docs to satisfy
+  `wb-sim/no-engine-percent-identifiers`.
 - HOTFIX-042 (Task 0043): Extracted perf harness, workforce market, and
   conformance test literals into named constants, introduced a shared
   `packages/engine/tests/constants.ts` helper, and refreshed the sim constant
@@ -236,7 +240,7 @@ migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy upd
 ### #77 Demo harness humidity baseline
 
 - Updated the engine test harness demo zone to include a representative
-  `relativeHumidity_pct` value so the fixture aligns with the environment
+  `relativeHumidity01` value so the fixture aligns with the environment
   schema used across integration tests and perf harness scenarios.
 
 ### #76 Workforce payroll multipliers & HR intents

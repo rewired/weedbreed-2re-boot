@@ -20,10 +20,10 @@ type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 
 type HumidityMode = 'humidify' | 'dehumidify';
 
-function computeSpecificEnthalpy_kJ_per_kg(temperatureC: number, humidityPct: number): number {
+function computeSpecificEnthalpy_kJ_per_kg(temperatureC: number, humidity01: number): number {
   const T = Number.isFinite(temperatureC) ? temperatureC : 0;
   const Tk = T + 273.15;
-  const phi = Math.min(1, Math.max(0, humidityPct / 100));
+  const phi = Math.min(1, Math.max(0, humidity01));
   const saturation_kPa = 0.61094 * Math.exp((17.625 * T) / (T + 243.04));
   const partialPressure_kPa = Math.max(0, Math.min(phi * saturation_kPa, saturation_kPa));
   const totalPressure_kPa = 101.325;
@@ -104,7 +104,7 @@ describe('applyDeviceEffects invariants', () => {
     zone.environment = {
       ...zone.environment,
       airTemperatureC: 24,
-      relativeHumidity_pct: 5,
+      relativeHumidity01: 0.05,
       co2_ppm: 450,
     };
 
@@ -118,14 +118,14 @@ describe('applyDeviceEffects invariants', () => {
     const updatedWorld = updateEnvironment(afterEffects, ctx);
     const nextZone = updatedWorld.company.structures[0].rooms[0].zones[0];
 
-    expect(nextZone.environment.relativeHumidity_pct).toBeGreaterThanOrEqual(0);
-    expect(nextZone.environment.relativeHumidity_pct).toBeLessThanOrEqual(100);
+    expect(nextZone.environment.relativeHumidity01).toBeGreaterThanOrEqual(0);
+    expect(nextZone.environment.relativeHumidity01).toBeLessThanOrEqual(1);
     expect(nextZone.environment.co2_ppm).toBeLessThanOrEqual(SAFETY_MAX_CO2_PPM);
     expect(nextZone.environment.co2_ppm).toBeGreaterThanOrEqual(0);
 
     const enthalpy = computeSpecificEnthalpy_kJ_per_kg(
       nextZone.environment.airTemperatureC,
-      nextZone.environment.relativeHumidity_pct,
+      nextZone.environment.relativeHumidity01,
     );
     expect(Number.isFinite(enthalpy)).toBe(true);
     expect(enthalpy).toBeGreaterThanOrEqual(0);
@@ -133,7 +133,7 @@ describe('applyDeviceEffects invariants', () => {
 
   it('preserves humidity, CO₂, and enthalpy invariants across randomized device intensities', () => {
     const duty = fc.double({ min: 0, max: 1, noNaN: true, noDefaultInfinity: true });
-    const humidity = fc.double({ min: 0, max: 100, noNaN: true, noDefaultInfinity: true });
+    const humidity = fc.double({ min: 0, max: 1, noNaN: true, noDefaultInfinity: true });
     const co2 = fc.double({ min: 0, max: SAFETY_MAX_CO2_PPM, noNaN: true, noDefaultInfinity: true });
     const temperature = fc.double({ min: -10, max: 45, noNaN: true, noDefaultInfinity: true });
     const humidityMode = fc.constantFrom<HumidityMode>('humidify', 'dehumidify');
@@ -148,7 +148,7 @@ describe('applyDeviceEffects invariants', () => {
         zone.environment = {
           ...zone.environment,
           airTemperatureC: tempC,
-          relativeHumidity_pct: rh,
+          relativeHumidity01: rh,
           co2_ppm,
         };
 
@@ -162,14 +162,14 @@ describe('applyDeviceEffects invariants', () => {
         const updatedWorld = updateEnvironment(afterEffects, ctx);
         const nextZone = updatedWorld.company.structures[0].rooms[0].zones[0];
 
-        expect(nextZone.environment.relativeHumidity_pct).toBeGreaterThanOrEqual(0);
-        expect(nextZone.environment.relativeHumidity_pct).toBeLessThanOrEqual(100);
+        expect(nextZone.environment.relativeHumidity01).toBeGreaterThanOrEqual(0);
+        expect(nextZone.environment.relativeHumidity01).toBeLessThanOrEqual(1);
         expect(nextZone.environment.co2_ppm).toBeGreaterThanOrEqual(0);
         expect(nextZone.environment.co2_ppm).toBeLessThanOrEqual(SAFETY_MAX_CO2_PPM);
 
         const enthalpy = computeSpecificEnthalpy_kJ_per_kg(
           nextZone.environment.airTemperatureC,
-          nextZone.environment.relativeHumidity_pct,
+          nextZone.environment.relativeHumidity01,
         );
         expect(Number.isFinite(enthalpy)).toBe(true);
         expect(enthalpy).toBeGreaterThanOrEqual(0);

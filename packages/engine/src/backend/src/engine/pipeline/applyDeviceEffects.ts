@@ -24,7 +24,7 @@ import { applyAirflowAndFiltrationEffect } from './effects/airflow.ts';
 
 export interface DeviceEffectsRuntime {
   readonly zoneTemperatureDeltaC: Map<Zone['id'], number>;
-  readonly zoneHumidityDeltaPct: Map<Zone['id'], number>;
+  readonly zoneHumidityDelta01: Map<Zone['id'], number>;
   readonly zonePPFD_umol_m2s: Map<Zone['id'], number>;
   readonly zoneDLI_mol_m2d_inc: Map<Zone['id'], number>;
   readonly zoneCo2Delta_ppm: Map<Zone['id'], number>;
@@ -34,7 +34,7 @@ export interface DeviceEffectsRuntime {
   readonly zoneAirChangesPerHour: Map<Zone['id'], number>;
   readonly zoneAirflowReductions_m3_per_h: Map<Zone['id'], number>;
   readonly zoneOdorDelta: Map<Zone['id'], number>;
-  readonly zoneParticulateRemoval_pct: Map<Zone['id'], number>;
+  readonly zoneParticulateRemoval01: Map<Zone['id'], number>;
 }
 
 const DEVICE_EFFECTS_CONTEXT_KEY = '__wb_deviceEffects' as const;
@@ -56,7 +56,7 @@ function setDeviceEffectsRuntime(
 export function ensureDeviceEffectsRuntime(ctx: EngineRunContext): DeviceEffectsRuntime {
   return setDeviceEffectsRuntime(ctx, {
     zoneTemperatureDeltaC: new Map(),
-    zoneHumidityDeltaPct: new Map(),
+    zoneHumidityDelta01: new Map(),
     zonePPFD_umol_m2s: new Map(),
     zoneDLI_mol_m2d_inc: new Map(),
     zoneCo2Delta_ppm: new Map(),
@@ -66,7 +66,7 @@ export function ensureDeviceEffectsRuntime(ctx: EngineRunContext): DeviceEffects
     zoneAirChangesPerHour: new Map(),
     zoneAirflowReductions_m3_per_h: new Map(),
     zoneOdorDelta: new Map(),
-    zoneParticulateRemoval_pct: new Map()
+    zoneParticulateRemoval01: new Map()
   });
 }
 

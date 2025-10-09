@@ -37,7 +37,7 @@ describe('plant stress integration', () => {
     initialZone.dli_mol_m2d_inc = 5;
     initialZone.environment = {
       airTemperatureC: 24,
-      relativeHumidity_pct: 65,
+      relativeHumidity01: 0.65,
       co2_ppm: AMBIENT_CO2_PPM
     } as Zone['environment'];
     initialZone.plants = [
@@ -103,7 +103,7 @@ describe('plant stress integration', () => {
       zone.photoperiodPhase = 'flowering';
       zone.environment = {
         airTemperatureC: 24,
-        relativeHumidity_pct: 65,
+        relativeHumidity01: 0.65,
         co2_ppm: AMBIENT_CO2_PPM
       } as Zone['environment'];
       zone.ppfd_umol_m2s = 650;
@@ -114,7 +114,7 @@ describe('plant stress integration', () => {
       zone.photoperiodPhase = 'flowering';
       zone.environment = {
         airTemperatureC: 31,
-        relativeHumidity_pct: 18,
+        relativeHumidity01: 0.18,
         co2_ppm: AMBIENT_CO2_PPM
       } as Zone['environment'];
       zone.ppfd_umol_m2s = 650;

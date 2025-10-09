@@ -43,7 +43,7 @@ export const WORKFORCE_BASE_SALARY_MULTIPLIER = 10 as const;
  * cross-checked against golden fixtures.
  */
 export const PSYCHRO_REFERENCE_TEMP_C = 25 as const;
-export const PSYCHRO_REFERENCE_HUMIDITY_PCT = 50 as const;
+export const PSYCHRO_REFERENCE_HUMIDITY01 = 0.5 as const;
 export const PSYCHRO_REFERENCE_VPD_KPA = 1.5839 as const;
 export const PSYCHRO_PRECISION_DIGITS = 4 as const;
 export const PSYCHRO_MIN_TEMP_C = -40 as const;

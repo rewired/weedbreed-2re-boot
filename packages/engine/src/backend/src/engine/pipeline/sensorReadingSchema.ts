@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 import { SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
 import {
-  HUMIDITY_SENSOR_MAX_PCT,
-  HUMIDITY_SENSOR_MIN_PCT,
+  HUMIDITY_SENSOR_MAX01,
+  HUMIDITY_SENSOR_MIN01,
   TEMPERATURE_SENSOR_MAX_C,
   TEMPERATURE_SENSOR_MIN_C
 } from '@/backend/src/constants/climate';
@@ -35,7 +35,7 @@ function isMeasurementWithinRange(
     case 'temperature':
       return value >= TEMPERATURE_SENSOR_MIN_C && value <= TEMPERATURE_SENSOR_MAX_C;
     case 'humidity':
-      return value >= HUMIDITY_SENSOR_MIN_PCT && value <= HUMIDITY_SENSOR_MAX_PCT;
+      return value >= HUMIDITY_SENSOR_MIN01 && value <= HUMIDITY_SENSOR_MAX01;
     case 'co2':
       return value >= 0 && value <= SAFETY_MAX_CO2_PPM;
     case 'ppfd':

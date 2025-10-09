@@ -121,14 +121,14 @@ function deriveHumidityInputs(device: ZoneDeviceInstance): HumidityActuatorInput
 function accumulateHumidityDelta(
   runtime: DeviceEffectsRuntime,
   zoneId: Zone['id'],
-  deltaPct: number
+  delta01: number
 ): void {
-  if (!Number.isFinite(deltaPct) || deltaPct === 0) {
+  if (!Number.isFinite(delta01) || delta01 === 0) {
     return;
   }
 
-  const current = runtime.zoneHumidityDeltaPct.get(zoneId) ?? 0;
-  runtime.zoneHumidityDeltaPct.set(zoneId, current + deltaPct);
+  const current = runtime.zoneHumidityDelta01.get(zoneId) ?? 0;
+  runtime.zoneHumidityDelta01.set(zoneId, current + delta01);
 }
 
 export interface HumidityEffectResult {
@@ -149,13 +149,13 @@ export function applyHumidityEffect(
 
   if (humidityInputs) {
     const humidityStub = createHumidityActuatorStub();
-    const { deltaRH_pct, water_g } = humidityStub.computeEffect(
+    const { deltaRH01, water_g } = humidityStub.computeEffect(
       humidityInputs,
       zone.environment,
       zone.airMass_kg,
       tickHours
     );
-    accumulateHumidityDelta(runtime, zone.id, deltaRH_pct);
+    accumulateHumidityDelta(runtime, zone.id, deltaRH01);
 
     latentDeltaK = computeLatentTemperatureDelta(
       water_g,

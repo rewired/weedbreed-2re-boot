@@ -88,14 +88,14 @@ describe('stress model tolerance curves', () => {
   });
 
   describe('calculateHumidityStress', () => {
-    it('converts percentage humidity to fraction', () => {
+    it('operates on canonical humidity fractions', () => {
       const strain = baseStrain();
-      expect(calculateHumidityStress(60, strain, 'vegetative')).toBeCloseTo(0, 5);
+      expect(calculateHumidityStress(0.6, strain, 'vegetative')).toBeCloseTo(0, 5);
     });
 
     it('caps invalid humidity inputs before evaluation', () => {
       const strain = baseStrain();
-      expect(calculateHumidityStress(200, strain, 'vegetative')).toBeGreaterThan(0);
+      expect(calculateHumidityStress(2, strain, 'vegetative')).toBeGreaterThan(0);
     });
   });
 
@@ -104,7 +104,7 @@ describe('stress model tolerance curves', () => {
       const strain = baseStrain();
       strain.envBands.default.vpd_kPa = undefined;
       expect(calculateVpdStress(
-        { airTemperatureC: 24, relativeHumidity_pct: 60, co2_ppm: AMBIENT_CO2_PPM },
+        { airTemperatureC: 24, relativeHumidity01: 0.6, co2_ppm: AMBIENT_CO2_PPM },
         strain,
         'vegetative'
       )).toBeNull();
@@ -114,12 +114,12 @@ describe('stress model tolerance curves', () => {
       const strain = baseStrain();
       const environment: ZoneEnvironment = {
         airTemperatureC: 26,
-        relativeHumidity_pct: 65,
+        relativeHumidity01: 0.65,
         co2_ppm: AMBIENT_CO2_PPM
       };
       const comfortable = calculateVpdStress(environment, strain, 'vegetative');
       const stressed = calculateVpdStress(
-        { ...environment, relativeHumidity_pct: 20 },
+        { ...environment, relativeHumidity01: 0.2 },
         strain,
         'vegetative'
       );
@@ -133,7 +133,7 @@ describe('stress model tolerance curves', () => {
       const strain = baseStrain();
       const environment: ZoneEnvironment = {
         airTemperatureC: 22,
-        relativeHumidity_pct: 60,
+        relativeHumidity01: 0.6,
         co2_ppm: AMBIENT_CO2_PPM
       };
       const stress = calculateCombinedStress(environment, 600, strain, 'vegetative');
@@ -146,7 +146,7 @@ describe('stress model tolerance curves', () => {
       strain.envBands.default.vpd_kPa = undefined;
       const environment: ZoneEnvironment = {
         airTemperatureC: 30,
-        relativeHumidity_pct: 30,
+        relativeHumidity01: 0.3,
         co2_ppm: AMBIENT_CO2_PPM
       };
       const stress = calculateCombinedStress(environment, 400, strain, 'vegetative');

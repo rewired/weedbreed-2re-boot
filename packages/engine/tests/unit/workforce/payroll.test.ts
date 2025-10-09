@@ -12,6 +12,15 @@ import type {
   WorkforcePayrollState,
 } from '@/backend/src/domain/world';
 
+interface EconomyAccrualTestContext extends EngineRunContext {
+  economyAccruals?: {
+    workforce?: {
+      current?: WorkforcePayrollState;
+      finalizedDays: readonly WorkforcePayrollState[];
+    };
+  };
+}
+
 function buildRole(
   id: string,
   slug: string,
@@ -179,7 +188,7 @@ describe('workforce payroll accruals', () => {
       market: { structures: [] },
     } satisfies WorkforceState;
 
-    const ctx: EngineRunContext = {
+    const ctx: EconomyAccrualTestContext = {
       payroll: {
         locationIndexTable: {
           defaultIndex: 1.2,
@@ -202,7 +211,7 @@ describe('workforce payroll accruals', () => {
     expect(totals.otCost).toBeCloseTo(19.5, 4);
     expect(totals.totalLaborCost).toBeCloseTo(144.3, 4);
 
-    const economyState = (ctx as { economyAccruals?: any }).economyAccruals;
+    const economyState = ctx.economyAccruals;
     expect(economyState?.workforce?.current?.totals.totalLaborCost).toBeCloseTo(144.3, 4);
   });
 
@@ -260,7 +269,7 @@ describe('workforce payroll accruals', () => {
       market: { structures: [] },
     } satisfies WorkforceState;
 
-    const ctx: EngineRunContext = {
+    const ctx: EconomyAccrualTestContext = {
       payroll: {
         locationIndexTable: {
           defaultIndex: 0.9,
@@ -349,7 +358,7 @@ describe('workforce payroll accruals', () => {
       market: { structures: [] },
     } satisfies WorkforceState;
 
-    const ctx: EngineRunContext = {
+    const ctx: EconomyAccrualTestContext = {
       payroll: {
         locationIndexTable: {
           defaultIndex: 1,
@@ -409,7 +418,7 @@ describe('workforce payroll accruals', () => {
       payroll: priorPayroll,
     } satisfies WorkforceState;
 
-    const ctx: EngineRunContext = {};
+    const ctx: EconomyAccrualTestContext = {};
 
     const nextWorld = runStages(
       { ...world, workforce } satisfies SimulationWorld,
@@ -422,7 +431,7 @@ describe('workforce payroll accruals', () => {
     expect(nextPayroll.totals.baseMinutes).toBe(0);
     expect(nextPayroll.totals.totalLaborCost).toBe(0);
 
-    const finalizedDays = (ctx as { economyAccruals?: any }).economyAccruals?.workforce?.finalizedDays;
+    const finalizedDays = ctx.economyAccruals?.workforce?.finalizedDays;
     expect(finalizedDays).toBeDefined();
     expect(finalizedDays?.[0]?.totals.baseCost).toBe(10);
     expect(finalizedDays?.[0]?.totals.totalLaborCost).toBe(10);

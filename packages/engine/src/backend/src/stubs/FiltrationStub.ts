@@ -42,7 +42,7 @@ export function createFiltrationStub(): IFiltrationUnit {
       if (airflow_m3_per_h === 0 || resolvedDt_h === 0 || basePressureDrop_pa === 0) {
         return {
           odor_concentration_delta: 0,
-          particulate_removal_pct: 0,
+          particulateRemoval01: 0,
           pressure_drop_pa: 0,
           airflow_reduction_m3_per_h: 0
         } satisfies FiltrationUnitOutputs;
@@ -56,17 +56,17 @@ export function createFiltrationStub(): IFiltrationUnit {
       const airflow_reduction_m3_per_h = Math.min(Math.max(unclampedReduction, 0), maxReduction);
       const odor_concentration_delta = -efficiency01 * condition01 * (airflow_m3_per_h / 100) * resolvedDt_h;
 
-      let particulate_removal_pct = 0;
+      let particulateRemoval01 = 0;
 
       if (inputs.filterType === 'hepa') {
-        particulate_removal_pct = efficiency01 * 99;
+        particulateRemoval01 = efficiency01 * 0.99;
       } else if (inputs.filterType === 'pre-filter') {
-        particulate_removal_pct = efficiency01 * 60;
+        particulateRemoval01 = efficiency01 * 0.6;
       }
 
       return {
         odor_concentration_delta,
-        particulate_removal_pct,
+        particulateRemoval01,
         pressure_drop_pa,
         airflow_reduction_m3_per_h
       } satisfies FiltrationUnitOutputs;

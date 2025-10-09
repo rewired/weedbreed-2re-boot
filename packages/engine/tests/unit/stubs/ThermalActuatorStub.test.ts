@@ -15,7 +15,7 @@ const ZONE_VOLUME_M3 = 50;
 const AIR_MASS_KG = ZONE_VOLUME_M3 * AIR_DENSITY_KG_PER_M3;
 const BASE_ENV_STATE: ZoneEnvironment = {
   airTemperatureC: 22,
-  relativeHumidity_pct: 55,
+  relativeHumidity01: 0.55,
   co2_ppm: AMBIENT_CO2_PPM
 };
 

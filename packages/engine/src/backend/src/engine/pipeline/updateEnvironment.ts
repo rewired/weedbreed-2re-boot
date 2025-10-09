@@ -26,21 +26,21 @@ function clampHumidity(value: number): number {
     return 0;
   }
 
-  if (value >= 100) {
-    return 100;
+  if (value >= 1) {
+    return 1;
   }
 
   return value;
 }
 
-function updateZoneHumidity(zone: Zone, deltaRH_pct: number): Zone {
-  if (Math.abs(deltaRH_pct) < FLOAT_TOLERANCE) {
+function updateZoneHumidity(zone: Zone, deltaRH01: number): Zone {
+  if (Math.abs(deltaRH01) < FLOAT_TOLERANCE) {
     return zone;
   }
 
-  const currentRaw = zone.environment.relativeHumidity_pct;
+  const currentRaw = zone.environment.relativeHumidity01;
   const current = Number.isFinite(currentRaw) ? currentRaw : 0;
-  const next = clampHumidity(current + deltaRH_pct);
+  const next = clampHumidity(current + deltaRH01);
 
   if (Math.abs(next - current) < FLOAT_TOLERANCE) {
     return zone;
@@ -50,7 +50,7 @@ function updateZoneHumidity(zone: Zone, deltaRH_pct: number): Zone {
     ...zone,
     environment: {
       ...zone.environment,
-      relativeHumidity_pct: next
+      relativeHumidity01: next
     }
   } satisfies Zone;
 }
@@ -131,7 +131,7 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
   }
 
   const zoneHeatMap = runtime.zoneTemperatureDeltaC;
-  const zoneHumidityMap = runtime.zoneHumidityDeltaPct;
+  const zoneHumidityMap = runtime.zoneHumidityDelta01;
   const zonePPFDMap = runtime.zonePPFD_umol_m2s;
   const zoneDLIMap = runtime.zoneDLI_mol_m2d_inc;
   const zoneCo2Map = runtime.zoneCo2Delta_ppm;
@@ -151,8 +151,8 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
         let nextZone = updateZoneTemperature(zone, netDeltaC);
         zoneHeatMap.delete(zone.id);
 
-        const deltaRH_pct = zoneHumidityMap.get(zone.id) ?? 0;
-        nextZone = updateZoneHumidity(nextZone, deltaRH_pct);
+        const deltaRH01 = zoneHumidityMap.get(zone.id) ?? 0;
+        nextZone = updateZoneHumidity(nextZone, deltaRH01);
         zoneHumidityMap.delete(zone.id);
 
         const deltaCo2_ppm = zoneCo2Map.get(zone.id) ?? 0;
