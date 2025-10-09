@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
 import { SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
+import {
+  HUMIDITY_SENSOR_MAX_PCT,
+  HUMIDITY_SENSOR_MIN_PCT,
+  TEMPERATURE_SENSOR_MAX_C,
+  TEMPERATURE_SENSOR_MIN_C
+} from '@/backend/src/constants/climate';
 import { createFiniteNumber } from '../../domain/schemas/primitives.ts';
 import { SENSOR_MEASUREMENT_TYPES } from '../../domain/entities.ts';
 import type { SensorReading } from '../../domain/interfaces/ISensor.ts';
@@ -27,9 +33,9 @@ function isMeasurementWithinRange(
 ): boolean {
   switch (measurementType) {
     case 'temperature':
-      return value >= -50 && value <= 150;
+      return value >= TEMPERATURE_SENSOR_MIN_C && value <= TEMPERATURE_SENSOR_MAX_C;
     case 'humidity':
-      return value >= 0 && value <= 100;
+      return value >= HUMIDITY_SENSOR_MIN_PCT && value <= HUMIDITY_SENSOR_MAX_PCT;
     case 'co2':
       return value >= 0 && value <= SAFETY_MAX_CO2_PPM;
     case 'ppfd':

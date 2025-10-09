@@ -5,6 +5,13 @@ import {
   ROOM_DEFAULT_HEIGHT_M,
   HOURS_PER_DAY
 } from '../../constants/simConstants.ts';
+import {
+  LEGACY_DEHUMIDIFIER_CAPACITY_G_PER_H,
+  LEGACY_HUMIDIFIER_CAPACITY_G_PER_H,
+  MIN_AIR_CHANGES_PER_HOUR
+} from '../../constants/climate.ts';
+import { LEGACY_PHOTON_EFFICACY_UMOL_PER_J } from '../../constants/lighting.ts';
+import { DEFAULT_DEVICE_CONDITION01 } from '../../constants/validation.ts';
 import type {
   AirflowActuatorInputs,
   Co2InjectorInputs,
@@ -238,8 +245,6 @@ function accumulateDLI(
   runtime.zoneDLI_mol_m2d_inc.set(zoneId, current + dli);
 }
 
-const MIN_AIR_CHANGES_PER_HOUR = 1;
-
 function resolveZoneHeight(zone: Zone): number {
   if (Number.isFinite(zone.height_m) && zone.height_m > 0) {
     return zone.height_m;
@@ -447,14 +452,14 @@ function deriveHumidityInputs(
   if (slug.includes('dehumid') || name.includes('dehumid')) {
     return {
       mode: 'dehumidify',
-      capacity_g_per_h: 500 * duty01
+      capacity_g_per_h: LEGACY_DEHUMIDIFIER_CAPACITY_G_PER_H * duty01
     } satisfies HumidityActuatorInputs; // Legacy heuristic
   }
 
   if (slug.includes('humid') || name.includes('humid')) {
     return {
       mode: 'humidify',
-      capacity_g_per_h: 300 * duty01
+      capacity_g_per_h: LEGACY_HUMIDIFIER_CAPACITY_G_PER_H * duty01
     } satisfies HumidityActuatorInputs; // Legacy heuristic
   }
 
@@ -497,7 +502,7 @@ function deriveLightingInputs(
     } satisfies LightEmitterInputs;
   }
 
-  const photonEfficacy_umol_per_J = 2.5; // Legacy heuristic until all blueprints migrate
+  const photonEfficacy_umol_per_J = LEGACY_PHOTON_EFFICACY_UMOL_PER_J;
   const ppfd_center_umol_m2s = power_W * efficiency01 * photonEfficacy_umol_per_J;
 
   if (ppfd_center_umol_m2s <= 0) {
@@ -588,7 +593,9 @@ function deriveFiltrationInputs(
   }
 
   const config = device.effectConfigs.filtration;
-  const condition01 = clamp01(Number.isFinite(device.condition01) ? device.condition01 : 0.9);
+  const condition01 = clamp01(
+    Number.isFinite(device.condition01) ? device.condition01 : DEFAULT_DEVICE_CONDITION01
+  );
 
   return {
     airflow_m3_per_h: upstreamAirflow_m3_per_h,

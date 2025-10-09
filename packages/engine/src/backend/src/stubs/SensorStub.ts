@@ -1,10 +1,17 @@
 import { SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
+import {
+  HUMIDITY_SENSOR_MAX_PCT,
+  HUMIDITY_SENSOR_MIN_PCT,
+  TEMPERATURE_SENSOR_MAX_C,
+  TEMPERATURE_SENSOR_MIN_C
+} from '@/backend/src/constants/climate';
 import type { ISensor, SensorInputs, SensorOutputs } from '../domain/interfaces/ISensor.ts';
 import type { SensorMeasurementType } from '../domain/entities.ts';
 import type { RandomNumberGenerator } from '../util/rng.ts';
 import { clamp } from '../util/math.ts';
 
 function boxMullerTransform(rng: RandomNumberGenerator): number {
+  const TWO = 2 as const;
   let u1 = 0;
   let u2 = 0;
 
@@ -17,17 +24,17 @@ function boxMullerTransform(rng: RandomNumberGenerator): number {
     u2 = rng();
   }
 
-  const radius = Math.sqrt(-2.0 * Math.log(u1));
-  const theta = 2.0 * Math.PI * u2;
+  const radius = Math.sqrt(-TWO * Math.log(u1));
+  const theta = TWO * Math.PI * u2;
   return radius * Math.cos(theta);
 }
 
 function clampMeasuredValue(measurementType: SensorMeasurementType, value: number): number {
   switch (measurementType) {
     case 'temperature':
-      return clamp(value, -50, 150);
+      return clamp(value, TEMPERATURE_SENSOR_MIN_C, TEMPERATURE_SENSOR_MAX_C);
     case 'humidity':
-      return clamp(value, 0, 100);
+      return clamp(value, HUMIDITY_SENSOR_MIN_PCT, HUMIDITY_SENSOR_MAX_PCT);
     case 'co2':
       return clamp(value, 0, SAFETY_MAX_CO2_PPM);
     case 'ppfd':

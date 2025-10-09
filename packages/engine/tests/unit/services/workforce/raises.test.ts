@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   applyRaiseIntent,
   createInitialRaiseState,
-  RAISE_BASE_COOLDOWN_DAYS,
+  RAISE_COOLDOWN_DAYS,
   RAISE_MIN_EMPLOYMENT_DAYS,
 } from '@/backend/src/services/workforce/raises';
 import { createRng } from '@/backend/src/util/rng';
@@ -83,7 +83,7 @@ describe('workforce raise cadence', () => {
     const jitter = Math.round((rng() * 2 - 1) * 45);
     const expectedNext = Math.max(
       currentSimDay + RAISE_MIN_EMPLOYMENT_DAYS,
-      currentSimDay + RAISE_BASE_COOLDOWN_DAYS + jitter,
+      currentSimDay + RAISE_COOLDOWN_DAYS + jitter,
     );
     expect(result.employee.raise.nextEligibleDay).toBe(expectedNext);
   });

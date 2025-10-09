@@ -1,4 +1,5 @@
 import { SECONDS_PER_HOUR } from '../constants/simConstants.ts';
+import { MICROMOLES_PER_MOLE } from '../constants/lighting.ts';
 import type {
   ILightEmitter,
   LightEmitterInputs,
@@ -93,7 +94,7 @@ export function createLightEmitterStub(): ILightEmitter {
       const ppfd_effective_umol_m2s = ppfd_center_umol_m2s * dim;
       const tickSeconds = resolvedDt_h * SECONDS_PER_HOUR;
       const dli_mol_m2d_inc =
-        (ppfd_effective_umol_m2s * tickSeconds) / 1_000_000;
+        (ppfd_effective_umol_m2s * tickSeconds) / MICROMOLES_PER_MOLE;
       const energy_Wh = resolveEnergyWh(inputs, resolvedDt_h);
 
       return ensureFiniteOutputs({

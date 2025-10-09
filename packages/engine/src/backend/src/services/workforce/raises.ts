@@ -9,15 +9,16 @@ import type {
   WorkforceRaiseIntent,
 } from '../../domain/workforce/intents.ts';
 
-const RAISE_ACCEPT_DEFAULT_RATE_INCREASE = 0.05;
-const RAISE_BONUS_DEFAULT_RATE_INCREASE = 0.03;
-const RAISE_ACCEPT_DEFAULT_MORALE_BOOST = 0.06;
-const RAISE_BONUS_DEFAULT_MORALE_BOOST = 0.04;
-const RAISE_IGNORE_DEFAULT_MORALE_PENALTY = -0.08;
-const RAISE_JITTER_RANGE_DAYS = 45;
-
-export const RAISE_MIN_EMPLOYMENT_DAYS = 180;
-export const RAISE_BASE_COOLDOWN_DAYS = 180;
+import {
+  RAISE_ACCEPT_DEFAULT_MORALE_BOOST,
+  RAISE_ACCEPT_DEFAULT_RATE_INCREASE,
+  RAISE_COOLDOWN_DAYS,
+  RAISE_BONUS_DEFAULT_MORALE_BOOST,
+  RAISE_BONUS_DEFAULT_RATE_INCREASE,
+  RAISE_IGNORE_DEFAULT_MORALE_PENALTY,
+  RAISE_JITTER_RANGE_DAYS,
+  RAISE_MIN_EMPLOYMENT_DAYS
+} from '../../constants/workforce.ts';
 
 export interface RaiseIntentOutcome {
   readonly employee: Employee;
@@ -58,7 +59,7 @@ function computeNextEligibleDay(
 ): number {
   const rng = createRng(employee.rngSeedUuid, `workforce:raise:${nextSequence}`);
   const jitter = Math.round((rng() * 2 - 1) * RAISE_JITTER_RANGE_DAYS);
-  const baseTarget = currentSimDay + RAISE_BASE_COOLDOWN_DAYS + jitter;
+  const baseTarget = currentSimDay + RAISE_COOLDOWN_DAYS + jitter;
   const minimum = currentSimDay + RAISE_MIN_EMPLOYMENT_DAYS;
   return Math.max(minimum, baseTarget);
 }
@@ -123,3 +124,14 @@ export function applyRaiseIntent(options: {
     bonusAmount_cc: (intent as WorkforceRaiseBonusIntent).bonusAmount_cc,
   } satisfies RaiseIntentOutcome;
 }
+
+export {
+  RAISE_ACCEPT_DEFAULT_MORALE_BOOST,
+  RAISE_ACCEPT_DEFAULT_RATE_INCREASE,
+  RAISE_COOLDOWN_DAYS,
+  RAISE_BONUS_DEFAULT_MORALE_BOOST,
+  RAISE_BONUS_DEFAULT_RATE_INCREASE,
+  RAISE_IGNORE_DEFAULT_MORALE_PENALTY,
+  RAISE_JITTER_RANGE_DAYS,
+  RAISE_MIN_EMPLOYMENT_DAYS
+} from '../../constants/workforce.ts';

@@ -7,6 +7,12 @@ import type { ZoneEnvironment } from '../domain/entities.ts';
 import { clamp } from '../util/math.ts';
 import { resolveAirMassKg } from '../util/environment.ts';
 import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
+import {
+  HUMIDITY_FACTOR_FALLBACK,
+  HUMIDITY_FACTOR_MAX,
+  HUMIDITY_FACTOR_MIN,
+  HUMIDITY_FACTOR_TABLE
+} from '../constants/climate.ts';
 
 function ensureFiniteOutputs(
   outputs: HumidityActuatorOutputs
@@ -24,28 +30,22 @@ function ensureFiniteOutputs(
   return outputs;
 }
 
-const HUMIDITY_LOOKUP: { readonly tempC: number; readonly factor: number }[] = [
-  { tempC: 15, factor: 0.12 },
-  { tempC: 20, factor: 0.14 },
-  { tempC: 25, factor: 0.15 },
-  { tempC: 30, factor: 0.16 }
-];
-
-const HUMIDITY_FACTOR_MIN = 0.1;
-const HUMIDITY_FACTOR_MAX = 0.18;
-
 function getHumidityFactor_k_rh(tempC: number): number {
   if (!Number.isFinite(tempC)) {
-    return 0.15;
+    return HUMIDITY_FACTOR_FALLBACK;
   }
 
-  if (tempC <= HUMIDITY_LOOKUP[0].tempC) {
-    return clamp(HUMIDITY_LOOKUP[0].factor, HUMIDITY_FACTOR_MIN, HUMIDITY_FACTOR_MAX);
+  if (tempC <= HUMIDITY_FACTOR_TABLE[0].tempC) {
+    return clamp(
+      HUMIDITY_FACTOR_TABLE[0].factor,
+      HUMIDITY_FACTOR_MIN,
+      HUMIDITY_FACTOR_MAX
+    );
   }
 
-  for (let i = 1; i < HUMIDITY_LOOKUP.length; i += 1) {
-    const lower = HUMIDITY_LOOKUP[i - 1];
-    const upper = HUMIDITY_LOOKUP[i];
+  for (let i = 1; i < HUMIDITY_FACTOR_TABLE.length; i += 1) {
+    const lower = HUMIDITY_FACTOR_TABLE[i - 1];
+    const upper = HUMIDITY_FACTOR_TABLE[i];
 
     if (tempC <= upper.tempC) {
       const span = upper.tempC - lower.tempC;
@@ -57,7 +57,7 @@ function getHumidityFactor_k_rh(tempC: number): number {
   }
 
   return clamp(
-    HUMIDITY_LOOKUP[HUMIDITY_LOOKUP.length - 1].factor,
+    HUMIDITY_FACTOR_TABLE[HUMIDITY_FACTOR_TABLE.length - 1].factor,
     HUMIDITY_FACTOR_MIN,
     HUMIDITY_FACTOR_MAX
   );

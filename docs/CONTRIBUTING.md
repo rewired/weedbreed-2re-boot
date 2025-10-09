@@ -16,3 +16,10 @@
 - The repo uses [`simple-git-hooks`](https://github.com/toplenboren/simple-git-hooks). `pnpm install` (or `pnpm prepare`) wires up a `pre-commit` hook that runs `pnpm lint:imports` and `pnpm test:imports` before every commit.
 - If you need to skip the hook temporarily (e.g. for WIP commits), pass `HUSKY=0`/`SKIP=...` environment overrides intentionally and rerun the checks before pushing.
 - Hook output mirrors CI, so fixes applied locally keep the pipeline green.
+
+## Magic number guardrail
+
+- Numeric literals in production TypeScript must live in `packages/engine/src/backend/src/constants/**` (or re-export from `simConstants.ts`).
+- ESLint enforces the `@typescript-eslint/no-magic-numbers` rule with a narrow allowlist. Lint warnings fail CI because `pnpm -r lint` runs with `--max-warnings=0`.
+- Run `pnpm scan:magic` to execute the ripgrep audit locally. The scan ignores tests, schemas, and the constants directory and fails when new literals slip through.
+- When introducing a new threshold or default, document it in the appropriate constants module and update `/docs/constants/README.md`.

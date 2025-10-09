@@ -1,3 +1,15 @@
+import {
+  BASE_DECAY_RATE,
+  HUMIDITY_COMFORT_RANGE_PCT,
+  HUMIDITY_WEIGHT,
+  MAX_HUMIDITY_DEVIATION_PCT,
+  MAX_TEMPERATURE_DEVIATION_C,
+  PEST_DISEASE_RISK_LEVEL_THRESHOLDS,
+  QUARANTINE_DECAY_BONUS,
+  TEMPERATURE_COMFORT_RANGE_C,
+  TEMPERATURE_WEIGHT,
+  HYGIENE_WEIGHT
+} from '../constants/climate.ts';
 import { clamp, clamp01 } from '../util/math.ts';
 import type { ZoneEnvironment } from '../domain/world.ts';
 import type { PestDiseaseRiskLevel } from '../domain/health/pestDisease.ts';
@@ -20,21 +32,6 @@ export interface PestDiseaseRiskResult {
   readonly risk01: number;
   readonly contributions: PestDiseaseRiskContributions;
 }
-
-export const PEST_DISEASE_RISK_LEVEL_THRESHOLDS = {
-  moderate: 0.35,
-  high: 0.7,
-} as const;
-
-export const TEMPERATURE_COMFORT_RANGE_C = { min: 20, max: 26 } as const;
-export const HUMIDITY_COMFORT_RANGE_PCT = { min: 45, max: 60 } as const;
-export const MAX_TEMPERATURE_DEVIATION_C = 10;
-export const MAX_HUMIDITY_DEVIATION_PCT = 25;
-export const TEMPERATURE_WEIGHT = 0.35;
-export const HUMIDITY_WEIGHT = 0.25;
-export const HYGIENE_WEIGHT = 0.4;
-export const BASE_DECAY_RATE = 0.12;
-export const QUARANTINE_DECAY_BONUS = 0.18;
 
 function normalisedDeviation(value: number, range: { min: number; max: number }, maxDeviation: number): number {
   const clamped = clamp(value, range.min, range.max);
@@ -85,3 +82,5 @@ export function evaluatePestDiseaseRisk(inputs: PestDiseaseRiskInputs): PestDise
     },
   } satisfies PestDiseaseRiskResult;
 }
+
+export { PEST_DISEASE_RISK_LEVEL_THRESHOLDS } from '../constants/climate.ts';

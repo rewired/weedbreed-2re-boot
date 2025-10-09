@@ -28,7 +28,8 @@
     "report:packages": "pnpm --filter ./packages/tools run report:packages",
     "tasks:dry": "tsx tools/tasks/renumberTasks.mts --dry",
     "tasks:write": "tsx tools/tasks/renumberTasks.mts --write",
-    "tasks:check": "tsx tools/tasks/renumberTasks.mts --dry --verify"
+    "tasks:check": "tsx tools/tasks/renumberTasks.mts --dry --verify",
+    "scan:magic": "node ./tools/scripts/scan-magic-numbers.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.5.0",
