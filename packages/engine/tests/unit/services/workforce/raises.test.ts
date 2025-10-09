@@ -8,7 +8,38 @@ import {
 } from '@/backend/src/services/workforce/raises';
 import { createRng } from '@/backend/src/util/rng';
 import type { Employee, WorkforceRaiseIntent } from '@/backend/src/domain/world';
-import { expectDefined } from '../../../util/expectors';
+import {
+  expectDefined,
+  asObject,
+  hasKey,
+  toNumber,
+} from '../../../util/expectors';
+
+function expectObjectProperty<T extends string>(
+  source: Record<string, unknown>,
+  key: T,
+): Record<string, unknown> {
+  const hasProperty = hasKey(source, key);
+  expect(hasProperty).toBe(true);
+  if (!hasProperty) {
+    throw new Error(`Expected property "${key}" to be present on object.`);
+  }
+
+  return expectDefined(asObject(source[key]));
+}
+
+function expectNumberProperty<T extends string>(
+  source: Record<string, unknown>,
+  key: T,
+): number {
+  const hasProperty = hasKey(source, key);
+  expect(hasProperty).toBe(true);
+  if (!hasProperty) {
+    throw new Error(`Expected numeric property "${key}" to be present on object.`);
+  }
+
+  return toNumber(source[key]);
+}
 
 function createEmployee(overrides: Partial<Employee> = {}): Employee {
   const base: Employee = {
@@ -71,14 +102,30 @@ describe('workforce raise cadence', () => {
 
     expect(outcome).not.toBeNull();
     const result = expectDefined(outcome);
+    const resultRecord = expectDefined(asObject(result));
 
-    expect(result.moraleDelta01).toBeCloseTo(0.06);
-    expect(result.rateIncreaseFactor).toBeCloseTo(0.05);
-    expect(result.employee.baseRateMultiplier).toBeCloseTo(1.05, 5);
-    expect(result.employee.salaryExpectation_per_h).toBeCloseTo(18.9, 5);
-    expect(result.employee.morale01).toBeCloseTo(0.76, 5);
-    expect(result.employee.raise.cadenceSequence).toBe(1);
-    expect(result.employee.raise.lastDecisionDay).toBe(currentSimDay);
+    const moraleDelta = expectNumberProperty(resultRecord, 'moraleDelta01');
+    expect(moraleDelta).toBeCloseTo(0.06);
+
+    const rateIncreaseFactor = expectNumberProperty(resultRecord, 'rateIncreaseFactor');
+    expect(rateIncreaseFactor).toBeCloseTo(0.05);
+
+    const employeeRecord = expectObjectProperty(resultRecord, 'employee');
+    const baseRateMultiplier = expectNumberProperty(employeeRecord, 'baseRateMultiplier');
+    expect(baseRateMultiplier).toBeCloseTo(1.05, 5);
+
+    const salaryExpectation = expectNumberProperty(employeeRecord, 'salaryExpectation_per_h');
+    expect(salaryExpectation).toBeCloseTo(18.9, 5);
+
+    const morale = expectNumberProperty(employeeRecord, 'morale01');
+    expect(morale).toBeCloseTo(0.76, 5);
+
+    const raiseRecord = expectObjectProperty(employeeRecord, 'raise');
+    const cadenceSequence = expectNumberProperty(raiseRecord, 'cadenceSequence');
+    expect(cadenceSequence).toBe(1);
+
+    const lastDecisionDay = expectNumberProperty(raiseRecord, 'lastDecisionDay');
+    expect(lastDecisionDay).toBe(currentSimDay);
 
     const rng = createRng(employee.rngSeedUuid, 'workforce:raise:1');
     const jitter = Math.round((rng() * 2 - 1) * 45);
@@ -86,7 +133,8 @@ describe('workforce raise cadence', () => {
       currentSimDay + RAISE_MIN_EMPLOYMENT_DAYS,
       currentSimDay + RAISE_COOLDOWN_DAYS + jitter,
     );
-    expect(result.employee.raise.nextEligibleDay).toBe(expectedNext);
+    const nextEligibleDay = expectNumberProperty(raiseRecord, 'nextEligibleDay');
+    expect(nextEligibleDay).toBe(expectedNext);
   });
 
   it('resets cadence on ignore and applies morale penalties without rate changes', () => {
@@ -106,15 +154,28 @@ describe('workforce raise cadence', () => {
 
     expect(outcome).not.toBeNull();
     const result = expectDefined(outcome);
+    const resultRecord = expectDefined(asObject(result));
 
-    expect(result.employee.baseRateMultiplier).toBeCloseTo(1.1, 5);
-    expect(result.employee.morale01).toBeLessThan(previous.morale01);
-    expect(result.moraleDelta01).toBeCloseTo(-0.08, 5);
-    expect(result.employee.raise.cadenceSequence).toBe(2);
-    expect(result.employee.raise.lastDecisionDay).toBe(400);
-    expect(result.employee.raise.nextEligibleDay).toBeGreaterThanOrEqual(
-      400 + RAISE_MIN_EMPLOYMENT_DAYS,
-    );
+    const employeeRecord = expectObjectProperty(resultRecord, 'employee');
+    const baseRateMultiplier = expectNumberProperty(employeeRecord, 'baseRateMultiplier');
+    expect(baseRateMultiplier).toBeCloseTo(1.1, 5);
+
+    const morale = expectNumberProperty(employeeRecord, 'morale01');
+    const previousMorale = toNumber(previous.morale01);
+    expect(morale).toBeLessThan(previousMorale);
+
+    const moraleDelta = expectNumberProperty(resultRecord, 'moraleDelta01');
+    expect(moraleDelta).toBeCloseTo(-0.08, 5);
+
+    const raiseRecord = expectObjectProperty(employeeRecord, 'raise');
+    const cadenceSequence = expectNumberProperty(raiseRecord, 'cadenceSequence');
+    expect(cadenceSequence).toBe(2);
+
+    const lastDecisionDay = expectNumberProperty(raiseRecord, 'lastDecisionDay');
+    expect(lastDecisionDay).toBe(400);
+
+    const nextEligibleDay = expectNumberProperty(raiseRecord, 'nextEligibleDay');
+    expect(nextEligibleDay).toBeGreaterThanOrEqual(400 + RAISE_MIN_EMPLOYMENT_DAYS);
   });
 
   it('allows bonus raises with custom rate increases', () => {
@@ -135,14 +196,27 @@ describe('workforce raise cadence', () => {
 
     expect(outcome).not.toBeNull();
     const result = expectDefined(outcome);
+    const resultRecord = expectDefined(asObject(result));
 
-    expect(result.rateIncreaseFactor).toBeCloseTo(0.02, 5);
-    expect(result.employee.baseRateMultiplier).toBeCloseTo(1.02, 5);
-    expect(result.employee.morale01).toBeCloseTo(employee.morale01 + 0.05, 5);
-    expect(result.employee.raise.cadenceSequence).toBe(5);
-    expect(result.employee.raise.nextEligibleDay).toBeGreaterThanOrEqual(
-      700 + RAISE_MIN_EMPLOYMENT_DAYS,
-    );
-    expect(result.bonusAmount_cc).toBe(500);
+    const rateIncreaseFactor = expectNumberProperty(resultRecord, 'rateIncreaseFactor');
+    expect(rateIncreaseFactor).toBeCloseTo(0.02, 5);
+
+    const employeeRecord = expectObjectProperty(resultRecord, 'employee');
+    const baseRateMultiplier = expectNumberProperty(employeeRecord, 'baseRateMultiplier');
+    expect(baseRateMultiplier).toBeCloseTo(1.02, 5);
+
+    const morale = expectNumberProperty(employeeRecord, 'morale01');
+    const initialMorale = toNumber(employee.morale01);
+    expect(morale).toBeCloseTo(initialMorale + 0.05, 5);
+
+    const raiseRecord = expectObjectProperty(employeeRecord, 'raise');
+    const cadenceSequence = expectNumberProperty(raiseRecord, 'cadenceSequence');
+    expect(cadenceSequence).toBe(5);
+
+    const nextEligibleDay = expectNumberProperty(raiseRecord, 'nextEligibleDay');
+    expect(nextEligibleDay).toBeGreaterThanOrEqual(700 + RAISE_MIN_EMPLOYMENT_DAYS);
+
+    const bonusAmount = expectNumberProperty(resultRecord, 'bonusAmount_cc');
+    expect(bonusAmount).toBe(500);
   });
 });
