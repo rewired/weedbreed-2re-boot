@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042: Added `packages/engine/tsconfig.eslint.json` and updated the
+  workspace ESLint parser project list so engine tests participate in the
+  type-aware program without `parserOptions.project` resolution failures.
+
 - HOTFIX-07: Added workspace `pnpm typecheck`, `pnpm lint`, and `pnpm test` commands,
   wired `pnpm prepush` to chain them locally, and updated CI to run the trio with
   ESLint warnings treated as failures so regression guards stay aligned across
