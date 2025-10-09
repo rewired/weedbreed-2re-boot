@@ -4,6 +4,7 @@ import { TELEMETRY_HARVEST_CREATED_V1 } from '../telemetry/topics.ts';
 import { deterministicUuid } from '../util/uuid.ts';
 import { calculateAccumulatedLightHours } from '../util/photoperiod.ts';
 import { HOURS_PER_DAY, HOURS_PER_TICK } from '../constants/simConstants.ts';
+import { fmtNum } from '../util/format.ts';
 import type {
   HarvestLot,
   LightSchedule,
@@ -253,11 +254,14 @@ function seedZoneWithPlants(
     const plants: Plant[] = [];
 
     for (let index = 0; index < plantCount; index += 1) {
-      const id = deterministicUuid(world.seed, `zone:${zone.id}:plant:${index}`);
+      const id = deterministicUuid(
+        world.seed,
+        `zone:${zone.id}:plant:${fmtNum(index)}`
+      );
       plants.push({
         id,
-        name: `Seedling ${index + 1}`,
-        slug: `seedling-${index + 1}`,
+        name: `Seedling ${fmtNum(index + 1)}`,
+        slug: `seedling-${fmtNum(index + 1)}`,
         strainId,
         lifecycleStage: 'seedling',
         ageHours: 0,

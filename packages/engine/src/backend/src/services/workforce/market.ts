@@ -11,6 +11,7 @@ import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
 import type { WorkforceMarketScanConfig } from '../../config/workforce.ts';
 import { createRng, type RandomNumberGenerator } from '../../util/rng.ts';
 import { deterministicUuid } from '../../util/uuid.ts';
+import { fmtNum } from '../../util/format.ts';
 import {
   assignTraitStrength,
   applyTraitEffects,
@@ -245,13 +246,16 @@ export function generateCandidatePool(
 ): WorkforceMarketCandidate[] {
   const { worldSeed, structureId, scanCounter, poolSize, roles } = options;
   const skillUniverse = resolveSkillUniverse(roles);
-  const poolRng = createRng(worldSeed, `workforce:scan:${structureId}:${scanCounter}`);
+  const poolRng = createRng(
+    worldSeed,
+    `workforce:scan:${structureId}:${fmtNum(scanCounter)}`
+  );
 
   const candidates: WorkforceMarketCandidate[] = [];
 
   for (let index = 0; index < poolSize; index += 1) {
     const role = roles.length > 0 ? pickFrom(roles, poolRng) : undefined;
-    const candidateStreamId = `workforce:candidate:${structureId}:${scanCounter}:${index}`;
+    const candidateStreamId = `workforce:candidate:${structureId}:${fmtNum(scanCounter)}:${fmtNum(index)}`;
     const rng = createRng(worldSeed, candidateStreamId);
     const skills3 = buildSkillBundle(role, skillUniverse, rng);
     const traits = buildTraitSet(rng);
