@@ -39,7 +39,7 @@ function parseThresholdOverrides(): Partial<PerfBudgetThresholds> {
     const value = Number.parseFloat(guard);
 
     if (Number.isFinite(value) && value >= 0 && value < 1) {
-      overrides.warningGuardPercentage = value;
+      overrides.warningGuard01 = value;
     }
   }
 
@@ -106,7 +106,7 @@ const lines = [
   `Average duration: ${(evaluation.metrics.averageDurationNs / 1_000_000).toFixed(3)} ms`,
   `Throughput: ${evaluation.metrics.ticksPerMinute.toFixed(2)} ticks/min (min ${thresholds.minTicksPerMinute.toFixed(0)})`,
   `Heap peak: ${evaluation.metrics.maxHeapUsedMiB.toFixed(2)} MiB (max ${(thresholds.maxHeapBytes / (1024 * 1024)).toFixed(2)} MiB)`,
-  `Guard band: ${(thresholds.warningGuardPercentage * 100).toFixed(1)}%`
+  `Guard band: ${(thresholds.warningGuard01 * 100).toFixed(1)}%`
 ];
 
 for (const scenario of scenarioResults) {

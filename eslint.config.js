@@ -65,5 +65,14 @@ export default tseslint.config(
       "wb-sim/no-economy-per-tick": "error",
       "wb-sim/no-engine-percent-identifiers": "error"
     }
+  },
+  {
+    files: [
+      "packages/**/src/**/constants/**/*.ts",
+      "packages/**/tests/constants.ts"
+    ],
+    rules: {
+      "@typescript-eslint/no-magic-numbers": "off"
+    }
   }
 );

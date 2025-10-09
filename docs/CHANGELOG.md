@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0043): Extracted perf harness, workforce market, and
+  conformance test literals into named constants, introduced a shared
+  `packages/engine/tests/constants.ts` helper, and refreshed the sim constant
+  regression suite to compare against the documented SEC baselines.
 - HOTFIX-042 (Task 0042): Routed numeric template literal segments in engine
   perf/seed-to-harvest pipelines, save/load registries, workforce RNG stream
   identifiers, and façade transport URLs through `fmtNum`/explicit string

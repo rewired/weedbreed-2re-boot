@@ -62,8 +62,11 @@ export interface SeedToHarvestReport {
   readonly performance: SeedToHarvestPerformanceSummary;
 }
 
+/** Scenario identifier used when a report request omits an explicit name. */
 const DEFAULT_SCENARIO_NAME = 'demo-world';
-const DEFAULT_PERF_TICKS = 25;
+
+/** Number of ticks sampled when the perf harness runs without overrides. */
+const DEFAULT_PERF_TICKS = 25 as const;
 
 export function generateSeedToHarvestReport(
   options: SeedToHarvestReportOptions = {}
