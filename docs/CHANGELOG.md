@@ -6,6 +6,9 @@
   trait, and telemetry logic into dedicated modules under `src/workforce/**`, kept
   each file under 500 LOC, and routed all workforce side-effects through a single
   telemetry batch emitter so the tick stage now orchestrates pure functions only.
+- Fixed workforce cultivation scheduling so fresh worlds without a pre-existing
+  workforce state still enqueue cultivation tasks and bootstrap the module when
+  cultivation is the first subsystem to request labor.
 - Added import hygiene guardrails: `simple-git-hooks` pre-commit runs lint + import resolution specs, ESLint now blocks local
   `.js` suffixes in TypeScript, and a Vitest probe dynamically `import()`s engine schemas/pipeline stages to catch bad specifiers
   before CI.
