@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { HarvestLotSchema } from '@/backend/src/domain/schemas/HarvestLotSchema';
 import type { HarvestLot } from '@/backend/src/domain/world';
+import { unwrap } from '../../util/expectors';
 
 const BASE_LOT: HarvestLot = {
   id: '00000000-0000-0000-0000-000000000a00' as HarvestLot['id'],
@@ -23,10 +24,11 @@ describe('HarvestLotSchema', () => {
 
     expect(result.success).toBe(true);
     if (!result.success) {
-      return;
+      throw new Error('Harvest lot should parse successfully');
     }
 
-    expect(result.data).toEqual(BASE_LOT);
+    const parsed = unwrap(result);
+    expect(parsed).toEqual(BASE_LOT);
   });
 
   it('coerces createdAt_tick to an integer', () => {

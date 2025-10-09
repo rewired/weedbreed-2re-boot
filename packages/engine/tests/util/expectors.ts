@@ -14,6 +14,17 @@ export function hasKey<T extends string>(
   return !!o && Object.prototype.hasOwnProperty.call(o, k);
 }
 
+export type Ok<T> = { success: true; data: T };
+export type Err<E = unknown> = { success: false; error: E };
+
+export function unwrap<T>(result: Ok<T>): T {
+  return result.data;
+}
+
+export function unwrapErr<E>(result: Err<E>): E {
+  return result.error;
+}
+
 export function toNumber(x: unknown): number {
   expect(typeof x).toBe('number');
   return x as number;

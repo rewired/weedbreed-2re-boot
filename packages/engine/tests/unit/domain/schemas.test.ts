@@ -10,6 +10,7 @@ import {
 } from '@wb/engine';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint';
 import { deviceQuality } from '../../testUtils/deviceHelpers.ts';
+import { unwrapErr } from '../../util/expectors';
 
 type DeepMutable<T> = T extends (...args: unknown[]) => unknown
   ? T
@@ -210,6 +211,18 @@ const BASE_WORLD = {
 
 const cloneWorld = (): MutableCompanyWorld => structuredClone(BASE_WORLD) as MutableCompanyWorld;
 
+function expectSchemaFailure<E>(
+  result: { success: true } | { success: false; error: E },
+  description: string
+): E {
+  expect(result.success).toBe(false);
+  if (result.success) {
+    throw new Error(description);
+  }
+
+  return unwrapErr(result);
+}
+
 describe('companySchema', () => {
   it('accepts a valid company world payload', () => {
     const result = companySchema.safeParse(cloneWorld());
@@ -224,8 +237,12 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+    const error = expectSchemaFailure(
+      result,
+      'Zones missing cultivation methods should fail validation'
+    );
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual([
       'structures',
       0,
       'rooms',
@@ -244,8 +261,12 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+    const error = expectSchemaFailure(
+      result,
+      'Devices with incorrect placement scopes should fail validation'
+    );
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual([
       'structures',
       0,
       'rooms',
@@ -279,8 +300,12 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+    const error = expectSchemaFailure(
+      result,
+      'Light schedules that do not cover 24 hours should fail validation'
+    );
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual([
       'structures',
       0,
       'rooms',
@@ -298,8 +323,9 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+    const error = expectSchemaFailure(result, 'Growrooms must declare at least one zone');
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual([
       'structures',
       0,
       'rooms',
@@ -315,8 +341,12 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
+    const error = expectSchemaFailure(
+      result,
+      'Non-growrooms containing zones should fail validation'
+    );
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual([
       'structures',
       0,
       'rooms',
@@ -333,10 +363,9 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
-      'location'
-    ]);
+    const error = expectSchemaFailure(result, 'Company must include location metadata');
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual(['location']);
   });
 
   it('rejects longitude coordinates outside the valid range', () => {
@@ -345,11 +374,9 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
-      'location',
-      'lon'
-    ]);
+    const error = expectSchemaFailure(result, 'Longitude outside range should fail validation');
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual(['location', 'lon']);
   });
 
   it('rejects latitude coordinates outside the valid range', () => {
@@ -358,11 +385,9 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
-      'location',
-      'lat'
-    ]);
+    const error = expectSchemaFailure(result, 'Latitude outside range should fail validation');
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual(['location', 'lat']);
   });
 
   it('rejects empty location city names', () => {
@@ -371,11 +396,9 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
-      'location',
-      'cityName'
-    ]);
+    const error = expectSchemaFailure(result, 'City name must be non-empty');
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual(['location', 'cityName']);
   });
 
   it('rejects empty location country names', () => {
@@ -384,11 +407,9 @@ describe('companySchema', () => {
 
     const result = companySchema.safeParse(invalidWorld);
 
-    expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
-      'location',
-      'countryName'
-    ]);
+    const error = expectSchemaFailure(result, 'Country name must be non-empty');
+    const issuePaths = error.issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual(['location', 'countryName']);
   });
 
   it('accepts coordinates located on the boundary values', () => {

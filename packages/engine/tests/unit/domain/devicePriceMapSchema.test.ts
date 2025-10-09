@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { devicePriceMapSchema, parseDevicePriceMap } from '@/backend/src/domain/world';
+import { unwrapErr } from '../../util/expectors';
 
 import devicePriceMap from '../../../../../data/prices/devicePrices.json' with { type: 'json' };
 
@@ -23,10 +24,12 @@ describe('devicePriceMapSchema', () => {
     const result = devicePriceMapSchema.safeParse(invalid);
 
     expect(result.success).toBe(false);
-    if (!result.success) {
-      const issuePaths = result.error.issues.map((issue) => issue.path.join('.'));
-      expect(issuePaths).toContain('devicePrices.00000000-0000-4000-8000-000000000111.maintenanceServiceCost');
+    if (result.success) {
+      throw new Error('Expected missing maintenanceServiceCost to fail validation');
     }
+
+    const issuePaths = unwrapErr(result).issues.map((issue) => issue.path.join('.'));
+    expect(issuePaths).toContain('devicePrices.00000000-0000-4000-8000-000000000111.maintenanceServiceCost');
   });
 
   it('exposes maintenance service cost for canonical devices', () => {

@@ -8,6 +8,7 @@ import {
   parseDeviceBlueprint,
   toDeviceInstanceCapacity
 } from '@/backend/src/domain/world';
+import { unwrapErr } from '../../util/expectors';
 
 import climateUnit from '../../../../../data/blueprints/device/climate/cool-air-split-3000.json' with { type: 'json' };
 import co2Injector from '../../../../../data/blueprints/device/climate/co2-pulse.json' with { type: 'json' };
@@ -192,9 +193,12 @@ describe('deviceBlueprintSchema', () => {
     const result = deviceBlueprintSchema.safeParse(invalid);
 
     expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.path)).toContainEqual([
-      'coverage_m2'
-    ]);
+    if (result.success) {
+      throw new Error('Expected missing coverage to fail validation');
+    }
+
+    const issuePaths = unwrapErr(result).issues.map((issue) => issue.path);
+    expect(issuePaths).toContainEqual(['coverage_m2']);
   });
 
   it('rejects efficiency values outside the unit interval', () => {
@@ -213,9 +217,12 @@ describe('deviceBlueprintSchema', () => {
     const result = deviceBlueprintSchema.safeParse(invalid);
 
     expect(result.success).toBe(false);
-    expect(result.success ? [] : result.error.issues.map((issue) => issue.message)).toContain(
-      'efficiency01 must be <= 1.'
-    );
+    if (result.success) {
+      throw new Error('Expected efficiency outside unit interval to fail validation');
+    }
+
+    const messages = unwrapErr(result).issues.map((issue) => issue.message);
+    expect(messages).toContain('efficiency01 must be <= 1.');
   });
 
   it('parses repository device blueprints without modification', () => {
@@ -238,10 +245,12 @@ describe('deviceBlueprintSchema', () => {
     const result = deviceBlueprintSchema.safeParse(invalid);
 
     expect(result.success).toBe(false);
-    if (!result.success) {
-      const messages = result.error.issues.map((issue) => issue.message);
-      expect(messages).toContain('Monetary field "costPerService_eur" must be declared in /data/prices maps.');
+    if (result.success) {
+      throw new Error('Expected monetary fields to fail validation');
     }
+
+    const messages = unwrapErr(result).issues.map((issue) => issue.message);
+    expect(messages).toContain('Monetary field "costPerService_eur" must be declared in /data/prices maps.');
   });
 
   it('enforces slug uniqueness per class across fixtures', () => {
@@ -269,10 +278,12 @@ describe('deviceBlueprintSchema', () => {
     const result = deviceBlueprintSchema.safeParse(invalid);
 
     expect(result.success).toBe(false);
-    if (!result.success) {
-      const issuePaths = result.error.issues.map((issue) => issue.path.join('.'));
-      expect(issuePaths).toContain('settings.latentRemovalKgPerTick');
+    if (result.success) {
+      throw new Error('Expected missing latent removal setting to fail validation');
     }
+
+    const issuePaths = unwrapErr(result).issues.map((issue) => issue.path.join('.'));
+    expect(issuePaths).toContain('settings.latentRemovalKgPerTick');
   });
 
   it('maps blueprint capacity fields onto device instance props', () => {
@@ -337,10 +348,12 @@ describe('deviceBlueprintSchema', () => {
     const result = deviceBlueprintSchema.safeParse(invalid);
 
     expect(result.success).toBe(false);
-    if (!result.success) {
-      const messages = result.error.issues.map((issue) => issue.message);
-      expect(messages).toContain("thermal config is required when effects include 'thermal'.");
+    if (result.success) {
+      throw new Error('Expected missing thermal config to fail validation');
     }
+
+    const messages = unwrapErr(result).issues.map((issue) => issue.message);
+    expect(messages).toContain("thermal config is required when effects include 'thermal'.");
   });
 
   it('accepts blueprint without effects array for backward compatibility', () => {
