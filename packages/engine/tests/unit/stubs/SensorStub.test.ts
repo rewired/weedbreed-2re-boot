@@ -27,14 +27,14 @@ describe('SensorStub', () => {
     const rng = createRng('test-seed', 'sensor:perfect-condition');
     const reading = HUMIDITY_STUB.computeEffect(
       {
-        trueValue: 60,
+        trueValue: 0.6,
         noise01: 0.5,
         condition01: 1
       },
       rng
     );
 
-    expect(reading.measuredValue).toBe(60);
+    expect(reading.measuredValue).toBeCloseTo(0.6, 6);
     expect(reading.error).toBe(0);
   });
 
@@ -60,7 +60,7 @@ describe('SensorStub', () => {
 
     const readingA = HUMIDITY_STUB.computeEffect(
       {
-        trueValue: 45,
+        trueValue: 0.45,
         noise01: 0.3,
         condition01: 0.4
       },
@@ -68,7 +68,7 @@ describe('SensorStub', () => {
     );
     const readingB = HUMIDITY_STUB.computeEffect(
       {
-        trueValue: 45,
+        trueValue: 0.45,
         noise01: 0.3,
         condition01: 0.4
       },
@@ -118,11 +118,11 @@ describe('SensorStub', () => {
     expect(reading.measuredValue).toBeLessThanOrEqual(150);
   });
 
-  it('clamps humidity readings to [0, 100]', () => {
+  it('clamps humidity readings to [0, 1]', () => {
     const rng = createRng('test-seed', 'sensor:humidity-clamp');
     const reading = HUMIDITY_STUB.computeEffect(
       {
-        trueValue: 95,
+        trueValue: 0.95,
         noise01: 1,
         condition01: 0.1
       },
@@ -130,7 +130,7 @@ describe('SensorStub', () => {
     );
 
     expect(reading.measuredValue).toBeGreaterThanOrEqual(0);
-    expect(reading.measuredValue).toBeLessThanOrEqual(100);
+    expect(reading.measuredValue).toBeLessThanOrEqual(1);
   });
 
   it('calculates absolute error correctly', () => {

@@ -1,7 +1,7 @@
 import { SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
 import {
-  HUMIDITY_SENSOR_MAX_PCT,
-  HUMIDITY_SENSOR_MIN_PCT,
+  HUMIDITY_SENSOR_MAX01,
+  HUMIDITY_SENSOR_MIN01,
   TEMPERATURE_SENSOR_MAX_C,
   TEMPERATURE_SENSOR_MIN_C
 } from '@/backend/src/constants/climate';
@@ -34,7 +34,7 @@ function clampMeasuredValue(measurementType: SensorMeasurementType, value: numbe
     case 'temperature':
       return clamp(value, TEMPERATURE_SENSOR_MIN_C, TEMPERATURE_SENSOR_MAX_C);
     case 'humidity':
-      return clamp(value, HUMIDITY_SENSOR_MIN_PCT, HUMIDITY_SENSOR_MAX_PCT);
+      return clamp(value, HUMIDITY_SENSOR_MIN01, HUMIDITY_SENSOR_MAX01);
     case 'co2':
       return clamp(value, 0, SAFETY_MAX_CO2_PPM);
     case 'ppfd':

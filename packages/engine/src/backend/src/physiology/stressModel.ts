@@ -100,7 +100,7 @@ export function calculateLightStress(
 }
 
 export function calculateHumidityStress(
-  relativeHumidity_pct: number,
+  relativeHumidity01: number,
   strain: StrainBlueprint,
   lifecycleStage: PlantLifecycleStage
 ): number {
@@ -110,7 +110,7 @@ export function calculateHumidityStress(
     return 0;
   }
 
-  const humidityFraction = clamp01(relativeHumidity_pct / 100);
+  const humidityFraction = clamp01(relativeHumidity01);
   return evaluateBandStress(humidityFraction, band, strain.stressTolerance.rh_frac);
 }
 
@@ -125,7 +125,7 @@ export function calculateVpdStress(
     return null;
   }
 
-  const vpd = computeVpd_kPa(environment.airTemperatureC, environment.relativeHumidity_pct);
+  const vpd = computeVpd_kPa(environment.airTemperatureC, environment.relativeHumidity01);
   return evaluateBandStress(vpd, band, strain.stressTolerance.vpd_kPa);
 }
 
@@ -144,7 +144,7 @@ export function calculateCombinedStress(
   if (vpdStress !== null) {
     contributions.push(vpdStress);
   } else {
-    contributions.push(calculateHumidityStress(environment.relativeHumidity_pct, strain, lifecycleStage));
+    contributions.push(calculateHumidityStress(environment.relativeHumidity01, strain, lifecycleStage));
   }
 
   contributions.push(calculateLightStress(ppfd, strain, lifecycleStage));

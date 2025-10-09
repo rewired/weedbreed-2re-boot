@@ -1,8 +1,8 @@
 import {
   BASE_DECAY_RATE,
-  HUMIDITY_COMFORT_RANGE_PCT,
+  HUMIDITY_COMFORT_RANGE01,
   HUMIDITY_WEIGHT,
-  MAX_HUMIDITY_DEVIATION_PCT,
+  MAX_HUMIDITY_DEVIATION01,
   MAX_TEMPERATURE_DEVIATION_C,
   PEST_DISEASE_RISK_LEVEL_THRESHOLDS,
   QUARANTINE_DECAY_BONUS,
@@ -60,9 +60,9 @@ export function evaluatePestDiseaseRisk(inputs: PestDiseaseRiskInputs): PestDise
     TEMPERATURE_WEIGHT;
   const humidityPressure =
     normalisedDeviation(
-      inputs.environment.relativeHumidity_pct,
-      HUMIDITY_COMFORT_RANGE_PCT,
-      MAX_HUMIDITY_DEVIATION_PCT,
+      inputs.environment.relativeHumidity01,
+      HUMIDITY_COMFORT_RANGE01,
+      MAX_HUMIDITY_DEVIATION01,
     ) * HUMIDITY_WEIGHT;
   const hygienePressure = clamp01(1 - clamp01(inputs.hygieneScore01)) * HYGIENE_WEIGHT;
   const totalPressure = temperaturePressure + humidityPressure + hygienePressure;

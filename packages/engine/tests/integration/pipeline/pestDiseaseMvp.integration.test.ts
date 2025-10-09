@@ -57,7 +57,7 @@ function rebuildWorldForScenario(baseWorld: SimulationWorld): SimulationWorld {
     environment: {
       ...zone.environment,
       airTemperatureC: 31,
-      relativeHumidity_pct: 85,
+      relativeHumidity01: 0.85,
     },
   };
 

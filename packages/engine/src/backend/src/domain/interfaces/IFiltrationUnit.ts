@@ -20,8 +20,8 @@ export interface FiltrationUnitInputs {
 export interface FiltrationUnitOutputs {
   /** Change in odour concentration expressed as a unitless proxy (negative reduces odour). */
   readonly odor_concentration_delta: number;
-  /** Particulate removal expressed in percentage points. */
-  readonly particulate_removal_pct: number;
+  /** Particulate removal on the canonical [0,1] scale. */
+  readonly particulateRemoval01: number;
   /** Pressure drop across the filter expressed in pascal. */
   readonly pressure_drop_pa: number;
   /** Reduction in volumetric airflow due to pressure drop expressed in cubic metres per hour. */

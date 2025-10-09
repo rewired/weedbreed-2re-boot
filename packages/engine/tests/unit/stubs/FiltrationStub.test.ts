@@ -91,7 +91,7 @@ describe('FiltrationStub', () => {
         HOURS_PER_TICK
       );
 
-      expect(result.particulate_removal_pct).toBeCloseTo(99, 5);
+      expect(result.particulateRemoval01).toBeCloseTo(0.99, 5);
     });
 
     it('reports 60% removal baseline for pre-filters at full efficiency', () => {
@@ -100,13 +100,13 @@ describe('FiltrationStub', () => {
         HOURS_PER_TICK
       );
 
-      expect(result.particulate_removal_pct).toBeCloseTo(60, 5);
+      expect(result.particulateRemoval01).toBeCloseTo(0.6, 5);
     });
 
     it('reports zero particulate removal for carbon filters', () => {
       const result = stub.computeEffect(BASE_INPUTS, HOURS_PER_TICK);
 
-      expect(result.particulate_removal_pct).toBe(0);
+      expect(result.particulateRemoval01).toBe(0);
     });
   });
 
@@ -139,7 +139,7 @@ describe('FiltrationStub', () => {
 
       expect(Number.isFinite(result.pressure_drop_pa)).toBe(true);
       expect(Number.isFinite(result.airflow_reduction_m3_per_h)).toBe(true);
-      expect(Number.isFinite(result.particulate_removal_pct)).toBe(true);
+      expect(Number.isFinite(result.particulateRemoval01)).toBe(true);
       expect(Number.isFinite(result.odor_concentration_delta)).toBe(true);
       expect(result.odor_concentration_delta).toBeLessThanOrEqual(0);
       expect(result.airflow_reduction_m3_per_h).toBeGreaterThanOrEqual(0);

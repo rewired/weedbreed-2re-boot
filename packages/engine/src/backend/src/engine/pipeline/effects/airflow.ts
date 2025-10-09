@@ -97,7 +97,7 @@ export function applyAirflowAndFiltrationEffect(
   const {
     airflow_reduction_m3_per_h,
     odor_concentration_delta,
-    particulate_removal_pct
+    particulateRemoval01
   } = filtrationStub.computeEffect(filtrationInputs, tickHours);
 
   recordAirflowReduction(state, airflow_reduction_m3_per_h);
@@ -105,9 +105,9 @@ export function applyAirflowAndFiltrationEffect(
   const currentOdor = state.runtime.zoneOdorDelta.get(state.zone.id) ?? 0;
   state.runtime.zoneOdorDelta.set(state.zone.id, currentOdor + odor_concentration_delta);
 
-  const currentParticulate = state.runtime.zoneParticulateRemoval_pct.get(state.zone.id) ?? 0;
-  state.runtime.zoneParticulateRemoval_pct.set(
+  const currentParticulate = state.runtime.zoneParticulateRemoval01.get(state.zone.id) ?? 0;
+  state.runtime.zoneParticulateRemoval01.set(
     state.zone.id,
-    currentParticulate + particulate_removal_pct
+    currentParticulate + particulateRemoval01
   );
 }

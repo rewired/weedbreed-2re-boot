@@ -46,7 +46,7 @@ export function createTestZoneWithOptimalConditions(overrides: Partial<Zone> = {
       overrides.environment ??
       ({
         airTemperatureC: 23,
-        relativeHumidity_pct: 55,
+        relativeHumidity01: 0.55,
         co2_ppm: AMBIENT_CO2_PPM
       } satisfies Zone['environment']),
     ppfd_umol_m2s: overrides.ppfd_umol_m2s ?? 500,

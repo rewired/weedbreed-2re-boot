@@ -74,5 +74,11 @@ export default tseslint.config(
     rules: {
       "@typescript-eslint/no-magic-numbers": "off"
     }
+  },
+  {
+    files: ["packages/**/tests/**/*.ts", "packages/**/tests/**/*.tsx"],
+    rules: {
+      "@typescript-eslint/no-magic-numbers": "off"
+    }
   }
 );

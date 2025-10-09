@@ -14,12 +14,12 @@ describe('physiology VPD utilities', () => {
   });
 
   it('returns deterministic VPD values for standard reference point', () => {
-    expect(computeVpd_kPa(25, 50)).toBeCloseTo(1.5839, 4);
+    expect(computeVpd_kPa(25, 0.5)).toBeCloseTo(1.5839, 4);
   });
 
   it('clamps extreme humidity inputs to produce finite VPD outputs', () => {
     const dryVpd = computeVpd_kPa(30, 0);
-    const saturatedVpd = computeVpd_kPa(30, 100);
+    const saturatedVpd = computeVpd_kPa(30, 1);
 
     expect(Number.isFinite(dryVpd)).toBe(true);
     expect(dryVpd).toBeGreaterThan(0);

@@ -85,7 +85,7 @@ describe('advancePhysiology pipeline', () => {
     const targetZone = zone(world);
     targetZone.environment = {
       airTemperatureC: 23,
-      relativeHumidity_pct: 55,
+      relativeHumidity01: 0.55,
       co2_ppm: AMBIENT_CO2_PPM
     } as Zone['environment'];
     targetZone.ppfd_umol_m2s = 500;
@@ -129,7 +129,7 @@ describe('advancePhysiology pipeline', () => {
     const targetZone = zone(world);
     targetZone.environment = {
       airTemperatureC: 24,
-      relativeHumidity_pct: 55,
+      relativeHumidity01: 0.55,
       co2_ppm: AMBIENT_CO2_PPM
     } as Zone['environment'];
     targetZone.ppfd_umol_m2s = 550;
@@ -165,7 +165,7 @@ describe('advancePhysiology pipeline', () => {
     const targetZone = zone(world);
     targetZone.environment = {
       airTemperatureC: 23,
-      relativeHumidity_pct: 55,
+      relativeHumidity01: 0.55,
       co2_ppm: AMBIENT_CO2_PPM
     } as Zone['environment'];
     targetZone.ppfd_umol_m2s = 500;

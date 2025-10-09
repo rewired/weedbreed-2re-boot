@@ -75,11 +75,11 @@ export function computeDewPoint_C(tempC: number, relativeHumidity01: number): nu
 
 /**
  * Computes the vapour pressure deficit in kilopascals for the provided
- * dry-bulb temperature and relative humidity percentage.
+ * dry-bulb temperature and relative humidity fraction.
  */
-export function computeVpd_kPa(tempC: number, relativeHumidity_pct: number): number {
+export function computeVpd_kPa(tempC: number, relativeHumidity01: number): number {
   const saturation = computeSaturationVapourPressure_kPa(tempC);
-  const humidityFraction = clamp01(relativeHumidity_pct / 100);
+  const humidityFraction = clamp01(relativeHumidity01);
   const vapourPressure = saturation * humidityFraction;
   const deficit = saturation - vapourPressure;
 

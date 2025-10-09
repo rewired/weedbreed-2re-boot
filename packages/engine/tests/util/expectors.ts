@@ -14,8 +14,15 @@ export function hasKey<T extends string>(
   return !!o && Object.prototype.hasOwnProperty.call(o, k);
 }
 
-export type Ok<T> = { success: true; data: T };
-export type Err<E = unknown> = { success: false; error: E };
+export interface Ok<T> {
+  success: true;
+  data: T;
+}
+
+export interface Err<E = unknown> {
+  success: false;
+  error: E;
+}
 
 export function unwrap<T>(result: Ok<T>): T {
   return result.data;

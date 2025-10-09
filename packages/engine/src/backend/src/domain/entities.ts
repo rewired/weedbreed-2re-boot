@@ -370,8 +370,8 @@ export interface Zone extends DomainEntity, SluggedEntity, SpatialEntity {
 export interface ZoneEnvironment {
   /** Dry-bulb air temperature expressed in degrees Celsius. */
   readonly airTemperatureC: number;
-  /** Relative humidity expressed as a percentage on the canonical [0,100] scale. */
-  readonly relativeHumidity_pct: number;
+  /** Relative humidity on the canonical [0,1] scale. */
+  readonly relativeHumidity01: number;
   /** Carbon dioxide concentration expressed in parts per million. */
   readonly co2_ppm: number;
 }

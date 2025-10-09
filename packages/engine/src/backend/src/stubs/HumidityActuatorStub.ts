@@ -17,10 +17,10 @@ import {
 function ensureFiniteOutputs(
   outputs: HumidityActuatorOutputs
 ): HumidityActuatorOutputs {
-  const { deltaRH_pct, water_g, energy_Wh } = outputs;
+  const { deltaRH01, water_g, energy_Wh } = outputs;
 
   if (
-    !Number.isFinite(deltaRH_pct) ||
+    !Number.isFinite(deltaRH01) ||
     !Number.isFinite(water_g) ||
     !Number.isFinite(energy_Wh ?? 0)
   ) {
@@ -106,36 +106,36 @@ export function createHumidityActuatorStub(): IHumidityActuator {
         typeof dt_h === 'number' &&
         (!Number.isFinite(dt_h) || dt_h <= 0)
       ) {
-        return { deltaRH_pct: 0, water_g: 0, energy_Wh: 0 };
+        return { deltaRH01: 0, water_g: 0, energy_Wh: 0 };
       }
 
       const resolvedDt_h = resolveTickHoursValue(dt_h);
       const resolvedAirMass = resolveAirMassKg(airMass_kg);
 
       if (resolvedDt_h === 0 || resolvedAirMass === 0) {
-        return { deltaRH_pct: 0, water_g: 0, energy_Wh: 0 };
+        return { deltaRH01: 0, water_g: 0, energy_Wh: 0 };
       }
 
       const capacity_g_per_h = resolveCapacityGramsPerHour(inputs);
 
       if (capacity_g_per_h === 0) {
-        return { deltaRH_pct: 0, water_g: 0, energy_Wh: 0 };
+        return { deltaRH01: 0, water_g: 0, energy_Wh: 0 };
       }
 
       const tickCapacity_g = clampTickCapacity(capacity_g_per_h, resolvedDt_h);
 
       if (tickCapacity_g === 0) {
-        return { deltaRH_pct: 0, water_g: 0, energy_Wh: 0 };
+        return { deltaRH01: 0, water_g: 0, energy_Wh: 0 };
       }
 
       const mode = inputs.mode;
 
       if (mode === 'dehumidify') {
         const humidityFactor = getHumidityFactor_k_rh(envState.airTemperatureC);
-        const deltaRH_pct = -humidityFactor * (tickCapacity_g / resolvedAirMass);
+        const deltaRH01 = (-humidityFactor * (tickCapacity_g / resolvedAirMass)) / 100;
 
         return ensureFiniteOutputs({
-          deltaRH_pct,
+          deltaRH01,
           water_g: tickCapacity_g,
           energy_Wh: 0
         });
@@ -143,10 +143,10 @@ export function createHumidityActuatorStub(): IHumidityActuator {
 
       if (mode === 'humidify') {
         const humidityFactor = getHumidityFactor_k_rh(envState.airTemperatureC);
-        const deltaRH_pct = humidityFactor * (tickCapacity_g / resolvedAirMass);
+        const deltaRH01 = (humidityFactor * (tickCapacity_g / resolvedAirMass)) / 100;
 
         return ensureFiniteOutputs({
-          deltaRH_pct,
+          deltaRH01,
           water_g: -tickCapacity_g,
           energy_Wh: 0
         });

@@ -66,7 +66,7 @@ function createZone(): Zone {
     airMass_kg: 100,
     environment: {
       airTemperatureC: 22,
-      relativeHumidity_pct: 55,
+      relativeHumidity01: 0.55,
       co2_ppm: 400,
     },
     ppfd_umol_m2s: 0,

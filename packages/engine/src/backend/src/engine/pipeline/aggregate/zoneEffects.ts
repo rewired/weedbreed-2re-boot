@@ -116,7 +116,7 @@ export function initializeZoneAggregation(
   runtime.zoneCoverageEffectiveness01.set(zone.id, effectiveness01);
   runtime.zoneAirflowReductions_m3_per_h.set(zone.id, 0);
   runtime.zoneOdorDelta.set(zone.id, 0);
-  runtime.zoneParticulateRemoval_pct.set(zone.id, 0);
+  runtime.zoneParticulateRemoval01.set(zone.id, 0);
 
   emitCoverageWarning(ctx, zone, totalCoverage_m2, demand_m2, effectiveness01);
 

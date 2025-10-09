@@ -10,7 +10,7 @@ import type { ZoneEnvironment } from '@/backend/src/domain/entities';
 
 const BASE_ENVIRONMENT: ZoneEnvironment = {
   airTemperatureC: 24,
-  relativeHumidity_pct: 55,
+  relativeHumidity01: 0.55,
   co2_ppm: AMBIENT_CO2_PPM
 };
 

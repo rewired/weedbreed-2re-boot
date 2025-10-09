@@ -175,10 +175,7 @@ export const zoneDeviceSchema: z.ZodType<ZoneDeviceInstance> = baseDeviceSchema.
 
 const zoneEnvironmentSchema: z.ZodType<ZoneEnvironment> = z.object({
   airTemperatureC: finiteNumber,
-  relativeHumidity_pct: finiteNumber
-    .min(0, 'relativeHumidity_pct must be >= 0.')
-    .max(100, 'relativeHumidity_pct must be <= 100.')
-    .default(50),
+  relativeHumidity01: zeroToOneNumber.default(0.5),
   co2_ppm: finiteNumber
     .min(0, 'co2_ppm must be >= 0.')
     .default(AMBIENT_CO2_PPM),

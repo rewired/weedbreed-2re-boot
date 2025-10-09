@@ -254,7 +254,7 @@ describe('Tick pipeline — fan and filter chains', () => {
     const runtimeSnapshot = expectDefined(runtime);
 
     const odorDelta = runtimeSnapshot.zoneOdorDelta.get(zone.id) ?? 0;
-    const particulate = runtimeSnapshot.zoneParticulateRemoval_pct.get(zone.id) ?? 0;
+    const particulate = runtimeSnapshot.zoneParticulateRemoval01.get(zone.id) ?? 0;
 
     expect(odorDelta).toBeLessThan(0);
     expect(particulate).toBeGreaterThan(0);

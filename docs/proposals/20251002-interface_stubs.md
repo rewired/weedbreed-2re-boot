@@ -81,9 +81,9 @@
 
 * **Entfeuchten:** `removed_water_g = clamp(capacity_g_per_h * dt_h, 0, max)`
 * **Befeuchten:** analog `added_water_g`.
-* **ΔrH:** `ΔrH_pct ≈ k_rh(T) * (± water_g) / m_air_kg` (Lookup für kleines `k_rh`; **Stabilität vor Genauigkeit**).
+* **ΔrH:** `ΔrH01 ≈ k_rh(T) * (± water_g) / m_air_kg` (Lookup für kleines `k_rh`; **Stabilität vor Genauigkeit**).
 
-**Outputs:** `{ deltaRH_pct, water_g, energy_Wh? }`
+**Outputs:** `{ deltaRH01, water_g, energy_Wh? }`
 **Hinweis:** Kein Phasenwechsel‑Energiebonus; Kopplung an Thermal **später** möglich.
 
 ### 4.3 LightEmitterStub (`device.lighting.ppfd.*`)
@@ -150,7 +150,7 @@ function makeSplitAC(cfg): Device {
 }
 ```
 
-**Ergebnis:** `deltaT_K` **und** `deltaRH_pct`, plus `energy_Wh`.
+**Ergebnis:** `deltaT_K` **und** `deltaRH01`, plus `energy_Wh`.
 
 ### Pattern B — Kombigerät (Entfeuchter mit Reheat)
 
@@ -242,7 +242,7 @@ function compose(...traits) {
 
 ## 7) Telemetry‑Merge (Stack‑aware)
 
-* Jede Teil‑Wirkung liefert Telemetry‑Slices (z. B. `energy_Wh`, `deltaT_K`, `deltaRH_pct`).
+* Jede Teil‑Wirkung liefert Telemetry‑Slices (z. B. `energy_Wh`, `deltaT_K`, `deltaRH01`).
 * Der Aggregator **summiert/merged** je Metrik; **Bounds/Clamps** gelten **nach** dem Merge.
 
 ---

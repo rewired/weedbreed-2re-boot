@@ -13,7 +13,7 @@ const ZONE_VOLUME_M3 = 50;
 const AIR_MASS_KG = ZONE_VOLUME_M3 * AIR_DENSITY_KG_PER_M3;
 const BASE_ENV_STATE: ZoneEnvironment = {
   airTemperatureC: 25,
-  relativeHumidity_pct: 60,
+  relativeHumidity01: 0.6,
   co2_ppm: AMBIENT_CO2_PPM
 };
 
@@ -36,8 +36,8 @@ describe('HumidityActuatorStub', () => {
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, HOURS_PER_TICK);
 
       expect(result.water_g).toBeCloseTo(500, 5);
-      expect(result.deltaRH_pct).toBeLessThan(0);
-      expect(result.deltaRH_pct).toBeCloseTo(-1.25, 2);
+      expect(result.deltaRH01).toBeLessThan(0);
+      expect(result.deltaRH01).toBeCloseTo(-0.0125, 4);
     });
 
     it('removes water proportional to capacity and dt_h', () => {
@@ -45,7 +45,7 @@ describe('HumidityActuatorStub', () => {
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, 0.5);
 
       expect(result.water_g).toBeCloseTo(500, 5);
-      expect(result.deltaRH_pct).toBeLessThan(0);
+      expect(result.deltaRH01).toBeLessThan(0);
     });
 
     it('converts capacity_L_per_h to grams correctly', () => {
@@ -53,7 +53,7 @@ describe('HumidityActuatorStub', () => {
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, HOURS_PER_TICK);
 
       expect(result.water_g).toBeCloseTo(1_800, 5);
-      expect(result.deltaRH_pct).toBeLessThan(0);
+      expect(result.deltaRH01).toBeLessThan(0);
     });
   });
 
@@ -62,7 +62,7 @@ describe('HumidityActuatorStub', () => {
       const inputs = createInputs({ mode: 'humidify', capacity_g_per_h: 300 });
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, HOURS_PER_TICK);
 
-      expect(result.deltaRH_pct).toBeGreaterThan(0);
+      expect(result.deltaRH01).toBeGreaterThan(0);
       expect(result.water_g).toBeCloseTo(-300, 5);
     });
 
@@ -71,8 +71,8 @@ describe('HumidityActuatorStub', () => {
       const resultHalfMass = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG / 2, HOURS_PER_TICK);
       const resultFullMass = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, HOURS_PER_TICK);
 
-      expect(resultHalfMass.deltaRH_pct).toBeGreaterThan(resultFullMass.deltaRH_pct);
-      expect(resultHalfMass.deltaRH_pct).toBeCloseTo(resultFullMass.deltaRH_pct * 2, 5);
+      expect(resultHalfMass.deltaRH01).toBeGreaterThan(resultFullMass.deltaRH01);
+      expect(resultHalfMass.deltaRH01).toBeCloseTo(resultFullMass.deltaRH01 * 2, 5);
     });
   });
 
@@ -85,7 +85,7 @@ describe('HumidityActuatorStub', () => {
       const coolResult = stub.computeEffect(inputs, coolState, AIR_MASS_KG, HOURS_PER_TICK);
       const warmResult = stub.computeEffect(inputs, warmState, AIR_MASS_KG, HOURS_PER_TICK);
 
-      expect(Math.abs(warmResult.deltaRH_pct)).toBeGreaterThan(Math.abs(coolResult.deltaRH_pct));
+      expect(Math.abs(warmResult.deltaRH01)).toBeGreaterThan(Math.abs(coolResult.deltaRH01));
     });
 
     it('interpolates between lookup points', () => {
@@ -98,8 +98,8 @@ describe('HumidityActuatorStub', () => {
       const mid = stub.computeEffect(inputs, midState, AIR_MASS_KG, HOURS_PER_TICK);
       const upper = stub.computeEffect(inputs, upperState, AIR_MASS_KG, HOURS_PER_TICK);
 
-      expect(Math.abs(mid.deltaRH_pct)).toBeGreaterThan(Math.abs(lower.deltaRH_pct));
-      expect(Math.abs(mid.deltaRH_pct)).toBeLessThan(Math.abs(upper.deltaRH_pct));
+      expect(Math.abs(mid.deltaRH01)).toBeGreaterThan(Math.abs(lower.deltaRH01));
+      expect(Math.abs(mid.deltaRH01)).toBeLessThan(Math.abs(upper.deltaRH01));
     });
   });
 
@@ -108,21 +108,21 @@ describe('HumidityActuatorStub', () => {
       const inputs = createInputs({ capacity_g_per_h: 0 });
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, HOURS_PER_TICK);
 
-      expect(result).toEqual({ deltaRH_pct: 0, water_g: 0, energy_Wh: 0 });
+      expect(result).toEqual({ deltaRH01: 0, water_g: 0, energy_Wh: 0 });
     });
 
     it('returns zeros when air mass is zero', () => {
       const inputs = createInputs();
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, 0, HOURS_PER_TICK);
 
-      expect(result).toEqual({ deltaRH_pct: 0, water_g: 0, energy_Wh: 0 });
+      expect(result).toEqual({ deltaRH01: 0, water_g: 0, energy_Wh: 0 });
     });
 
     it('returns zeros when dt_h is zero', () => {
       const inputs = createInputs();
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, 0);
 
-      expect(result).toEqual({ deltaRH_pct: 0, water_g: 0, energy_Wh: 0 });
+      expect(result).toEqual({ deltaRH01: 0, water_g: 0, energy_Wh: 0 });
     });
 
     it('throws when neither capacity field is provided', () => {
@@ -153,7 +153,7 @@ describe('HumidityActuatorStub', () => {
       const inputs = createInputs({ capacity_g_per_h: 750 });
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, 0.75);
 
-      expect(Number.isFinite(result.deltaRH_pct)).toBe(true);
+      expect(Number.isFinite(result.deltaRH01)).toBe(true);
       expect(Number.isFinite(result.water_g)).toBe(true);
       expect(result.energy_Wh).toBe(0);
     });
