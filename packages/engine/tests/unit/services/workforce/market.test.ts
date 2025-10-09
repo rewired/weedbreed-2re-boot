@@ -13,6 +13,7 @@ import type {
   WorkforceState,
 } from '@/backend/src/domain/workforce/WorkforceState';
 import type { WorkforceConfig } from '@/backend/src/config/workforce';
+import { expectDefined } from '../../../util/expectors';
 
 const baseRoles: EmployeeRole[] = [
   {
@@ -93,17 +94,19 @@ describe('workforce market services', () => {
       roles: baseRoles,
     });
 
-    const candidate = scan.pool?.[0];
-    expect(candidate).toBeDefined();
+    const candidate = expectDefined(scan.pool?.[0]);
 
     const hireOptions: PerformMarketHireOptions = {
       market: scan.market,
       structureId,
-      candidateId: candidate!.id,
+      candidateId: candidate.id,
     } satisfies PerformMarketHireOptions;
 
     const hire = performMarketHire(hireOptions);
-    expect(hire.candidate?.id).toBe(candidate!.id);
-    expect(hire.market.structures[0]?.pool).not.toContain(candidate);
+    const hiredCandidate = expectDefined(hire.candidate);
+    expect(hiredCandidate.id).toBe(candidate.id);
+
+    const structure = expectDefined(hire.market.structures[0]);
+    expect(structure.pool).not.toContain(candidate);
   });
 });

@@ -20,6 +20,7 @@ import {
 } from '@/backend/src/domain/world';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint';
 import { deviceQuality } from '../../testUtils/deviceHelpers.ts';
+import { expectDefined } from '../../util/expectors';
 
 function uuid(value: string): Uuid {
   return value as Uuid;
@@ -99,15 +100,14 @@ describe('Phase 1 zone capacity diagnostics', () => {
 
     applyDeviceEffects(world, ctx);
 
-    const runtime = getDeviceEffectsRuntime(ctx);
-    expect(runtime).toBeDefined();
+    const runtime = expectDefined(getDeviceEffectsRuntime(ctx));
 
     const rawDeltaC = applyDeviceHeat(zone, heater, HOURS_PER_TICK);
-    const recordedDeltaC = runtime!.zoneTemperatureDeltaC.get(zone.id) ?? 0;
+    const recordedDeltaC = runtime.zoneTemperatureDeltaC.get(zone.id) ?? 0;
 
     expect(recordedDeltaC).toBeCloseTo(rawDeltaC * 0.5, 6);
-    expect(runtime!.zoneCoverageTotals_m2.get(zone.id)).toBeCloseTo(10);
-    expect(runtime!.zoneCoverageEffectiveness01.get(zone.id)).toBeCloseTo(0.5);
+    expect(runtime.zoneCoverageTotals_m2.get(zone.id)).toBeCloseTo(10);
+    expect(runtime.zoneCoverageEffectiveness01.get(zone.id)).toBeCloseTo(0.5);
 
     expect(diagnostics).toEqual(
       expect.arrayContaining([
@@ -161,13 +161,12 @@ describe('Phase 1 zone capacity diagnostics', () => {
 
     applyDeviceEffects(world, ctx);
 
-    const runtime = getDeviceEffectsRuntime(ctx);
-    expect(runtime).toBeDefined();
+    const runtime = expectDefined(getDeviceEffectsRuntime(ctx));
 
     const expectedAch = 15 / (zone.floorArea_m2 * zone.height_m);
 
-    expect(runtime!.zoneAirflowTotals_m3_per_h.get(zone.id)).toBeCloseTo(15);
-    expect(runtime!.zoneAirChangesPerHour.get(zone.id)).toBeCloseTo(expectedAch, 6);
+    expect(runtime.zoneAirflowTotals_m3_per_h.get(zone.id)).toBeCloseTo(15);
+    expect(runtime.zoneAirChangesPerHour.get(zone.id)).toBeCloseTo(expectedAch, 6);
 
     expect(diagnostics).toEqual(
       expect.arrayContaining([

@@ -6,6 +6,7 @@ import { consumeWorkforceMarketCharges } from '@/backend/src/engine/pipeline/app
 import { DEFAULT_WORKFORCE_CONFIG } from '@/backend/src/config/workforce';
 import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
 import type { EmployeeRole, SimulationWorld, WorkforceState } from '@/backend/src/domain/world';
+import { expectDefined } from '../../util/expectors';
 
 function createRole(): EmployeeRole {
   return {
@@ -127,8 +128,7 @@ describe('hiring market pipeline integration', () => {
     expect(hiringEventsDuringCooldown).toEqual([]);
 
     const hireTelemetry = createTelemetryCollector();
-    const candidateId = marketState?.pool[0]?.id;
-    expect(candidateId).toBeDefined();
+    const candidate = expectDefined(marketState?.pool[0]);
 
     const hireContext: EngineRunContext = {
       workforceConfig: DEFAULT_WORKFORCE_CONFIG,
@@ -137,7 +137,7 @@ describe('hiring market pipeline integration', () => {
           type: 'hiring.market.hire',
           candidate: {
             structureId,
-            candidateId: candidateId!,
+            candidateId: candidate.id,
           },
         },
       ],
@@ -145,16 +145,18 @@ describe('hiring market pipeline integration', () => {
     } satisfies EngineRunContext;
 
     const hiredWorld = runStages(afterCooldownAttempt, hireContext, ['applyWorkforce']);
-    const hiredMarket = hiredWorld.workforce.market.structures.find(
-      (entry) => entry.structureId === structureId,
+    const hiredMarket = expectDefined(
+      hiredWorld.workforce.market.structures.find((entry) => entry.structureId === structureId),
     );
 
-    expect(hiredMarket?.pool).toHaveLength((marketState?.pool.length ?? 1) - 1);
+    expect(hiredMarket.pool).toHaveLength((marketState?.pool.length ?? 1) - 1);
     expect(hiredWorld.workforce.employees).toHaveLength(1);
 
-    const hireEvent = hireTelemetry.events.find(
-      (event) => event.topic === 'telemetry.hiring.employee.onboarded.v1',
+    const hireEvent = expectDefined(
+      hireTelemetry.events.find(
+        (event) => event.topic === 'telemetry.hiring.employee.onboarded.v1',
+      ),
     );
-    expect(hireEvent?.payload).toMatchObject({ structureId });
+    expect(hireEvent.payload).toMatchObject({ structureId });
   });
 });

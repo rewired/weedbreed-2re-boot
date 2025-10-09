@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { expectDefined } from '../../util/expectors';
+
 import {
   createDeviceInstance,
   type DeviceQualityPolicy,
@@ -153,8 +155,11 @@ describe('createDeviceInstance', () => {
     expect(Object.isFrozen(device.effectConfigs)).toBe(true);
     expect(Object.isFrozen(device.effectConfigs?.thermal)).toBe(true);
     expect(Object.isFrozen(device.effects)).toBe(true);
+    const effectConfigs = expectDefined(device.effectConfigs);
+    const thermalConfig = expectDefined(effectConfigs.thermal);
+
     expect(() => {
-      (device.effectConfigs!.thermal as { mode: string }).mode = 'cool';
+      (thermalConfig as { mode: string }).mode = 'cool';
     }).toThrow(TypeError);
   });
 

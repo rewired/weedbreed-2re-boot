@@ -13,6 +13,7 @@ import type {
 import { bankersRound } from '@/backend/src/util/math';
 import devicePrices from '../../../../../data/prices/devicePrices.json' with { type: 'json' };
 import dryboxBlueprint from '../../../../../data/blueprints/device/climate/drybox-200.json' with { type: 'json' };
+import { expectDefined } from '../../util/expectors';
 
 const EPS = FLOAT_TOLERANCE;
 
@@ -278,14 +279,17 @@ describe('economy accrual integration', () => {
     (world).simTimeHours = hourlySlices.length;
     world = applyEconomyAccrual(world, ctx) as Mutable<SimulationWorld>;
 
-    const workforceAccrual = (ctx as {
-      economyAccruals?: { workforce?: { current?: WorkforcePayrollState; finalizedDays: WorkforcePayrollState[] } };
-    }).economyAccruals?.workforce;
+    const workforceAccrual = expectDefined(
+      (ctx as {
+        economyAccruals?: {
+          workforce?: { current?: WorkforcePayrollState; finalizedDays: WorkforcePayrollState[] };
+        };
+      }).economyAccruals?.workforce
+    );
 
-    expect(workforceAccrual).toBeDefined();
-    expect(workforceAccrual?.finalizedDays).toHaveLength(1);
+    expect(workforceAccrual.finalizedDays).toHaveLength(1);
 
-    const [day0] = workforceAccrual!.finalizedDays;
+    const [day0] = workforceAccrual.finalizedDays;
     expect(day0.dayIndex).toBe(0);
 
     const sumBaseMinutes = hourlySlices.reduce((total, slice) => total + slice.baseMinutes, 0);
@@ -303,10 +307,10 @@ describe('economy accrual integration', () => {
     expect(day0.totals.otCost).toBeCloseTo(expectedOtCost, EPS);
     expect(day0.totals.totalLaborCost).toBeCloseTo(expectedTotalCost, EPS);
 
-    const current = workforceAccrual?.current;
-    expect(current?.dayIndex).toBe(1);
-    expect(current?.totals.baseMinutes).toBe(0);
-    expect(current?.totals.baseCost).toBe(0);
-    expect(current?.totals.totalLaborCost).toBe(0);
+    const current = expectDefined(workforceAccrual.current);
+    expect(current.dayIndex).toBe(1);
+    expect(current.totals.baseMinutes).toBe(0);
+    expect(current.totals.baseCost).toBe(0);
+    expect(current.totals.totalLaborCost).toBe(0);
   });
 });
