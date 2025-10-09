@@ -22,7 +22,7 @@ export default defineConfig({
       '@wb/engine': resolve(currentDir, '../engine/src/index.ts'),
       '@wb/transport-sio': resolve(currentDir, '../transport-sio/src/index.ts'),
       '@wb/transport-sio/': resolve(currentDir, '../transport-sio/src/'),
-      '@/backend': resolve(currentDir, '../engine/src/backend'),
+      '@/backend': resolve(currentDir, '../engine/src/backend/src'),
       '@': resolve(currentDir, 'src')
     }
   }
