@@ -83,6 +83,31 @@ export interface SimulationConstants {
    */
   readonly FLOAT_TOLERANCE: number;
   /**
+   * Relative comparison tolerance used for golden master verification and
+   * other deterministic hash comparisons.
+   */
+  readonly EPS_REL: number;
+  /**
+   * Absolute comparison tolerance paired with {@link EPS_REL} when validating
+   * floating point series against golden references.
+   */
+  readonly EPS_ABS: number;
+  /**
+   * Number of bytes contained within a single mebibyte (2^20). Utilised by
+   * performance budgeting logic and memory diagnostics.
+   */
+  readonly BYTES_PER_MEBIBYTE: number;
+  /**
+   * Default truncation length, in hexadecimal characters, for deterministic
+   * hash keys derived from SHA-256 digests.
+   */
+  readonly HASH_KEY_BYTES: number;
+  /**
+   * Default truncation length, in hexadecimal characters, for summary hashes
+   * emitted by golden master fixtures.
+   */
+  readonly HASH_TRUNC_BYTES: number;
+  /**
    * Default longitude (decimal degrees) for company headquarters metadata
    * until the UI allows customisation.
    */
@@ -216,6 +241,37 @@ export const HOURS_PER_YEAR = HOURS_PER_MONTH * MONTHS_PER_YEAR;
 export const FLOAT_TOLERANCE = 1e-6 as const;
 
 /**
+ * Canonical relative tolerance applied when comparing floating point
+ * sequences against golden references.
+ */
+export const EPS_REL = FLOAT_TOLERANCE;
+
+/**
+ * Canonical absolute tolerance paired with {@link EPS_REL} for comparisons
+ * against golden fixtures.
+ */
+export const EPS_ABS = 1e-9 as const;
+
+/**
+ * Canonical multiplier describing the number of bytes contained in a single
+ * mebibyte (2^20). Used by performance budgeting to convert heap metrics to
+ * MiB.
+ */
+export const BYTES_PER_MEBIBYTE = 1_048_576 as const;
+
+/**
+ * Canonical truncation length applied to SHA-256 digests when deriving daily
+ * golden master hashes.
+ */
+export const HASH_KEY_BYTES = 16 as const;
+
+/**
+ * Canonical truncation length applied to SHA-256 digests when deriving
+ * summary hashes for golden master fixtures.
+ */
+export const HASH_TRUNC_BYTES = 24 as const;
+
+/**
  * Temporary default longitude for company headquarters metadata. Anchored to
  * Hamburg (Germany) until SEC-compliant UI capture is available.
  */
@@ -281,6 +337,11 @@ const SIMULATION_CONSTANT_REGISTRY = Object.freeze({
   HOURS_PER_MONTH,
   HOURS_PER_YEAR,
   FLOAT_TOLERANCE,
+  EPS_REL,
+  EPS_ABS,
+  BYTES_PER_MEBIBYTE,
+  HASH_KEY_BYTES,
+  HASH_TRUNC_BYTES,
   DEFAULT_COMPANY_LOCATION_LON,
   DEFAULT_COMPANY_LOCATION_LAT,
   LONGITUDE_MIN_DEG,

@@ -2,6 +2,7 @@ import path from 'node:path';
 
 import { fileURLToPath } from 'node:url';
 
+import { fmtNum } from '../../util/format.ts';
 import { generateGoldenScenarioRun } from './goldenScenario.ts';
 import {
   assertDailyFixtureMatch,
@@ -29,7 +30,7 @@ const FIXTURE_ROOT = fileURLToPath(
 );
 
 function resolveFixtureDir(days: number): string {
-  return path.join(FIXTURE_ROOT, `${days}d`);
+  return path.join(FIXTURE_ROOT, `${fmtNum(days)}d`);
 }
 
 export function runDeterministic(options: DeterministicRunOptions): DeterministicRunResult {

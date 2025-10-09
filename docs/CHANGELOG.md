@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0041): Centralised golden master horizons and formatting helpers,
+  extended `simConstants` with deterministic hash tolerances and MiB scaling, updated
+  perf budgeting to consume the shared constants, refreshed conformance specs to use
+  `fmtNum`, and documented the additions in `/docs/constants`.
+
 - HOTFIX-042: Added `packages/engine/tsconfig.eslint.json` and updated the
   workspace ESLint parser project list so engine tests participate in the
   type-aware program without `parserOptions.project` resolution failures.
