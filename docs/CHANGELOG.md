@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Added a CI LOC guard for `packages/**/src/**` that surfaces warnings at
+  700 LOC and fails the build at 1,200 LOC so oversized modules are caught
+  before review while allowing deliberate refactors to land incrementally.
+
 - Split the domain world validation suite into `validation/company.ts`,
   `validation/devices.ts`, and `validation/roomsZones.ts`, keeping
   `validateCompanyWorld`'s public surface intact while reducing the
