@@ -8,6 +8,10 @@
   workspace config at package build + spec tsconfigs and adding the
   missing `tsconfig.spec.json` manifests so unsafe-any rules only flag
   real issues.
+- HOTFIX-03: Migrated all JSON imports to the Node.js 22 import attribute
+  form and extended the import resolution guardrail to fail if any
+  `.json` specifier omits `with { type: 'json' }`, preventing regressions
+  back to `any` fallbacks in TS/Vitest.
 
 - Published the transport acknowledgement contract: extracted the shared error
   code registry/TypeScript types into `@wb/transport-sio`, added the
