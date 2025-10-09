@@ -3,9 +3,10 @@ import { createSocketTransportDescriptor } from '../../src/index.ts';
 
 describe('createSocketTransportDescriptor', () => {
   it('creates a descriptor with the expected endpoint', () => {
-    const descriptor = createSocketTransportDescriptor({ host: '127.0.0.1', port: 1337 });
+    const TEST_PORT = 1337;
+    const descriptor = createSocketTransportDescriptor({ host: '127.0.0.1', port: TEST_PORT });
 
-    expect(descriptor).toEqual({ endpointUrl: 'http://127.0.0.1:1337' });
+    expect(descriptor).toEqual({ endpointUrl: `http://127.0.0.1:${String(TEST_PORT)}` });
   });
 
   it('validates the provided port', () => {
