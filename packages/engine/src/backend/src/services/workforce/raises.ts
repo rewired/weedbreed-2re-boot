@@ -1,5 +1,6 @@
 import { clamp01 } from '../../util/math.ts';
 import { createRng } from '../../util/rng.ts';
+import { fmtNum } from '../../util/format.ts';
 import type {
   Employee,
   EmployeeRaiseState,
@@ -57,7 +58,10 @@ function computeNextEligibleDay(
   currentSimDay: number,
   nextSequence: number,
 ): number {
-  const rng = createRng(employee.rngSeedUuid, `workforce:raise:${nextSequence}`);
+  const rng = createRng(
+    employee.rngSeedUuid,
+    `workforce:raise:${fmtNum(nextSequence)}`
+  );
   const jitter = Math.round((rng() * 2 - 1) * RAISE_JITTER_RANGE_DAYS);
   const baseTarget = currentSimDay + RAISE_COOLDOWN_DAYS + jitter;
   const minimum = currentSimDay + RAISE_MIN_EMPLOYMENT_DAYS;

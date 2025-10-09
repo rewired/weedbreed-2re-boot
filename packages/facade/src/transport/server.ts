@@ -225,7 +225,8 @@ export async function createTransportServer(options: TransportServerOptions): Pr
   }
 
   const { port: resolvedPort } = address as AddressInfo;
-  const url = `http://${host}:${resolvedPort}`;
+  const resolvedPortLabel = String(resolvedPort);
+  const url = `http://${host}:${resolvedPortLabel}`;
 
   return {
     host,

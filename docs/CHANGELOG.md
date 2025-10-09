@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0042): Routed numeric template literal segments in engine
+  perf/seed-to-harvest pipelines, save/load registries, workforce RNG stream
+  identifiers, and façade transport URLs through `fmtNum`/explicit string
+  conversion to satisfy the `restrict-template-expressions` lint guardrail.
+
 - HOTFIX-042 (Task 0041): Centralised golden master horizons and formatting helpers,
   extended `simConstants` with deterministic hash tolerances and MiB scaling, updated
   perf budgeting to consume the shared constants, refreshed conformance specs to use

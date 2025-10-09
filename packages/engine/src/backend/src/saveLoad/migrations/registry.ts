@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { saveGameEnvelopeSchema } from '../schemas.ts';
+import { fmtNum } from '../../util/format.ts';
 
 export interface SaveGameMigrationStep {
   readonly fromVersion: number;
@@ -29,7 +30,7 @@ export class SaveGameMigrationRegistry {
 
   public register(step: SaveGameMigrationStep): void {
     if (this.steps.has(step.fromVersion)) {
-      throw new Error(`Migration from version ${step.fromVersion} already registered`);
+      throw new Error(`Migration from version ${fmtNum(step.fromVersion)} already registered`);
     }
 
     if (step.toVersion <= step.fromVersion) {
@@ -44,14 +45,14 @@ export class SaveGameMigrationRegistry {
     let version = extractSchemaVersion(working);
 
     if (version > targetVersion) {
-      throw new Error(`Cannot migrate save from newer schemaVersion ${version}`);
+      throw new Error(`Cannot migrate save from newer schemaVersion ${fmtNum(version)}`);
     }
 
     while (version < targetVersion) {
       const step = this.steps.get(version);
 
       if (!step) {
-        throw new Error(`No migration registered for schemaVersion ${version}`);
+        throw new Error(`No migration registered for schemaVersion ${fmtNum(version)}`);
       }
 
        
@@ -60,7 +61,7 @@ export class SaveGameMigrationRegistry {
 
       if (version !== step.toVersion) {
         throw new Error(
-          `Migration from ${step.fromVersion} returned schemaVersion ${version}; expected ${step.toVersion}`,
+          `Migration from ${fmtNum(step.fromVersion)} returned schemaVersion ${fmtNum(version)}; expected ${fmtNum(step.toVersion)}`,
         );
       }
     }

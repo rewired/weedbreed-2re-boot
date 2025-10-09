@@ -49,7 +49,8 @@ export async function createNamespaceClient(
   harness: TransportHarness,
   namespace: '/telemetry' | '/intents'
 ): Promise<Socket> {
-  const socket = createClient(`http://127.0.0.1:${harness.port}${namespace}`, {
+  const portSegment = String(harness.port);
+  const socket = createClient(`http://127.0.0.1:${portSegment}${namespace}`, {
     transports: ['websocket'],
     forceNew: true,
   });

@@ -2,6 +2,7 @@ import type { SimulationWorld, Structure, Room, Zone, ZoneDeviceInstance } from 
 import type { Uuid } from '../../domain/schemas/primitives.ts';
 import { createDemoWorld } from '../testHarness.ts';
 import { deterministicUuid } from '../../util/uuid.ts';
+import { fmtNum } from '../../util/format.ts';
 import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
 import { createDeviceInstance } from '../../device/createDeviceInstance.ts';
 import {
@@ -69,7 +70,10 @@ function instantiateZoneDevice(
   zoneSeed: string,
   deviceIndex: number
 ): ZoneDeviceInstance {
-  const id = deterministicUuid('perf-target', `${zoneSeed}:${blueprint.slug}:${deviceIndex}`);
+  const id = deterministicUuid(
+    'perf-target',
+    `${zoneSeed}:${blueprint.slug}:${fmtNum(deviceIndex)}`
+  );
   const qualityPolicy = { sampleQuality01: () => clamp01((blueprint as { quality?: number }).quality ?? 0.85) };
   const seeded = createDeviceInstance(qualityPolicy, zoneSeed, id, blueprint);
   const { effects } = seeded;
@@ -125,7 +129,7 @@ function instantiateZoneDevice(
 }
 
 function buildZoneDevices(zoneIndex: number): ZoneDeviceInstance[] {
-  const seed = `perf-zone-${zoneIndex}`;
+  const seed = `perf-zone-${fmtNum(zoneIndex)}`;
   return BASE_DEVICE_BLUEPRINTS.map((entry, index) =>
     instantiateZoneDevice(entry.blueprint, entry.dutyCycle01, seed, index)
   );
@@ -144,12 +148,12 @@ function cloneRoom(room: Room): Room {
 }
 
 function createPerfZone(baseZone: Zone, index: number): Zone {
-  const zoneSeed = `perf-target-zone-${index}`;
+  const zoneSeed = `perf-target-zone-${fmtNum(index)}`;
   return {
     ...baseZone,
     id: deterministicUuid('perf-target', `${zoneSeed}:id`),
-    slug: `${baseZone.slug}-perf-${index + 1}`,
-    name: `${baseZone.name} Perf ${index + 1}`,
+    slug: `${baseZone.slug}-perf-${fmtNum(index + 1)}`,
+    name: `${baseZone.name} Perf ${fmtNum(index + 1)}`,
     devices: buildZoneDevices(index),
     plants: baseZone.plants.map((plant) => ({ ...plant })),
     nutrientBuffer_mg: { ...baseZone.nutrientBuffer_mg }

@@ -8,6 +8,7 @@ import { saveGameEnvelopeSchema, saveGameSchema, type SaveGame } from './schemas
 import { type SaveGameMigrationRegistry } from './migrations/index.ts';
 import { validateCompanyWorld } from '../domain/validation.ts';
 import type { Company } from '../domain/entities.ts';
+import { fmtNum } from '../util/format.ts';
 
 /**
  * Optional configuration for {@link loadSaveGame}.
@@ -82,7 +83,9 @@ export async function loadSaveGame(filePath: string, options: LoadSaveGameOption
   const targetVersion = options.targetVersion ?? CURRENT_SAVE_SCHEMA_VERSION;
 
   if (envelope.schemaVersion > targetVersion) {
-    throw new Error(`Save file schemaVersion ${envelope.schemaVersion} exceeds supported version ${targetVersion}`);
+    throw new Error(
+      `Save file schemaVersion ${fmtNum(envelope.schemaVersion)} exceeds supported version ${fmtNum(targetVersion)}`,
+    );
   }
 
   if (envelope.schemaVersion === targetVersion) {
