@@ -6,6 +6,8 @@
   `/intents` namespaces, shipped integration coverage for the namespace wiring
   and health endpoint, added a dev script for local runs, and documented the
   startup flow in `docs/tools/dev-stack.md`.
+- Added `@wb/transport-sio` integration specs guarding telemetry read-only
+  rejections and intent acknowledgement paths in line with SEC §11/TDD §11.
 - Added a CI LOC guard for `packages/**/src/**` that surfaces warnings at
   700 LOC and fails the build at 1,200 LOC so oversized modules are caught
   before review while allowing deliberate refactors to land incrementally.
