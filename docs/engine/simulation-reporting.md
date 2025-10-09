@@ -49,7 +49,7 @@ If the command fails with `Cannot find module '@npmcli/config'`, npm handled the
 ## 6) CI performance budget harness
 
 - The same perf harness powers the CI gate: `pnpm --filter @wb/engine perf:ci` traces 10 k demo-world ticks, enforces ≥ 5 k ticks/min throughput and a 64 MiB heap ceiling, and surfaces 5 % guard-band warnings for near-regressions that demand manual investigation.
-- Override knobs for local experimentation are exposed via environment variables (`PERF_CI_TICK_COUNT`, `PERF_CI_MIN_TICKS_PER_MINUTE`, `PERF_CI_MAX_HEAP_MIB`, `PERF_CI_WARNING_GUARD_PERCENTAGE`). CI never relaxes the failure thresholds; guard-band warnings document the review window.
+- Override knobs for local experimentation are exposed via environment variables (`PERF_CI_TICK_COUNT`, `PERF_CI_MIN_TICKS_PER_MINUTE`, `PERF_CI_MAX_HEAP_MIB`, `PERF_CI_WARNING_GUARD_BAND_01`). CI never relaxes the failure thresholds; guard-band warnings document the review window and expect a normalised 0–1 override when customised.
 
 ## 5) JSON schema
 

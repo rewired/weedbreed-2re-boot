@@ -17,7 +17,14 @@ function parseThresholdOverrides(): Partial<PerfBudgetThresholds> {
   const overrides: Partial<PerfBudgetThresholds> = {};
   const throughput = process.env.PERF_CI_MIN_TICKS_PER_MINUTE;
   const heap = process.env.PERF_CI_MAX_HEAP_MIB;
-  const guard = process.env.PERF_CI_WARNING_GUARD_PERCENTAGE;
+  const guardBand01 =
+    process.env.PERF_CI_WARNING_GUARD_BAND_01 ?? process.env.PERF_CI_WARNING_GUARD_PERCENTAGE;
+
+  if (!process.env.PERF_CI_WARNING_GUARD_BAND_01 && process.env.PERF_CI_WARNING_GUARD_PERCENTAGE) {
+    console.warn(
+      'PERF_CI_WARNING_GUARD_PERCENTAGE is deprecated; use PERF_CI_WARNING_GUARD_BAND_01 (0-1 scale).'
+    );
+  }
 
   if (throughput) {
     const value = Number.parseFloat(throughput);
@@ -35,8 +42,8 @@ function parseThresholdOverrides(): Partial<PerfBudgetThresholds> {
     }
   }
 
-  if (guard) {
-    const value = Number.parseFloat(guard);
+  if (guardBand01) {
+    const value = Number.parseFloat(guardBand01);
 
     if (Number.isFinite(value) && value >= 0 && value < 1) {
       overrides.warningGuard01 = value;

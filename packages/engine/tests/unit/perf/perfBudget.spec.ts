@@ -57,6 +57,11 @@ describe('evaluatePerfBudget', () => {
     expect(evaluation.warnings).toHaveLength(0);
   });
 
+  it('exposes guard-band thresholds on the 0-1 scale', () => {
+    expect(PERF_CI_THRESHOLDS.warningGuard01).toBeGreaterThanOrEqual(0);
+    expect(PERF_CI_THRESHOLDS.warningGuard01).toBeLessThan(1);
+  });
+
   it('emits warnings when metrics are inside the guard band', () => {
     const averageDurationNs = Math.round((60 * 1_000_000_000) / 5_100);
     const result = createPerfHarnessResult({
