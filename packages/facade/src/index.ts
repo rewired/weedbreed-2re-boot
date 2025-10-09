@@ -43,6 +43,12 @@ export {
   createHiringMarketHireIntent,
   createHiringMarketScanIntent,
 } from './intents/hiring.ts';
+export {
+  createTransportServer,
+  type TransportCorsOptions,
+  type TransportServer,
+  type TransportServerOptions,
+} from './transport/server.ts';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.

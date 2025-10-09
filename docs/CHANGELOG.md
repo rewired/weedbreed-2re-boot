@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Bootstrapped the façade transport server factory exposing `/telemetry` and
+  `/intents` namespaces, shipped integration coverage for the namespace wiring
+  and health endpoint, added a dev script for local runs, and documented the
+  startup flow in `docs/tools/dev-stack.md`.
 - Added a CI LOC guard for `packages/**/src/**` that surfaces warnings at
   700 LOC and fails the build at 1,200 LOC so oversized modules are caught
   before review while allowing deliberate refactors to land incrementally.
