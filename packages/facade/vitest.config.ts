@@ -18,12 +18,12 @@ export default defineConfig({
     target: 'es2022'
   },
   resolve: {
-    alias: {
-      '@wb/engine': resolve(currentDir, '../engine/src/index.ts'),
-      '@wb/transport-sio': resolve(currentDir, '../transport-sio/src/index.ts'),
-      '@wb/transport-sio/': resolve(currentDir, '../transport-sio/src/'),
-      '@/backend': resolve(currentDir, '../engine/src/backend/src'),
-      '@': resolve(currentDir, 'src')
-    }
+    alias: [
+      { find: '@wb/engine', replacement: resolve(currentDir, '../engine/src/index.ts') },
+      { find: '@wb/transport-sio/', replacement: resolve(currentDir, '../transport-sio/src/') },
+      { find: '@wb/transport-sio', replacement: resolve(currentDir, '../transport-sio/src/index.ts') },
+      { find: '@/backend', replacement: resolve(currentDir, '../engine/src/backend') },
+      { find: '@', replacement: resolve(currentDir, 'src') }
+    ]
   }
 });

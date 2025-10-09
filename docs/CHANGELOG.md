@@ -2,6 +2,8 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Fixed – Restore shared workspace test setup (`packages/tests/setup.ts`) used by
+  import guard tests.
 - HOTFIX-02: Restored ESLint's type-aware parser wiring by pointing the
   workspace config at package build + spec tsconfigs and adding the
   missing `tsconfig.spec.json` manifests so unsafe-any rules only flag
