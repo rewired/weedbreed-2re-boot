@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-06: Added a temporary test-only ESLint override block that disables
+  unsafe assignment/member/call and non-null assertion rules while HOTFIX-01
+  through HOTFIX-05 finish restoring full type resolution, and recorded a
+  follow-up task to remove the relaxation once the blockers clear.
 - Fixed – Restore shared workspace test setup (`packages/tests/setup.ts`) used by
   import guard tests.
 - HOTFIX-02: Restored ESLint's type-aware parser wiring by pointing the
