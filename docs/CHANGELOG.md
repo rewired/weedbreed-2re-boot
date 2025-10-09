@@ -2,6 +2,9 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0045): Renamed the CI performance guard-band override to `PERF_CI_WARNING_GUARD_BAND_01`, kept a deprecation
+  warning for the old `%` variable, and clarified in the perf harness docs that overrides must stay on the canonical 0–1 scale
+  so `wb-sim/no-engine-percent-identifiers` remains green across engine scripts.
 - HOTFIX-042 (Task 0044): Normalised engine humidity and filtration metrics to the
   canonical [0,1] scale by renaming percent-based identifiers, updating stubs,
   pipelines, schemas, and sensor validation, and refreshing tests/docs to satisfy
