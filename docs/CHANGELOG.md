@@ -2,6 +2,9 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- Removed HOTFIX-06's temporary test-only ESLint overrides now that type-aware
+  linting is restored across the workspace, re-enabling unsafe assignment,
+  member access, call, non-null assertion, and magic number checks for tests.
 - HOTFIX-06: Added a temporary test-only ESLint override block that disables
   unsafe assignment/member/call and non-null assertion rules while HOTFIX-01
   through HOTFIX-05 finish restoring full type resolution, and recorded a

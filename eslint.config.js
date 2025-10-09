@@ -64,16 +64,5 @@ export default tseslint.config(
       "wb-sim/no-economy-per-tick": "error",
       "wb-sim/no-engine-percent-identifiers": "error"
     }
-  },
-  {
-    files: ["**/*.test.ts", "**/*.spec.ts"],
-    // TODO(HOTFIX-06-REMOVE): Temporary relaxations until HOTFIX-01..05 land.
-    rules: {
-      "@typescript-eslint/no-magic-numbers": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/no-unsafe-member-access": "off",
-      "@typescript-eslint/no-unsafe-call": "off",
-      "@typescript-eslint/no-non-null-assertion": "off"
-    }
   }
 );
