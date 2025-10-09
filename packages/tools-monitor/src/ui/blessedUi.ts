@@ -5,6 +5,11 @@ import type { Widgets } from 'blessed';
 const typedBlessed = blessed as unknown as typeof Blessed;
 import type { MonitorUi, MonitorViewModel } from '../runtime.ts';
 
+const STATUS_BOX_HEIGHT = 3;
+const PANEL_TOP_OFFSET = STATUS_BOX_HEIGHT;
+const COST_DISPLAY_PRECISION = 4;
+const LOG_HISTORY_LIMIT = 50;
+
 export interface BlessedMonitorOptions {
   readonly targetUrl: string;
   readonly onExit: () => void;
@@ -66,7 +71,7 @@ export function createBlessedMonitorUi(options: BlessedMonitorOptions): MonitorU
         top: 0,
         left: 0,
         width: '100%',
-        height: 3,
+        height: STATUS_BOX_HEIGHT,
         tags: true,
         padding: { left: 1, right: 1 },
         border: { type: 'line' },
@@ -77,7 +82,7 @@ export function createBlessedMonitorUi(options: BlessedMonitorOptions): MonitorU
       });
 
       workforceBox = typedBlessed.box({
-        top: 3,
+        top: PANEL_TOP_OFFSET,
         left: 0,
         width: '50%',
         height: '30%',
@@ -96,7 +101,7 @@ export function createBlessedMonitorUi(options: BlessedMonitorOptions): MonitorU
       });
 
       healthBox = typedBlessed.box({
-        top: 3,
+        top: PANEL_TOP_OFFSET,
         left: '50%',
         width: '50%',
         height: '30%',
@@ -272,14 +277,26 @@ export function createBlessedMonitorUi(options: BlessedMonitorOptions): MonitorU
       const economy = view.economy;
       const economyLines = [
         `Payroll day index: ${economy.dayIndex !== undefined ? String(economy.dayIndex) : '—'}`,
-        `Labour cost per hour (cc): ${economy.laborCostPerHourCc !== undefined ? formatNumber(economy.laborCostPerHourCc, 4) : '—'}`,
-        `Base cost per hour (cc): ${economy.baseCostPerHourCc !== undefined ? formatNumber(economy.baseCostPerHourCc, 4) : '—'}`,
-        `Overtime cost per hour (cc): ${economy.overtimeCostPerHourCc !== undefined ? formatNumber(economy.overtimeCostPerHourCc, 4) : '—'}`,
+        `Labour cost per hour (cc): ${
+          economy.laborCostPerHourCc !== undefined
+            ? formatNumber(economy.laborCostPerHourCc, COST_DISPLAY_PRECISION)
+            : '—'
+        }`,
+        `Base cost per hour (cc): ${
+          economy.baseCostPerHourCc !== undefined
+            ? formatNumber(economy.baseCostPerHourCc, COST_DISPLAY_PRECISION)
+            : '—'
+        }`,
+        `Overtime cost per hour (cc): ${
+          economy.overtimeCostPerHourCc !== undefined
+            ? formatNumber(economy.overtimeCostPerHourCc, COST_DISPLAY_PRECISION)
+            : '—'
+        }`,
       ];
       economyBox.setContent(economyLines.join('\n'));
 
       const logLines = view.events
-        .slice(-50)
+        .slice(-LOG_HISTORY_LIMIT)
         .map((entry) => `[${entry.topic}] ${entry.summary}`)
         .join('\n');
       logBox.setContent(logLines.length > 0 ? logLines : 'No telemetry received yet.');
