@@ -34,6 +34,7 @@ The runtime pipeline consumes `DeviceInstance` objects exclusively; no runtime r
 
 3. **Pipeline integration**
    - Modify `applyDeviceEffects` to consume `device.effects` and `device.effectConfigs` before falling back to legacy heuristics. This unlocks explicit thermal/heating modes, humidity capacities, and lighting PPFD sourced from blueprints while maintaining backward compatibility.
+   - Encapsulate effect-specific logic in dedicated `effects/*` modules and centralise coverage/airflow aggregation in `aggregate/zoneEffects.ts` so each concern remains under SEC/AGENTS LOC guardrails while preserving legacy diagnostics (`zone.capacity.*`).
 
 4. **Data migration & tests**
    - Migrate representative device blueprints (cooling split AC, dehumidifier, lighting fixture, exhaust fan, humidity controller) to declare explicit effects/configs.

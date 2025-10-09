@@ -6,6 +6,10 @@
   trait, and telemetry logic into dedicated modules under `src/workforce/**`, kept
   each file under 500 LOC, and routed all workforce side-effects through a single
   telemetry batch emitter so the tick stage now orchestrates pure functions only.
+- Split the climate device pipeline: extracted dedicated `effects/*` modules and a
+  `aggregate/zoneEffects` coordinator from `applyDeviceEffects`, keeping each effect
+  below 350 LOC, preserving legacy zone capacity warnings, and wiring power→heat
+  coupling through the shared aggregator per SEC §6.
 - Fixed workforce cultivation scheduling so fresh worlds without a pre-existing
   workforce state still enqueue cultivation tasks and bootstrap the module when
   cultivation is the first subsystem to request labor.
