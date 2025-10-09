@@ -15,6 +15,7 @@ import {
   AK47_STRAIN_ID,
   WHITE_WIDOW_STRAIN_ID
 } from '../../testUtils/strainFixtures.ts';
+import { expectDefined } from '../../util/expectors';
 
 const blueprintsRoot = path.resolve(resolveBlueprintPath(''));
 
@@ -28,10 +29,9 @@ describe('strainBlueprintLoader', () => {
     const blueprints = loadAllStrainBlueprints({ blueprintsRoot });
 
     expect(blueprints.size).toBeGreaterThanOrEqual(5);
-    const whiteWidow = blueprints.get(WHITE_WIDOW_STRAIN_ID);
-    expect(whiteWidow).toBeDefined();
-    expect(whiteWidow?.slug).toBe('white-widow');
-    expect(whiteWidow?.class).toBe('strain');
+    const whiteWidow = expectDefined(blueprints.get(WHITE_WIDOW_STRAIN_ID));
+    expect(whiteWidow.slug).toBe('white-widow');
+    expect(whiteWidow.class).toBe('strain');
   });
 
   it('loadStrainBlueprint retrieves a specific blueprint', () => {
@@ -80,12 +80,11 @@ describe('strainBlueprintLoader', () => {
   it('loadStrainBlueprint caches individual lookups', () => {
     const readSpy = vi.spyOn(fs, 'readFileSync');
 
-    const first = loadStrainBlueprint(AK47_STRAIN_ID, { blueprintsRoot });
-    expect(first).not.toBeNull();
+    const first = expectDefined(loadStrainBlueprint(AK47_STRAIN_ID, { blueprintsRoot }));
     const afterFirstReads = readSpy.mock.calls.length;
 
-    const second = loadStrainBlueprint(AK47_STRAIN_ID, { blueprintsRoot });
-    expect(second).toBe(first!);
+    const second = expectDefined(loadStrainBlueprint(AK47_STRAIN_ID, { blueprintsRoot }));
+    expect(second).toBe(first);
     expect(readSpy.mock.calls.length).toBe(afterFirstReads);
   });
 });

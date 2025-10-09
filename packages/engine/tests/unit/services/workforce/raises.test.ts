@@ -8,6 +8,7 @@ import {
 } from '@/backend/src/services/workforce/raises';
 import { createRng } from '@/backend/src/util/rng';
 import type { Employee, WorkforceRaiseIntent } from '@/backend/src/domain/world';
+import { expectDefined } from '../../../util/expectors';
 
 function createEmployee(overrides: Partial<Employee> = {}): Employee {
   const base: Employee = {
@@ -69,7 +70,7 @@ describe('workforce raise cadence', () => {
     const outcome = applyRaiseIntent({ employee, intent, currentSimDay });
 
     expect(outcome).not.toBeNull();
-    const result = outcome!;
+    const result = expectDefined(outcome);
 
     expect(result.moraleDelta01).toBeCloseTo(0.06);
     expect(result.rateIncreaseFactor).toBeCloseTo(0.05);
@@ -104,7 +105,7 @@ describe('workforce raise cadence', () => {
     const outcome = applyRaiseIntent({ employee: previous, intent, currentSimDay: 400 });
 
     expect(outcome).not.toBeNull();
-    const result = outcome!;
+    const result = expectDefined(outcome);
 
     expect(result.employee.baseRateMultiplier).toBeCloseTo(1.1, 5);
     expect(result.employee.morale01).toBeLessThan(previous.morale01);
@@ -133,7 +134,7 @@ describe('workforce raise cadence', () => {
     const outcome = applyRaiseIntent({ employee, intent, currentSimDay: 700 });
 
     expect(outcome).not.toBeNull();
-    const result = outcome!;
+    const result = expectDefined(outcome);
 
     expect(result.rateIncreaseFactor).toBeCloseTo(0.02, 5);
     expect(result.employee.baseRateMultiplier).toBeCloseTo(1.02, 5);

@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { assertBlueprintClassMatchesPath, deriveBlueprintClassFromPath } from '@/backend/src/domain/blueprints/taxonomy';
 import { resolveBlueprintPath } from '../../testUtils/paths.ts';
+import { asObject, expectDefined, hasKey } from '../../util/expectors';
 
 const blueprintsRoot = path.resolve(resolveBlueprintPath(''));
 
@@ -13,7 +14,7 @@ function collectBlueprintFiles(root: string): readonly string[] {
   const results: string[] = [];
 
   while (stack.length > 0) {
-    const current = stack.pop()!;
+    const current = expectDefined(stack.pop());
     const entries = fs.readdirSync(current, { withFileTypes: true });
 
     for (const entry of entries) {
@@ -35,11 +36,20 @@ describe('blueprint taxonomy layout', () => {
 
   it('keeps declared classes aligned with folder taxonomy', () => {
     for (const filePath of blueprintFiles) {
-      const payload = JSON.parse(fs.readFileSync(filePath, 'utf8')) as { class?: string };
+      const payload = expectDefined(asObject(JSON.parse(fs.readFileSync(filePath, 'utf8'))));
+      const relativePath = path.relative(blueprintsRoot, filePath);
 
-      expect(payload.class, `${path.relative(blueprintsRoot, filePath)} missing class`).toBeTruthy();
+      expect(hasKey(payload, 'class'), `${relativePath} missing class`).toBe(true);
+
+      const blueprintClass = payload.class;
+      expect(typeof blueprintClass).toBe('string');
+
+      if (typeof blueprintClass !== 'string') {
+        continue;
+      }
+
       expect(() =>
-        { assertBlueprintClassMatchesPath(payload.class!, filePath, { blueprintsRoot }); }
+        { assertBlueprintClassMatchesPath(blueprintClass, filePath, { blueprintsRoot }); }
       ).not.toThrow();
     }
   });
@@ -65,9 +75,10 @@ describe('blueprint taxonomy layout', () => {
     const duplicates: string[] = [];
 
     for (const filePath of blueprintFiles) {
-      const payload = JSON.parse(fs.readFileSync(filePath, 'utf8')) as { class?: string; slug?: string };
-      const blueprintClass = payload.class ?? '<missing>';
-      const slug = payload.slug ?? '<missing>';
+      const payload = expectDefined(asObject(JSON.parse(fs.readFileSync(filePath, 'utf8'))));
+      const blueprintClass =
+        hasKey(payload, 'class') && typeof payload.class === 'string' ? payload.class : '<missing>';
+      const slug = hasKey(payload, 'slug') && typeof payload.slug === 'string' ? payload.slug : '<missing>';
       const key = `${blueprintClass}:${slug}`;
       const relative = path.relative(blueprintsRoot, filePath);
 

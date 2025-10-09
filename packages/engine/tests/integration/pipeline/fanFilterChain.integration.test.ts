@@ -11,6 +11,8 @@ import { getDeviceEffectsRuntime } from '@/backend/src/engine/pipeline/applyDevi
 import { createDemoWorld } from '@/backend/src/engine/testHarness';
 import type { ZoneDeviceInstance, Uuid } from '@/backend/src/domain/world';
 
+import { expectDefined } from '../../util/expectors';
+
 function uuid(value: string): Uuid {
   return value as Uuid;
 }
@@ -105,11 +107,11 @@ describe('Tick pipeline — fan and filter chains', () => {
 
     runTick(world, ctx);
 
-    expect(runtime).toBeDefined();
+    const runtimeSnapshot = expectDefined(runtime);
 
-    const netAirflow = runtime!.zoneAirflowTotals_m3_per_h.get(zone.id) ?? 0;
-    const netAch = runtime!.zoneAirChangesPerHour.get(zone.id) ?? 0;
-    const reduction = runtime!.zoneAirflowReductions_m3_per_h.get(zone.id) ?? 0;
+    const netAirflow = runtimeSnapshot.zoneAirflowTotals_m3_per_h.get(zone.id) ?? 0;
+    const netAch = runtimeSnapshot.zoneAirChangesPerHour.get(zone.id) ?? 0;
+    const reduction = runtimeSnapshot.zoneAirflowReductions_m3_per_h.get(zone.id) ?? 0;
 
     expect(netAirflow).toBeGreaterThan(0);
     expect(netAirflow).toBeLessThan(200);
@@ -154,9 +156,9 @@ describe('Tick pipeline — fan and filter chains', () => {
 
     runTick(world, ctx);
 
-    expect(runtime).toBeDefined();
+    const runtimeSnapshot = expectDefined(runtime);
 
-    const netAch = runtime!.zoneAirChangesPerHour.get(zone.id) ?? 0;
+    const netAch = runtimeSnapshot.zoneAirChangesPerHour.get(zone.id) ?? 0;
     expect(netAch).toBeLessThan(1);
     expect(diagnostics).toEqual(
       expect.arrayContaining([
@@ -205,10 +207,10 @@ describe('Tick pipeline — fan and filter chains', () => {
 
     runTick(world, ctx);
 
-    expect(runtime).toBeDefined();
+    const runtimeSnapshot = expectDefined(runtime);
 
-    const netAirflow = runtime!.zoneAirflowTotals_m3_per_h.get(zone.id) ?? 0;
-    const reduction = runtime!.zoneAirflowReductions_m3_per_h.get(zone.id) ?? 0;
+    const netAirflow = runtimeSnapshot.zoneAirflowTotals_m3_per_h.get(zone.id) ?? 0;
+    const reduction = runtimeSnapshot.zoneAirflowReductions_m3_per_h.get(zone.id) ?? 0;
     const grossAirflow = 300;
 
     expect(netAirflow).toBeGreaterThan(0);
@@ -249,10 +251,10 @@ describe('Tick pipeline — fan and filter chains', () => {
 
     runTick(world, ctx);
 
-    expect(runtime).toBeDefined();
+    const runtimeSnapshot = expectDefined(runtime);
 
-    const odorDelta = runtime!.zoneOdorDelta.get(zone.id) ?? 0;
-    const particulate = runtime!.zoneParticulateRemoval_pct.get(zone.id) ?? 0;
+    const odorDelta = runtimeSnapshot.zoneOdorDelta.get(zone.id) ?? 0;
+    const particulate = runtimeSnapshot.zoneParticulateRemoval_pct.get(zone.id) ?? 0;
 
     expect(odorDelta).toBeLessThan(0);
     expect(particulate).toBeGreaterThan(0);
@@ -297,9 +299,9 @@ describe('Tick pipeline — fan and filter chains', () => {
 
     runTick(world, ctx);
 
-    expect(runtime).toBeDefined();
+    const runtimeSnapshot = expectDefined(runtime);
 
-    const netAirflow = runtime!.zoneAirflowTotals_m3_per_h.get(zone.id) ?? 0;
+    const netAirflow = runtimeSnapshot.zoneAirflowTotals_m3_per_h.get(zone.id) ?? 0;
     expect(netAirflow).toBeCloseTo(legacyFan.airflow_m3_per_h, 5);
   });
 });
