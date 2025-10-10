@@ -12,6 +12,9 @@ export const PERF_HARNESS_EXHAUST_FAN_DUTY01 = 0.9 as const;
 /** Fallback device quality applied when a blueprint omits explicit ratings. */
 export const PERF_HARNESS_DEVICE_QUALITY_BASELINE01 = 0.85 as const;
 
+/** Duty cycle applied to passive filtration that runs continuously in perf scenarios. */
+export const PERF_HARNESS_CARBON_FILTER_DUTY01 = 1 as const;
+
 /** Default maintenance interval in days when blueprint data is absent. */
 export const PERF_HARNESS_MAINTENANCE_INTERVAL_DAYS = 90 as const;
 
@@ -26,6 +29,9 @@ export const PERF_HARNESS_MAINTENANCE_RESTORE01 = 0.3 as const;
 
 /** Fallback efficiency applied when blueprints do not specify a rating. */
 export const PERF_HARNESS_DEVICE_EFFICIENCY_BASELINE01 = 0.75 as const;
+
+/** Default hours allocated for a maintenance service visit when data is missing. */
+export const PERF_HARNESS_MAINTENANCE_SERVICE_HOURS = 1 as const;
 
 /** Number of cloned grow zones created in the target perf scenario. */
 export const PERF_HARNESS_ZONE_CLONE_COUNT = 5 as const;
