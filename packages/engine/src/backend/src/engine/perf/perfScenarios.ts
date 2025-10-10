@@ -1,5 +1,7 @@
 import {
   parseDeviceBlueprint,
+  parseDevicePriceMap,
+  type DevicePriceEntry,
   type SimulationWorld,
   type Structure,
   type Room,
@@ -28,7 +30,7 @@ import {
 import { createDeviceInstance } from '../../device/createDeviceInstance.ts';
 import { toDeviceInstanceEffectConfigs, type DeviceBlueprint } from '../../domain/blueprints/deviceBlueprint.ts';
 import { clamp01 } from '../../util/math.ts';
-import devicePrices from '../../../../../../../data/prices/devicePrices.json' with { type: 'json' };
+import devicePriceMapJson from '../../../../../../../data/prices/devicePrices.json' with { type: 'json' };
 import coolAirSplitBlueprint from '../../../../../../../data/blueprints/device/climate/cool-air-split-3000.json' with { type: 'json' };
 import ledVegLightBlueprint from '../../../../../../../data/blueprints/device/lighting/led-veg-light-600.json' with { type: 'json' };
 import exhaustFanBlueprint from '../../../../../../../data/blueprints/device/airflow/exhaust-fan-4-inch.json' with { type: 'json' };
@@ -46,67 +48,41 @@ const BASE_DEVICE_BLUEPRINTS: readonly DeviceBlueprintEntry[] = [
   { blueprint: parseDeviceBlueprint(carbonFilterBlueprint), dutyCycle01: PERF_HARNESS_CARBON_FILTER_DUTY01 }
 ];
 
-interface DevicePriceEntry {
-  readonly capitalExpenditure: number;
-  readonly baseMaintenanceCostPerHour: number;
-  readonly costIncreasePer1000Hours: number;
-  readonly maintenanceServiceCost: number;
+const devicePriceMap = parseDevicePriceMap(devicePriceMapJson);
+const devicePriceEntries: Record<string, DevicePriceEntry> = devicePriceMap.devicePrices;
+
+type UnknownRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): UnknownRecord | null {
+  return value && typeof value === 'object' ? (value as UnknownRecord) : null;
 }
 
-function isDevicePriceEntry(value: unknown): value is DevicePriceEntry {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-
-  const capital = Reflect.get(value, 'capitalExpenditure');
-  const maintenance = Reflect.get(value, 'baseMaintenanceCostPerHour');
-  const increase = Reflect.get(value, 'costIncreasePer1000Hours');
-  const service = Reflect.get(value, 'maintenanceServiceCost');
-
-  return (
-    typeof capital === 'number' &&
-    Number.isFinite(capital) &&
-    typeof maintenance === 'number' &&
-    Number.isFinite(maintenance) &&
-    typeof increase === 'number' &&
-    Number.isFinite(increase) &&
-    typeof service === 'number' &&
-    Number.isFinite(service)
-  );
+function readFiniteNumber(record: UnknownRecord, key: string): number | undefined {
+  const candidate = record[key];
+  return typeof candidate === 'number' && Number.isFinite(candidate) ? candidate : undefined;
 }
 
 function resolvePriceEntry(blueprint: DeviceBlueprint): DevicePriceEntry | null {
-  const priceMap = Reflect.get(devicePrices, 'devicePrices');
-
-  if (!priceMap || typeof priceMap !== 'object') {
-    return null;
-  }
-
-  const entry = Reflect.get(priceMap, blueprint.id);
-
-  return isDevicePriceEntry(entry) ? entry : null;
+  return devicePriceEntries[blueprint.id] ?? null;
 }
 
 function computeSensibleCapacityW(blueprint: DeviceBlueprint): number {
-  const limits = Reflect.get(blueprint, 'limits');
+  const blueprintRecord = blueprint as UnknownRecord;
+  const limitsRecord = asRecord(blueprintRecord.limits);
 
-  if (!limits || typeof limits !== 'object') {
+  if (!limitsRecord) {
     return 0;
   }
 
-  const coolingCapacity = Reflect.get(limits, 'coolingCapacity_kW');
+  const coolingCapacity = readFiniteNumber(limitsRecord, 'coolingCapacity_kW');
 
-  if (typeof coolingCapacity === 'number' && Number.isFinite(coolingCapacity)) {
+  if (coolingCapacity !== undefined) {
     return Math.max(0, coolingCapacity * 1_000);
   }
 
-  const maxCool = Reflect.get(limits, 'maxCool_W');
+  const maxCool = readFiniteNumber(limitsRecord, 'maxCool_W');
 
-  if (typeof maxCool === 'number' && Number.isFinite(maxCool)) {
-    return Math.max(0, maxCool);
-  }
-
-  return 0;
+  return maxCool !== undefined ? Math.max(0, maxCool) : 0;
 }
 
 function instantiateZoneDevice(
@@ -177,24 +153,22 @@ function instantiateZoneDevice(
 }
 
 function resolveOptionalNumber(blueprint: DeviceBlueprint, key: string): number | undefined {
-  const value = Reflect.get(blueprint, key);
-
-  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+  const blueprintRecord = blueprint as UnknownRecord;
+  return readFiniteNumber(blueprintRecord, key);
 }
 
 function resolveMaintenanceNumber(
   blueprint: DeviceBlueprint,
   key: 'intervalDays' | 'hoursPerService'
 ): number | undefined {
-  const maintenance = Reflect.get(blueprint, 'maintenance');
+  const blueprintRecord = blueprint as UnknownRecord;
+  const maintenanceRecord = asRecord(blueprintRecord.maintenance);
 
-  if (!maintenance || typeof maintenance !== 'object') {
+  if (!maintenanceRecord) {
     return undefined;
   }
 
-  const value = Reflect.get(maintenance, key);
-
-  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+  return readFiniteNumber(maintenanceRecord, key);
 }
 
 function buildZoneDevices(zoneIndex: number): ZoneDeviceInstance[] {

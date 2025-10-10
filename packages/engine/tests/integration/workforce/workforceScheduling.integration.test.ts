@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
+import type { EngineRunContext } from '@/backend/src/engine/Engine';
 import type {
   Employee,
   EmployeeRole,
@@ -12,11 +13,49 @@ import type {
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 
+interface TelemetryEventRecord {
+  readonly topic: string;
+  readonly payload: Record<string, unknown>;
+}
+
+interface WorkforceTerminationPayload {
+  readonly event: { readonly employeeId: string };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isWorkforceTerminationPayload(
+  payload: Record<string, unknown>,
+): payload is WorkforceTerminationPayload {
+  if (!isRecord(payload.event)) {
+    return false;
+  }
+
+  const employeeId = payload.event.employeeId;
+  return typeof employeeId === 'string' && employeeId.length > 0;
+}
+
 function buildRole(id: string, slug: string, skillKey: string, minSkill01: number): EmployeeRole {
+  const name = slug
+    .split('_')
+    .map((segment) => {
+      if (!segment) {
+        return '';
+      }
+
+      const [first, ...rest] = segment;
+      const capitalized = first.toUpperCase();
+      return `${capitalized}${rest.join('')}`;
+    })
+    .join(' ')
+    .trim();
+
   return {
     id: id as EmployeeRole['id'],
     slug,
-    name: slug.replace(/(^|_)(\w)/g, (_, __, ch) => ch.toUpperCase()),
+    name,
     coreSkills: [
       {
         skillKey,
@@ -500,10 +539,10 @@ describe('applyWorkforce integration', () => {
       market: { structures: [] },
     } satisfies WorkforceState;
 
-    const telemetryEvents: { topic: string; payload: any }[] = [];
+    const telemetryEvents: TelemetryEventRecord[] = [];
     const ctx: EngineRunContext = {
       telemetry: {
-        emit: (topic: string, payload: any) => {
+        emit(topic, payload) {
           telemetryEvents.push({ topic, payload });
         },
       },
@@ -537,7 +576,17 @@ describe('applyWorkforce integration', () => {
       (entry) => entry.topic === 'telemetry.workforce.employee.terminated.v1',
     );
     expect(terminationEvent).toBeDefined();
-    expect(terminationEvent?.payload.event.employeeId).toBe(janitor.id);
+    if (!terminationEvent) {
+      throw new Error('Expected a workforce termination telemetry event to be emitted.');
+    }
+
+    expect(isWorkforceTerminationPayload(terminationEvent.payload)).toBe(true);
+
+    if (!isWorkforceTerminationPayload(terminationEvent.payload)) {
+      throw new Error('Workforce termination telemetry payload was not structured as expected.');
+    }
+
+    expect(terminationEvent.payload.event.employeeId).toBe(janitor.id);
     expect(
       telemetryEvents.some((entry) => entry.topic === 'telemetry.workforce.payroll_snapshot.v1'),
     ).toBe(true);

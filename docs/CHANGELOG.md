@@ -2,7 +2,7 @@
 
 ### Unreleased — Hotfix Batch 03
 
-- HOTFIX-043 (Task 0060): Harden blueprint/domain loaders and integration suites with schema-validated DTOs so `no-unsafe-*` lint guards stay green and SEC §1 determinism is enforced.
+- HOTFIX-043 (Task 0060): Replace perf harness device price lookups, workforce economy context fixtures, and telemetry integration assertions with schema-validated DTOs so `no-unsafe-*` lint guards stay green and SEC §1 determinism stays enforced.
 - HOTFIX-043 (Task 0061): Remove redundant optional chains, adopt `??` defaults, and document invariants across workforce/pipeline modules to satisfy nullish guardrails and SEC §5 contracts.
 - HOTFIX-043 (Task 0062): Replace dynamic deletes with immutable helpers in workforce and pipeline state transitions, keeping SEC §2 tick ordering deterministic.
 - HOTFIX-043 (Task 0063): Introduce explicit formatting helpers for telemetry/reporting, removing implicit `.toString()` usage and redundant escapes so string safety lint rules pass.
