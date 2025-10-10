@@ -33,4 +33,11 @@ describe('Seed-to-harvest reporting generator', () => {
     expect(persisted.metadata.scenario).toBe(scenario);
     expect(persisted.performance.tickCount).toBe(tickCount);
   });
+
+  it('retains scenario labels that look falsy after trimming', () => {
+    const scenario = '0';
+    const report = generateSeedToHarvestReport({ scenario });
+
+    expect(report.metadata.scenario).toBe(scenario);
+  });
 });

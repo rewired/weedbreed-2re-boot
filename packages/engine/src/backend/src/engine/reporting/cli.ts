@@ -19,7 +19,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const scenario = args.scenario?.trim() || 'demo-world';
+  const scenario = args.scenario?.trim() ?? 'demo-world';
   const tickCount = normaliseTickCount(args.ticks);
   const report = generateSeedToHarvestReport({ ticks: tickCount, scenario });
 

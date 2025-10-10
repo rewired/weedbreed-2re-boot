@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0048): Normalised seed-to-harvest reporting scenario defaults
+  to use nullish coalescing so falsy-but-valid identifiers persist through the
+  CLI and report generator, and added integration coverage for the regression.
+
 - HOTFIX-042 (Task 0047): Removed redundant optional chaining in the irrigation
   pipeline and workforce payroll accumulator so deterministic records are
   treated as required data, and clarified p95 wait computations to avoid
