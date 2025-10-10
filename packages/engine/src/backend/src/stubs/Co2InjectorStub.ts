@@ -31,23 +31,35 @@ function resolveBaseline(
     return Math.max(0, envReading);
   }
 
-  if (Number.isFinite(ambient_ppm)) {
-    return Math.max(0, ambient_ppm!);
+  const ambientReading = ensureFinite(ambient_ppm, Number.NaN);
+
+  if (Number.isFinite(ambientReading)) {
+    return Math.max(0, ambientReading);
   }
 
-  if (Number.isFinite(min_ppm)) {
-    return Math.max(0, min_ppm!);
+  const minReading = ensureFinite(min_ppm, Number.NaN);
+
+  if (Number.isFinite(minReading)) {
+    return Math.max(0, minReading);
   }
 
   return AMBIENT_CO2_PPM;
 }
 
 function normaliseBound(value: number | undefined, fallback: number): number {
-  if (!Number.isFinite(value)) {
-    return fallback;
+  if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
+    return Math.max(0, fallback);
   }
 
-  return Math.max(0, value!);
+  return Math.max(0, value);
+}
+
+function resolveOptionalNonNegative(value: number | undefined): number | undefined {
+  if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
+    return undefined;
+  }
+
+  return Math.max(0, value);
 }
 
 function ensureFiniteOutputs(outputs: Co2InjectorOutputs): Co2InjectorOutputs {
@@ -114,13 +126,9 @@ export function createCo2InjectorStub(): ICo2Injector {
         } satisfies Co2InjectorOutputs;
       }
 
-      const min_ppm = Number.isFinite(inputs.min_ppm) ? Math.max(0, inputs.min_ppm!) : undefined;
-      const ambient_ppm = Number.isFinite(inputs.ambient_ppm)
-        ? Math.max(0, inputs.ambient_ppm!)
-        : undefined;
-      const hysteresis_ppm = Number.isFinite(inputs.hysteresis_ppm)
-        ? Math.max(0, inputs.hysteresis_ppm!)
-        : 0;
+      const min_ppm = resolveOptionalNonNegative(inputs.min_ppm);
+      const ambient_ppm = resolveOptionalNonNegative(inputs.ambient_ppm);
+      const hysteresis_ppm = resolveOptionalNonNegative(inputs.hysteresis_ppm) ?? 0;
 
       const current_ppm = resolveBaseline(envState, ambient_ppm, min_ppm);
       const target_ppm = Math.max(
