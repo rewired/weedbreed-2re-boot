@@ -60,7 +60,7 @@ describe('blueprint taxonomy layout', () => {
     for (const filePath of blueprintFiles) {
       try {
         deriveBlueprintClassFromPath(filePath, { blueprintsRoot });
-      } catch (error) {
+      } catch (error: unknown) {
         const relative = path.relative(blueprintsRoot, filePath);
         const message = error instanceof Error ? error.message : String(error);
         failures.push(`${relative}: ${message}`);
@@ -83,7 +83,8 @@ describe('blueprint taxonomy layout', () => {
       const relative = path.relative(blueprintsRoot, filePath);
 
       if (registry.has(key)) {
-        duplicates.push(`${relative} conflicts with ${registry.get(key)}`);
+        const conflict = registry.get(key) ?? '<untracked>';
+        duplicates.push(`${relative} conflicts with ${conflict}`);
       } else {
         registry.set(key, relative);
       }

@@ -9,6 +9,7 @@ import { type SaveGameMigrationRegistry } from './migrations/index.ts';
 import { validateCompanyWorld } from '../domain/validation.ts';
 import type { Company } from '../domain/entities.ts';
 import { fmtNum } from '../util/format.ts';
+import { normaliseUnknownError } from '../util/error.ts';
 
 /**
  * Optional configuration for {@link loadSaveGame}.
@@ -26,13 +27,13 @@ export interface WriteSaveGameOptions {
 }
 
 function serialiseSaveGame(payload: SaveGame): string {
-  const canonical = safeStringify(payload, undefined, 2);
+  const candidate = safeStringify(payload, undefined, 2) as unknown;
 
-  if (canonical === undefined) {
+  if (typeof candidate !== 'string') {
     throw new Error('Unable to serialise save payload');
   }
 
-  return `${canonical}\n`;
+  return `${candidate}\n`;
 }
 
 async function readSaveFile(filePath: string): Promise<unknown> {
@@ -40,7 +41,7 @@ async function readSaveFile(filePath: string): Promise<unknown> {
 
   try {
     return JSON.parse(raw) as unknown;
-  } catch (error) {
+  } catch (error: unknown) {
     throw new Error(`Save file at "${filePath}" is not valid JSON`, { cause: error });
   }
 }
@@ -139,9 +140,9 @@ export async function writeSaveGame(
 
   try {
     await fs.rename(tempPath, filePath);
-  } catch (error) {
+  } catch (error: unknown) {
     await fs.rm(tempPath, { force: true });
-    throw error;
+    throw normaliseUnknownError(error, 'Failed to finalise save file write');
   }
 }
 

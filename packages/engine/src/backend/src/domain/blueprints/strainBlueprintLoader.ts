@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { parseStrainBlueprint, type StrainBlueprint } from './strainBlueprint.ts';
 import type { Uuid } from '../schemas/primitives.ts';
+import { normaliseUnknownError } from '../../util/error.ts';
 
 export interface LoadStrainBlueprintOptions {
   readonly blueprintsRoot?: string;
@@ -63,19 +64,19 @@ function buildStrainBlueprintIndex(options: LoadStrainBlueprintOptions = {}): Ma
 
     try {
       const raw = fs.readFileSync(filePath, 'utf8');
-      const payload = JSON.parse(raw);
+      const payload: unknown = JSON.parse(raw);
       blueprint = parseStrainBlueprint(payload, {
         filePath,
         blueprintsRoot,
         slugRegistry
       });
-    } catch (error) {
+    } catch (error: unknown) {
       if (options.strict) {
-        throw error;
+        throw normaliseUnknownError(error, `Failed to load strain blueprint at ${filePath}`);
       }
 
-       
-      console.warn(`Failed to load strain blueprint from "${filePath}":`, error);
+      const normalisedError = normaliseUnknownError(error, 'Strain blueprint loader rejected unknown error');
+      console.warn(`Failed to load strain blueprint from "${filePath}":`, normalisedError);
     }
 
     if (!blueprint) {
@@ -91,9 +92,7 @@ function buildStrainBlueprintIndex(options: LoadStrainBlueprintOptions = {}): Ma
 export function loadAllStrainBlueprints(
   options: LoadStrainBlueprintOptions = {}
 ): Map<Uuid, StrainBlueprint> {
-  if (!blueprintCache) {
-    blueprintCache = buildStrainBlueprintIndex(options);
-  }
+  blueprintCache ??= buildStrainBlueprintIndex(options);
 
   return new Map(blueprintCache);
 }
@@ -102,9 +101,7 @@ export function loadStrainBlueprint(
   strainId: Uuid,
   options: LoadStrainBlueprintOptions = {}
 ): StrainBlueprint | null {
-  if (!blueprintCache) {
-    blueprintCache = buildStrainBlueprintIndex(options);
-  }
+  blueprintCache ??= buildStrainBlueprintIndex(options);
 
   return blueprintCache.get(strainId) ?? null;
 }

@@ -187,7 +187,7 @@ export function createSocketTransportAdapter(
       try {
         await options.onIntent(payload as TransportIntentEnvelope);
         ack({ ok: true });
-      } catch (error) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Intent handler rejected the submission.';
         ack(createIntentHandlerError(message));
       }
