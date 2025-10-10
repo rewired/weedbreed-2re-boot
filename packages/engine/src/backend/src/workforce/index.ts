@@ -87,7 +87,11 @@ export function getWorkforceRuntime(ctx: EngineRunContext): WorkforceRuntime | u
 }
 
 export function clearWorkforceRuntime(ctx: EngineRunContext): void {
-  delete (ctx as WorkforceRuntimeCarrier)[WORKFORCE_RUNTIME_CONTEXT_KEY];
+  const carrier = ctx as WorkforceRuntimeCarrier;
+
+  if (WORKFORCE_RUNTIME_CONTEXT_KEY in carrier) {
+    carrier[WORKFORCE_RUNTIME_CONTEXT_KEY] = undefined;
+  }
 }
 
 function resolveLocationIndexTable(ctx: EngineRunContext): LocationIndexTable {
@@ -107,12 +111,16 @@ export function consumeWorkforcePayrollAccrual(ctx: EngineRunContext): Workforce
     return undefined;
   }
 
-  delete carrier[WORKFORCE_PAYROLL_CONTEXT_KEY];
+  carrier[WORKFORCE_PAYROLL_CONTEXT_KEY] = undefined;
   return snapshot;
 }
 
 export function clearWorkforcePayrollAccrual(ctx: EngineRunContext): void {
-  delete (ctx as PayrollContextCarrier)[WORKFORCE_PAYROLL_CONTEXT_KEY];
+  const carrier = ctx as PayrollContextCarrier;
+
+  if (WORKFORCE_PAYROLL_CONTEXT_KEY in carrier) {
+    carrier[WORKFORCE_PAYROLL_CONTEXT_KEY] = undefined;
+  }
 }
 
 function recordWorkforceMarketCharge(ctx: EngineRunContext, charge: WorkforceMarketCharge): void {
@@ -129,7 +137,7 @@ export function consumeWorkforceMarketCharges(ctx: EngineRunContext): readonly W
     return undefined;
   }
 
-  delete carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY];
+  carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY] = undefined;
   return charges;
 }
 
@@ -137,8 +145,8 @@ function extractWorkforceIntents(ctx: EngineRunContext): readonly WorkforceInten
   const carrier = ctx as WorkforceIntentCarrier;
   const intents = carrier.workforceIntents ?? [];
 
-  if (carrier.workforceIntents) {
-    delete carrier.workforceIntents;
+  if ('workforceIntents' in carrier) {
+    carrier.workforceIntents = undefined;
   }
 
   return intents;

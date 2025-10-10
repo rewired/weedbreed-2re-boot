@@ -52,7 +52,11 @@ export function getIrrigationNutrientsRuntime(
 }
 
 export function clearIrrigationNutrientsRuntime(ctx: EngineRunContext): void {
-  delete (ctx as IrrigationRuntimeCarrier)[IRRIGATION_RUNTIME_CONTEXT_KEY];
+  const carrier = ctx as IrrigationRuntimeCarrier;
+
+  if (IRRIGATION_RUNTIME_CONTEXT_KEY in carrier) {
+    carrier[IRRIGATION_RUNTIME_CONTEXT_KEY] = undefined;
+  }
 }
 
 const DEFAULT_LEACHING_RATIO = 0.1;

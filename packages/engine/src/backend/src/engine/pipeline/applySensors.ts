@@ -43,7 +43,11 @@ export function getSensorReadingsRuntime(ctx: EngineRunContext): SensorReadingsR
 }
 
 export function clearSensorReadingsRuntime(ctx: EngineRunContext): void {
-  delete (ctx as SensorRuntimeCarrier)[SENSOR_READINGS_CONTEXT_KEY];
+  const carrier = ctx as SensorRuntimeCarrier;
+
+  if (SENSOR_READINGS_CONTEXT_KEY in carrier) {
+    carrier[SENSOR_READINGS_CONTEXT_KEY] = undefined;
+  }
 }
 
 function emitDiagnostic(ctx: EngineRunContext, diagnostic: EngineDiagnostic): void {

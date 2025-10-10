@@ -77,7 +77,11 @@ export function getDeviceEffectsRuntime(
 }
 
 export function clearDeviceEffectsRuntime(ctx: EngineRunContext): void {
-  delete (ctx as DeviceEffectsCarrier)[DEVICE_EFFECTS_CONTEXT_KEY];
+  const carrier = ctx as DeviceEffectsCarrier;
+
+  if (DEVICE_EFFECTS_CONTEXT_KEY in carrier) {
+    carrier[DEVICE_EFFECTS_CONTEXT_KEY] = undefined;
+  }
 }
 
 export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
