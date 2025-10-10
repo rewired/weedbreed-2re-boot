@@ -5,22 +5,14 @@ import type {
   DeviceReplacementRecommendation
 } from './degradation.ts';
 
-const DEVICE_MAINTENANCE_RUNTIME_KEY = '__wb_deviceMaintenanceRuntime' as const;
-const DEVICE_MAINTENANCE_ACCRUAL_KEY = '__wb_deviceMaintenanceAccrual' as const;
+const deviceMaintenanceRuntimeStore = new WeakMap<EngineRunContext, DeviceMaintenanceRuntimeMutable>();
+const deviceMaintenanceAccrualStore = new WeakMap<EngineRunContext, DeviceMaintenanceAccrualSnapshot>();
 
 interface DeviceMaintenanceRuntimeMutable {
   scheduledTasks: DeviceMaintenanceTaskPlan[];
   completedTasks: DeviceMaintenanceCompletion[];
   replacements: DeviceReplacementRecommendation[];
 }
-
-type DeviceMaintenanceRuntimeCarrier = EngineRunContext & {
-  [DEVICE_MAINTENANCE_RUNTIME_KEY]?: DeviceMaintenanceRuntimeMutable;
-};
-
-type DeviceMaintenanceAccrualCarrier = EngineRunContext & {
-  [DEVICE_MAINTENANCE_ACCRUAL_KEY]?: DeviceMaintenanceAccrualSnapshot;
-};
 
 export interface DeviceMaintenanceRuntime {
   readonly scheduledTasks: readonly DeviceMaintenanceTaskPlan[];
@@ -40,22 +32,31 @@ export interface DeviceMaintenanceAccrualSnapshot {
   readonly finalized?: readonly DeviceMaintenanceAccrualState[];
 }
 
+/**
+ * Establishes maintenance runtime state for the tick while respecting SEC §2 explicit state requirements.
+ */
 export function ensureDeviceMaintenanceRuntime(ctx: EngineRunContext): DeviceMaintenanceRuntimeMutable {
-  const carrier = ctx as DeviceMaintenanceRuntimeCarrier;
-  if (!carrier[DEVICE_MAINTENANCE_RUNTIME_KEY]) {
-    carrier[DEVICE_MAINTENANCE_RUNTIME_KEY] = {
-      scheduledTasks: [],
-      completedTasks: [],
-      replacements: []
-    } satisfies DeviceMaintenanceRuntimeMutable;
+  const existing = deviceMaintenanceRuntimeStore.get(ctx);
+
+  if (existing) {
+    return existing;
   }
 
-  return carrier[DEVICE_MAINTENANCE_RUNTIME_KEY];
+  const runtime: DeviceMaintenanceRuntimeMutable = {
+    scheduledTasks: [],
+    completedTasks: [],
+    replacements: [],
+  } satisfies DeviceMaintenanceRuntimeMutable;
+
+  deviceMaintenanceRuntimeStore.set(ctx, runtime);
+  return runtime;
 }
 
+/**
+ * Produces an immutable snapshot of maintenance runtime data and clears the underlying store (SEC §2).
+ */
 export function consumeDeviceMaintenanceRuntime(ctx: EngineRunContext): DeviceMaintenanceRuntime | undefined {
-  const carrier = ctx as DeviceMaintenanceRuntimeCarrier;
-  const runtime = carrier[DEVICE_MAINTENANCE_RUNTIME_KEY];
+  const runtime = deviceMaintenanceRuntimeStore.get(ctx);
 
   if (!runtime) {
     return undefined;
@@ -67,7 +68,7 @@ export function consumeDeviceMaintenanceRuntime(ctx: EngineRunContext): DeviceMa
     replacements: [...runtime.replacements]
   } satisfies DeviceMaintenanceRuntime;
 
-  delete carrier[DEVICE_MAINTENANCE_RUNTIME_KEY];
+  deviceMaintenanceRuntimeStore.delete(ctx);
 
   return snapshot;
 }
@@ -86,20 +87,19 @@ export function updateDeviceMaintenanceAccrual(
     return;
   }
 
-  const carrier = ctx as DeviceMaintenanceAccrualCarrier;
-  const existing = carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY];
+  const existing = deviceMaintenanceAccrualStore.get(ctx);
   const hours = Math.max(0, tickHours);
   const costPerHourIncrement = costIncrementCc / hours;
 
   if (!existing) {
-    carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY] = {
+    deviceMaintenanceAccrualStore.set(ctx, {
       current: {
         dayIndex,
         costCc: costIncrementCc,
         costCc_per_h: costPerHourIncrement,
         hoursAccrued: hours
       }
-    } satisfies DeviceMaintenanceAccrualSnapshot;
+    } satisfies DeviceMaintenanceAccrualSnapshot);
     return;
   }
 
@@ -108,7 +108,7 @@ export function updateDeviceMaintenanceAccrual(
   if (current.dayIndex === dayIndex) {
     const nextCost = current.costCc + costIncrementCc;
     const nextHours = current.hoursAccrued + hours;
-    carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY] = {
+    deviceMaintenanceAccrualStore.set(ctx, {
       current: {
         dayIndex,
         costCc: nextCost,
@@ -116,13 +116,13 @@ export function updateDeviceMaintenanceAccrual(
         hoursAccrued: nextHours
       },
       finalized: existing.finalized
-    } satisfies DeviceMaintenanceAccrualSnapshot;
+    } satisfies DeviceMaintenanceAccrualSnapshot);
     return;
   }
 
   const finalized = existing.finalized ? [...existing.finalized, current] : [current];
 
-  carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY] = {
+  deviceMaintenanceAccrualStore.set(ctx, {
     current: {
       dayIndex,
       costCc: costIncrementCc,
@@ -130,14 +130,16 @@ export function updateDeviceMaintenanceAccrual(
       hoursAccrued: hours
     },
     finalized
-  } satisfies DeviceMaintenanceAccrualSnapshot;
+  } satisfies DeviceMaintenanceAccrualSnapshot);
 }
 
+/**
+ * Returns the pending maintenance accrual snapshot and resets finalized entries to honour SEC §2 tick isolation.
+ */
 export function consumeDeviceMaintenanceAccrual(
   ctx: EngineRunContext
 ): DeviceMaintenanceAccrualSnapshot | undefined {
-  const carrier = ctx as DeviceMaintenanceAccrualCarrier;
-  const snapshot = carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY];
+  const snapshot = deviceMaintenanceAccrualStore.get(ctx);
 
   if (!snapshot) {
     return undefined;
@@ -146,9 +148,9 @@ export function consumeDeviceMaintenanceAccrual(
   const finalized = snapshot.finalized ? [...snapshot.finalized] : undefined;
 
   if (finalized && finalized.length > 0) {
-    carrier[DEVICE_MAINTENANCE_ACCRUAL_KEY] = {
+    deviceMaintenanceAccrualStore.set(ctx, {
       current: snapshot.current
-    } satisfies DeviceMaintenanceAccrualSnapshot;
+    } satisfies DeviceMaintenanceAccrualSnapshot);
   }
 
   return {

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
 import type { EngineRunContext } from '@/backend/src/engine/Engine';
+import { queueWorkforceIntents } from '@/backend/src/engine/pipeline/applyWorkforce';
 import type {
   Employee,
   EmployeeRole,
@@ -546,16 +547,16 @@ describe('applyWorkforce integration', () => {
           telemetryEvents.push({ topic, payload });
         },
       },
-      workforceIntents: [
-        {
-          type: 'workforce.employee.terminate',
-          employeeId: janitor.id,
-          moraleRipple01: -0.05,
-          reasonSlug: 'restructure',
-          severanceCc: 2000,
-        },
-      ],
     } satisfies EngineRunContext;
+    queueWorkforceIntents(ctx, [
+      {
+        type: 'workforce.employee.terminate',
+        employeeId: janitor.id,
+        moraleRipple01: -0.05,
+        reasonSlug: 'restructure',
+        severanceCc: 2000,
+      },
+    ]);
 
     const nextWorld = runStages(
       createWorldWithWorkforce(workforce),

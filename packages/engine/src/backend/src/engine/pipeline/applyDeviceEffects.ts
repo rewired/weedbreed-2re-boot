@@ -37,19 +37,13 @@ export interface DeviceEffectsRuntime {
   readonly zoneParticulateRemoval01: Map<Zone['id'], number>;
 }
 
-const DEVICE_EFFECTS_CONTEXT_KEY = '__wb_deviceEffects' as const;
-
-type Mutable<T> = { -readonly [K in keyof T]: T[K] };
-
-type DeviceEffectsCarrier = Mutable<EngineRunContext> & {
-  [DEVICE_EFFECTS_CONTEXT_KEY]?: DeviceEffectsRuntime;
-};
+const deviceEffectsStore = new WeakMap<EngineRunContext, DeviceEffectsRuntime>();
 
 function setDeviceEffectsRuntime(
   ctx: EngineRunContext,
   runtime: DeviceEffectsRuntime
 ): DeviceEffectsRuntime {
-  (ctx as DeviceEffectsCarrier)[DEVICE_EFFECTS_CONTEXT_KEY] = runtime;
+  deviceEffectsStore.set(ctx, runtime);
   return runtime;
 }
 
@@ -73,11 +67,14 @@ export function ensureDeviceEffectsRuntime(ctx: EngineRunContext): DeviceEffects
 export function getDeviceEffectsRuntime(
   ctx: EngineRunContext
 ): DeviceEffectsRuntime | undefined {
-  return (ctx as DeviceEffectsCarrier)[DEVICE_EFFECTS_CONTEXT_KEY];
+  return deviceEffectsStore.get(ctx);
 }
 
+/**
+ * Clears the device effects runtime to avoid carrying mutable device state across ticks (SEC §2).
+ */
 export function clearDeviceEffectsRuntime(ctx: EngineRunContext): void {
-  delete (ctx as DeviceEffectsCarrier)[DEVICE_EFFECTS_CONTEXT_KEY];
+  deviceEffectsStore.delete(ctx);
 }
 
 export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {

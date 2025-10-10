@@ -6,6 +6,9 @@ export {
   consumeWorkforcePayrollAccrual,
   clearWorkforcePayrollAccrual,
   consumeWorkforceMarketCharges,
+  queueWorkforceIntents,
+  configureWorkforceContext,
+  seedWorkforcePayrollAccrual,
 } from '../../workforce/index.ts';
 export type {
   WorkforceAssignment,

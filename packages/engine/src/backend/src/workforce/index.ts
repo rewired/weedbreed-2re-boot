@@ -28,11 +28,23 @@ import { evaluatePestDiseaseSystem } from '../health/pestDiseaseSystem.ts';
 import { emitPestDiseaseRiskWarnings, emitPestDiseaseTaskEvents } from '../telemetry/health.ts';
 import type { EngineRunContext } from '../engine/Engine.ts';
 import { clamp01 } from '../util/math.ts';
-import type { WorkforceAssignment, WorkforceRuntime, WorkforceRuntimeMutable, WorkforcePayrollAccrualSnapshot, WorkforceMarketCharge } from './types.ts';
+import type {
+  WorkforceAssignment,
+  WorkforceRuntime,
+  WorkforceRuntimeMutable,
+  WorkforcePayrollAccrualSnapshot,
+  WorkforceMarketCharge,
+} from './types.ts';
 import { resolveWorkforceConfig, processMarketIntents } from './market/candidates.ts';
 import { processRaiseIntents } from './intents/raises.ts';
 import { processTerminationIntents } from './intents/termination.ts';
-import { buildSchedulingEntries, dispatchTasks, groupEmployeesByStructure, isMaintenanceTask, resolveStructureLookups } from './scheduler/dispatch.ts';
+import {
+  buildSchedulingEntries,
+  dispatchTasks,
+  groupEmployeesByStructure,
+  isMaintenanceTask,
+  resolveStructureLookups,
+} from './scheduler/dispatch.ts';
 import {
   applyPayrollContribution,
   clonePayrollTotals,
@@ -47,101 +59,128 @@ import {
 } from './payroll/accrual.ts';
 import { emitWorkforceTelemetry, type DeviceTelemetryEvent } from './telemetry/workforceEmit.ts';
 
-type Mutable<T> = { -readonly [K in keyof T]: T[K] };
-
-type WorkforceRuntimeCarrier = Mutable<EngineRunContext> & {
-  __wb_workforceRuntime?: WorkforceRuntimeMutable;
-};
-
-type PayrollContextCarrier = Mutable<EngineRunContext> & {
-  payroll?: { locationIndexTable?: LocationIndexTable };
-  __wb_workforcePayrollAccrual?: WorkforcePayrollAccrualSnapshot;
-};
-
-type WorkforceMarketChargeCarrier = Mutable<EngineRunContext> & {
-  __wb_workforceMarketCharges?: WorkforceMarketCharge[];
-};
-
-type WorkforceIntentCarrier = Mutable<EngineRunContext> & {
-  workforceIntents?: readonly WorkforceIntent[];
-  workforceConfig?: Parameters<typeof resolveWorkforceConfig>[0];
-};
-
-const WORKFORCE_RUNTIME_CONTEXT_KEY = '__wb_workforceRuntime' as const;
-const WORKFORCE_PAYROLL_CONTEXT_KEY = '__wb_workforcePayrollAccrual' as const;
-const WORKFORCE_MARKET_CHARGES_CONTEXT_KEY = '__wb_workforceMarketCharges' as const;
+const workforceRuntimeStore = new WeakMap<EngineRunContext, WorkforceRuntimeMutable>();
+const workforcePayrollAccrualStore = new WeakMap<EngineRunContext, WorkforcePayrollAccrualSnapshot>();
+const workforceMarketChargeStore = new WeakMap<EngineRunContext, readonly WorkforceMarketCharge[]>();
+const workforceIntentStore = new WeakMap<EngineRunContext, readonly WorkforceIntent[]>();
+const workforceConfigStore = new WeakMap<EngineRunContext, Parameters<typeof resolveWorkforceConfig>[0]>();
 
 export type { WorkforceAssignment, WorkforceRuntime, WorkforceRuntimeMutable, WorkforcePayrollAccrualSnapshot, WorkforceMarketCharge };
 
 function setWorkforceRuntime(ctx: EngineRunContext, runtime: WorkforceRuntimeMutable): WorkforceRuntimeMutable {
-  (ctx as WorkforceRuntimeCarrier)[WORKFORCE_RUNTIME_CONTEXT_KEY] = runtime;
+  workforceRuntimeStore.set(ctx, runtime);
   return runtime;
 }
 
+/**
+ * Ensures a mutable runtime snapshot exists for the current tick without mutating the caller-provided context.
+ * Mirrors SEC v0.2.1 §2 by avoiding hidden globals and creating explicit state carriers.
+ */
 export function ensureWorkforceRuntime(ctx: EngineRunContext): WorkforceRuntimeMutable {
+  const runtime = workforceRuntimeStore.get(ctx);
+
+  if (runtime) {
+    return runtime;
+  }
+
   return setWorkforceRuntime(ctx, { assignments: [] });
 }
 
 export function getWorkforceRuntime(ctx: EngineRunContext): WorkforceRuntime | undefined {
-  return (ctx as WorkforceRuntimeCarrier)[WORKFORCE_RUNTIME_CONTEXT_KEY];
+  return workforceRuntimeStore.get(ctx);
 }
 
+/**
+ * Clears the workforce runtime snapshot for the provided context.
+ * Uses structural sharing friendly stores to stay compliant with SEC §2 immutability expectations.
+ */
 export function clearWorkforceRuntime(ctx: EngineRunContext): void {
-  delete (ctx as WorkforceRuntimeCarrier)[WORKFORCE_RUNTIME_CONTEXT_KEY];
+  workforceRuntimeStore.delete(ctx);
 }
 
 function resolveLocationIndexTable(ctx: EngineRunContext): LocationIndexTable {
-  const carrier = ctx as PayrollContextCarrier;
+  const carrier = ctx as EngineRunContext & {
+    payroll?: { locationIndexTable?: LocationIndexTable };
+  };
+
   return carrier.payroll?.locationIndexTable ?? createEmptyLocationIndexTable();
 }
 
 function setWorkforcePayrollAccrual(ctx: EngineRunContext, snapshot: WorkforcePayrollAccrualSnapshot): void {
-  (ctx as PayrollContextCarrier)[WORKFORCE_PAYROLL_CONTEXT_KEY] = snapshot;
+  workforcePayrollAccrualStore.set(ctx, snapshot);
 }
 
+/**
+ * Seeds a payroll accrual snapshot for the context, supporting targeted test scenarios (SEC §2 explicit state injection).
+ */
+export function seedWorkforcePayrollAccrual(
+  ctx: EngineRunContext,
+  snapshot: WorkforcePayrollAccrualSnapshot,
+): void {
+  workforcePayrollAccrualStore.set(ctx, snapshot);
+}
+
+/**
+ * Returns and clears the payroll accrual snapshot for the context to avoid cross-tick leakage (SEC §2).
+ */
 export function consumeWorkforcePayrollAccrual(ctx: EngineRunContext): WorkforcePayrollAccrualSnapshot | undefined {
-  const carrier = ctx as PayrollContextCarrier;
-  const snapshot = carrier[WORKFORCE_PAYROLL_CONTEXT_KEY];
+  const snapshot = workforcePayrollAccrualStore.get(ctx);
 
   if (!snapshot) {
     return undefined;
   }
 
-  delete carrier[WORKFORCE_PAYROLL_CONTEXT_KEY];
+  workforcePayrollAccrualStore.delete(ctx);
   return snapshot;
 }
 
+/**
+ * Removes any pending payroll accrual snapshot for the context in line with SEC §2 snapshot semantics.
+ */
 export function clearWorkforcePayrollAccrual(ctx: EngineRunContext): void {
-  delete (ctx as PayrollContextCarrier)[WORKFORCE_PAYROLL_CONTEXT_KEY];
+  workforcePayrollAccrualStore.delete(ctx);
 }
 
 function recordWorkforceMarketCharge(ctx: EngineRunContext, charge: WorkforceMarketCharge): void {
-  const carrier = ctx as WorkforceMarketChargeCarrier;
-  const existing = carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY] ?? [];
-  carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY] = [...existing, charge];
+  const existing = workforceMarketChargeStore.get(ctx) ?? [];
+  workforceMarketChargeStore.set(ctx, [...existing, charge]);
 }
 
+/**
+ * Retrieves the queued workforce market charges and clears them to keep tick-local side effects deterministic (SEC §2).
+ */
 export function consumeWorkforceMarketCharges(ctx: EngineRunContext): readonly WorkforceMarketCharge[] | undefined {
-  const carrier = ctx as WorkforceMarketChargeCarrier;
-  const charges = carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY];
+  const charges = workforceMarketChargeStore.get(ctx);
 
   if (!charges) {
     return undefined;
   }
 
-  delete carrier[WORKFORCE_MARKET_CHARGES_CONTEXT_KEY];
+  workforceMarketChargeStore.delete(ctx);
   return charges;
 }
 
+/**
+ * Queues workforce intents for the next pipeline execution while cloning the payload (SEC §2, no shared mutation).
+ */
+export function queueWorkforceIntents(ctx: EngineRunContext, intents: readonly WorkforceIntent[]): void {
+  workforceIntentStore.set(ctx, [...intents]);
+}
+
+/**
+ * Seeds an override configuration for workforce processing for the supplied context (SEC §2 explicit state).
+ */
+export function configureWorkforceContext(
+  ctx: EngineRunContext,
+  config: Parameters<typeof resolveWorkforceConfig>[0],
+): void {
+  workforceConfigStore.set(ctx, config);
+}
+
 function extractWorkforceIntents(ctx: EngineRunContext): readonly WorkforceIntent[] {
-  const carrier = ctx as WorkforceIntentCarrier;
-  const intents = carrier.workforceIntents ?? [];
-
-  if (carrier.workforceIntents) {
-    delete carrier.workforceIntents;
-  }
-
-  return intents;
+  const intents = workforceIntentStore.get(ctx);
+  workforceIntentStore.delete(ctx);
+  return intents ?? [];
 }
 
 function createSnapshot(
@@ -487,7 +526,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
     return world;
   }
 
-  const workforceConfig = resolveWorkforceConfig((ctx as WorkforceIntentCarrier).workforceConfig);
+  const workforceConfig = resolveWorkforceConfig(workforceConfigStore.get(ctx));
   const intents = extractWorkforceIntents(ctx);
   const partitions = partitionIntents(intents);
   let marketState: WorkforceMarketState = workforceState.market;

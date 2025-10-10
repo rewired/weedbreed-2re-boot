@@ -242,31 +242,28 @@ interface CultivationTaskRuntimeMutable {
   readonly zones: Map<Zone['id'], ZoneCultivationRuntimeState>;
 }
 
-type Mutable<T> = { -readonly [K in keyof T]: T[K] };
+const cultivationRuntimeStore = new WeakMap<EngineContext, CultivationTaskRuntimeMutable>();
 
-type CultivationRuntimeCarrier = Mutable<EngineContext> & {
-  [CULTIVATION_RUNTIME_CONTEXT_KEY]?: CultivationTaskRuntimeMutable;
-};
-
-const CULTIVATION_RUNTIME_CONTEXT_KEY = '__wb_cultivationTaskRuntime' as const;
-
+/**
+ * Ensures cultivation runtime state is explicitly tracked per context, avoiding implicit mutation (SEC §2).
+ */
 export function ensureCultivationTaskRuntime(ctx: EngineContext): CultivationTaskRuntimeMutable {
-  const carrier = ctx as CultivationRuntimeCarrier;
-  let runtime = carrier[CULTIVATION_RUNTIME_CONTEXT_KEY];
+  const runtime = cultivationRuntimeStore.get(ctx);
 
-  if (!runtime) {
-    runtime = { zones: new Map() };
-    carrier[CULTIVATION_RUNTIME_CONTEXT_KEY] = runtime;
+  if (runtime) {
+    return runtime;
   }
 
-  return runtime;
+  const freshRuntime: CultivationTaskRuntimeMutable = { zones: new Map() };
+  cultivationRuntimeStore.set(ctx, freshRuntime);
+  return freshRuntime;
 }
 
+/**
+ * Clears the cultivation runtime state for the provided context to prevent tick bleed (SEC §2).
+ */
 export function clearCultivationTaskRuntime(ctx: EngineContext): void {
-  const carrier = ctx as CultivationRuntimeCarrier;
-  if (carrier[CULTIVATION_RUNTIME_CONTEXT_KEY]) {
-    delete carrier[CULTIVATION_RUNTIME_CONTEXT_KEY];
-  }
+  cultivationRuntimeStore.delete(ctx);
 }
 
 function resolveZoneRuntime(

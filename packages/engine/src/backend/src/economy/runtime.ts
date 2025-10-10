@@ -1,27 +1,26 @@
 import type { EngineRunContext } from '../engine/Engine.ts';
 
-const ECONOMY_USAGE_CONTEXT_KEY = '__wb_economyUsage' as const;
+const economyUsageStore = new WeakMap<EngineRunContext, EconomyUsageRuntimeMutable>();
 
 interface EconomyUsageRuntimeMutable {
   energyConsumption_kWh: number;
   waterVolume_m3: number;
 }
 
-type EconomyUsageRuntimeCarrier = EngineRunContext & {
-  [ECONOMY_USAGE_CONTEXT_KEY]?: EconomyUsageRuntimeMutable;
-};
-
 function ensureEconomyUsageRuntime(ctx: EngineRunContext): EconomyUsageRuntimeMutable {
-  const carrier = ctx as EconomyUsageRuntimeCarrier;
+  const runtime = economyUsageStore.get(ctx);
 
-  if (!carrier[ECONOMY_USAGE_CONTEXT_KEY]) {
-    carrier[ECONOMY_USAGE_CONTEXT_KEY] = {
-      energyConsumption_kWh: 0,
-      waterVolume_m3: 0
-    } satisfies EconomyUsageRuntimeMutable;
+  if (runtime) {
+    return runtime;
   }
 
-  return carrier[ECONOMY_USAGE_CONTEXT_KEY];
+  const freshRuntime: EconomyUsageRuntimeMutable = {
+    energyConsumption_kWh: 0,
+    waterVolume_m3: 0,
+  } satisfies EconomyUsageRuntimeMutable;
+
+  economyUsageStore.set(ctx, freshRuntime);
+  return freshRuntime;
 }
 
 export interface EconomyUsageSnapshot {
@@ -53,11 +52,13 @@ export function accumulateWaterConsumption(
   runtime.waterVolume_m3 += water_L / 1_000;
 }
 
+/**
+ * Retrieves the accumulated economy usage snapshot for the current tick and clears it (SEC §2 isolation).
+ */
 export function consumeEconomyUsageRuntime(
   ctx: EngineRunContext
 ): EconomyUsageSnapshot | undefined {
-  const carrier = ctx as EconomyUsageRuntimeCarrier;
-  const runtime = carrier[ECONOMY_USAGE_CONTEXT_KEY];
+  const runtime = economyUsageStore.get(ctx);
 
   if (!runtime) {
     return undefined;
@@ -68,7 +69,7 @@ export function consumeEconomyUsageRuntime(
     waterVolume_m3: runtime.waterVolume_m3
   } satisfies EconomyUsageSnapshot;
 
-  delete carrier[ECONOMY_USAGE_CONTEXT_KEY];
+  economyUsageStore.delete(ctx);
 
   return snapshot;
 }

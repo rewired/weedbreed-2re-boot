@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { createDemoWorld, runStages } from '@/backend/src/engine/testHarness';
 import type { EngineRunContext } from '@/backend/src/engine/Engine';
-import { consumeWorkforceMarketCharges } from '@/backend/src/engine/pipeline/applyWorkforce';
+import {
+  consumeWorkforceMarketCharges,
+  configureWorkforceContext,
+  queueWorkforceIntents,
+} from '@/backend/src/engine/pipeline/applyWorkforce';
 import { DEFAULT_WORKFORCE_CONFIG } from '@/backend/src/config/workforce';
 import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
 import type { EmployeeRole, SimulationWorld, WorkforceState } from '@/backend/src/domain/world';
@@ -58,16 +62,14 @@ describe('hiring market pipeline integration', () => {
     world.workforce = createWorkforce(structureId, role);
 
     const telemetry = createTelemetryCollector();
-    const ctx: EngineRunContext = {
-      workforceConfig: DEFAULT_WORKFORCE_CONFIG,
-      workforceIntents: [
-        {
-          type: 'hiring.market.scan',
-          structureId,
-        },
-      ],
-      telemetry: telemetry.bus,
-    } satisfies EngineRunContext;
+    const ctx: EngineRunContext = { telemetry: telemetry.bus } satisfies EngineRunContext;
+    configureWorkforceContext(ctx, DEFAULT_WORKFORCE_CONFIG);
+    queueWorkforceIntents(ctx, [
+      {
+        type: 'hiring.market.scan',
+        structureId,
+      },
+    ]);
 
     const scannedWorld = runStages(world, ctx, ['applyWorkforce']);
     const marketState = scannedWorld.workforce.market.structures.find(
@@ -98,16 +100,14 @@ describe('hiring market pipeline integration', () => {
     });
 
     const cooldownTelemetry = createTelemetryCollector();
-    const cooldownContext: EngineRunContext = {
-      workforceConfig: DEFAULT_WORKFORCE_CONFIG,
-      workforceIntents: [
-        {
-          type: 'hiring.market.scan',
-          structureId,
-        },
-      ],
-      telemetry: cooldownTelemetry.bus,
-    } satisfies EngineRunContext;
+    const cooldownContext: EngineRunContext = { telemetry: cooldownTelemetry.bus } satisfies EngineRunContext;
+    configureWorkforceContext(cooldownContext, DEFAULT_WORKFORCE_CONFIG);
+    queueWorkforceIntents(cooldownContext, [
+      {
+        type: 'hiring.market.scan',
+        structureId,
+      },
+    ]);
 
     const cooldownWorld: SimulationWorld = {
       ...scannedWorld,
@@ -130,19 +130,17 @@ describe('hiring market pipeline integration', () => {
     const hireTelemetry = createTelemetryCollector();
     const candidate = expectDefined(marketState?.pool[0]);
 
-    const hireContext: EngineRunContext = {
-      workforceConfig: DEFAULT_WORKFORCE_CONFIG,
-      workforceIntents: [
-        {
-          type: 'hiring.market.hire',
-          candidate: {
-            structureId,
-            candidateId: candidate.id,
-          },
+    const hireContext: EngineRunContext = { telemetry: hireTelemetry.bus } satisfies EngineRunContext;
+    configureWorkforceContext(hireContext, DEFAULT_WORKFORCE_CONFIG);
+    queueWorkforceIntents(hireContext, [
+      {
+        type: 'hiring.market.hire',
+        candidate: {
+          structureId,
+          candidateId: candidate.id,
         },
-      ],
-      telemetry: hireTelemetry.bus,
-    } satisfies EngineRunContext;
+      },
+    ]);
 
     const hiredWorld = runStages(afterCooldownAttempt, hireContext, ['applyWorkforce']);
     const hiredMarket = expectDefined(

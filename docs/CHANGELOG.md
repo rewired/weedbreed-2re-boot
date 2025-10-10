@@ -4,7 +4,7 @@
 
 - HOTFIX-043 (Task 0060): Replace perf harness device price lookups, workforce economy context fixtures, and telemetry integration assertions with schema-validated DTOs so `no-unsafe-*` lint guards stay green and SEC §1 determinism stays enforced.
 - HOTFIX-043 (Task 0061): Remove redundant optional chains, adopt `??` defaults, and document invariants across workforce/pipeline modules to satisfy nullish guardrails and SEC §5 contracts.
-- HOTFIX-043 (Task 0062): Replace dynamic deletes with immutable helpers in workforce and pipeline state transitions, keeping SEC §2 tick ordering deterministic.
+- HOTFIX-043 (Task 0062): Replaced dynamic deletes with WeakMap-backed runtime stores and immutable intent/config helpers across workforce, cultivation, device, sensor, irrigation, and economy pipelines so SEC §2 tick snapshots stay deterministic and lint no-dynamic-delete guards remain green.
 - HOTFIX-043 (Task 0063): Introduce explicit formatting helpers for telemetry/reporting, removing implicit `.toString()` usage and redundant escapes so string safety lint rules pass.
 - HOTFIX-043 (Task 0064): Hoist engine trait weights, builder constants, and RNG seeds into `simConstants` with mirrored docs, eliminating magic number lint warnings.
 - HOTFIX-043 (Task 0065): Prune unused bindings, normalise `const`/`async` usage, and refresh tests in schema utilities to meet lint hygiene expectations.
