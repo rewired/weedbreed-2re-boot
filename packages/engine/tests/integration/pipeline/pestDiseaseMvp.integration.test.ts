@@ -12,9 +12,70 @@ import type {
   SimulationWorld,
   WorkforceState,
   WorkforceTaskDefinition,
-  WorkforceTaskInstance,
   Zone,
 } from '@/backend/src/domain/world';
+
+interface TelemetryEventRecord {
+  readonly topic: string;
+  readonly payload: Record<string, unknown>;
+}
+
+interface PestDiseaseRiskPayload {
+  readonly warnings: readonly { readonly riskLevel?: string }[];
+}
+
+interface PestDiseaseTaskPayload {
+  readonly events: readonly { readonly taskCode: string }[];
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isPestDiseaseRiskPayload(payload: Record<string, unknown>): payload is PestDiseaseRiskPayload {
+  const warnings = payload.warnings;
+
+  return (
+    Array.isArray(warnings) &&
+    warnings.every((warning) => {
+      if (!isRecord(warning)) {
+        return false;
+      }
+
+      const { riskLevel } = warning;
+
+      return riskLevel === undefined || typeof riskLevel === 'string';
+    })
+  );
+}
+
+function assertPestDiseaseRiskPayload(
+  payload: Record<string, unknown> | undefined,
+  message: string,
+): PestDiseaseRiskPayload {
+  if (!payload || !isPestDiseaseRiskPayload(payload)) {
+    throw new Error(message);
+  }
+
+  return payload;
+}
+
+function isPestDiseaseTaskPayload(payload: Record<string, unknown>): payload is PestDiseaseTaskPayload {
+  const events = payload.events;
+
+  return Array.isArray(events) && events.every((event) => isRecord(event) && typeof event.taskCode === 'string');
+}
+
+function assertPestDiseaseTaskPayload(
+  payload: Record<string, unknown>,
+  message: string,
+): PestDiseaseTaskPayload {
+  if (!isPestDiseaseTaskPayload(payload)) {
+    throw new Error(message);
+  }
+
+  return payload;
+}
 
 function createRole(): EmployeeRole {
   return {
@@ -120,7 +181,7 @@ describe('pest & disease system MVP integration', () => {
     const maybeZoneId = world.company.structures[0]?.rooms[0]?.zones[0]?.id;
     expect(maybeZoneId).toBeDefined();
     const targetZoneId = maybeZoneId;
-    const telemetryEvents: { topic: string; payload: any }[] = [];
+    const telemetryEvents: TelemetryEventRecord[] = [];
     const ctx: EngineRunContext = {
       telemetry: {
         emit(topic, payload) {
@@ -178,14 +239,28 @@ describe('pest & disease system MVP integration', () => {
     expect(riskEvents.length).toBeGreaterThanOrEqual(3);
     expect(taskEvents.length).toBe(2);
 
-    const firstRiskLevel = riskEvents[0]?.payload.warnings[0]?.riskLevel;
-    const secondRiskLevel = riskEvents[1]?.payload.warnings[0]?.riskLevel;
+    const firstRiskPayload = assertPestDiseaseRiskPayload(
+      riskEvents[0]?.payload,
+      'Expected first pest disease risk payload to be structured data.',
+    );
+    const secondRiskPayload = assertPestDiseaseRiskPayload(
+      riskEvents[1]?.payload,
+      'Expected second pest disease risk payload to be structured data.',
+    );
+
+    const firstRiskLevel = firstRiskPayload.warnings[0]?.riskLevel;
+    const secondRiskLevel = secondRiskPayload.warnings[0]?.riskLevel;
     expect(firstRiskLevel).toBe('moderate');
     expect(secondRiskLevel).toBe('high');
 
-    const emittedTaskCodes = taskEvents.flatMap((entry) =>
-      entry.payload.events.map((event: any) => event.taskCode),
-    );
+    const emittedTaskCodes = taskEvents.flatMap((entry) => {
+      const payload = assertPestDiseaseTaskPayload(
+        entry.payload,
+        'Expected pest disease task payload to include emitted task events.',
+      );
+
+      return payload.events.map((event) => event.taskCode);
+    });
     expect(emittedTaskCodes).toEqual([
       PEST_INSPECTION_TASK_CODE,
       PEST_TREATMENT_TASK_CODE,

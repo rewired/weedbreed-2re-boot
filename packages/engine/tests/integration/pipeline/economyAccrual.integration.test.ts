@@ -4,12 +4,19 @@ import { FLOAT_TOLERANCE } from '@/backend/src/constants/simConstants';
 import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
 import { applyEconomyAccrual } from '@/backend/src/engine/pipeline/applyEconomyAccrual';
 import { createDemoWorld } from '@/backend/src/engine/testHarness';
-import type {
-  SimulationWorld,
-  WorkforcePayrollState,
-  ZoneDeviceInstance,
-  Uuid,
+import {
+  parseDeviceBlueprint,
+  parseDevicePriceMap,
+  toDeviceInstanceEffectConfigs,
+  type DeviceBlueprint,
+  type DevicePriceEntry,
+  type SimulationWorld,
+  type WorkforcePayrollState,
+  type ZoneDeviceInstance,
+  type Uuid,
 } from '@/backend/src/domain/world';
+import type { IrrigationEvent } from '@/backend/src/domain/interfaces/IIrrigationService';
+import type { DeviceMaintenanceAccrualState } from '@/backend/src/device/maintenanceRuntime';
 import { bankersRound } from '@/backend/src/util/math';
 import devicePrices from '../../../../../data/prices/devicePrices.json' with { type: 'json' };
 import dryboxBlueprint from '../../../../../data/blueprints/device/climate/drybox-200.json' with { type: 'json' };
@@ -19,32 +26,114 @@ const EPS = FLOAT_TOLERANCE;
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 
+const devicePriceMap = parseDevicePriceMap(devicePrices);
+const dryboxDeviceBlueprint = parseDeviceBlueprint(dryboxBlueprint);
+
+type UnknownRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): UnknownRecord | null {
+  return value && typeof value === 'object' ? (value as UnknownRecord) : null;
+}
+
+function readFiniteNumber(record: UnknownRecord, key: string): number | undefined {
+  const candidate = record[key];
+  return typeof candidate === 'number' && Number.isFinite(candidate) ? candidate : undefined;
+}
+
+function readBlueprintNumber(blueprint: DeviceBlueprint, key: string): number | undefined {
+  return readFiniteNumber(blueprint as UnknownRecord, key);
+}
+
+function readLimitNumber(blueprint: DeviceBlueprint, key: string): number | undefined {
+  const limitsRecord = asRecord((blueprint as UnknownRecord).limits);
+  return limitsRecord ? readFiniteNumber(limitsRecord, key) : undefined;
+}
+
+function readMaintenanceNumber(
+  blueprint: DeviceBlueprint,
+  key: 'intervalDays' | 'hoursPerService',
+): number | undefined {
+  const maintenanceRecord = asRecord((blueprint as UnknownRecord).maintenance);
+  return maintenanceRecord ? readFiniteNumber(maintenanceRecord, key) : undefined;
+}
+
+interface WorkforceEconomyAccrualState {
+  readonly current?: WorkforcePayrollState;
+  readonly finalizedDays: readonly WorkforcePayrollState[];
+}
+
+interface DeviceMaintenanceEconomyAccrualState {
+  readonly current?: DeviceMaintenanceAccrualState;
+  readonly finalizedDays: readonly DeviceMaintenanceAccrualState[];
+}
+
+interface UtilityAccrualState {
+  readonly dayIndex: number;
+  readonly hoursAccrued: number;
+  readonly energyConsumption_kWh: number;
+  readonly energyCostCc: number;
+  readonly energyCostCc_per_h: number;
+  readonly waterConsumption_m3: number;
+  readonly waterCostCc: number;
+  readonly waterCostCc_per_h: number;
+}
+
+interface UtilityEconomyAccrualState {
+  readonly current?: UtilityAccrualState;
+  readonly finalizedDays: readonly UtilityAccrualState[];
+}
+
+interface CultivationAccrualState {
+  readonly dayIndex: number;
+  readonly hoursAccrued: number;
+  readonly costCc: number;
+  readonly costCc_per_h: number;
+}
+
+interface CultivationEconomyAccrualState {
+  readonly current?: CultivationAccrualState;
+  readonly finalizedDays: readonly CultivationAccrualState[];
+}
+
+interface EconomyAccrualState {
+  readonly workforce?: WorkforceEconomyAccrualState;
+  readonly deviceMaintenance?: DeviceMaintenanceEconomyAccrualState;
+  readonly utilities?: UtilityEconomyAccrualState;
+  readonly cultivation?: CultivationEconomyAccrualState;
+}
+
+type EconomyAccrualTestContext = Mutable<EngineRunContext> & {
+  economyAccruals?: EconomyAccrualState;
+};
+
+function expectDevicePriceEntry(id: string): DevicePriceEntry {
+  return expectDefined(devicePriceMap.devicePrices[id]);
+}
+
 function createTestDevice(): ZoneDeviceInstance {
-  const priceEntry = devicePrices.devicePrices[
-    dryboxBlueprint.id as keyof typeof devicePrices.devicePrices
-  ];
+  const priceEntry = expectDevicePriceEntry(dryboxDeviceBlueprint.id);
+  const lifetimeHours = readBlueprintNumber(dryboxDeviceBlueprint, 'lifetime_h') ?? 26_280;
+  const maintenanceIntervalDays = readMaintenanceNumber(dryboxDeviceBlueprint, 'intervalDays') ?? 45;
+  const maintenanceServiceHours = readMaintenanceNumber(dryboxDeviceBlueprint, 'hoursPerService') ?? 1;
+  const sensibleCapacityW = readLimitNumber(dryboxDeviceBlueprint, 'maxCool_W') ?? 0;
+  const { effects, effectConfigs } = toDeviceInstanceEffectConfigs(dryboxDeviceBlueprint);
 
   return {
     id: '00000000-0000-4000-9000-000000000000' as Uuid,
-    slug: dryboxBlueprint.slug,
-    name: dryboxBlueprint.name,
-    blueprintId: dryboxBlueprint.id as Uuid,
+    slug: dryboxDeviceBlueprint.slug,
+    name: dryboxDeviceBlueprint.name,
+    blueprintId: dryboxDeviceBlueprint.id as Uuid,
     placementScope: 'zone',
     quality01: 0.9,
     condition01: 1,
-    powerDraw_W: dryboxBlueprint.power_W,
+    powerDraw_W: dryboxDeviceBlueprint.power_W,
     dutyCycle01: 1,
-    efficiency01: dryboxBlueprint.efficiency01,
-    coverage_m2: dryboxBlueprint.coverage_m2 ?? 0,
-    airflow_m3_per_h: dryboxBlueprint.airflow_m3_per_h ?? 0,
-    sensibleHeatRemovalCapacity_W: dryboxBlueprint.limits?.maxCool_W ?? 0,
-    effects: dryboxBlueprint.effects as ZoneDeviceInstance['effects'],
-    effectConfigs: dryboxBlueprint
-      ? {
-          humidity: dryboxBlueprint.humidity,
-          thermal: dryboxBlueprint.thermal,
-        }
-      : undefined,
+    efficiency01: dryboxDeviceBlueprint.efficiency01,
+    coverage_m2: dryboxDeviceBlueprint.coverage_m2 ?? 0,
+    airflow_m3_per_h: dryboxDeviceBlueprint.airflow_m3_per_h ?? 0,
+    sensibleHeatRemovalCapacity_W: sensibleCapacityW,
+    effects: effects ?? [],
+    effectConfigs,
     maintenance: {
       runtimeHours: 0,
       hoursSinceService: 0,
@@ -55,9 +144,9 @@ function createTestDevice(): ZoneDeviceInstance {
       maintenanceWindow: undefined,
       recommendedReplacement: false,
       policy: {
-        lifetimeHours: dryboxBlueprint.lifetime_h ?? 26_280,
-        maintenanceIntervalHours: (dryboxBlueprint.maintenance?.intervalDays ?? 45) * 24,
-        serviceHours: dryboxBlueprint.maintenance?.hoursPerService ?? 1,
+        lifetimeHours,
+        maintenanceIntervalHours: maintenanceIntervalDays * HOURS_PER_DAY,
+        serviceHours: maintenanceServiceHours,
         baseCostPerHourCc: priceEntry.baseMaintenanceCostPerHour,
         costIncreasePer1000HoursCc: priceEntry.costIncreasePer1000Hours,
         serviceVisitCostCc: priceEntry.maintenanceServiceCost,
@@ -66,7 +155,7 @@ function createTestDevice(): ZoneDeviceInstance {
         restoreAmount01: 0.3,
       },
     },
-  } as ZoneDeviceInstance;
+  } satisfies ZoneDeviceInstance;
 }
 
 function configureWorld(): SimulationWorld {
@@ -93,9 +182,7 @@ function configureWorld(): SimulationWorld {
 }
 
 function computeExpectedMaintenance(dayTicks: number): { total: number; perHour: number } {
-  const priceEntry = devicePrices.devicePrices[
-    dryboxBlueprint.id as keyof typeof devicePrices.devicePrices
-  ];
+  const priceEntry = expectDevicePriceEntry(dryboxDeviceBlueprint.id);
   let runtimeHours = 0;
   let totalCost = 0;
 
@@ -112,11 +199,11 @@ function computeExpectedMaintenance(dayTicks: number): { total: number; perHour:
 describe('economy accrual integration', () => {
   it('aggregates utilities, cultivation, and maintenance costs per day', () => {
     let world = configureWorld();
-    const ctx: EngineRunContext = { tickDurationHours: 1 };
-    const irrigationEvents = [
+    const ctx: EconomyAccrualTestContext = { tickDurationHours: 1 };
+    const irrigationEvents: readonly IrrigationEvent[] = [
       {
         water_L: 50,
-        concentrations_mg_per_L: {},
+        concentrations_mg_per_L: {} satisfies Record<string, number>,
         targetZoneId: world.company.structures[0].rooms[0].zones[0].id,
       },
     ];
@@ -124,13 +211,12 @@ describe('economy accrual integration', () => {
     const totalTicks = 25;
 
     for (let i = 0; i < totalTicks; i += 1) {
-      (ctx as { irrigationEvents?: typeof irrigationEvents }).irrigationEvents = irrigationEvents;
+      ctx.irrigationEvents = irrigationEvents;
       const { world: nextWorld } = runTick(world, ctx);
       world = nextWorld;
     }
 
-    const economyState = (ctx as { economyAccruals?: any }).economyAccruals;
-    expect(economyState).toBeDefined();
+    const economyState = expectDefined(ctx.economyAccruals);
 
     const utilities = economyState.utilities;
     expect(utilities?.finalizedDays).toHaveLength(1);
@@ -180,9 +266,7 @@ describe('economy accrual integration', () => {
     expect(maintenanceDay1?.dayIndex).toBe(1);
     expect(maintenanceDay1?.hoursAccrued).toBeCloseTo(1, EPS);
 
-    const priceEntry = devicePrices.devicePrices[
-      dryboxBlueprint.id as keyof typeof devicePrices.devicePrices
-    ];
+    const priceEntry = expectDevicePriceEntry(dryboxDeviceBlueprint.id);
     const dayOneMaintenanceCost =
       priceEntry.baseMaintenanceCostPerHour + priceEntry.costIncreasePer1000Hours * (25 / 1_000);
     expect(maintenanceDay1?.costCc).toBeCloseTo(dayOneMaintenanceCost, EPS);
@@ -191,8 +275,8 @@ describe('economy accrual integration', () => {
 
   it('rolls workforce payroll daily totals from hourly slices with banker rounding', () => {
     let world = createDemoWorld() as Mutable<SimulationWorld>;
-    const ctx: EngineRunContext = { tickDurationHours: 1 };
-    (ctx as { economyAccruals?: unknown }).economyAccruals = undefined;
+    const ctx: EconomyAccrualTestContext = { tickDurationHours: 1 };
+    ctx.economyAccruals = undefined;
 
     interface PayrollSlice {
       readonly baseMinutes: number;
