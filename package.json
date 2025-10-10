@@ -13,6 +13,7 @@
     "build": "pnpm -r build",
     "typecheck": "pnpm -w tsc -p packages/engine/tsconfig.spec.json --noEmit",
     "lint": "pnpm exec eslint --max-warnings 0 \"packages/**/*.{ts,tsx}\"",
+    "lint:strict": "node ./tools/check-warn-budget.mjs --budget 30 -- pnpm -r --workspace-concurrency=1 lint -- --max-warnings=2147483647 --format json",
     "test": "pnpm -r test",
     "test:imports": "pnpm --filter @wb/engine test:imports",
     "lint:imports": "pnpm exec eslint --max-warnings=0 --config tools/eslint/import-guard.config.js packages tools",

@@ -1,0 +1,921 @@
+{
+  "error": {
+    "@typescript-eslint/prefer-nullish-coalescing": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/cultivation/methodRuntime.ts": {
+          "L218:C3 Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read": 1
+        },
+        "packages/engine/src/backend/src/device/maintenanceRuntime.ts": {
+          "L45:C3 Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read": 1
+        },
+        "packages/engine/src/backend/src/domain/payroll/locationIndex.ts": {
+          "L76:C3 Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read": 1
+        },
+        "packages/engine/src/backend/src/economy/runtime.ts": {
+          "L17:C3 Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-dynamic-delete": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/cultivation/methodRuntime.ts": {
+          "L268:C20 Do not delete dynamically computed property keys": 1
+        },
+        "packages/engine/src/backend/src/device/maintenanceRuntime.ts": {
+          "L70:C18 Do not delete dynamically computed property keys": 1
+        },
+        "packages/engine/src/backend/src/economy/runtime.ts": {
+          "L71:C18 Do not delete dynamically computed property keys": 1
+        },
+        "packages/engine/src/backend/src/engine/pipeline/applyDeviceEffects.ts": {
+          "L80:C40 Do not delete dynamically computed property keys": 1
+        },
+        "packages/engine/src/backend/src/engine/pipeline/applyIrrigationAndNutrients.ts": {
+          "L55:C44 Do not delete dynamically computed property keys": 1
+        },
+        "packages/engine/src/backend/src/engine/pipeline/applySensors.ts": {
+          "L46:C40 Do not delete dynamically computed property keys": 1
+        },
+        "packages/engine/src/backend/src/workforce/index.ts": {
+          "L90:C43 Do not delete dynamically computed property keys": 1,
+          "L110:C18 Do not delete dynamically computed property keys": 1,
+          "L115:C41 Do not delete dynamically computed property keys": 1,
+          "L132:C18 Do not delete dynamically computed property keys": 1
+        }
+      }
+    },
+    "@typescript-eslint/restrict-template-expressions": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/cultivation/methodRuntime.ts": {
+          "L418:C16 Invalid type \"number\" of template literal expression": 1,
+          "L418:C38 Invalid type \"number\" of template literal expression": 1,
+          "L447:C18 Invalid type \"number\" of template literal expression": 1,
+          "L447:C40 Invalid type \"number\" of template literal expression": 1,
+          "L472:C22 Invalid type \"number\" of template literal expression": 1,
+          "L472:C44 Invalid type \"number\" of template literal expression": 1
+        },
+        "packages/engine/src/backend/src/device/degradation.ts": {
+          "L250:C79 Invalid type \"number\" of template literal expression": 1
+        },
+        "packages/engine/src/backend/src/engine/conformance/builder/worldBuilder.ts": {
+          "L187:C59 Invalid type \"number\" of template literal expression": 1,
+          "L187:C66 Invalid type \"number\" of template literal expression": 1,
+          "L206:C63 Invalid type \"number\" of template literal expression": 1,
+          "L206:C70 Invalid type \"number\" of template literal expression": 1
+        },
+        "packages/engine/src/backend/src/health/pestDiseaseSystem.ts": {
+          "L112:C69 Invalid type \"number\" of template literal expression": 1
+        },
+        "packages/engine/tests/unit/data/blueprintSchemaCoverage.test.ts": {
+          "L229:C44 Invalid type \"number\" of template literal expression": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-unnecessary-condition": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/device/createDeviceInstance.ts": {
+          "L26:C7 Unnecessary conditional, value is always falsy": 1,
+          "L30:C7 Unnecessary conditional, value is always falsy": 1
+        },
+        "packages/engine/src/backend/src/domain/blueprints/device/parse.ts": {
+          "L148:C71 Unnecessary optional chain on a non-nullish value": 1,
+          "L162:C71 Unnecessary optional chain on a non-nullish value": 1
+        },
+        "packages/engine/src/backend/src/domain/blueprints/device/schemaBase.ts": {
+          "L144:C9 Unnecessary conditional, the types have no overlap": 1
+        },
+        "packages/engine/src/backend/src/domain/blueprints/irrigationBlueprint.ts": {
+          "L105:C7 Unnecessary conditional, value is always falsy": 1,
+          "L105:C15 Unnecessary optional chain on a non-nullish value": 1
+        },
+        "packages/engine/src/backend/src/domain/blueprints/substrateBlueprint.ts": {
+          "L96:C16 Unnecessary conditional, comparison is always true, since `\"kilogram\" === \"kilogram\"` is true": 1
+        },
+        "packages/engine/src/backend/src/domain/workforce/traits.ts": {
+          "L224:C10 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L224:C35 Unnecessary optional chain on a non-nullish value": 1,
+          "L337:C28 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1
+        },
+        "packages/engine/src/backend/src/engine/conformance/builder/worldBuilder.ts": {
+          "L91:C9 Unnecessary conditional, value is always falsy": 1
+        },
+        "packages/engine/src/backend/src/engine/perf/perfScenarios.ts": {
+          "L81:C7 Unnecessary conditional, value is always falsy": 1
+        },
+        "packages/engine/src/backend/src/engine/pipeline/applyDeviceEffects.ts": {
+          "L187:C13 Unnecessary conditional, value is always falsy": 1,
+          "L198:C11 Unnecessary conditional, value is always falsy": 1,
+          "L209:C9 Unnecessary conditional, value is always falsy": 1,
+          "L224:C7 Unnecessary conditional, value is always truthy": 1
+        },
+        "packages/engine/src/backend/src/engine/pipeline/applyEconomyAccrual.ts": {
+          "L176:C7 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L189:C7 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L196:C28 Unnecessary conditional, value is always truthy": 1,
+          "L215:C25 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L263:C25 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1
+        },
+        "packages/engine/src/backend/src/engine/pipeline/applyIrrigationAndNutrients.ts": {
+          "L235:C11 Unnecessary conditional, value is always truthy": 1,
+          "L242:C9 Unnecessary conditional, value is always truthy": 1
+        },
+        "packages/engine/src/backend/src/engine/pipeline/effects/humidity.ts": {
+          "L28:C9 Unnecessary conditional, comparison is always true, since `\"auto\" === \"auto\"` is true": 1,
+          "L81:C17 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L82:C17 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1
+        },
+        "packages/engine/src/backend/src/engine/pipeline/updateEnvironment.ts": {
+          "L175:C11 Unnecessary conditional, value is always falsy": 1,
+          "L186:C9 Unnecessary conditional, value is always falsy": 1,
+          "L199:C7 Unnecessary conditional, value is always truthy": 1
+        },
+        "packages/engine/src/backend/src/engine/seedToHarvest.ts": {
+          "L373:C9 Unnecessary conditional, value is always truthy": 1,
+          "L385:C7 Unnecessary conditional, value is always truthy": 1
+        },
+        "packages/engine/src/backend/src/health/pestDiseaseSystem.ts": {
+          "L153:C46 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L153:C61 Unnecessary optional chain on a non-nullish value": 1
+        },
+        "packages/engine/src/backend/src/physiology/stressModel.ts": {
+          "L18:C40 Unnecessary conditional, comparison is always true, since `\"vegetative\" === \"vegetative\"` is true": 1
+        },
+        "packages/engine/src/backend/src/stubs/HumidityActuatorStub.ts": {
+          "L144:C11 Unnecessary conditional, comparison is always true, since `\"humidify\" === \"humidify\"` is true": 1
+        },
+        "packages/engine/src/backend/src/stubs/ThermalActuatorStub.ts": {
+          "L118:C18 Unnecessary conditional, comparison is always true, since `\"cool\" === \"cool\"` is true": 1
+        },
+        "packages/engine/src/backend/src/telemetry/hiring.ts": {
+          "L22:C7 Unnecessary conditional, value is always falsy": 1
+        },
+        "packages/engine/src/backend/src/telemetry/workforce.ts": {
+          "L31:C7 Unnecessary conditional, value is always falsy": 1
+        },
+        "packages/engine/src/backend/src/workforce/index.ts": {
+          "L446:C9 Unnecessary conditional, comparison is always true, since `\"workforce.employee.terminate\" === \"workforce.employee.terminate\"` is true": 1,
+          "L484:C7 Unnecessary conditional, value is always falsy": 1
+        },
+        "packages/engine/src/backend/src/workforce/market/candidates.ts": {
+          "L80:C19 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L80:C49 Unnecessary optional chain on a non-nullish value": 1,
+          "L81:C18 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L81:C48 Unnecessary optional chain on a non-nullish value": 1,
+          "L84:C19 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L84:C49 Unnecessary optional chain on a non-nullish value": 1,
+          "L85:C18 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L85:C48 Unnecessary optional chain on a non-nullish value": 1,
+          "L92:C25 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L182:C9 Unnecessary conditional, comparison is always true, since `\"hiring.market.hire\" === \"hiring.market.hire\"` is true": 1
+        },
+        "packages/engine/src/backend/src/workforce/payroll/accrual.ts": {
+          "L144:C78 Unnecessary optional chain on a non-nullish value": 1
+        },
+        "packages/engine/src/backend/src/workforce/telemetry/workforceEmit.ts": {
+          "L50:C7 Unnecessary conditional, value is always falsy": 1
+        },
+        "packages/engine/src/index.ts": {
+          "L65:C10 Unnecessary conditional, value is always truthy": 1
+        },
+        "packages/engine/tests/integration/pipeline/cultivationMethodTasks.integration.test.ts": {
+          "L63:C30 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L112:C21 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L112:C43 Unnecessary optional chain on a non-nullish value": 1,
+          "L121:C27 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1
+        },
+        "packages/engine/tests/integration/pipeline/deviceThermals.integration.test.ts": {
+          "L102:C23 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1
+        },
+        "packages/engine/tests/integration/pipeline/economyAccrual.integration.test.ts": {
+          "L38:C18 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L40:C58 Unnecessary optional chain on a non-nullish value": 1,
+          "L42:C20 Unnecessary conditional, value is always truthy": 1,
+          "L58:C24 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L59:C36 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L59:C63 Unnecessary optional chain on a non-nullish value": 1,
+          "L60:C23 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L60:C50 Unnecessary optional chain on a non-nullish value": 1
+        },
+        "packages/engine/tests/integration/pipeline/seedToHarvest.integration.test.ts": {
+          "L67:C18 Unnecessary conditional, value is always truthy": 1
+        },
+        "packages/engine/tests/integration/pipeline/sensorActuatorPattern.integration.test.ts": {
+          "L35:C20 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1
+        },
+        "packages/engine/tests/integration/pipeline/sensorReadings.integration.test.ts": {
+          "L182:C19 Unnecessary optional chain on a non-nullish value": 1,
+          "L184:C19 Unnecessary optional chain on a non-nullish value": 1,
+          "L185:C19 Unnecessary optional chain on a non-nullish value": 1,
+          "L186:C19 Unnecessary optional chain on a non-nullish value": 1,
+          "L187:C19 Unnecessary optional chain on a non-nullish value": 1,
+          "L188:C19 Unnecessary optional chain on a non-nullish value": 1,
+          "L189:C19 Unnecessary optional chain on a non-nullish value": 1,
+          "L190:C19 Unnecessary optional chain on a non-nullish value": 1,
+          "L191:C19 Unnecessary optional chain on a non-nullish value": 1,
+          "L192:C19 Unnecessary optional chain on a non-nullish value": 1
+        },
+        "packages/engine/tests/integration/saveLoad/saveLoad.integration.test.ts": {
+          "L63:C22 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1
+        },
+        "packages/engine/tests/unit/cultivation/methodRuntime.spec.ts": {
+          "L111:C30 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1,
+          "L146:C27 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1
+        },
+        "packages/engine/tests/unit/domain/cultivationIrrigationCompatibility.test.ts": {
+          "L93:C43 Unnecessary optional chain on a non-nullish value": 1,
+          "L93:C53 Unnecessary optional chain on a non-nullish value": 1
+        },
+        "packages/engine/tests/unit/stubs/IrrigationServiceStub.test.ts": {
+          "L73:C12 Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-redundant-type-constituents": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/domain/blueprints/device/parse.ts": {
+          "L86:C52 'SensorConfig' is an 'error' type that acts as 'any' and overrides all other types in this union type": 1,
+          "L108:C58 'SensorConfig' is an 'error' type that acts as 'any' and overrides all other types in this union type": 1,
+          "L136:C55 'Co2Config' is an 'error' type that acts as 'any' and overrides all other types in this union type": 1
+        },
+        "packages/engine/src/backend/src/saveLoad/migrations/registry.ts": {
+          "L9:C41 'unknown' overrides all other types in this union type": 1
+        },
+        "packages/engine/src/backend/src/services/workforce/identitySource.ts": {
+          "L52:C25 \"male\" is overridden by string in this union type": 1,
+          "L52:C34 \"female\" is overridden by string in this union type": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-unsafe-assignment": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/domain/blueprints/device/parse.ts": {
+          "L116:C9 Unsafe assignment of an error typed value": 1,
+          "L123:C5 Unsafe assignment of an error typed value": 1,
+          "L154:C9 Unsafe assignment of an error typed value": 1,
+          "L216:C11 Unsafe assignment of an error typed value": 1,
+          "L219:C7 Unsafe assignment of an error typed value": 1,
+          "L232:C11 Unsafe assignment of an error typed value": 1,
+          "L235:C7 Unsafe assignment of an error typed value": 1
+        },
+        "packages/engine/src/backend/src/domain/schemas/workforce.ts": {
+          "L245:C7 Unsafe assignment of an error typed value": 1,
+          "L252:C7 Unsafe assignment of an error typed value": 1
+        },
+        "packages/engine/src/backend/src/engine/perf/perfScenarios.ts": {
+          "L61:C9 Unsafe assignment of an `any` value": 1,
+          "L62:C9 Unsafe assignment of an `any` value": 1,
+          "L63:C9 Unsafe assignment of an `any` value": 1,
+          "L64:C9 Unsafe assignment of an `any` value": 1,
+          "L85:C9 Unsafe assignment of an `any` value": 1,
+          "L97:C9 Unsafe assignment of an `any` value": 1,
+          "L103:C9 Unsafe assignment of an `any` value": 1,
+          "L195:C9 Unsafe assignment of an `any` value": 1
+        },
+        "packages/engine/tests/integration/pipeline/economyAccrual.integration.test.ts": {
+          "L39:C5 Unsafe assignment of an error typed value": 1,
+          "L40:C5 Unsafe assignment of an error typed value": 1,
+          "L132:C11 Unsafe assignment of an `any` value": 1,
+          "L135:C11 Unsafe assignment of an `any` value": 1,
+          "L138:C11 Unsafe assignment of an `any` value": 1,
+          "L148:C11 Unsafe assignment of an `any` value": 1,
+          "L156:C11 Unsafe assignment of an `any` value": 1,
+          "L158:C11 Unsafe assignment of an `any` value": 1,
+          "L164:C11 Unsafe assignment of an `any` value": 1,
+          "L170:C11 Unsafe assignment of an `any` value": 1,
+          "L172:C11 Unsafe assignment of an `any` value": 1,
+          "L179:C11 Unsafe assignment of an `any` value": 1
+        },
+        "packages/engine/tests/integration/pipeline/pestDiseaseMvp.integration.test.ts": {
+          "L181:C11 Unsafe assignment of an `any` value": 1,
+          "L182:C11 Unsafe assignment of an `any` value": 1
+        },
+        "packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts": {
+          "L504:C11 Unsafe assignment of an error typed value": 1,
+          "L507:C41 Unsafe assignment of an `any` value": 1
+        },
+        "packages/engine/tests/unit/domain/strainBlueprintSchema.test.ts": {
+          "L12:C7 Unsafe assignment of an `any` value": 1,
+          "L59:C9 Unsafe assignment of an `any` value": 1,
+          "L68:C9 Unsafe assignment of an `any` value": 1,
+          "L70:C11 Unsafe assignment of an `any` value": 1,
+          "L77:C11 Unsafe assignment of an `any` value": 1,
+          "L79:C7 Unsafe assignment of an `any` value": 1,
+          "L99:C11 Unsafe assignment of an `any` value": 1,
+          "L114:C9 Unsafe assignment of an `any` value": 1,
+          "L124:C9 Unsafe assignment of an `any` value": 1,
+          "L136:C9 Unsafe assignment of an `any` value": 1
+        },
+        "packages/engine/tests/unit/services/storage/resolveStorageRoom.spec.ts": {
+          "L88:C7 Unsafe assignment of an `any` value": 1
+        },
+        "packages/engine/tests/unit/services/workforce/market.test.ts": {
+          "L20:C5 Unsafe assignment of an error typed value": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-unsafe-member-access": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/domain/blueprints/device/parse.ts": {
+          "L165:C12 Unsafe member access .min_ppm on an `error` typed value": 1,
+          "L171:C12 Unsafe member access .ambient_ppm on an `error` typed value": 1,
+          "L177:C12 Unsafe member access .hysteresis_ppm on an `error` typed value": 1
+        },
+        "packages/engine/tests/integration/pipeline/economyAccrual.integration.test.ts": {
+          "L135:C36 Unsafe member access .utilities on an `any` value": 1,
+          "L136:C23 Unsafe member access .finalizedDays on an `any` value": 1,
+          "L138:C37 Unsafe member access .finalizedDays on an `any` value": 1,
+          "L139:C26 Unsafe member access .dayIndex on an `any` value": 1,
+          "L140:C26 Unsafe member access .hoursAccrued on an `any` value": 1,
+          "L141:C26 Unsafe member access .energyConsumption_kWh on an `any` value": 1,
+          "L142:C26 Unsafe member access .energyCostCc on an `any` value": 1,
+          "L143:C26 Unsafe member access .energyCostCc_per_h on an `any` value": 1,
+          "L144:C26 Unsafe member access .waterConsumption_m3 on an `any` value": 1,
+          "L145:C26 Unsafe member access .waterCostCc on an `any` value": 1,
+          "L146:C26 Unsafe member access .waterCostCc_per_h on an `any` value": 1,
+          "L148:C37 Unsafe member access .current on an `any` value": 1,
+          "L149:C27 Unsafe member access .dayIndex on an `any` value": 1,
+          "L150:C27 Unsafe member access .hoursAccrued on an `any` value": 1,
+          "L151:C27 Unsafe member access .energyConsumption_kWh on an `any` value": 1,
+          "L152:C27 Unsafe member access .energyCostCc_per_h on an `any` value": 1,
+          "L153:C27 Unsafe member access .waterConsumption_m3 on an `any` value": 1,
+          "L154:C27 Unsafe member access .waterCostCc_per_h on an `any` value": 1,
+          "L156:C38 Unsafe member access .cultivation on an `any` value": 1,
+          "L157:C25 Unsafe member access .finalizedDays on an `any` value": 1,
+          "L158:C41 Unsafe member access .finalizedDays on an `any` value": 1,
+          "L159:C28 Unsafe member access .dayIndex on an `any` value": 1,
+          "L160:C28 Unsafe member access .hoursAccrued on an `any` value": 1,
+          "L161:C28 Unsafe member access .costCc on an `any` value": 1,
+          "L162:C28 Unsafe member access .costCc_per_h on an `any` value": 1,
+          "L164:C41 Unsafe member access .current on an `any` value": 1,
+          "L165:C29 Unsafe member access .dayIndex on an `any` value": 1,
+          "L166:C29 Unsafe member access .hoursAccrued on an `any` value": 1,
+          "L167:C29 Unsafe member access .costCc on an `any` value": 1,
+          "L168:C29 Unsafe member access .costCc_per_h on an `any` value": 1,
+          "L170:C38 Unsafe member access .deviceMaintenance on an `any` value": 1,
+          "L171:C25 Unsafe member access .finalizedDays on an `any` value": 1,
+          "L172:C41 Unsafe member access .finalizedDays on an `any` value": 1,
+          "L174:C28 Unsafe member access .dayIndex on an `any` value": 1,
+          "L175:C28 Unsafe member access .hoursAccrued on an `any` value": 1,
+          "L176:C28 Unsafe member access .costCc on an `any` value": 1,
+          "L177:C28 Unsafe member access .costCc_per_h on an `any` value": 1,
+          "L179:C41 Unsafe member access .current on an `any` value": 1,
+          "L180:C29 Unsafe member access .dayIndex on an `any` value": 1,
+          "L181:C29 Unsafe member access .hoursAccrued on an `any` value": 1,
+          "L188:C29 Unsafe member access .costCc on an `any` value": 1,
+          "L189:C29 Unsafe member access .costCc_per_h on an `any` value": 1
+        },
+        "packages/engine/tests/integration/pipeline/pestDiseaseMvp.integration.test.ts": {
+          "L181:C51 Unsafe member access .warnings on an `any` value": 1,
+          "L182:C52 Unsafe member access .warnings on an `any` value": 1,
+          "L187:C21 Unsafe member access .events on an `any` value": 1,
+          "L187:C54 Unsafe member access .taskCode on an `any` value": 1
+        },
+        "packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts": {
+          "L19:C56 Unsafe member access .toUpperCase on an `any` value": 1,
+          "L540:C38 Unsafe member access .event on an `any` value": 1
+        },
+        "packages/engine/tests/unit/domain/strainBlueprintSchema.test.ts": {
+          "L59:C46 Unsafe member access .stressTolerance on an `any` value": 1,
+          "L69:C29 Unsafe member access .growthModel on an `any` value": 1,
+          "L70:C44 Unsafe member access .growthModel on an `any` value": 1,
+          "L80:C27 Unsafe member access .growthModel on an `any` value": 1,
+          "L100:C31 Unsafe member access .growthModel on an `any` value": 1,
+          "L115:C29 Unsafe member access .growthModel on an `any` value": 1,
+          "L125:C29 Unsafe member access .growthModel on an `any` value": 1,
+          "L136:C45 Unsafe member access .phaseDurations on an `any` value": 1
+        },
+        "packages/engine/tests/unit/services/workforce/identitySource.test.ts": {
+          "L65:C15 Unsafe member access .signal on an `any` value": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/domain/blueprints/device/schemaByClass.ts": {
+          "L4:C3 'airflowConfigObjectSchema' is defined but never used": 1,
+          "L5:C3 'airflowConfigSchema' is defined but never used": 1,
+          "L7:C3 'co2ConfigObjectSchema' is defined but never used": 1,
+          "L9:C3 'deviceEffectSchema' is defined but never used": 1,
+          "L10:C3 'filtrationConfigObjectSchema' is defined but never used": 1,
+          "L11:C3 'filtrationConfigSchema' is defined but never used": 1,
+          "L12:C3 'humidityConfigObjectSchema' is defined but never used": 1,
+          "L13:C3 'humidityConfigSchema' is defined but never used": 1,
+          "L14:C3 'lightingConfigObjectSchema' is defined but never used": 1,
+          "L15:C3 'lightingConfigSchema' is defined but never used": 1,
+          "L16:C3 'sensorConfigObjectSchema' is defined but never used": 1,
+          "L17:C3 'sensorConfigSchema' is defined but never used": 1,
+          "L18:C3 'thermalConfigObjectSchema' is defined but never used": 1,
+          "L19:C3 'thermalConfigSchema' is defined but never used": 1
+        },
+        "packages/engine/src/backend/src/domain/interfaces/ILightEmitter.ts": {
+          "L1:C15 'LightSchedule' is defined but never used": 1
+        },
+        "packages/engine/src/backend/src/engine/conformance/recipes/zones.ts": {
+          "L2:C3 'CLIMATE_BLUEPRINT' is defined but never used": 1,
+          "L6:C3 'LIGHT_BLUEPRINT' is defined but never used": 1
+        },
+        "packages/engine/src/backend/src/stubs/LightEmitterStub.ts": {
+          "L8:C10 'clamp' is defined but never used": 1
+        },
+        "packages/engine/src/backend/src/stubs/ThermalActuatorStub.ts": {
+          "L3:C3 'HOURS_PER_TICK' is defined but never used": 1
+        },
+        "packages/engine/tests/integration/pipeline/co2Coupling.integration.test.ts": {
+          "L6:C35 'Zone' is defined but never used": 1
+        },
+        "packages/engine/tests/integration/pipeline/deviceMaintenance.integration.test.ts": {
+          "L14:C3 'Structure' is defined but never used": 1,
+          "L16:C3 'Zone' is defined but never used": 1
+        },
+        "packages/engine/tests/integration/pipeline/pestDiseaseMvp.integration.test.ts": {
+          "L15:C3 'WorkforceTaskInstance' is defined but never used": 1
+        },
+        "packages/engine/tests/unit/data/blueprintSchemaCoverage.test.ts": {
+          "L71:C24 '_context' is defined but never used": 1,
+          "L78:C24 '_context' is defined but never used": 1,
+          "L85:C24 '_context' is defined but never used": 1,
+          "L93:C26 '_context' is defined but never used": 1,
+          "L102:C24 '_context' is defined but never used": 1,
+          "L109:C24 '_context' is defined but never used": 1,
+          "L117:C26 '_context' is defined but never used": 1,
+          "L125:C26 '_context' is defined but never used": 1,
+          "L134:C24 '_context' is defined but never used": 1,
+          "L141:C24 '_context' is defined but never used": 1,
+          "L148:C24 '_context' is defined but never used": 1,
+          "L155:C24 '_context' is defined but never used": 1
+        },
+        "packages/engine/tests/unit/domain/strainBlueprintLoader.test.ts": {
+          "L11:C15 'StrainBlueprint' is defined but never used": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-unsafe-call": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/domain/schemas/workforce.ts": {
+          "L246:C3 Unsafe call of a(n) `error` type typed value": 1,
+          "L253:C3 Unsafe call of a(n) `error` type typed value": 1
+        },
+        "packages/engine/src/backend/src/engine/conformance/builder/worldBuilder.ts": {
+          "L124:C9 Unsafe call of a(n) `error` type typed value": 1,
+          "L137:C9 Unsafe call of a(n) `error` type typed value": 1,
+          "L147:C9 Unsafe call of a(n) `error` type typed value": 1
+        },
+        "packages/engine/tests/integration/pipeline/pestDiseaseMvp.integration.test.ts": {
+          "L187:C7 Unsafe call of a(n) `any` typed value": 1
+        },
+        "packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts": {
+          "L19:C53 Unsafe call of a(n) `any` typed value": 1
+        },
+        "packages/engine/tests/unit/services/workforce/identitySource.test.ts": {
+          "L65:C9 Unsafe call of a(n) `any` typed value": 1
+        }
+      }
+    },
+    "no-useless-escape": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/engine/reporting/cli.ts": {
+          "L150:C50 Unnecessary escape character: \\-": 1
+        }
+      }
+    },
+    "@typescript-eslint/use-unknown-in-catch-callback-variable": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/engine/reporting/cli.ts": {
+          "L156:C22 Prefer the safe `: unknown` for a `catch` callback variable": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-unsafe-argument": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/stubs/IrrigationServiceStub.ts": {
+          "L148:C65 Unsafe argument of type `any[]` assigned to a parameter of type `IrrigationEvent[]`": 1
+        },
+        "packages/engine/src/backend/src/workforce/telemetry/workforceEmit.ts": {
+          "L93:C42 Unsafe argument of type error typed assigned to a parameter of type `WorkforceRaiseTelemetryEvent`": 1,
+          "L99:C43 Unsafe argument of type error typed assigned to a parameter of type `WorkforceTerminationTelemetryEvent`": 1
+        },
+        "packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts": {
+          "L523:C7 Unsafe argument of type error typed assigned to a parameter of type `EngineRunContext`": 1
+        },
+        "packages/engine/tests/runtime/importResolution.test.ts": {
+          "L85:C33 Unsafe argument of type `any` assigned to a parameter of type `PathLike`": 1,
+          "L88:C31 Unsafe argument of type `any` assigned to a parameter of type `string`": 1,
+          "L92:C53 Unsafe argument of type `any` assigned to a parameter of type `string`": 1,
+          "L98:C33 Unsafe argument of type `any` assigned to a parameter of type `PathLike`": 1,
+          "L106:C32 Unsafe argument of type `any` assigned to a parameter of type `string`": 1
+        },
+        "packages/engine/tests/unit/economy/noEconomyPerTickRule.test.ts": {
+          "L11:C3 Unsafe argument of type error typed assigned to a parameter of type `Parser`": 1,
+          "L13:C49 Unsafe argument of type error typed assigned to a parameter of type `RuleModule`": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-unnecessary-type-assertion": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/telemetry/payload.ts": {
+          "L3:C12 This assertion is unnecessary since it does not change the type of the expression": 1
+        },
+        "packages/engine/src/backend/src/workforce/scheduler/dispatch.ts": {
+          "L86:C56 This assertion is unnecessary since it does not change the type of the expression": 1,
+          "L95:C56 This assertion is unnecessary since it does not change the type of the expression": 1,
+          "L240:C12 This assertion is unnecessary since it does not change the type of the expression": 1,
+          "L246:C10 This assertion is unnecessary since it does not change the type of the expression": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-unnecessary-type-parameters": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/util/uuid.ts": {
+          "L6:C21 Type parameter T is used only once in the function signature": 1
+        },
+        "packages/engine/tests/unit/services/workforce/raises.test.ts": {
+          "L18:C31 Type parameter T is used only once in the function signature": 1,
+          "L31:C31 Type parameter T is used only once in the function signature": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-confusing-void-expression": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/workforce/index.ts": {
+          "L504:C44 Returning a void expression from an arrow function shorthand is forbidden. Please add braces to the arrow function": 1
+        }
+      }
+    },
+    "prefer-const": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/workforce/index.ts": {
+          "L591:C7 'totalBaseMinutes' is never reassigned. Use 'const' instead": 1,
+          "L592:C7 'totalOvertimeMinutes' is never reassigned. Use 'const' instead": 1,
+          "L593:C7 'tasksCompleted' is never reassigned. Use 'const' instead": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/workforce/scheduler/dispatch.ts": {
+          "L224:C12 Forbidden non-null assertion": 1,
+          "L240:C12 Forbidden non-null assertion": 1,
+          "L246:C10 Forbidden non-null assertion": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-base-to-string": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/workforce/scheduler/dispatch.ts": {
+          "L455:C27 'context.taskCategory ?? context.category ?? ''' will use Object's default stringification format ('[object Object]') when stringified": 1
+        },
+        "packages/engine/src/backend/src/workforce/traits/effects.ts": {
+          "L91:C26 'context.roomPurpose ?? context.purpose ?? ''' will use Object's default stringification format ('[object Object]') when stringified": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-empty-function": {
+      "packages/engine": {
+        "packages/engine/tests/integration/pipeline/cultivationMethodTasks.integration.test.ts": {
+          "L108:C62 Unexpected empty method 'emit'": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "packages/engine": {
+        "packages/engine/tests/integration/pipeline/economyAccrual.integration.test.ts": {
+          "L132:C54 Unexpected any. Specify a different type": 1
+        },
+        "packages/engine/tests/integration/pipeline/pestDiseaseMvp.integration.test.ts": {
+          "L123:C54 Unexpected any. Specify a different type": 1,
+          "L187:C40 Unexpected any. Specify a different type": 1
+        },
+        "packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts": {
+          "L503:C54 Unexpected any. Specify a different type": 1,
+          "L506:C40 Unexpected any. Specify a different type": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-unsafe-return": {
+      "packages/engine": {
+        "packages/engine/tests/integration/pipeline/pestDiseaseMvp.integration.test.ts": {
+          "L187:C7 Unsafe return of a value of type `any`": 1,
+          "L187:C48 Unsafe return of a value of type `any`": 1
+        },
+        "packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts": {
+          "L19:C53 Unsafe return of a value of type `any`": 1
+        }
+      }
+    },
+    "@typescript-eslint/no-deprecated": {
+      "packages/engine": {
+        "packages/engine/tests/integration/pipeline/zoneCapacity.integration.test.ts": {
+          "L105:C23 `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).": 1
+        },
+        "packages/engine/tests/unit/thermo/heat.spec.ts": {
+          "L31:C20 `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).": 1,
+          "L45:C20 `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).": 1,
+          "L54:C20 `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).": 1,
+          "L64:C7 `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).": 1
+        }
+      }
+    },
+    "@typescript-eslint/require-await": {
+      "packages/engine": {
+        "packages/engine/tests/unit/economy/noEconomyPerTickRule.test.ts": {
+          "L35:C56 Async arrow function has no 'await' expression": 1,
+          "L48:C57 Async arrow function has no 'await' expression": 1
+        },
+        "packages/engine/tests/unit/services/workforce/identitySource.test.ts": {
+          "L23:C9 Async method 'json' has no 'await' expression": 1
+        }
+      }
+    }
+  },
+  "warning": {
+    "@typescript-eslint/no-magic-numbers": {
+      "packages/engine": {
+        "packages/engine/src/backend/src/config/workforce.ts": {
+          "L13:C24 No magic number: 30": 1,
+          "L14:C15 No magic number: 16": 1
+        },
+        "packages/engine/src/backend/src/device/condition.ts": {
+          "L105:C29 No magic number: 0.5": 1
+        },
+        "packages/engine/src/backend/src/device/degradation.ts": {
+          "L19:C68 No magic number: 0.5": 1,
+          "L20:C18 No magic number: 0.4": 1,
+          "L20:C24 No magic number: 0.6": 1,
+          "L24:C68 No magic number: 0.5": 1,
+          "L25:C18 No magic number: 0.5": 1,
+          "L25:C24 No magic number: 0.5": 1,
+          "L113:C12 No magic number: 0.4": 1,
+          "L192:C82 No magic number: 0.5": 1
+        },
+        "packages/engine/src/backend/src/domain/blueprints/device/parse.ts": {
+          "L112:C55 No magic number: 0.05": 1,
+          "L124:C14 No magic number: 0.05": 1
+        },
+        "packages/engine/src/backend/src/domain/blueprints/device/schemaBase.ts": {
+          "L74:C14 No magic number: 0.05": 1,
+          "L142:C38 No magic number: 4": 1
+        },
+        "packages/engine/src/backend/src/domain/schemas/workforce.ts": {
+          "L51:C12 No magic number: 0.1": 1,
+          "L73:C10 No magic number: 5": 1,
+          "L74:C10 No magic number: 16": 1,
+          "L77:C10 No magic number: 5": 1,
+          "L80:C10 No magic number: 7": 1,
+          "L121:C10 No magic number: 0.1": 1,
+          "L125:C10 No magic number: 0.1": 1,
+          "L128:C10 No magic number: 0.5": 1,
+          "L129:C10 No magic number: 5": 1,
+          "L248:C12 No magic number: 0.25": 1,
+          "L249:C12 No magic number: 0.5": 1,
+          "L255:C12 No magic number: 0.01": 1,
+          "L256:C12 No magic number: 0.35": 1,
+          "L263:C12 No magic number: 0.3": 1,
+          "L264:C12 No magic number: 0.7": 1
+        },
+        "packages/engine/src/backend/src/domain/schemas/zone.ts": {
+          "L89:C16 No magic number: 0.5": 1,
+          "L178:C47 No magic number: 0.5": 1,
+          "L210:C41 No magic number: 0.5": 1
+        },
+        "packages/engine/src/backend/src/domain/workforce/traits.ts": {
+          "L89:C59 No magic number: 0.35": 1,
+          "L89:C70 No magic number: 0.75": 1,
+          "L101:C27 No magic number: 0.45": 1,
+          "L101:C38 No magic number: 0.8": 1,
+          "L108:C30 No magic number: 0.18": 1,
+          "L111:C25 No magic number: -0.03": 1,
+          "L112:C31 No magic number: 0.08": 1,
+          "L118:C41 No magic number: 12": 1,
+          "L119:C31 No magic number: 20": 1,
+          "L119:C44 No magic number: 6": 1,
+          "L124:C53 No magic number: 0.1": 1,
+          "L125:C48 No magic number: 0.2": 1,
+          "L126:C22 No magic number: 0.02": 1,
+          "L132:C27 No magic number: 0.55": 1,
+          "L132:C38 No magic number: 0.85": 1,
+          "L133:C41 No magic number: 1.2": 1,
+          "L137:C36 No magic number: 0.03": 1,
+          "L141:C27 No magic number: 0.4": 1,
+          "L141:C37 No magic number: 0.7": 1,
+          "L143:C49 No magic number: 0.25": 1,
+          "L144:C23 No magic number: -0.02": 1,
+          "L152:C34 No magic number: 0.5": 1,
+          "L152:C50 No magic number: 0.05": 1,
+          "L163:C35 No magic number: -0.05": 1,
+          "L163:C56 No magic number: -0.02": 1,
+          "L164:C48 No magic number: 0.05": 1,
+          "L171:C23 No magic number: 0.06": 1,
+          "L172:C49 No magic number: 0.12": 1,
+          "L178:C51 No magic number: 0.12": 1,
+          "L179:C46 No magic number: 0.18": 1,
+          "L180:C29 No magic number: 0.08": 1,
+          "L185:C36 No magic number: -0.035": 1,
+          "L189:C51 No magic number: 0.08": 1,
+          "L190:C23 No magic number: 0.025": 1,
+          "L198:C46 No magic number: 0.08": 1,
+          "L204:C41 No magic number: 0.82": 1,
+          "L212:C19 No magic number: 0.25": 1,
+          "L212:C34 No magic number: 1.75": 1,
+          "L291:C50 No magic number: 0.5": 1
+        },
+        "packages/engine/src/backend/src/engine/conformance/builder/worldBuilder.ts": {
+          "L29:C21 No magic number: 8": 1,
+          "L30:C18 No magic number: 8": 1,
+          "L30:C21 No magic number: 12": 1,
+          "L31:C18 No magic number: 12": 1,
+          "L31:C22 No magic number: 16": 1,
+          "L32:C18 No magic number: 16": 1,
+          "L32:C22 No magic number: 20": 1,
+          "L33:C18 No magic number: 20": 1,
+          "L33:C22 No magic number: 32": 1,
+          "L59:C78 No magic number: 1.12": 1,
+          "L60:C21 No magic number: 0.9": 1,
+          "L60:C35 No magic number: 0.2": 1,
+          "L62:C36 No magic number: 0.1": 1,
+          "L62:C54 No magic number: 0.015": 1,
+          "L63:C54 No magic number: 3": 1,
+          "L123:C34 No magic number: 8": 1,
+          "L127:C22 No magic number: 4": 1,
+          "L136:C17 No magic number: 7": 1,
+          "L141:C17 No magic number: 6": 1,
+          "L146:C17 No magic number: 14": 1,
+          "L151:C17 No magic number: 7": 1,
+          "L358:C83 No magic number: 3": 1,
+          "L364:C72 No magic number: 3": 1,
+          "L407:C68 No magic number: 3": 1
+        },
+        "packages/engine/src/backend/src/engine/conformance/recipes/employees.ts": {
+          "L11:C17 No magic number: 8": 1,
+          "L18:C17 No magic number: 8": 1,
+          "L25:C17 No magic number: 8": 1
+        },
+        "packages/engine/src/backend/src/engine/conformance/recipes/rooms.ts": {
+          "L26:C15 No magic number: 3": 1,
+          "L33:C19 No magic number: 20": 1,
+          "L34:C15 No magic number: 3": 1,
+          "L41:C19 No magic number: 20": 1,
+          "L42:C15 No magic number: 3": 1
+        },
+        "packages/engine/src/backend/src/engine/conformance/recipes/zones.ts": {
+          "L33:C19 No magic number: 20": 1,
+          "L34:C15 No magic number: 3": 1,
+          "L40:C22 No magic number: 24": 1,
+          "L41:C22 No magic number: 56": 1,
+          "L47:C19 No magic number: 20": 1,
+          "L48:C15 No magic number: 3": 1,
+          "L54:C22 No magic number: 26": 1,
+          "L55:C22 No magic number: 63": 1,
+          "L61:C19 No magic number: 20": 1,
+          "L62:C15 No magic number: 3": 1,
+          "L68:C22 No magic number: 28": 1,
+          "L69:C22 No magic number: 52": 1,
+          "L75:C19 No magic number: 20": 1,
+          "L76:C15 No magic number: 3": 1,
+          "L82:C22 No magic number: 30": 1,
+          "L89:C19 No magic number: 20": 1,
+          "L90:C15 No magic number: 3": 1,
+          "L96:C22 No magic number: 32": 1,
+          "L97:C22 No magic number: 58": 1
+        },
+        "packages/engine/src/backend/src/engine/reporting/cli.ts": {
+          "L132:C12 No magic number: 25": 1
+        },
+        "packages/engine/src/backend/src/engine/reporting/generateSeedToHarvestReport.ts": {
+          "L69:C28 No magic number: 25": 1
+        },
+        "packages/engine/src/backend/src/engine/seedToHarvest.ts": {
+          "L25:C63 No magic number: 18": 1,
+          "L25:C77 No magic number: 6": 1,
+          "L26:C62 No magic number: 12": 1,
+          "L26:C76 No magic number: 12": 1
+        },
+        "packages/engine/src/backend/src/engine/testHarness.ts": {
+          "L25:C36 No magic number: 3": 1,
+          "L59:C12 No magic number: 53.55": 1,
+          "L68:C23 No magic number: 400": 1,
+          "L69:C19 No magic number: 3": 1,
+          "L77:C27 No magic number: 120": 1,
+          "L78:C23 No magic number: 3": 1,
+          "L86:C27 No magic number: 3": 1,
+          "L93:C28 No magic number: 18": 1,
+          "L94:C29 No magic number: 6": 1,
+          "L99:C36 No magic number: 22": 1,
+          "L100:C39 No magic number: 0.55": 1,
+          "L107:C22 No magic number: 500": 1,
+          "L108:C22 No magic number: 800": 1,
+          "L110:C29 No magic number: 0.5": 1,
+          "L121:C27 No magic number: 40": 1,
+          "L122:C23 No magic number: 3": 1,
+          "L216:C43 No magic number: 5": 1
+        },
+        "packages/engine/src/backend/src/services/workforce/raises.ts": {
+          "L99:C46 No magic number: 0.1": 1
+        },
+        "packages/engine/src/backend/src/stubs/FiltrationStub.ts": {
+          "L52:C56 No magic number: 200": 1,
+          "L53:C95 No magic number: 1.5": 1,
+          "L54:C53 No magic number: 0.005": 1,
+          "L55:C47 No magic number: 0.3": 1,
+          "L62:C47 No magic number: 0.99": 1,
+          "L64:C47 No magic number: 0.6": 1
+        },
+        "packages/engine/src/backend/src/stubs/IrrigationServiceStub.ts": {
+          "L113:C23 No magic number: 0.1": 1
+        },
+        "packages/engine/src/backend/src/util/growth.ts": {
+          "L48:C15 No magic number: 0.35": 1,
+          "L50:C16 No magic number: 0.75": 1,
+          "L51:C22 No magic number: 0.1": 1,
+          "L99:C15 No magic number: 0.1": 1,
+          "L138:C28 No magic number: 0.5": 1,
+          "L167:C48 No magic number: 0.01": 1,
+          "L169:C21 No magic number: 0.9": 1,
+          "L169:C35 No magic number: 0.2": 1,
+          "L179:C19 No magic number: 0.2": 1,
+          "L183:C57 No magic number: 0.005": 1
+        },
+        "packages/engine/src/backend/src/util/harvest.ts": {
+          "L26:C19 No magic number: 0.95": 1,
+          "L27:C17 No magic number: 0.95": 1,
+          "L27:C24 No magic number: 0.5": 1,
+          "L27:C43 No magic number: 0.95": 1,
+          "L53:C57 No magic number: 3600": 1
+        },
+        "packages/engine/src/backend/src/util/math.ts": {
+          "L49:C23 No magic number: 0.5": 1,
+          "L55:C14 No magic number: 0.5": 1
+        },
+        "packages/engine/src/backend/src/util/photoperiod.ts": {
+          "L9:C47 No magic number: 1e-3": 1
+        },
+        "packages/engine/src/backend/src/util/rng.ts": {
+          "L36:C11 No magic number: 1779033703": 1,
+          "L39:C42 No magic number: 3432918353": 1,
+          "L40:C15 No magic number: 13": 1,
+          "L40:C28 No magic number: 19": 1,
+          "L44:C30 No magic number: 16": 1,
+          "L44:C35 No magic number: 2246822507": 1,
+          "L45:C30 No magic number: 13": 1,
+          "L45:C35 No magic number: 3266489909": 1,
+          "L46:C16 No magic number: 16": 1,
+          "L55:C22 No magic number: 0x6d2b79f5": 1,
+          "L57:C30 No magic number: 15": 1,
+          "L58:C35 No magic number: 7": 1,
+          "L58:C43 No magic number: 61": 1,
+          "L59:C25 No magic number: 14": 1
+        },
+        "packages/engine/src/backend/src/util/uuid.ts": {
+          "L9:C18 No magic number: 8": 1,
+          "L10:C15 No magic number: 8": 1,
+          "L10:C18 No magic number: 12": 1,
+          "L11:C15 No magic number: 12": 1,
+          "L11:C19 No magic number: 16": 1,
+          "L12:C15 No magic number: 16": 1,
+          "L12:C19 No magic number: 20": 1,
+          "L13:C15 No magic number: 20": 1,
+          "L13:C19 No magic number: 32": 1,
+          "L24:C40 No magic number: 16": 1,
+          "L26:C34 No magic number: 0x0f": 1,
+          "L26:C42 No magic number: 0x40": 1,
+          "L27:C34 No magic number: 0x3f": 1,
+          "L27:C42 No magic number: 0x80": 1,
+          "L41:C40 No magic number: 16": 1,
+          "L43:C34 No magic number: 0x0f": 1,
+          "L43:C42 No magic number: 0x70": 1,
+          "L44:C34 No magic number: 0x3f": 1,
+          "L44:C42 No magic number: 0x80": 1
+        },
+        "packages/engine/src/backend/src/workforce/index.ts": {
+          "L168:C85 No magic number: 0.95": 1
+        },
+        "packages/engine/src/backend/src/workforce/intents/termination.ts": {
+          "L45:C45 No magic number: -0.02": 1
+        },
+        "packages/engine/src/backend/src/workforce/market/candidates.ts": {
+          "L95:C24 No magic number: 5": 1,
+          "L97:C57 No magic number: 0.1": 1,
+          "L102:C66 No magic number: 8": 1,
+          "L106:C15 No magic number: 0.7": 1,
+          "L107:C16 No magic number: 0.2": 1,
+          "L112:C20 No magic number: 8": 1,
+          "L114:C20 No magic number: 5": 1,
+          "L115:C23 No magic number: 8": 1
+        },
+        "packages/engine/src/backend/src/workforce/payroll/accrual.ts": {
+          "L83:C14 No magic number: 0.5": 1,
+          "L99:C7 No magic number: 0.5": 1,
+          "L119:C35 No magic number: 0.1": 1,
+          "L120:C39 No magic number: 0.1": 1,
+          "L121:C38 No magic number: 0.1": 1,
+          "L123:C42 No magic number: 0.5": 1
+        },
+        "packages/engine/src/backend/src/workforce/scheduler/dispatch.ts": {
+          "L145:C88 No magic number: 0.5": 1
+        },
+        "packages/engine/src/backend/src/workforce/traits/effects.ts": {
+          "L114:C49 No magic number: 30": 1
+        }
+      }
+    }
+  }
+}

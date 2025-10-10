@@ -1,0 +1,2 @@
+Scope: 6 of 7 workspace projects
+None of the selected packages has a "typecheck" script
