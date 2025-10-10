@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0052): Hoisted workforce identity gender roll thresholds into
+  shared constants, hardened hiring/workforce telemetry emitters to guard topics
+  and clone payloads before dispatch, and added unit coverage confirming the
+  sanitized telemetry flow so lint safety checks remain green.
+
 - HOTFIX-042 (Task 0051): Hardened the façade transport server startup to reject
   listener errors deterministically, normalised shutdown/startup catch handlers
   to wrap unknown failures, and updated the integration harness teardown to

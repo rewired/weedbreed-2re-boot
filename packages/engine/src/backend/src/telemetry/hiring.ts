@@ -4,13 +4,28 @@ import {
   TELEMETRY_HIRING_EMPLOYEE_ONBOARDED_V1,
   TELEMETRY_HIRING_MARKET_SCAN_COMPLETED_V1,
 } from './topics.ts';
+import { cloneTelemetryPayload } from './payload.ts';
 
 function emitEvent(
   bus: TelemetryBus | undefined,
   topic: string,
   payload: Record<string, unknown>,
 ): void {
-  bus?.emit(topic, payload);
+  if (!bus) {
+    return;
+  }
+
+  if (typeof topic !== 'string' || topic.length === 0) {
+    return;
+  }
+
+  if (!payload || typeof payload !== 'object') {
+    return;
+  }
+
+  const sanitizedPayload = cloneTelemetryPayload(payload);
+
+  bus.emit(topic, sanitizedPayload);
 }
 
 export interface HiringMarketScanTelemetryPayload {

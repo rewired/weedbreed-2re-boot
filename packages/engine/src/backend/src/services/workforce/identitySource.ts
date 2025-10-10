@@ -1,5 +1,9 @@
 import { createRng, type RandomNumberGenerator } from '../../util/rng.ts';
 import type { EmployeeRngSeedUuid } from '../../domain/workforce/Employee.ts';
+import {
+  WORKFORCE_IDENTITY_PROBABILITY_FEMALE,
+  WORKFORCE_IDENTITY_PROBABILITY_MALE,
+} from '../../constants/workforce.ts';
 
 import firstNamesFemaleJson from '../../../../../../../data/personnel/names/firstNamesFemale.json' with { type: 'json' };
 import firstNamesMaleJson from '../../../../../../../data/personnel/names/firstNamesMale.json' with { type: 'json' };
@@ -165,11 +169,11 @@ function buildFallbackIdentity(
 function rollGender(rng: RandomNumberGenerator): WorkforceIdentityGender {
   const roll = rng();
 
-  if (roll < 0.49) {
+  if (roll < WORKFORCE_IDENTITY_PROBABILITY_MALE) {
     return 'm';
   }
 
-  if (roll < 0.98) {
+  if (roll < WORKFORCE_IDENTITY_PROBABILITY_FEMALE) {
     return 'f';
   }
 

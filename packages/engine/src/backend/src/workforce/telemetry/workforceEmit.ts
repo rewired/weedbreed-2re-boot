@@ -7,6 +7,7 @@ import {
   emitWorkforceWarnings,
 } from '../../telemetry/workforce.ts';
 import { emitHiringEmployeeOnboarded, emitHiringMarketScanCompleted } from '../../telemetry/hiring.ts';
+import { cloneTelemetryPayload } from '../../telemetry/payload.ts';
 import type {
   WorkforceKpiSnapshot,
   WorkforcePayrollState,
@@ -30,6 +31,29 @@ export interface WorkforceTelemetryBatch {
   readonly marketScans?: readonly MarketScanTelemetry[];
   readonly hires?: readonly MarketHireTelemetry[];
   readonly deviceEvents?: readonly DeviceTelemetryEvent[];
+}
+
+function emitDeviceTelemetry(
+  telemetry: EngineRunContext['telemetry'],
+  event: DeviceTelemetryEvent,
+): void {
+  if (!telemetry) {
+    return;
+  }
+
+  const { topic, payload } = event;
+
+  if (typeof topic !== 'string' || topic.length === 0) {
+    return;
+  }
+
+  if (!payload || typeof payload !== 'object') {
+    return;
+  }
+
+  const sanitizedPayload = cloneTelemetryPayload(payload);
+
+  telemetry.emit(topic, sanitizedPayload);
 }
 
 export function emitWorkforceTelemetry(
@@ -78,7 +102,7 @@ export function emitWorkforceTelemetry(
 
   if (batch.deviceEvents) {
     for (const event of batch.deviceEvents) {
-      telemetry.emit(event.topic, event.payload);
+      emitDeviceTelemetry(telemetry, event);
     }
   }
 }
