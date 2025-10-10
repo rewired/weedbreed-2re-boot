@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0046): Normalised engine, transport, and tooling catch handlers
+  to capture `unknown`, added a shared error normaliser so non-`Error` values are
+  wrapped before propagation, guarded telemetry/intent acknowledgements against
+  unsafe payloads, and documented the catch policy with unit coverage.
 - HOTFIX-042 (Task 0045): Renamed the CI performance guard-band override to `PERF_CI_WARNING_GUARD_BAND_01`, kept a deprecation
   warning for the old `%` variable, and clarified in the perf harness docs that overrides must stay on the canonical 0–1 scale
   so `wb-sim/no-engine-percent-identifiers` remains green across engine scripts.

@@ -58,8 +58,9 @@ report
 
       const markdown = renderPackageAuditMarkdown({ entries });
       process.stdout.write(`${markdown}\n`);
-    } catch (error) {
-      logger.error(error, 'Failed to generate package report');
+    } catch (error: unknown) {
+      const normalisedError = error instanceof Error ? error : new Error('Failed to generate package report', { cause: error });
+      logger.error(normalisedError, 'Failed to generate package report');
       process.exitCode = 1;
     }
   });

@@ -66,7 +66,7 @@ export function createMonitorRuntime(options: MonitorRuntimeOptions): MonitorRun
   const handleEvent = (message: TelemetryMessage) => {
     try {
       handleTelemetryMessage(state, message, config);
-    } catch (error) {
+    } catch (error: unknown) {
       const reason =
         error instanceof ZodError ? error.issues.map((issue) => issue.message).join('; ') : String(error);
       recordError(state, `Failed to parse ${message.topic}: ${reason}`, maxErrorEntries);
