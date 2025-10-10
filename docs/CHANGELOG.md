@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0050): Hardened the CO₂ injector stub by replacing non-null
+  assertions with explicit guard helpers, normalising optional bounds before
+  clamping, and keeping the deterministic capacity logic intact for lint
+  conformance.
+
 - HOTFIX-042 (Task 0049): Removed redundant numeric coercions, `as` assertions,
   and non-null assertions across the perf harness, stubs, workforce scheduler,
   and façade tests by replacing them with schema parsing, explicit guards, and
