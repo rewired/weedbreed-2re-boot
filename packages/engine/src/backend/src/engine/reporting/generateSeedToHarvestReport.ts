@@ -71,7 +71,7 @@ const DEFAULT_PERF_TICKS = 25 as const;
 export function generateSeedToHarvestReport(
   options: SeedToHarvestReportOptions = {}
 ): SeedToHarvestReport {
-  const scenario = options.scenario?.trim() || DEFAULT_SCENARIO_NAME;
+  const scenario = options.scenario?.trim() ?? DEFAULT_SCENARIO_NAME;
   const perfTickBudget = normaliseTickCount(options.ticks ?? DEFAULT_PERF_TICKS);
   const seedToHarvestConfig = options.seedToHarvest;
 
