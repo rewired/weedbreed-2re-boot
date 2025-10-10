@@ -13,6 +13,7 @@ import type {
   Zone,
 } from '../domain/world.ts';
 import { evaluatePestDiseaseRisk, resolveRiskLevel } from './pestDiseaseRisk.ts';
+import { fmtNum } from '../util/format.ts';
 import { deterministicUuid } from '../util/uuid.ts';
 
 export const PEST_INSPECTION_TASK_CODE = 'task.pest.inspection';
@@ -109,7 +110,7 @@ function createTaskId(
   zoneId: Zone['id'],
   currentTick: number,
 ): WorkforceTaskInstance['id'] {
-  return deterministicUuid(worldSeed, `pest:${taskCode}:${zoneId}:${currentTick}`);
+  return deterministicUuid(worldSeed, `pest:${taskCode}:${zoneId}:${fmtNum(currentTick)}`);
 }
 
 function buildTask(

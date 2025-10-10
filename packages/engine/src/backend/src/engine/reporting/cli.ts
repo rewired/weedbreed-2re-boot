@@ -117,12 +117,14 @@ function parseArgs(argv: readonly string[]): CliArguments {
 }
 
 function printUsage(): void {
-  const usage = `Usage: seed-to-harvest-report [options]\n\n` +
-    `Options:\n` +
-    `  --ticks <number>     Number of ticks to sample for the perf harness (default: 25)\n` +
-    `  --scenario <name>    Scenario label to embed in the report metadata (default: demo-world)\n` +
-    `  --output <file>      Relative path under /reporting for the JSON artifact\n` +
-    `  -h, --help           Show this help message\n`;
+  const usage = `Usage: seed-to-harvest-report [options]
+
+Options:
+  --ticks <number>     Number of ticks to sample for the perf harness (default: 25)
+  --scenario <name>    Scenario label to embed in the report metadata (default: demo-world)
+  --output <file>      Relative path under /reporting for the JSON artifact
+  -h, --help           Show this help message
+`;
 
   process.stdout.write(usage);
 }

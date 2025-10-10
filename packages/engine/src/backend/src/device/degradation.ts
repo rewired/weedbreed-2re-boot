@@ -1,5 +1,6 @@
 import { FLOAT_TOLERANCE } from '@/backend/src/constants/simConstants';
 import { clamp01 } from '../util/math.ts';
+import { fmtNum } from '../util/format.ts';
 import { deterministicUuid } from '../util/uuid.ts';
 import type {
   DeviceMaintenancePolicy,
@@ -247,7 +248,7 @@ export function updateZoneDeviceLifecycle(
     const durationTicks = Math.max(1, Math.ceil(serviceHours / tickDuration));
     const endTick = startTick + durationTicks;
     const reason: DeviceMaintenanceWindow['reason'] = conditionDue ? 'condition' : 'interval';
-    const taskId = deterministicUuid(seed, `device:${device.id}:maintenance:${startTick}`);
+    const taskId = deterministicUuid(seed, `device:${device.id}:maintenance:${fmtNum(startTick)}`);
 
     maintenanceWindow = {
       startTick,

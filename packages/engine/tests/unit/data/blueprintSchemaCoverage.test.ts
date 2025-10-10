@@ -18,6 +18,7 @@ import {
   parseSubstrateBlueprint
 } from '@/backend/src/domain/blueprints/index';
 import { resolveBlueprintPath } from '../../testUtils/paths.ts';
+import { fmtNum } from '@/backend/src/util/format.ts';
 
 type ParserFn = (input: unknown, context: { readonly filePath: string; readonly relativePath: string }) => void;
 
@@ -226,7 +227,7 @@ describe('blueprint schema coverage', () => {
     }
 
     const summaryLine = Array.from(summary.entries())
-      .map(([label, count]) => `${label}=${count}`)
+      .map(([label, count]) => `${label}=${fmtNum(count)}`)
       .join(', ');
 
     console.info(`[Blueprint coverage] ${summaryLine}`);

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 
 import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
 
+import { fmtNum } from '../../../util/format.ts';
 import { createRng } from '../../../util/rng.ts';
 import { BREAK_DURATION_MINUTES, EMPLOYEES } from '../recipes/employees.ts';
 import {
@@ -184,7 +185,7 @@ export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun 
         harvestEvents += 1;
 
         const yieldKg = computeHarvestYieldKg(zone, cycleIndex, zoneRng);
-        const lotId = deterministicUuid(`lot:${zone.id}:${day}:${cycleIndex}`);
+        const lotId = deterministicUuid(`lot:${zone.id}:${fmtNum(day)}:${fmtNum(cycleIndex)}`);
         const lotRecord: HarvestLotRecord = {
           id: lotId,
           zoneId: zone.id,
@@ -203,7 +204,7 @@ export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun 
           storageLotIds.push(lotId);
         }
 
-        const plantId = deterministicUuid(`plant:${zone.id}:${day}:${cycleIndex}`);
+          const plantId = deterministicUuid(`plant:${zone.id}:${fmtNum(day)}:${fmtNum(cycleIndex)}`);
         const replantDay = day + 1;
 
         if (replantDay <= days) {
