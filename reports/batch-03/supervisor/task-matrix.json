@@ -1,0 +1,153 @@
+{
+  "nullish-guards": {
+    "0061": [
+      "packages/engine/src/backend/src/cultivation/methodRuntime.ts",
+      "packages/engine/src/backend/src/device/createDeviceInstance.ts",
+      "packages/engine/src/backend/src/device/maintenanceRuntime.ts",
+      "packages/engine/src/backend/src/domain/blueprints/device/parse.ts",
+      "packages/engine/src/backend/src/domain/blueprints/device/schemaBase.ts",
+      "packages/engine/src/backend/src/domain/blueprints/irrigationBlueprint.ts",
+      "packages/engine/src/backend/src/domain/blueprints/substrateBlueprint.ts",
+      "packages/engine/src/backend/src/domain/payroll/locationIndex.ts",
+      "packages/engine/src/backend/src/domain/workforce/traits.ts",
+      "packages/engine/src/backend/src/economy/runtime.ts",
+      "packages/engine/src/backend/src/engine/conformance/builder/worldBuilder.ts",
+      "packages/engine/src/backend/src/engine/perf/perfScenarios.ts",
+      "packages/engine/src/backend/src/engine/pipeline/applyDeviceEffects.ts",
+      "packages/engine/src/backend/src/engine/pipeline/applyEconomyAccrual.ts",
+      "packages/engine/src/backend/src/engine/pipeline/applyIrrigationAndNutrients.ts",
+      "packages/engine/src/backend/src/engine/pipeline/effects/humidity.ts",
+      "packages/engine/src/backend/src/engine/pipeline/updateEnvironment.ts",
+      "packages/engine/src/backend/src/engine/seedToHarvest.ts",
+      "packages/engine/src/backend/src/health/pestDiseaseSystem.ts",
+      "packages/engine/src/backend/src/physiology/stressModel.ts",
+      "packages/engine/src/backend/src/stubs/HumidityActuatorStub.ts",
+      "packages/engine/src/backend/src/stubs/ThermalActuatorStub.ts",
+      "packages/engine/src/backend/src/telemetry/hiring.ts",
+      "packages/engine/src/backend/src/telemetry/payload.ts",
+      "packages/engine/src/backend/src/telemetry/workforce.ts",
+      "packages/engine/src/backend/src/util/uuid.ts",
+      "packages/engine/src/backend/src/workforce/index.ts",
+      "packages/engine/src/backend/src/workforce/market/candidates.ts",
+      "packages/engine/src/backend/src/workforce/payroll/accrual.ts",
+      "packages/engine/src/backend/src/workforce/scheduler/dispatch.ts",
+      "packages/engine/src/backend/src/workforce/telemetry/workforceEmit.ts",
+      "packages/engine/src/index.ts",
+      "packages/engine/tests/integration/pipeline/cultivationMethodTasks.integration.test.ts",
+      "packages/engine/tests/integration/pipeline/deviceThermals.integration.test.ts",
+      "packages/engine/tests/integration/pipeline/economyAccrual.integration.test.ts",
+      "packages/engine/tests/integration/pipeline/seedToHarvest.integration.test.ts",
+      "packages/engine/tests/integration/pipeline/sensorActuatorPattern.integration.test.ts",
+      "packages/engine/tests/integration/pipeline/sensorReadings.integration.test.ts",
+      "packages/engine/tests/integration/saveLoad/saveLoad.integration.test.ts",
+      "packages/engine/tests/unit/cultivation/methodRuntime.spec.ts",
+      "packages/engine/tests/unit/domain/cultivationIrrigationCompatibility.test.ts",
+      "packages/engine/tests/unit/services/workforce/raises.test.ts",
+      "packages/engine/tests/unit/stubs/IrrigationServiceStub.test.ts"
+    ]
+  },
+  "immutable-state-handling": {
+    "0062": [
+      "packages/engine/src/backend/src/cultivation/methodRuntime.ts",
+      "packages/engine/src/backend/src/device/maintenanceRuntime.ts",
+      "packages/engine/src/backend/src/economy/runtime.ts",
+      "packages/engine/src/backend/src/engine/pipeline/applyDeviceEffects.ts",
+      "packages/engine/src/backend/src/engine/pipeline/applyIrrigationAndNutrients.ts",
+      "packages/engine/src/backend/src/engine/pipeline/applySensors.ts",
+      "packages/engine/src/backend/src/workforce/index.ts"
+    ]
+  },
+  "string-format-safety": {
+    "0063": [
+      "packages/engine/src/backend/src/cultivation/methodRuntime.ts",
+      "packages/engine/src/backend/src/device/degradation.ts",
+      "packages/engine/src/backend/src/engine/conformance/builder/worldBuilder.ts",
+      "packages/engine/src/backend/src/engine/reporting/cli.ts",
+      "packages/engine/src/backend/src/health/pestDiseaseSystem.ts",
+      "packages/engine/src/backend/src/workforce/scheduler/dispatch.ts",
+      "packages/engine/src/backend/src/workforce/traits/effects.ts",
+      "packages/engine/tests/unit/data/blueprintSchemaCoverage.test.ts"
+    ]
+  },
+  "unsafe-dynamic-types": {
+    "0060": [
+      "packages/engine/src/backend/src/domain/blueprints/device/parse.ts",
+      "packages/engine/src/backend/src/domain/schemas/workforce.ts",
+      "packages/engine/src/backend/src/engine/conformance/builder/worldBuilder.ts",
+      "packages/engine/src/backend/src/engine/perf/perfScenarios.ts",
+      "packages/engine/src/backend/src/engine/reporting/cli.ts",
+      "packages/engine/src/backend/src/saveLoad/migrations/registry.ts",
+      "packages/engine/src/backend/src/services/workforce/identitySource.ts",
+      "packages/engine/src/backend/src/stubs/IrrigationServiceStub.ts",
+      "packages/engine/src/backend/src/workforce/telemetry/workforceEmit.ts",
+      "packages/engine/tests/integration/pipeline/economyAccrual.integration.test.ts",
+      "packages/engine/tests/integration/pipeline/pestDiseaseMvp.integration.test.ts",
+      "packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts",
+      "packages/engine/tests/runtime/importResolution.test.ts",
+      "packages/engine/tests/unit/domain/strainBlueprintSchema.test.ts",
+      "packages/engine/tests/unit/economy/noEconomyPerTickRule.test.ts",
+      "packages/engine/tests/unit/services/storage/resolveStorageRoom.spec.ts",
+      "packages/engine/tests/unit/services/workforce/identitySource.test.ts",
+      "packages/engine/tests/unit/services/workforce/market.test.ts"
+    ]
+  },
+  "dead-code-hygiene": {
+    "0065": [
+      "packages/engine/src/backend/src/domain/blueprints/device/schemaByClass.ts",
+      "packages/engine/src/backend/src/domain/interfaces/ILightEmitter.ts",
+      "packages/engine/src/backend/src/engine/conformance/recipes/zones.ts",
+      "packages/engine/src/backend/src/stubs/LightEmitterStub.ts",
+      "packages/engine/src/backend/src/stubs/ThermalActuatorStub.ts",
+      "packages/engine/src/backend/src/workforce/index.ts",
+      "packages/engine/tests/integration/pipeline/co2Coupling.integration.test.ts",
+      "packages/engine/tests/integration/pipeline/cultivationMethodTasks.integration.test.ts",
+      "packages/engine/tests/integration/pipeline/deviceMaintenance.integration.test.ts",
+      "packages/engine/tests/integration/pipeline/pestDiseaseMvp.integration.test.ts",
+      "packages/engine/tests/unit/data/blueprintSchemaCoverage.test.ts",
+      "packages/engine/tests/unit/domain/strainBlueprintLoader.test.ts",
+      "packages/engine/tests/unit/economy/noEconomyPerTickRule.test.ts",
+      "packages/engine/tests/unit/services/workforce/identitySource.test.ts"
+    ]
+  },
+  "thermal-actuator-upgrade": {
+    "0066": [
+      "packages/engine/tests/integration/pipeline/zoneCapacity.integration.test.ts",
+      "packages/engine/tests/unit/thermo/heat.spec.ts"
+    ]
+  },
+  "magic-numbers": {
+    "0064": [
+      "packages/engine/src/backend/src/config/workforce.ts",
+      "packages/engine/src/backend/src/device/condition.ts",
+      "packages/engine/src/backend/src/device/degradation.ts",
+      "packages/engine/src/backend/src/domain/blueprints/device/parse.ts",
+      "packages/engine/src/backend/src/domain/blueprints/device/schemaBase.ts",
+      "packages/engine/src/backend/src/domain/schemas/workforce.ts",
+      "packages/engine/src/backend/src/domain/schemas/zone.ts",
+      "packages/engine/src/backend/src/domain/workforce/traits.ts",
+      "packages/engine/src/backend/src/engine/conformance/builder/worldBuilder.ts",
+      "packages/engine/src/backend/src/engine/conformance/recipes/employees.ts",
+      "packages/engine/src/backend/src/engine/conformance/recipes/rooms.ts",
+      "packages/engine/src/backend/src/engine/conformance/recipes/zones.ts",
+      "packages/engine/src/backend/src/engine/reporting/cli.ts",
+      "packages/engine/src/backend/src/engine/reporting/generateSeedToHarvestReport.ts",
+      "packages/engine/src/backend/src/engine/seedToHarvest.ts",
+      "packages/engine/src/backend/src/engine/testHarness.ts",
+      "packages/engine/src/backend/src/services/workforce/raises.ts",
+      "packages/engine/src/backend/src/stubs/FiltrationStub.ts",
+      "packages/engine/src/backend/src/stubs/IrrigationServiceStub.ts",
+      "packages/engine/src/backend/src/util/growth.ts",
+      "packages/engine/src/backend/src/util/harvest.ts",
+      "packages/engine/src/backend/src/util/math.ts",
+      "packages/engine/src/backend/src/util/photoperiod.ts",
+      "packages/engine/src/backend/src/util/rng.ts",
+      "packages/engine/src/backend/src/util/uuid.ts",
+      "packages/engine/src/backend/src/workforce/index.ts",
+      "packages/engine/src/backend/src/workforce/intents/termination.ts",
+      "packages/engine/src/backend/src/workforce/market/candidates.ts",
+      "packages/engine/src/backend/src/workforce/payroll/accrual.ts",
+      "packages/engine/src/backend/src/workforce/scheduler/dispatch.ts",
+      "packages/engine/src/backend/src/workforce/traits/effects.ts"
+    ]
+  }
+}
