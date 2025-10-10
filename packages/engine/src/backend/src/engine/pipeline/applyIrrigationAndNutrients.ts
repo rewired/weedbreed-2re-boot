@@ -77,11 +77,11 @@ function createBufferInputs(
   nutrients_mg: Record<string, number>,
 ): NutrientBufferInputs {
   const keys = new Set<string>([
-    ...Object.keys(bufferState ?? {}),
-    ...Object.keys(nutrients_mg ?? {}),
+    ...Object.keys(bufferState),
+    ...Object.keys(nutrients_mg),
   ]);
   const capacity_mg: Record<string, number> = {};
-  const buffer_mg: Record<string, number> = normalizeBufferState(bufferState ?? {});
+  const buffer_mg: Record<string, number> = normalizeBufferState(bufferState);
 
   for (const key of keys) {
     capacity_mg[key] = Number.MAX_SAFE_INTEGER;
@@ -181,7 +181,7 @@ export function applyIrrigationAndNutrients(
           events: zoneEvents,
           nutrientSource: 'solution',
         };
-        const bufferState = zone.nutrientBuffer_mg ?? {};
+        const bufferState = zone.nutrientBuffer_mg;
         const outputs = irrigationStub.computeEffect(inputs, bufferState, dt_h);
 
         if (outputs.water_L <= 0 && Object.keys(outputs.nutrients_mg).length === 0) {

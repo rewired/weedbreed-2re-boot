@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0047): Removed redundant optional chaining in the irrigation
+  pipeline and workforce payroll accumulator so deterministic records are
+  treated as required data, and clarified p95 wait computations to avoid
+  impossible fallbacks flagged by the lint guards.
 - HOTFIX-042 (Task 0046): Normalised engine, transport, and tooling catch handlers
   to capture `unknown`, added a shared error normaliser so non-`Error` values are
   wrapped before propagation, guarded telemetry/intent acknowledgements against

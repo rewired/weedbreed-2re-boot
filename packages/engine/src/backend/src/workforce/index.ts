@@ -166,7 +166,7 @@ function createSnapshot(
   const utilisation = capacityMinutes > 0 ? clamp01((baseMinutes + overtimeMinutes) / capacityMinutes) : 0;
   const sortedWaits = [...waitTimes].sort((a, b) => a - b);
   const index = sortedWaits.length > 0 ? Math.max(0, Math.ceil(sortedWaits.length * 0.95) - 1) : 0;
-  const p95Wait = sortedWaits.length > 0 ? sortedWaits[index] ?? 0 : 0;
+  const p95Wait = sortedWaits.length > 0 ? sortedWaits[index] : 0;
 
   return {
     simTimeHours,
@@ -565,7 +565,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
     workforceState.taskDefinitions.map((definition) => [definition.taskCode, definition]),
   );
 
-  const previousPayroll = workforceState.payroll ?? createEmptyPayrollState(currentSimDay);
+  const previousPayroll = workforceState.payroll;
   let payrollDayIndex = previousPayroll.dayIndex;
   let payrollTotals = clonePayrollTotals(previousPayroll.totals);
   let structurePayroll = cloneStructurePayroll(previousPayroll.byStructure);
