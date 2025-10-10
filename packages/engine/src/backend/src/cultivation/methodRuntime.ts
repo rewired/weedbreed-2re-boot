@@ -16,6 +16,7 @@ import type { Uuid } from '../domain/schemas/primitives.ts';
 import { parseContainerBlueprint, type ContainerBlueprint } from '../domain/blueprints/containerBlueprint.ts';
 import { parseCultivationMethodBlueprint } from '../domain/blueprints/cultivationMethodBlueprint.ts';
 import { parseSubstrateBlueprint, type SubstrateBlueprint } from '../domain/blueprints/substrateBlueprint.ts';
+import { fmtNum } from '../util/format.ts';
 import { deterministicUuid } from '../util/uuid.ts';
 
 const CURRENT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -412,7 +413,7 @@ export function scheduleCultivationTasksForZone(
         containerCycleCount: state.containerCyclesUsed,
       },
       currentTick,
-      `repot:${cycleSequence}:tick:${latestHarvestTick}`,
+      `repot:${fmtNum(cycleSequence)}:tick:${fmtNum(latestHarvestTick)}`,
     );
 
     if (task) {
@@ -441,7 +442,7 @@ export function scheduleCultivationTasksForZone(
         substrateCycleCount: state.substrateCyclesUsed,
       },
       currentTick,
-      `dispose:${cycleSequence}:tick:${latestHarvestTick}`,
+      `dispose:${fmtNum(cycleSequence)}:tick:${fmtNum(latestHarvestTick)}`,
     );
 
     if (task) {
@@ -466,7 +467,7 @@ export function scheduleCultivationTasksForZone(
           substrateCycleCount: state.substrateCyclesUsed,
         },
         currentTick,
-        `sterilize:${cycleSequence}:tick:${latestHarvestTick}`,
+        `sterilize:${fmtNum(cycleSequence)}:tick:${fmtNum(latestHarvestTick)}`,
       );
 
       if (task) {
