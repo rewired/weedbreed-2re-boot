@@ -1,0 +1,657 @@
+Scope: 6 of 7 workspace projects
+packages/engine lint$ eslint --max-warnings=0 "src/**/*.ts" "tests/**/*.ts" --max-warnings=0
+packages/tools lint$ eslint --max-warnings=0 "src/**/*.ts" --max-warnings=0
+packages/tools lint: Done
+packages/transport-sio lint$ eslint --max-warnings=0 "src/**/*.ts" "tests/**/*.ts" --max-warnings=0
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/config/workforce.ts
+packages/engine lint:   13:24  warning  No magic number: 30  @typescript-eslint/no-magic-numbers
+packages/engine lint:   14:15  warning  No magic number: 16  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/cultivation/methodRuntime.ts
+packages/engine lint:   218:3   error  Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read  @typescript-eslint/prefer-nullish-coalescing
+packages/engine lint:   268:20  error  Do not delete dynamically computed property keys                                                                @typescript-eslint/no-dynamic-delete
+packages/engine lint:   418:16  error  Invalid type "number" of template literal expression                                                            @typescript-eslint/restrict-template-expressions
+packages/engine lint:   418:38  error  Invalid type "number" of template literal expression                                                            @typescript-eslint/restrict-template-expressions
+packages/engine lint:   447:18  error  Invalid type "number" of template literal expression                                                            @typescript-eslint/restrict-template-expressions
+packages/engine lint:   447:40  error  Invalid type "number" of template literal expression                                                            @typescript-eslint/restrict-template-expressions
+packages/engine lint:   472:22  error  Invalid type "number" of template literal expression                                                            @typescript-eslint/restrict-template-expressions
+packages/engine lint:   472:44  error  Invalid type "number" of template literal expression                                                            @typescript-eslint/restrict-template-expressions
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/device/condition.ts
+packages/engine lint:   105:29  warning  No magic number: 0.5  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/device/createDeviceInstance.ts
+packages/engine lint:   26:7  error  Unnecessary conditional, value is always falsy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   30:7  error  Unnecessary conditional, value is always falsy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/device/degradation.ts
+packages/engine lint:    19:68  warning  No magic number: 0.5                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:    20:18  warning  No magic number: 0.4                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:    20:24  warning  No magic number: 0.6                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:    24:68  warning  No magic number: 0.5                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:    25:18  warning  No magic number: 0.5                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:    25:24  warning  No magic number: 0.5                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:   113:12  warning  No magic number: 0.4                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:   192:82  warning  No magic number: 0.5                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:   250:79  error    Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/device/maintenanceRuntime.ts
+packages/engine lint:   45:3   error  Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read  @typescript-eslint/prefer-nullish-coalescing
+packages/engine lint:   70:18  error  Do not delete dynamically computed property keys                                                                @typescript-eslint/no-dynamic-delete
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/blueprints/device/parse.ts
+packages/engine lint:    86:52  error    'SensorConfig' is an 'error' type that acts as 'any' and overrides all other types in this union type  @typescript-eslint/no-redundant-type-constituents
+packages/engine lint:   108:58  error    'SensorConfig' is an 'error' type that acts as 'any' and overrides all other types in this union type  @typescript-eslint/no-redundant-type-constituents
+packages/engine lint:   112:55  warning  No magic number: 0.05                                                                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:   116:9   error    Unsafe assignment of an error typed value                                                              @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   123:5   error    Unsafe assignment of an error typed value                                                              @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   124:14  warning  No magic number: 0.05                                                                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:   136:55  error    'Co2Config' is an 'error' type that acts as 'any' and overrides all other types in this union type     @typescript-eslint/no-redundant-type-constituents
+packages/engine lint:   148:71  error    Unnecessary optional chain on a non-nullish value                                                      @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   154:9   error    Unsafe assignment of an error typed value                                                              @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   162:71  error    Unnecessary optional chain on a non-nullish value                                                      @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   165:12  error    Unsafe member access .min_ppm on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   171:12  error    Unsafe member access .ambient_ppm on an `error` typed value                                            @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   177:12  error    Unsafe member access .hysteresis_ppm on an `error` typed value                                         @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   216:11  error    Unsafe assignment of an error typed value                                                              @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   219:7   error    Unsafe assignment of an error typed value                                                              @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   232:11  error    Unsafe assignment of an error typed value                                                              @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   235:7   error    Unsafe assignment of an error typed value                                                              @typescript-eslint/no-unsafe-assignment
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/blueprints/device/schemaBase.ts
+packages/engine lint:    74:14  warning  No magic number: 0.05                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   142:38  warning  No magic number: 4                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:   144:9   error    Unnecessary conditional, the types have no overlap  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/blueprints/device/schemaByClass.ts
+packages/engine lint:    4:3  error  'airflowConfigObjectSchema' is defined but never used     @typescript-eslint/no-unused-vars
+packages/engine lint:    5:3  error  'airflowConfigSchema' is defined but never used           @typescript-eslint/no-unused-vars
+packages/engine lint:    7:3  error  'co2ConfigObjectSchema' is defined but never used         @typescript-eslint/no-unused-vars
+packages/engine lint:    9:3  error  'deviceEffectSchema' is defined but never used            @typescript-eslint/no-unused-vars
+packages/engine lint:   10:3  error  'filtrationConfigObjectSchema' is defined but never used  @typescript-eslint/no-unused-vars
+packages/engine lint:   11:3  error  'filtrationConfigSchema' is defined but never used        @typescript-eslint/no-unused-vars
+packages/engine lint:   12:3  error  'humidityConfigObjectSchema' is defined but never used    @typescript-eslint/no-unused-vars
+packages/engine lint:   13:3  error  'humidityConfigSchema' is defined but never used          @typescript-eslint/no-unused-vars
+packages/engine lint:   14:3  error  'lightingConfigObjectSchema' is defined but never used    @typescript-eslint/no-unused-vars
+packages/engine lint:   15:3  error  'lightingConfigSchema' is defined but never used          @typescript-eslint/no-unused-vars
+packages/engine lint:   16:3  error  'sensorConfigObjectSchema' is defined but never used      @typescript-eslint/no-unused-vars
+packages/engine lint:   17:3  error  'sensorConfigSchema' is defined but never used            @typescript-eslint/no-unused-vars
+packages/engine lint:   18:3  error  'thermalConfigObjectSchema' is defined but never used     @typescript-eslint/no-unused-vars
+packages/engine lint:   19:3  error  'thermalConfigSchema' is defined but never used           @typescript-eslint/no-unused-vars
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/blueprints/irrigationBlueprint.ts
+packages/engine lint:   105:7   error  Unnecessary conditional, value is always falsy     @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   105:15  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/blueprints/substrateBlueprint.ts
+packages/engine lint:   96:16  error  Unnecessary conditional, comparison is always true, since `"kilogram" === "kilogram"` is true  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/interfaces/ILightEmitter.ts
+packages/engine lint:   1:15  error  'LightSchedule' is defined but never used  @typescript-eslint/no-unused-vars
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/payroll/locationIndex.ts
+packages/engine lint:   76:3  error  Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read  @typescript-eslint/prefer-nullish-coalescing
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/schemas/workforce.ts
+packages/engine lint:    51:12  warning  No magic number: 0.1                          @typescript-eslint/no-magic-numbers
+packages/engine lint:    73:10  warning  No magic number: 5                            @typescript-eslint/no-magic-numbers
+packages/engine lint:    74:10  warning  No magic number: 16                           @typescript-eslint/no-magic-numbers
+packages/engine lint:    77:10  warning  No magic number: 5                            @typescript-eslint/no-magic-numbers
+packages/engine lint:    80:10  warning  No magic number: 7                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   121:10  warning  No magic number: 0.1                          @typescript-eslint/no-magic-numbers
+packages/engine lint:   125:10  warning  No magic number: 0.1                          @typescript-eslint/no-magic-numbers
+packages/engine lint:   128:10  warning  No magic number: 0.5                          @typescript-eslint/no-magic-numbers
+packages/engine lint:   129:10  warning  No magic number: 5                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   245:7   error    Unsafe assignment of an error typed value     @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   246:3   error    Unsafe call of a(n) `error` type typed value  @typescript-eslint/no-unsafe-call
+packages/engine lint:   248:12  warning  No magic number: 0.25                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   249:12  warning  No magic number: 0.5                          @typescript-eslint/no-magic-numbers
+packages/engine lint:   252:7   error    Unsafe assignment of an error typed value     @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   253:3   error    Unsafe call of a(n) `error` type typed value  @typescript-eslint/no-unsafe-call
+packages/engine lint:   255:12  warning  No magic number: 0.01                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   256:12  warning  No magic number: 0.35                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   263:12  warning  No magic number: 0.3                          @typescript-eslint/no-magic-numbers
+packages/engine lint:   264:12  warning  No magic number: 0.7                          @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/schemas/zone.ts
+packages/engine lint:    89:16  warning  No magic number: 0.5  @typescript-eslint/no-magic-numbers
+packages/engine lint:   178:47  warning  No magic number: 0.5  @typescript-eslint/no-magic-numbers
+packages/engine lint:   210:41  warning  No magic number: 0.5  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/domain/workforce/traits.ts
+packages/engine lint:    89:59  warning  No magic number: 0.35                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:    89:70  warning  No magic number: 0.75                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   101:27  warning  No magic number: 0.45                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   101:38  warning  No magic number: 0.8                                                                                @typescript-eslint/no-magic-numbers
+packages/engine lint:   108:30  warning  No magic number: 0.18                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   111:25  warning  No magic number: -0.03                                                                              @typescript-eslint/no-magic-numbers
+packages/engine lint:   112:31  warning  No magic number: 0.08                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   118:41  warning  No magic number: 12                                                                                 @typescript-eslint/no-magic-numbers
+packages/engine lint:   119:31  warning  No magic number: 20                                                                                 @typescript-eslint/no-magic-numbers
+packages/engine lint:   119:44  warning  No magic number: 6                                                                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:   124:53  warning  No magic number: 0.1                                                                                @typescript-eslint/no-magic-numbers
+packages/engine lint:   125:48  warning  No magic number: 0.2                                                                                @typescript-eslint/no-magic-numbers
+packages/engine lint:   126:22  warning  No magic number: 0.02                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   132:27  warning  No magic number: 0.55                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   132:38  warning  No magic number: 0.85                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   133:41  warning  No magic number: 1.2                                                                                @typescript-eslint/no-magic-numbers
+packages/engine lint:   137:36  warning  No magic number: 0.03                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   141:27  warning  No magic number: 0.4                                                                                @typescript-eslint/no-magic-numbers
+packages/engine lint:   141:37  warning  No magic number: 0.7                                                                                @typescript-eslint/no-magic-numbers
+packages/engine lint:   143:49  warning  No magic number: 0.25                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   144:23  warning  No magic number: -0.02                                                                              @typescript-eslint/no-magic-numbers
+packages/engine lint:   152:34  warning  No magic number: 0.5                                                                                @typescript-eslint/no-magic-numbers
+packages/engine lint:   152:50  warning  No magic number: 0.05                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   163:35  warning  No magic number: -0.05                                                                              @typescript-eslint/no-magic-numbers
+packages/engine lint:   163:56  warning  No magic number: -0.02                                                                              @typescript-eslint/no-magic-numbers
+packages/engine lint:   164:48  warning  No magic number: 0.05                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   171:23  warning  No magic number: 0.06                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   172:49  warning  No magic number: 0.12                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   178:51  warning  No magic number: 0.12                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   179:46  warning  No magic number: 0.18                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   180:29  warning  No magic number: 0.08                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   185:36  warning  No magic number: -0.035                                                                             @typescript-eslint/no-magic-numbers
+packages/engine lint:   189:51  warning  No magic number: 0.08                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   190:23  warning  No magic number: 0.025                                                                              @typescript-eslint/no-magic-numbers
+packages/engine lint:   198:46  warning  No magic number: 0.08                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   204:41  warning  No magic number: 0.82                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   212:19  warning  No magic number: 0.25                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   212:34  warning  No magic number: 1.75                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   224:10  error    Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   224:35  error    Unnecessary optional chain on a non-nullish value                                                   @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   291:50  warning  No magic number: 0.5                                                                                @typescript-eslint/no-magic-numbers
+packages/engine lint:   337:28  error    Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/economy/runtime.ts
+packages/engine lint:   17:3   error  Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read  @typescript-eslint/prefer-nullish-coalescing
+packages/engine lint:   71:18  error  Do not delete dynamically computed property keys                                                                @typescript-eslint/no-dynamic-delete
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/conformance/builder/worldBuilder.ts
+packages/engine lint:    29:21  warning  No magic number: 8                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:    30:18  warning  No magic number: 8                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:    30:21  warning  No magic number: 12                                   @typescript-eslint/no-magic-numbers
+packages/engine lint:    31:18  warning  No magic number: 12                                   @typescript-eslint/no-magic-numbers
+packages/engine lint:    31:22  warning  No magic number: 16                                   @typescript-eslint/no-magic-numbers
+packages/engine lint:    32:18  warning  No magic number: 16                                   @typescript-eslint/no-magic-numbers
+packages/engine lint:    32:22  warning  No magic number: 20                                   @typescript-eslint/no-magic-numbers
+packages/engine lint:    33:18  warning  No magic number: 20                                   @typescript-eslint/no-magic-numbers
+packages/engine lint:    33:22  warning  No magic number: 32                                   @typescript-eslint/no-magic-numbers
+packages/engine lint:    59:78  warning  No magic number: 1.12                                 @typescript-eslint/no-magic-numbers
+packages/engine lint:    60:21  warning  No magic number: 0.9                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:    60:35  warning  No magic number: 0.2                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:    62:36  warning  No magic number: 0.1                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:    62:54  warning  No magic number: 0.015                                @typescript-eslint/no-magic-numbers
+packages/engine lint:    63:54  warning  No magic number: 3                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:    91:9   error    Unnecessary conditional, value is always falsy        @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   123:34  warning  No magic number: 8                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:   124:9   error    Unsafe call of a(n) `error` type typed value          @typescript-eslint/no-unsafe-call
+packages/engine lint:   127:22  warning  No magic number: 4                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:   136:17  warning  No magic number: 7                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:   137:9   error    Unsafe call of a(n) `error` type typed value          @typescript-eslint/no-unsafe-call
+packages/engine lint:   141:17  warning  No magic number: 6                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:   146:17  warning  No magic number: 14                                   @typescript-eslint/no-magic-numbers
+packages/engine lint:   147:9   error    Unsafe call of a(n) `error` type typed value          @typescript-eslint/no-unsafe-call
+packages/engine lint:   151:17  warning  No magic number: 7                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:   187:59  error    Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+packages/engine lint:   187:66  error    Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+packages/engine lint:   206:63  error    Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+packages/engine lint:   206:70  error    Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+packages/engine lint:   358:83  warning  No magic number: 3                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:   364:72  warning  No magic number: 3                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:   407:68  warning  No magic number: 3                                    @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/conformance/recipes/employees.ts
+packages/engine lint:   11:17  warning  No magic number: 8  @typescript-eslint/no-magic-numbers
+packages/engine lint:   18:17  warning  No magic number: 8  @typescript-eslint/no-magic-numbers
+packages/engine lint:   25:17  warning  No magic number: 8  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/conformance/recipes/rooms.ts
+packages/engine lint:   26:15  warning  No magic number: 3   @typescript-eslint/no-magic-numbers
+packages/engine lint:   33:19  warning  No magic number: 20  @typescript-eslint/no-magic-numbers
+packages/engine lint:   34:15  warning  No magic number: 3   @typescript-eslint/no-magic-numbers
+packages/engine lint:   41:19  warning  No magic number: 20  @typescript-eslint/no-magic-numbers
+packages/engine lint:   42:15  warning  No magic number: 3   @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/conformance/recipes/zones.ts
+packages/engine lint:    2:3   error    'CLIMATE_BLUEPRINT' is defined but never used  @typescript-eslint/no-unused-vars
+packages/engine lint:    6:3   error    'LIGHT_BLUEPRINT' is defined but never used    @typescript-eslint/no-unused-vars
+packages/engine lint:   33:19  warning  No magic number: 20                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   34:15  warning  No magic number: 3                             @typescript-eslint/no-magic-numbers
+packages/engine lint:   40:22  warning  No magic number: 24                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   41:22  warning  No magic number: 56                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   47:19  warning  No magic number: 20                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   48:15  warning  No magic number: 3                             @typescript-eslint/no-magic-numbers
+packages/engine lint:   54:22  warning  No magic number: 26                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   55:22  warning  No magic number: 63                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   61:19  warning  No magic number: 20                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   62:15  warning  No magic number: 3                             @typescript-eslint/no-magic-numbers
+packages/engine lint:   68:22  warning  No magic number: 28                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   69:22  warning  No magic number: 52                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   75:19  warning  No magic number: 20                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   76:15  warning  No magic number: 3                             @typescript-eslint/no-magic-numbers
+packages/engine lint:   82:22  warning  No magic number: 30                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   89:19  warning  No magic number: 20                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   90:15  warning  No magic number: 3                             @typescript-eslint/no-magic-numbers
+packages/engine lint:   96:22  warning  No magic number: 32                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   97:22  warning  No magic number: 58                            @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/perf/perfScenarios.ts
+packages/engine lint:    61:9  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    62:9  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    63:9  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    64:9  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    81:7  error  Unnecessary conditional, value is always falsy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    85:9  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    97:9  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   103:9  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   195:9  error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/pipeline/applyDeviceEffects.ts
+packages/engine lint:    80:40  error  Do not delete dynamically computed property keys  @typescript-eslint/no-dynamic-delete
+packages/engine lint:   187:13  error  Unnecessary conditional, value is always falsy    @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   198:11  error  Unnecessary conditional, value is always falsy    @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   209:9   error  Unnecessary conditional, value is always falsy    @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   224:7   error  Unnecessary conditional, value is always truthy   @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/pipeline/applyEconomyAccrual.ts
+packages/engine lint:   176:7   error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   189:7   error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   196:28  error  Unnecessary conditional, value is always truthy                                                     @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   215:25  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   263:25  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/pipeline/applyIrrigationAndNutrients.ts
+packages/engine lint:    55:44  error  Do not delete dynamically computed property keys  @typescript-eslint/no-dynamic-delete
+packages/engine lint:   235:11  error  Unnecessary conditional, value is always truthy   @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   242:9   error  Unnecessary conditional, value is always truthy   @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/pipeline/applySensors.ts
+packages/engine lint:   46:40  error  Do not delete dynamically computed property keys  @typescript-eslint/no-dynamic-delete
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/pipeline/effects/humidity.ts
+packages/engine lint:   28:9   error  Unnecessary conditional, comparison is always true, since `"auto" === "auto"` is true               @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   81:17  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   82:17  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/pipeline/updateEnvironment.ts
+packages/engine lint:   175:11  error  Unnecessary conditional, value is always falsy   @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   186:9   error  Unnecessary conditional, value is always falsy   @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   199:7   error  Unnecessary conditional, value is always truthy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/reporting/cli.ts
+packages/engine lint:   132:12  warning  No magic number: 25                                          @typescript-eslint/no-magic-numbers
+packages/engine lint:   150:50  error    Unnecessary escape character: \-                             no-useless-escape
+packages/engine lint:   156:22  error    Prefer the safe `: unknown` for a `catch` callback variable  @typescript-eslint/use-unknown-in-catch-callback-variable
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/reporting/generateSeedToHarvestReport.ts
+packages/engine lint:   69:28  warning  No magic number: 25  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/seedToHarvest.ts
+packages/engine lint:    25:63  warning  No magic number: 18                              @typescript-eslint/no-magic-numbers
+packages/engine lint:    25:77  warning  No magic number: 6                               @typescript-eslint/no-magic-numbers
+packages/engine lint:    26:62  warning  No magic number: 12                              @typescript-eslint/no-magic-numbers
+packages/engine lint:    26:76  warning  No magic number: 12                              @typescript-eslint/no-magic-numbers
+packages/engine lint:   373:9   error    Unnecessary conditional, value is always truthy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   385:7   error    Unnecessary conditional, value is always truthy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/engine/testHarness.ts
+packages/engine lint:    25:36  warning  No magic number: 3      @typescript-eslint/no-magic-numbers
+packages/engine lint:    59:12  warning  No magic number: 53.55  @typescript-eslint/no-magic-numbers
+packages/engine lint:    68:23  warning  No magic number: 400    @typescript-eslint/no-magic-numbers
+packages/engine lint:    69:19  warning  No magic number: 3      @typescript-eslint/no-magic-numbers
+packages/engine lint:    77:27  warning  No magic number: 120    @typescript-eslint/no-magic-numbers
+packages/engine lint:    78:23  warning  No magic number: 3      @typescript-eslint/no-magic-numbers
+packages/engine lint:    86:27  warning  No magic number: 3      @typescript-eslint/no-magic-numbers
+packages/engine lint:    93:28  warning  No magic number: 18     @typescript-eslint/no-magic-numbers
+packages/engine lint:    94:29  warning  No magic number: 6      @typescript-eslint/no-magic-numbers
+packages/engine lint:    99:36  warning  No magic number: 22     @typescript-eslint/no-magic-numbers
+packages/engine lint:   100:39  warning  No magic number: 0.55   @typescript-eslint/no-magic-numbers
+packages/engine lint:   107:22  warning  No magic number: 500    @typescript-eslint/no-magic-numbers
+packages/engine lint:   108:22  warning  No magic number: 800    @typescript-eslint/no-magic-numbers
+packages/engine lint:   110:29  warning  No magic number: 0.5    @typescript-eslint/no-magic-numbers
+packages/engine lint:   121:27  warning  No magic number: 40     @typescript-eslint/no-magic-numbers
+packages/engine lint:   122:23  warning  No magic number: 3      @typescript-eslint/no-magic-numbers
+packages/engine lint:   216:43  warning  No magic number: 5      @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/health/pestDiseaseSystem.ts
+packages/engine lint:   112:69  error  Invalid type "number" of template literal expression                                                @typescript-eslint/restrict-template-expressions
+packages/engine lint:   153:46  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   153:61  error  Unnecessary optional chain on a non-nullish value                                                   @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/physiology/stressModel.ts
+packages/engine lint:   18:40  error  Unnecessary conditional, comparison is always true, since `"vegetative" === "vegetative"` is true  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/saveLoad/migrations/registry.ts
+packages/engine lint:   9:41  error  'unknown' overrides all other types in this union type  @typescript-eslint/no-redundant-type-constituents
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/services/workforce/identitySource.ts
+packages/engine lint:   52:25  error  "male" is overridden by string in this union type    @typescript-eslint/no-redundant-type-constituents
+packages/engine lint:   52:34  error  "female" is overridden by string in this union type  @typescript-eslint/no-redundant-type-constituents
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/services/workforce/raises.ts
+packages/engine lint:   99:46  warning  No magic number: 0.1  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/stubs/FiltrationStub.ts
+packages/engine lint:   52:56  warning  No magic number: 200    @typescript-eslint/no-magic-numbers
+packages/engine lint:   53:95  warning  No magic number: 1.5    @typescript-eslint/no-magic-numbers
+packages/engine lint:   54:53  warning  No magic number: 0.005  @typescript-eslint/no-magic-numbers
+packages/engine lint:   55:47  warning  No magic number: 0.3    @typescript-eslint/no-magic-numbers
+packages/engine lint:   62:47  warning  No magic number: 0.99   @typescript-eslint/no-magic-numbers
+packages/engine lint:   64:47  warning  No magic number: 0.6    @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/stubs/HumidityActuatorStub.ts
+packages/engine lint:   144:11  error  Unnecessary conditional, comparison is always true, since `"humidify" === "humidify"` is true  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/stubs/IrrigationServiceStub.ts
+packages/engine lint:   113:23  warning  No magic number: 0.1                                                                 @typescript-eslint/no-magic-numbers
+packages/engine lint:   148:65  error    Unsafe argument of type `any[]` assigned to a parameter of type `IrrigationEvent[]`  @typescript-eslint/no-unsafe-argument
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/stubs/LightEmitterStub.ts
+packages/engine lint:   8:10  error  'clamp' is defined but never used  @typescript-eslint/no-unused-vars
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/stubs/ThermalActuatorStub.ts
+packages/engine lint:     3:3   error  'HOURS_PER_TICK' is defined but never used                                             @typescript-eslint/no-unused-vars
+packages/engine lint:   118:18  error  Unnecessary conditional, comparison is always true, since `"cool" === "cool"` is true  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/telemetry/hiring.ts
+packages/engine lint:   22:7  error  Unnecessary conditional, value is always falsy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/telemetry/payload.ts
+packages/engine lint:   3:12  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/telemetry/workforce.ts
+packages/engine lint:   31:7  error  Unnecessary conditional, value is always falsy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/util/growth.ts
+packages/engine lint:    48:15  warning  No magic number: 0.35   @typescript-eslint/no-magic-numbers
+packages/engine lint:    50:16  warning  No magic number: 0.75   @typescript-eslint/no-magic-numbers
+packages/engine lint:    51:22  warning  No magic number: 0.1    @typescript-eslint/no-magic-numbers
+packages/engine lint:    99:15  warning  No magic number: 0.1    @typescript-eslint/no-magic-numbers
+packages/engine lint:   138:28  warning  No magic number: 0.5    @typescript-eslint/no-magic-numbers
+packages/engine lint:   167:48  warning  No magic number: 0.01   @typescript-eslint/no-magic-numbers
+packages/engine lint:   169:21  warning  No magic number: 0.9    @typescript-eslint/no-magic-numbers
+packages/engine lint:   169:35  warning  No magic number: 0.2    @typescript-eslint/no-magic-numbers
+packages/engine lint:   179:19  warning  No magic number: 0.2    @typescript-eslint/no-magic-numbers
+packages/engine lint:   183:57  warning  No magic number: 0.005  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/util/harvest.ts
+packages/engine lint:   26:19  warning  No magic number: 0.95  @typescript-eslint/no-magic-numbers
+packages/engine lint:   27:17  warning  No magic number: 0.95  @typescript-eslint/no-magic-numbers
+packages/engine lint:   27:24  warning  No magic number: 0.5   @typescript-eslint/no-magic-numbers
+packages/engine lint:   27:43  warning  No magic number: 0.95  @typescript-eslint/no-magic-numbers
+packages/engine lint:   53:57  warning  No magic number: 3600  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/util/math.ts
+packages/engine lint:   49:23  warning  No magic number: 0.5  @typescript-eslint/no-magic-numbers
+packages/engine lint:   55:14  warning  No magic number: 0.5  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/util/photoperiod.ts
+packages/engine lint:   9:47  warning  No magic number: 1e-3  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/util/rng.ts
+packages/engine lint:   36:11  warning  No magic number: 1779033703  @typescript-eslint/no-magic-numbers
+packages/engine lint:   39:42  warning  No magic number: 3432918353  @typescript-eslint/no-magic-numbers
+packages/engine lint:   40:15  warning  No magic number: 13          @typescript-eslint/no-magic-numbers
+packages/engine lint:   40:28  warning  No magic number: 19          @typescript-eslint/no-magic-numbers
+packages/engine lint:   44:30  warning  No magic number: 16          @typescript-eslint/no-magic-numbers
+packages/engine lint:   44:35  warning  No magic number: 2246822507  @typescript-eslint/no-magic-numbers
+packages/engine lint:   45:30  warning  No magic number: 13          @typescript-eslint/no-magic-numbers
+packages/engine lint:   45:35  warning  No magic number: 3266489909  @typescript-eslint/no-magic-numbers
+packages/engine lint:   46:16  warning  No magic number: 16          @typescript-eslint/no-magic-numbers
+packages/engine lint:   55:22  warning  No magic number: 0x6d2b79f5  @typescript-eslint/no-magic-numbers
+packages/engine lint:   57:30  warning  No magic number: 15          @typescript-eslint/no-magic-numbers
+packages/engine lint:   58:35  warning  No magic number: 7           @typescript-eslint/no-magic-numbers
+packages/engine lint:   58:43  warning  No magic number: 61          @typescript-eslint/no-magic-numbers
+packages/engine lint:   59:25  warning  No magic number: 14          @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/util/uuid.ts
+packages/engine lint:    6:21  error    Type parameter T is used only once in the function signature  @typescript-eslint/no-unnecessary-type-parameters
+packages/engine lint:    9:18  warning  No magic number: 8                                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   10:15  warning  No magic number: 8                                            @typescript-eslint/no-magic-numbers
+packages/engine lint:   10:18  warning  No magic number: 12                                           @typescript-eslint/no-magic-numbers
+packages/engine lint:   11:15  warning  No magic number: 12                                           @typescript-eslint/no-magic-numbers
+packages/engine lint:   11:19  warning  No magic number: 16                                           @typescript-eslint/no-magic-numbers
+packages/engine lint:   12:15  warning  No magic number: 16                                           @typescript-eslint/no-magic-numbers
+packages/engine lint:   12:19  warning  No magic number: 20                                           @typescript-eslint/no-magic-numbers
+packages/engine lint:   13:15  warning  No magic number: 20                                           @typescript-eslint/no-magic-numbers
+packages/engine lint:   13:19  warning  No magic number: 32                                           @typescript-eslint/no-magic-numbers
+packages/engine lint:   24:40  warning  No magic number: 16                                           @typescript-eslint/no-magic-numbers
+packages/engine lint:   26:34  warning  No magic number: 0x0f                                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   26:42  warning  No magic number: 0x40                                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   27:34  warning  No magic number: 0x3f                                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   27:42  warning  No magic number: 0x80                                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   41:40  warning  No magic number: 16                                           @typescript-eslint/no-magic-numbers
+packages/engine lint:   43:34  warning  No magic number: 0x0f                                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   43:42  warning  No magic number: 0x70                                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   44:34  warning  No magic number: 0x3f                                         @typescript-eslint/no-magic-numbers
+packages/engine lint:   44:42  warning  No magic number: 0x80                                         @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/workforce/index.ts
+packages/engine lint:    90:43  error    Do not delete dynamically computed property keys                                                                                       @typescript-eslint/no-dynamic-delete
+packages/engine lint:   110:18  error    Do not delete dynamically computed property keys                                                                                       @typescript-eslint/no-dynamic-delete
+packages/engine lint:   115:41  error    Do not delete dynamically computed property keys                                                                                       @typescript-eslint/no-dynamic-delete
+packages/engine lint:   132:18  error    Do not delete dynamically computed property keys                                                                                       @typescript-eslint/no-dynamic-delete
+packages/engine lint:   168:85  warning  No magic number: 0.95                                                                                                                  @typescript-eslint/no-magic-numbers
+packages/engine lint:   446:9   error    Unnecessary conditional, comparison is always true, since `"workforce.employee.terminate" === "workforce.employee.terminate"` is true  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   484:7   error    Unnecessary conditional, value is always falsy                                                                                         @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   504:44  error    Returning a void expression from an arrow function shorthand is forbidden. Please add braces to the arrow function                     @typescript-eslint/no-confusing-void-expression
+packages/engine lint:   591:7   error    'totalBaseMinutes' is never reassigned. Use 'const' instead                                                                            prefer-const
+packages/engine lint:   592:7   error    'totalOvertimeMinutes' is never reassigned. Use 'const' instead                                                                        prefer-const
+packages/engine lint:   593:7   error    'tasksCompleted' is never reassigned. Use 'const' instead                                                                              prefer-const
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/workforce/intents/termination.ts
+packages/engine lint:   45:45  warning  No magic number: -0.02  @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/workforce/market/candidates.ts
+packages/engine lint:    80:19  error    Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                 @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    80:49  error    Unnecessary optional chain on a non-nullish value                                                                  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    81:18  error    Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                 @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    81:48  error    Unnecessary optional chain on a non-nullish value                                                                  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    84:19  error    Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                 @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    84:49  error    Unnecessary optional chain on a non-nullish value                                                                  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    85:18  error    Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                 @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    85:48  error    Unnecessary optional chain on a non-nullish value                                                                  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    92:25  error    Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                 @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    95:24  warning  No magic number: 5                                                                                                 @typescript-eslint/no-magic-numbers
+packages/engine lint:    97:57  warning  No magic number: 0.1                                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   102:66  warning  No magic number: 8                                                                                                 @typescript-eslint/no-magic-numbers
+packages/engine lint:   106:15  warning  No magic number: 0.7                                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   107:16  warning  No magic number: 0.2                                                                                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   112:20  warning  No magic number: 8                                                                                                 @typescript-eslint/no-magic-numbers
+packages/engine lint:   114:20  warning  No magic number: 5                                                                                                 @typescript-eslint/no-magic-numbers
+packages/engine lint:   115:23  warning  No magic number: 8                                                                                                 @typescript-eslint/no-magic-numbers
+packages/engine lint:   182:9   error    Unnecessary conditional, comparison is always true, since `"hiring.market.hire" === "hiring.market.hire"` is true  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/workforce/payroll/accrual.ts
+packages/engine lint:    83:14  warning  No magic number: 0.5                               @typescript-eslint/no-magic-numbers
+packages/engine lint:    99:7   warning  No magic number: 0.5                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   119:35  warning  No magic number: 0.1                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   120:39  warning  No magic number: 0.1                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   121:38  warning  No magic number: 0.1                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   123:42  warning  No magic number: 0.5                               @typescript-eslint/no-magic-numbers
+packages/engine lint:   144:78  error    Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/workforce/scheduler/dispatch.ts
+packages/engine lint:    86:56  error    This assertion is unnecessary since it does not change the type of the expression                                                       @typescript-eslint/no-unnecessary-type-assertion
+packages/engine lint:    95:56  error    This assertion is unnecessary since it does not change the type of the expression                                                       @typescript-eslint/no-unnecessary-type-assertion
+packages/engine lint:   145:88  warning  No magic number: 0.5                                                                                                                    @typescript-eslint/no-magic-numbers
+packages/engine lint:   224:12  error    Forbidden non-null assertion                                                                                                            @typescript-eslint/no-non-null-assertion
+packages/engine lint:   240:12  error    Forbidden non-null assertion                                                                                                            @typescript-eslint/no-non-null-assertion
+packages/engine lint:   240:12  error    This assertion is unnecessary since it does not change the type of the expression                                                       @typescript-eslint/no-unnecessary-type-assertion
+packages/engine lint:   246:10  error    Forbidden non-null assertion                                                                                                            @typescript-eslint/no-non-null-assertion
+packages/engine lint:   246:10  error    This assertion is unnecessary since it does not change the type of the expression                                                       @typescript-eslint/no-unnecessary-type-assertion
+packages/engine lint:   455:27  error    'context.taskCategory ?? context.category ?? ''' will use Object's default stringification format ('[object Object]') when stringified  @typescript-eslint/no-base-to-string
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/workforce/telemetry/workforceEmit.ts
+packages/engine lint:   50:7   error  Unnecessary conditional, value is always falsy                                                            @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   93:42  error  Unsafe argument of type error typed assigned to a parameter of type `WorkforceRaiseTelemetryEvent`        @typescript-eslint/no-unsafe-argument
+packages/engine lint:   99:43  error  Unsafe argument of type error typed assigned to a parameter of type `WorkforceTerminationTelemetryEvent`  @typescript-eslint/no-unsafe-argument
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/backend/src/workforce/traits/effects.ts
+packages/engine lint:    91:26  error    'context.roomPurpose ?? context.purpose ?? ''' will use Object's default stringification format ('[object Object]') when stringified  @typescript-eslint/no-base-to-string
+packages/engine lint:   114:49  warning  No magic number: 30                                                                                                                   @typescript-eslint/no-magic-numbers
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/src/index.ts
+packages/engine lint:   65:10  error  Unnecessary conditional, value is always truthy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/co2Coupling.integration.test.ts
+packages/engine lint:   6:35  error  'Zone' is defined but never used  @typescript-eslint/no-unused-vars
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/cultivationMethodTasks.integration.test.ts
+packages/engine lint:    63:30  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   108:62  error  Unexpected empty method 'emit'                                                                      @typescript-eslint/no-empty-function
+packages/engine lint:   112:21  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   112:43  error  Unnecessary optional chain on a non-nullish value                                                   @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   121:27  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/deviceMaintenance.integration.test.ts
+packages/engine lint:   14:3  error  'Structure' is defined but never used  @typescript-eslint/no-unused-vars
+packages/engine lint:   16:3  error  'Zone' is defined but never used       @typescript-eslint/no-unused-vars
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/deviceThermals.integration.test.ts
+packages/engine lint:   102:23  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/economyAccrual.integration.test.ts
+packages/engine lint:    38:18  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    39:5   error  Unsafe assignment of an error typed value                                                           @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    40:5   error  Unsafe assignment of an error typed value                                                           @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    40:58  error  Unnecessary optional chain on a non-nullish value                                                   @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    42:20  error  Unnecessary conditional, value is always truthy                                                     @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    58:24  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    59:36  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    59:63  error  Unnecessary optional chain on a non-nullish value                                                   @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    60:23  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:    60:50  error  Unnecessary optional chain on a non-nullish value                                                   @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   132:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   132:54  error  Unexpected any. Specify a different type                                                            @typescript-eslint/no-explicit-any
+packages/engine lint:   135:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   135:36  error  Unsafe member access .utilities on an `any` value                                                   @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   136:23  error  Unsafe member access .finalizedDays on an `any` value                                               @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   138:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   138:37  error  Unsafe member access .finalizedDays on an `any` value                                               @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   139:26  error  Unsafe member access .dayIndex on an `any` value                                                    @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   140:26  error  Unsafe member access .hoursAccrued on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   141:26  error  Unsafe member access .energyConsumption_kWh on an `any` value                                       @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   142:26  error  Unsafe member access .energyCostCc on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   143:26  error  Unsafe member access .energyCostCc_per_h on an `any` value                                          @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   144:26  error  Unsafe member access .waterConsumption_m3 on an `any` value                                         @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   145:26  error  Unsafe member access .waterCostCc on an `any` value                                                 @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   146:26  error  Unsafe member access .waterCostCc_per_h on an `any` value                                           @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   148:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   148:37  error  Unsafe member access .current on an `any` value                                                     @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   149:27  error  Unsafe member access .dayIndex on an `any` value                                                    @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   150:27  error  Unsafe member access .hoursAccrued on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   151:27  error  Unsafe member access .energyConsumption_kWh on an `any` value                                       @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   152:27  error  Unsafe member access .energyCostCc_per_h on an `any` value                                          @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   153:27  error  Unsafe member access .waterConsumption_m3 on an `any` value                                         @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   154:27  error  Unsafe member access .waterCostCc_per_h on an `any` value                                           @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   156:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   156:38  error  Unsafe member access .cultivation on an `any` value                                                 @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   157:25  error  Unsafe member access .finalizedDays on an `any` value                                               @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   158:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   158:41  error  Unsafe member access .finalizedDays on an `any` value                                               @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   159:28  error  Unsafe member access .dayIndex on an `any` value                                                    @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   160:28  error  Unsafe member access .hoursAccrued on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   161:28  error  Unsafe member access .costCc on an `any` value                                                      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   162:28  error  Unsafe member access .costCc_per_h on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   164:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   164:41  error  Unsafe member access .current on an `any` value                                                     @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   165:29  error  Unsafe member access .dayIndex on an `any` value                                                    @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   166:29  error  Unsafe member access .hoursAccrued on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   167:29  error  Unsafe member access .costCc on an `any` value                                                      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   168:29  error  Unsafe member access .costCc_per_h on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   170:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   170:38  error  Unsafe member access .deviceMaintenance on an `any` value                                           @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   171:25  error  Unsafe member access .finalizedDays on an `any` value                                               @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   172:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   172:41  error  Unsafe member access .finalizedDays on an `any` value                                               @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   174:28  error  Unsafe member access .dayIndex on an `any` value                                                    @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   175:28  error  Unsafe member access .hoursAccrued on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   176:28  error  Unsafe member access .costCc on an `any` value                                                      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   177:28  error  Unsafe member access .costCc_per_h on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   179:11  error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   179:41  error  Unsafe member access .current on an `any` value                                                     @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   180:29  error  Unsafe member access .dayIndex on an `any` value                                                    @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   181:29  error  Unsafe member access .hoursAccrued on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   188:29  error  Unsafe member access .costCc on an `any` value                                                      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   189:29  error  Unsafe member access .costCc_per_h on an `any` value                                                @typescript-eslint/no-unsafe-member-access
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/pestDiseaseMvp.integration.test.ts
+packages/engine lint:    15:3   error  'WorkforceTaskInstance' is defined but never used  @typescript-eslint/no-unused-vars
+packages/engine lint:   123:54  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+packages/engine lint:   181:11  error  Unsafe assignment of an `any` value                @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   181:51  error  Unsafe member access .warnings on an `any` value   @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   182:11  error  Unsafe assignment of an `any` value                @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   182:52  error  Unsafe member access .warnings on an `any` value   @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   187:7   error  Unsafe return of a value of type `any`             @typescript-eslint/no-unsafe-return
+packages/engine lint:   187:7   error  Unsafe call of a(n) `any` typed value              @typescript-eslint/no-unsafe-call
+packages/engine lint:   187:21  error  Unsafe member access .events on an `any` value     @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   187:40  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+packages/engine lint:   187:48  error  Unsafe return of a value of type `any`             @typescript-eslint/no-unsafe-return
+packages/engine lint:   187:54  error  Unsafe member access .taskCode on an `any` value   @typescript-eslint/no-unsafe-member-access
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/seedToHarvest.integration.test.ts
+packages/engine lint:   67:18  error  Unnecessary conditional, value is always truthy  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/sensorActuatorPattern.integration.test.ts
+packages/engine lint:   35:20  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/sensorReadings.integration.test.ts
+packages/engine lint:   182:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   184:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   185:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   186:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   187:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   188:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   189:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   190:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   191:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   192:19  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/pipeline/zoneCapacity.integration.test.ts
+packages/engine lint:   105:23  error  `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).
+packages/engine lint: For full thermal actuator support (heating, cooling, auto),
+packages/engine lint: use {@link createThermalActuatorStub } from `@/backend/src/stubs/ThermalActuatorStub.js`.
+packages/engine lint: This function has been replaced by ThermalActuatorStub in
+packages/engine lint: `applyDeviceEffects.ts` (Phase 6) and is retained for backward compatibility
+packages/engine lint: with external tests. It will be removed in a future phase  @typescript-eslint/no-deprecated
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/saveLoad/saveLoad.integration.test.ts
+packages/engine lint:   63:22  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/integration/workforce/workforceScheduling.integration.test.ts
+packages/engine lint:    19:53  error  Unsafe return of a value of type `any`                                                  @typescript-eslint/no-unsafe-return
+packages/engine lint:    19:53  error  Unsafe call of a(n) `any` typed value                                                   @typescript-eslint/no-unsafe-call
+packages/engine lint:    19:56  error  Unsafe member access .toUpperCase on an `any` value                                     @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   503:54  error  Unexpected any. Specify a different type                                                @typescript-eslint/no-explicit-any
+packages/engine lint:   504:11  error  Unsafe assignment of an error typed value                                               @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   506:40  error  Unexpected any. Specify a different type                                                @typescript-eslint/no-explicit-any
+packages/engine lint:   507:41  error  Unsafe assignment of an `any` value                                                     @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   523:7   error  Unsafe argument of type error typed assigned to a parameter of type `EngineRunContext`  @typescript-eslint/no-unsafe-argument
+packages/engine lint:   540:38  error  Unsafe member access .event on an `any` value                                           @typescript-eslint/no-unsafe-member-access
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/runtime/importResolution.test.ts
+packages/engine lint:    85:33  error  Unsafe argument of type `any` assigned to a parameter of type `PathLike`  @typescript-eslint/no-unsafe-argument
+packages/engine lint:    88:31  error  Unsafe argument of type `any` assigned to a parameter of type `string`    @typescript-eslint/no-unsafe-argument
+packages/engine lint:    92:53  error  Unsafe argument of type `any` assigned to a parameter of type `string`    @typescript-eslint/no-unsafe-argument
+packages/engine lint:    98:33  error  Unsafe argument of type `any` assigned to a parameter of type `PathLike`  @typescript-eslint/no-unsafe-argument
+packages/engine lint:   106:32  error  Unsafe argument of type `any` assigned to a parameter of type `string`    @typescript-eslint/no-unsafe-argument
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/cultivation/methodRuntime.spec.ts
+packages/engine lint:   111:30  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   146:27  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/data/blueprintSchemaCoverage.test.ts
+packages/engine lint:    71:24  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:    78:24  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:    85:24  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:    93:26  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:   102:24  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:   109:24  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:   117:26  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:   125:26  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:   134:24  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:   141:24  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:   148:24  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:   155:24  error  '_context' is defined but never used                  @typescript-eslint/no-unused-vars
+packages/engine lint:   229:44  error  Invalid type "number" of template literal expression  @typescript-eslint/restrict-template-expressions
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/domain/cultivationIrrigationCompatibility.test.ts
+packages/engine lint:   93:43  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint:   93:53  error  Unnecessary optional chain on a non-nullish value  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/domain/strainBlueprintLoader.test.ts
+packages/engine lint:   11:15  error  'StrainBlueprint' is defined but never used  @typescript-eslint/no-unused-vars
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/domain/strainBlueprintSchema.test.ts
+packages/engine lint:    12:7   error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    59:9   error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    59:46  error  Unsafe member access .stressTolerance on an `any` value  @typescript-eslint/no-unsafe-member-access
+packages/engine lint:    68:9   error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    69:29  error  Unsafe member access .growthModel on an `any` value      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:    70:11  error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    70:44  error  Unsafe member access .growthModel on an `any` value      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:    77:11  error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    79:7   error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:    80:27  error  Unsafe member access .growthModel on an `any` value      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:    99:11  error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   100:31  error  Unsafe member access .growthModel on an `any` value      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   114:9   error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   115:29  error  Unsafe member access .growthModel on an `any` value      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   124:9   error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   125:29  error  Unsafe member access .growthModel on an `any` value      @typescript-eslint/no-unsafe-member-access
+packages/engine lint:   136:9   error  Unsafe assignment of an `any` value                      @typescript-eslint/no-unsafe-assignment
+packages/engine lint:   136:45  error  Unsafe member access .phaseDurations on an `any` value   @typescript-eslint/no-unsafe-member-access
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/economy/noEconomyPerTickRule.test.ts
+packages/engine lint:   11:3   error  Unsafe argument of type error typed assigned to a parameter of type `Parser`      @typescript-eslint/no-unsafe-argument
+packages/engine lint:   13:49  error  Unsafe argument of type error typed assigned to a parameter of type `RuleModule`  @typescript-eslint/no-unsafe-argument
+packages/engine lint:   35:56  error  Async arrow function has no 'await' expression                                    @typescript-eslint/require-await
+packages/engine lint:   48:57  error  Async arrow function has no 'await' expression                                    @typescript-eslint/require-await
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/services/storage/resolveStorageRoom.spec.ts
+packages/engine lint:   88:7  error  Unsafe assignment of an `any` value  @typescript-eslint/no-unsafe-assignment
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/services/workforce/identitySource.test.ts
+packages/engine lint:   23:9   error  Async method 'json' has no 'await' expression   @typescript-eslint/require-await
+packages/engine lint:   65:9   error  Unsafe call of a(n) `any` typed value           @typescript-eslint/no-unsafe-call
+packages/engine lint:   65:15  error  Unsafe member access .signal on an `any` value  @typescript-eslint/no-unsafe-member-access
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/services/workforce/market.test.ts
+packages/engine lint:   20:5  error  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/services/workforce/raises.test.ts
+packages/engine lint:   18:31  error  Type parameter T is used only once in the function signature  @typescript-eslint/no-unnecessary-type-parameters
+packages/engine lint:   31:31  error  Type parameter T is used only once in the function signature  @typescript-eslint/no-unnecessary-type-parameters
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/stubs/IrrigationServiceStub.test.ts
+packages/engine lint:   73:12  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/engine lint: /workspace/weedbreed-2re-boot/packages/engine/tests/unit/thermo/heat.spec.ts
+packages/engine lint:   31:20  error  `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).
+packages/engine lint: For full thermal actuator support (heating, cooling, auto),
+packages/engine lint: use {@link createThermalActuatorStub } from `@/backend/src/stubs/ThermalActuatorStub.js`.
+packages/engine lint: This function has been replaced by ThermalActuatorStub in
+packages/engine lint: `applyDeviceEffects.ts` (Phase 6) and is retained for backward compatibility
+packages/engine lint: with external tests. It will be removed in a future phase  @typescript-eslint/no-deprecated
+packages/engine lint:   45:20  error  `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).
+packages/engine lint: For full thermal actuator support (heating, cooling, auto),
+packages/engine lint: use {@link createThermalActuatorStub } from `@/backend/src/stubs/ThermalActuatorStub.js`.
+packages/engine lint: This function has been replaced by ThermalActuatorStub in
+packages/engine lint: `applyDeviceEffects.ts` (Phase 6) and is retained for backward compatibility
+packages/engine lint: with external tests. It will be removed in a future phase  @typescript-eslint/no-deprecated
+packages/engine lint:   54:20  error  `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).
+packages/engine lint: For full thermal actuator support (heating, cooling, auto),
+packages/engine lint: use {@link createThermalActuatorStub } from `@/backend/src/stubs/ThermalActuatorStub.js`.
+packages/engine lint: This function has been replaced by ThermalActuatorStub in
+packages/engine lint: `applyDeviceEffects.ts` (Phase 6) and is retained for backward compatibility
+packages/engine lint: with external tests. It will be removed in a future phase  @typescript-eslint/no-deprecated
+packages/engine lint:   64:7   error  `applyDeviceHeat` is deprecated. Heating-only implementation (waste heat).
+packages/engine lint: For full thermal actuator support (heating, cooling, auto),
+packages/engine lint: use {@link createThermalActuatorStub } from `@/backend/src/stubs/ThermalActuatorStub.js`.
+packages/engine lint: This function has been replaced by ThermalActuatorStub in
+packages/engine lint: `applyDeviceEffects.ts` (Phase 6) and is retained for backward compatibility
+packages/engine lint: with external tests. It will be removed in a future phase  @typescript-eslint/no-deprecated
+packages/engine lint: ✖ 537 problems (314 errors, 223 warnings)
+packages/engine lint:   9 errors and 0 warnings potentially fixable with the `--fix` option.
+packages/engine lint: Failed
+/workspace/weedbreed-2re-boot/packages/engine:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @wb/engine@0.0.0 lint: `eslint --max-warnings=0 "src/**/*.ts" "tests/**/*.ts" --max-warnings=0`
+Exit status 1

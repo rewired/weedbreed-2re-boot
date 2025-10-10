@@ -1,0 +1,162 @@
+Scope: 6 of 7 workspace projects
+packages/engine test$ vitest run
+packages/tools test$ vitest run --passWithNoTests
+packages/engine test:  RUN  v3.2.4 /workspace/weedbreed-2re-boot/packages/engine
+packages/tools test:  RUN  v3.2.4 /workspace/weedbreed-2re-boot/packages/tools
+packages/tools test:  ✓ tests/checkWarnBudget.test.ts (4 tests) 24ms
+packages/tools test:  ✓ tests/docs/secOpenQuestions.test.ts (2 tests) 9ms
+packages/tools test:  Test Files  2 passed (2)
+packages/tools test:       Tests  6 passed (6)
+packages/tools test:    Start at  07:02:29
+packages/tools test:    Duration  2.95s (transform 320ms, setup 0ms, collect 430ms, tests 33ms, environment 1ms, prepare 741ms)
+packages/tools test: Done
+packages/transport-sio test$ vitest run
+packages/transport-sio test:  RUN  v3.2.4 /workspace/weedbreed-2re-boot/packages/transport-sio
+packages/engine test: stdout | tests/integration/pipeline/multiEffectDevice.integration.test.ts > Tick pipeline — multi-effect devices > Pattern A: Split-AC with explicit blueprint configs
+packages/engine test: [Pattern A] device contributions {"thermalDeltaC":-7.532919854461388,"humidityDelta01":-0.00332198322398472,"airflow_m3_per_h":350,"coverageEffectiveness01":0.4166666666666667}
+packages/engine test: stdout | tests/integration/pipeline/multiEffectDevice.integration.test.ts > Tick pipeline — multi-effect devices > Pattern B: Dehumidifier with reheat
+packages/engine test: [Pattern B] device contributions {"thermalDeltaC":2.2966032446080096,"humidityDelta01":-0.011959139606344989,"airflow_m3_per_h":0,"coverageEffectiveness01":0.11116666666666666}
+packages/engine test:  ✓ tests/integration/pipeline/multiEffectDevice.integration.test.ts (6 tests) 60ms
+packages/transport-sio test:  ✓ tests/integration/telemetryReadonly.spec.ts (4 tests) 279ms
+packages/engine test:  ✓ tests/integration/workforce/workforceScheduling.integration.test.ts (4 tests) 67ms
+packages/transport-sio test:  ✓ tests/unit/assertTransportAck.test.ts (5 tests) 10ms
+packages/transport-sio test:  ✓ tests/unit/createSocketTransportDescriptor.test.ts (2 tests) 9ms
+packages/transport-sio test:  Test Files  3 passed (3)
+packages/transport-sio test:       Tests  11 passed (11)
+packages/transport-sio test:    Start at  07:02:35
+packages/transport-sio test:    Duration  5.10s (transform 491ms, setup 0ms, collect 1.31s, tests 297ms, environment 2ms, prepare 1.00s)
+packages/engine test:  ✓ tests/integration/pipeline/sensorReadings.integration.test.ts (7 tests) 182ms
+packages/transport-sio test: Done
+packages/engine test:  ✓ tests/unit/domain/schemas.test.ts (16 tests) 39ms
+packages/engine test:  ✓ tests/unit/domain/validateCompanyWorld.test.ts (13 tests) 34ms
+packages/engine test:  ✓ tests/unit/domain/deviceBlueprintSchema.test.ts (15 tests) 49ms
+packages/engine test:  ✓ tests/integration/pipeline/economyAccrual.integration.test.ts (2 tests) 87ms
+packages/engine test:  ✓ tests/unit/workforce/payroll.test.ts (4 tests) 42ms
+packages/engine test:  ✓ tests/unit/util/harvest.test.ts (20 tests) 41ms
+packages/engine test:  ✓ tests/integration/pipeline/fanFilterChain.integration.test.ts (5 tests) 50ms
+packages/engine test:  ✓ tests/unit/util/growth.test.ts (23 tests) 23ms
+packages/engine test: stdout | tests/unit/data/blueprintSchemaCoverage.test.ts > blueprint schema coverage > parses every blueprint using the canonical schemas
+packages/engine test: [Blueprint coverage] container=3, cultivation-method=3, device=7, disease=9, irrigation=4, personnel.role=5, personnel.skill=5, pest=8, room.purpose=7, strain=5, structure=4, substrate=3
+packages/engine test:  ✓ tests/unit/data/blueprintSchemaCoverage.test.ts (17 tests) 163ms
+packages/engine test:  ✓ tests/integration/pipeline/lightingEffects.integration.test.ts (4 tests) 40ms
+packages/engine test:  ✓ tests/integration/domain/worldValidation.integration.test.ts (1 test) 12ms
+packages/engine test:  ✓ tests/unit/services/workforce/raises.test.ts (4 tests) 25ms
+packages/engine test:  ✓ tests/integration/pipeline/irrigationNutrients.integration.test.ts (6 tests) 51ms
+packages/engine test:  ✓ tests/unit/stubs/ThermalActuatorStub.test.ts (16 tests) 41ms
+packages/engine test:  ✓ tests/unit/cultivation/methodRuntime.spec.ts (1 test) 34ms
+packages/engine test:  ✓ tests/unit/engine/pipeline/applyDeviceEffects.invariants.test.ts (2 tests) 105ms
+packages/engine test:  ✓ tests/integration/pipeline/plantPhysiology.integration.test.ts (6 tests) 142ms
+packages/engine test:  ✓ tests/integration/pipeline/applyHarvestAndInventory.int.spec.ts (3 tests) 97ms
+packages/engine test:  ✓ tests/unit/stubs/HumidityActuatorStub.test.ts (14 tests) 28ms
+packages/engine test:  ✓ tests/unit/device/degradation.test.ts (5 tests) 16ms
+packages/engine test:  ✓ tests/integration/pipeline/pestDiseaseMvp.integration.test.ts (1 test) 37ms
+packages/engine test:  ✓ tests/unit/engine/pipeline/applyHarvestAndInventory.unit.spec.ts (3 tests) 26ms
+packages/engine test:  ✓ tests/unit/util/photoperiod.test.ts (13 tests) 19ms
+packages/engine test:  ✓ tests/integration/pipeline/cultivationMethodTasks.integration.test.ts (1 test) 58ms
+packages/engine test:  ✓ tests/integration/pipeline/zoneCapacity.integration.test.ts (2 tests) 16ms
+packages/engine test:  ✓ tests/unit/domain/workforceSchemas.test.ts (5 tests) 22ms
+packages/engine test:  ✓ tests/unit/stubs/LightEmitterStub.test.ts (16 tests) 25ms
+packages/engine test:  ✓ tests/integration/pipeline/workforceTraits.integration.test.ts (1 test) 30ms
+packages/engine test:  ✓ tests/unit/device/createDeviceInstance.test.ts (8 tests) 16ms
+packages/engine test:  ✓ tests/unit/domain/strainBlueprintSchema.test.ts (15 tests) 49ms
+packages/engine test:  ✓ tests/unit/stubs/FiltrationStub.test.ts (14 tests) 21ms
+packages/engine test:  ✓ tests/integration/workforce/hiringMarket.integration.test.ts (1 test) 70ms
+packages/engine test:  ✓ tests/integration/pipeline/plantStress.integration.test.ts (1 test) 68ms
+packages/engine test:  ✓ tests/unit/physiology/stressCurves.spec.ts (8 tests) 20ms
+packages/engine test:  ✓ tests/unit/domain/substrateBlueprintSchema.test.ts (6 tests) 24ms
+packages/engine test:  ✓ tests/conformance/goldenMaster.30d.spec.ts (2 tests) 89ms
+packages/engine test:  ✓ tests/unit/workforce/traits.test.ts (6 tests) 37ms
+packages/engine test:  ✓ tests/integration/pipeline/deviceMaintenance.integration.test.ts (1 test) 658ms
+packages/engine test:    ✓ Tick pipeline — device maintenance lifecycle > degrades condition, schedules maintenance, and accrues expected costs over 120 days  655ms
+packages/engine test:  ✓ tests/unit/simConstants.test.ts (4 tests) 84ms
+packages/engine test:  ✓ tests/unit/stubs/AirflowActuatorStub.test.ts (12 tests) 20ms
+packages/engine test:  ✓ tests/unit/domain/cultivationIrrigationCompatibility.test.ts (2 tests) 10ms
+packages/engine test:  ✓ tests/unit/stubs/IrrigationServiceStub.test.ts (7 tests) 23ms
+packages/engine test:  ✓ tests/integration/pipeline/deviceThermals.integration.test.ts (1 test) 31ms
+packages/engine test:  ✓ tests/unit/stubs/SensorStub.test.ts (9 tests) 20ms
+packages/engine test:  ✓ tests/runtime/importResolution.test.ts (22 tests) 645ms
+packages/engine test:  ✓ tests/unit/services/workforce/identitySource.test.ts (3 tests) 54ms
+packages/engine test:  ✓ tests/integration/pipeline/irrigationNutrientPattern.integration.test.ts (1 test) 43ms
+packages/engine test:  ✓ tests/conformance/goldenMaster.200d.spec.ts (2 tests) 232ms
+packages/engine test:  ✓ tests/integration/pipeline/sensorActuatorPattern.integration.test.ts (1 test) 42ms
+packages/engine test:  ✓ tests/unit/stubs/NutrientBufferStub.test.ts (8 tests) 19ms
+packages/engine test:  ✓ tests/unit/domain/irrigationBlueprintSchema.test.ts (3 tests) 48ms
+packages/engine test:  ✓ tests/integration/pipeline/seedToHarvest.integration.test.ts (1 test) 801ms
+packages/engine test:    ✓ seed-to-harvest orchestrator integration > advances White Widow plants from seed to harvest-ready and stores deterministic lots  798ms
+packages/engine test:  ✓ tests/unit/services/workforce/market.test.ts (3 tests) 50ms
+packages/engine test:  ✓ tests/unit/stubs/Co2InjectorStub.test.ts (6 tests) 14ms
+packages/engine test:  ✓ tests/unit/domain/blueprintTaxonomyLayout.test.ts (3 tests) 68ms
+packages/engine test:  ✓ tests/integration/pipeline/co2Coupling.integration.test.ts (2 tests) 37ms
+packages/engine test:  ✓ tests/unit/domain/strainBlueprintLoader.test.ts (7 tests) 73ms
+packages/engine test:  ✓ tests/integration/saveLoad/saveLoad.integration.test.ts (5 tests) 41ms
+packages/engine test:  ✓ tests/unit/readmodels/structureTariffs.test.ts (3 tests) 14ms
+packages/engine test:  ✓ tests/unit/services/storage/resolveStorageRoom.spec.ts (4 tests) 14ms
+packages/engine test:  ✓ tests/unit/perf/perfBudget.spec.ts (4 tests) 14ms
+packages/engine test:  ✓ tests/unit/device/condition.test.ts (8 tests) 13ms
+packages/engine test:  ✓ tests/unit/domain/HarvestLotSchema.spec.ts (6 tests) 22ms
+packages/engine test:  ✓ tests/unit/data/blueprintTaxonomy.spec.ts (5 tests) 14ms
+packages/engine test:  ✓ tests/unit/health/pestDiseaseRisk.spec.ts (3 tests) 11ms
+packages/engine test:  ✓ tests/unit/telemetry/hiring.test.ts (3 tests) 24ms
+packages/engine test:  ✓ tests/unit/sensors/noise.spec.ts (3 tests) 15ms
+packages/engine test:  ✓ tests/unit/thermo/heat.spec.ts (4 tests) 10ms
+packages/engine test:  ✓ tests/unit/tariffs.spec.ts (4 tests) 19ms
+packages/engine test:  ✓ tests/integration/reporting/seedToHarvest.report.test.ts (2 tests) 1597ms
+packages/engine test:    ✓ Seed-to-harvest reporting generator > produces a persisted report with consistent summaries  954ms
+packages/engine test:    ✓ Seed-to-harvest reporting generator > retains scenario labels that look falsy after trimming  640ms
+packages/engine test:  ✓ tests/unit/domain/InventorySchema.spec.ts (3 tests) 15ms
+packages/engine test:  ✓ tests/unit/save/writeSaveGame.spec.ts (2 tests) 47ms
+packages/engine test:  ✓ tests/unit/economy/noEconomyPerTickRule.test.ts (2 tests) 77ms
+packages/engine test:  ✓ tests/unit/workforce/telemetryEmit.test.ts (2 tests) 22ms
+packages/engine test:  ✓ tests/unit/domain/devicePriceMapSchema.test.ts (3 tests) 15ms
+packages/engine test:  ✓ tests/integration/pipeline/timeProgression.test.ts (1 test) 51ms
+packages/engine test:  ✓ tests/unit/sensors/schema.spec.ts (3 tests) 14ms
+packages/engine test:  ✓ tests/unit/physiology/vpd.spec.ts (4 tests) 10ms
+packages/engine test:  ✓ tests/unit/economy/tariffsContext.test.ts (2 tests) 12ms
+packages/engine test:  ✓ tests/unit/domain/irrigationUsage.test.ts (2 tests) 7ms
+packages/engine test:  ✓ tests/integration/pipeline/order.spec.ts (2 tests) 43ms
+packages/engine test:  ✓ tests/unit/createEngineBootstrapConfig.test.ts (4 tests) 14ms
+packages/engine test:  ✓ tests/unit/shared/psychro/psychro.test.ts (2 tests) 36ms
+packages/engine test:  ✓ tests/unit/domain/locationIndex.test.ts (2 tests) 18ms
+packages/engine test:  ✓ tests/unit/util/createRng.test.ts (2 tests) 10ms
+packages/engine test:  ✓ tests/unit/domain/substrateUsage.test.ts (3 tests) 8ms
+packages/engine test:  ✓ tests/unit/engine/trace.spec.ts (1 test) 44ms
+packages/engine test:  ✓ tests/unit/shared/determinism/hash.test.ts (4 tests) 17ms
+packages/engine test:  ✓ tests/unit/economy/runtime.test.ts (2 tests) 9ms
+packages/engine test:  ✓ tests/unit/economy/cultivationMethodPriceMap.test.ts (2 tests) 14ms
+packages/engine test:  ✓ tests/integration/tariffs.integration.test.ts (2 tests) 12ms
+packages/engine test:  ✓ tests/integration/simConstants.integration.test.ts (2 tests) 11ms
+packages/engine test:  ✓ tests/unit/save/saveSchema.spec.ts (2 tests) 14ms
+packages/engine test:  ✓ tests/unit/util/error.test.ts (2 tests) 8ms
+packages/engine test:  ✓ tests/integration/perf/baseline.spec.ts (1 test) 70ms
+packages/engine test:  ✓ tests/unit/shared/determinism/ids.test.ts (2 tests) 14ms
+packages/engine test:  ✓ tests/unit/util/format.test.ts (2 tests) 8ms
+packages/engine test:  Test Files  100 passed (100)
+packages/engine test:       Tests  510 passed (510)
+packages/engine test:    Start at  07:02:29
+packages/engine test:    Duration  122.56s (transform 6.14s, setup 1.46s, collect 32.78s, tests 7.45s, environment 52ms, prepare 23.81s)
+packages/engine test: Done
+packages/tools-monitor test$ vitest run
+packages/facade test$ vitest run
+packages/tools-monitor test:  RUN  v3.2.4 /workspace/weedbreed-2re-boot/packages/tools-monitor
+packages/facade test:  RUN  v3.2.4 /workspace/weedbreed-2re-boot/packages/facade
+packages/tools-monitor test:  ✓ tests/unit/monitorRuntime.test.ts (2 tests) 45ms
+packages/tools-monitor test:  ✓ tests/integration/terminalMonitor.integration.test.ts (1 test) 199ms
+packages/tools-monitor test:  Test Files  2 passed (2)
+packages/tools-monitor test:       Tests  3 passed (3)
+packages/tools-monitor test:    Start at  07:04:34
+packages/tools-monitor test:    Duration  4.02s (transform 779ms, setup 0ms, collect 1.38s, tests 243ms, environment 1ms, prepare 716ms)
+packages/facade test:  ✓ tests/integration/workforceView.integration.test.ts (1 test) 66ms
+packages/tools-monitor test: Done
+packages/facade test:  ✓ tests/integration/transport/intentRouting.integration.test.ts (4 tests) 153ms
+packages/facade test:  ✓ tests/unit/readModels/traitBreakdownView.test.ts (1 test) 32ms
+packages/facade test:  ✓ tests/unit/readModels/hiringMarketView.test.ts (1 test) 13ms
+packages/facade test:  ✓ tests/integration/transport/serverNamespaces.spec.ts (2 tests) 141ms
+packages/facade test:  ✓ tests/integration/transport/telemetryReadonly.integration.test.ts (2 tests) 130ms
+packages/facade test:  ✓ tests/unit/readModels/deviceView.test.ts (2 tests) 9ms
+packages/facade test:  ✓ tests/integration/initializeFacade.integration.test.ts (1 test) 16ms
+packages/facade test:  ✓ tests/unit/intents/hiring.test.ts (2 tests) 9ms
+packages/facade test:  Test Files  9 passed (9)
+packages/facade test:       Tests  16 passed (16)
+packages/facade test:    Start at  07:04:34
+packages/facade test:    Duration  13.05s (transform 1.99s, setup 0ms, collect 4.63s, tests 569ms, environment 5ms, prepare 2.24s)
+packages/facade test: Done
