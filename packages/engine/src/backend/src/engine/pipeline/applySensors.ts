@@ -15,16 +15,10 @@ export interface SensorReadingsRuntime {
   readonly deviceSensorReadings: Map<ZoneDeviceInstance['id'], SensorReading<number>[]>;
 }
 
-const SENSOR_READINGS_CONTEXT_KEY = '__wb_sensorReadings' as const;
-
-type Mutable<T> = { -readonly [K in keyof T]: T[K] };
-
-type SensorRuntimeCarrier = Mutable<EngineRunContext> & {
-  [SENSOR_READINGS_CONTEXT_KEY]?: SensorReadingsRuntime;
-};
+const sensorReadingsStore = new WeakMap<EngineRunContext, SensorReadingsRuntime>();
 
 function setSensorRuntime(ctx: EngineRunContext, runtime: SensorReadingsRuntime): SensorReadingsRuntime {
-  (ctx as SensorRuntimeCarrier)[SENSOR_READINGS_CONTEXT_KEY] = runtime;
+  sensorReadingsStore.set(ctx, runtime);
   return runtime;
 }
 
@@ -39,11 +33,14 @@ export function ensureSensorReadingsRuntime(
 }
 
 export function getSensorReadingsRuntime(ctx: EngineRunContext): SensorReadingsRuntime | undefined {
-  return (ctx as SensorRuntimeCarrier)[SENSOR_READINGS_CONTEXT_KEY];
+  return sensorReadingsStore.get(ctx);
 }
 
+/**
+ * Clears sensor runtime readings to ensure tick-local isolation per SEC §2.
+ */
 export function clearSensorReadingsRuntime(ctx: EngineRunContext): void {
-  delete (ctx as SensorRuntimeCarrier)[SENSOR_READINGS_CONTEXT_KEY];
+  sensorReadingsStore.delete(ctx);
 }
 
 function emitDiagnostic(ctx: EngineRunContext, diagnostic: EngineDiagnostic): void {

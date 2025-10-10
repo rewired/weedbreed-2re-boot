@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { FLOAT_TOLERANCE } from '@/backend/src/constants/simConstants';
+import { FLOAT_TOLERANCE, HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
 import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
 import { applyEconomyAccrual } from '@/backend/src/engine/pipeline/applyEconomyAccrual';
+import { seedWorkforcePayrollAccrual } from '@/backend/src/engine/pipeline/applyWorkforce';
 import { createDemoWorld } from '@/backend/src/engine/testHarness';
 import {
   parseDeviceBlueprint,
@@ -318,9 +319,9 @@ describe('economy accrual integration', () => {
         byStructure: [],
       } satisfies WorkforcePayrollState;
 
-      (ctx as { __wb_workforcePayrollAccrual?: unknown }).__wb_workforcePayrollAccrual = {
+      seedWorkforcePayrollAccrual(ctx, {
         current: currentState,
-      } satisfies { current: WorkforcePayrollState };
+      });
 
       (world).simTimeHours = hour;
       world = applyEconomyAccrual(world, ctx) as Mutable<SimulationWorld>;
@@ -355,10 +356,10 @@ describe('economy accrual integration', () => {
       byStructure: [],
     } satisfies WorkforcePayrollState;
 
-    (ctx as { __wb_workforcePayrollAccrual?: unknown }).__wb_workforcePayrollAccrual = {
+    seedWorkforcePayrollAccrual(ctx, {
       current: nextDay,
       finalized,
-    } satisfies { current: WorkforcePayrollState; finalized: WorkforcePayrollState };
+    });
 
     (world).simTimeHours = hourlySlices.length;
     world = applyEconomyAccrual(world, ctx) as Mutable<SimulationWorld>;

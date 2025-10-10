@@ -17,19 +17,13 @@ export interface IrrigationNutrientsRuntime {
   readonly zoneBufferUpdates_mg: Map<Zone['id'], Record<string, number>>;
 }
 
-const IRRIGATION_RUNTIME_CONTEXT_KEY = '__wb_irrigationNutrients' as const;
-
-type Mutable<T> = { -readonly [K in keyof T]: T[K] };
-
-type IrrigationRuntimeCarrier = Mutable<EngineRunContext> & {
-  [IRRIGATION_RUNTIME_CONTEXT_KEY]?: IrrigationNutrientsRuntime;
-};
+const irrigationRuntimeStore = new WeakMap<EngineRunContext, IrrigationNutrientsRuntime>();
 
 function setIrrigationRuntime(
   ctx: EngineRunContext,
   runtime: IrrigationNutrientsRuntime
 ): IrrigationNutrientsRuntime {
-  (ctx as IrrigationRuntimeCarrier)[IRRIGATION_RUNTIME_CONTEXT_KEY] = runtime;
+  irrigationRuntimeStore.set(ctx, runtime);
   return runtime;
 }
 
@@ -48,11 +42,14 @@ export function ensureIrrigationNutrientsRuntime(
 export function getIrrigationNutrientsRuntime(
   ctx: EngineRunContext
 ): IrrigationNutrientsRuntime | undefined {
-  return (ctx as IrrigationRuntimeCarrier)[IRRIGATION_RUNTIME_CONTEXT_KEY];
+  return irrigationRuntimeStore.get(ctx);
 }
 
+/**
+ * Clears irrigation runtime data to keep pipeline state deterministic between ticks (SEC §2).
+ */
 export function clearIrrigationNutrientsRuntime(ctx: EngineRunContext): void {
-  delete (ctx as IrrigationRuntimeCarrier)[IRRIGATION_RUNTIME_CONTEXT_KEY];
+  irrigationRuntimeStore.delete(ctx);
 }
 
 const DEFAULT_LEACHING_RATIO = 0.1;
