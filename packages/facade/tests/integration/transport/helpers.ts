@@ -6,6 +6,10 @@ import {
   type TransportIntentEnvelope,
 } from '../../../src/transport/adapter.ts';
 
+function ensureError(candidate: unknown): Error {
+  return candidate instanceof Error ? candidate : new Error(String(candidate));
+}
+
 export interface TransportHarness {
   readonly port: number;
   readonly adapter: SocketTransportAdapter;
@@ -17,8 +21,17 @@ export async function createTransportHarness(
 ): Promise<TransportHarness> {
   const httpServer = createServer();
 
-  await new Promise<void>((resolve) => {
-    httpServer.listen(0, '127.0.0.1', () => resolve());
+  await new Promise<void>((resolve, reject) => {
+    const handleError = (error: unknown) => {
+      httpServer.off('error', handleError);
+      reject(ensureError(error));
+    };
+
+    httpServer.once('error', handleError);
+    httpServer.listen(0, '127.0.0.1', () => {
+      httpServer.off('error', handleError);
+      resolve();
+    });
   });
 
   const address = httpServer.address();
@@ -37,8 +50,15 @@ export async function createTransportHarness(
     adapter,
     async close() {
       await adapter.close();
-      await new Promise<void>((resolve) => {
-        httpServer.close(() => resolve());
+      await new Promise<void>((resolve, reject) => {
+        httpServer.close((error) => {
+          if (error && (error as NodeJS.ErrnoException).code !== 'ERR_SERVER_NOT_RUNNING') {
+            reject(ensureError(error));
+            return;
+          }
+
+          resolve();
+        });
       });
     },
   } satisfies TransportHarness;

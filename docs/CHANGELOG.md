@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0051): Hardened the façade transport server startup to reject
+  listener errors deterministically, normalised shutdown/startup catch handlers
+  to wrap unknown failures, and updated the integration harness teardown to
+  surface HTTP close errors so async safety lint guards stay satisfied.
+
 - HOTFIX-042 (Task 0050): Hardened the CO₂ injector stub by replacing non-null
   assertions with explicit guard helpers, normalising optional bounds before
   clamping, and keeping the deterministic capacity logic intact for lint

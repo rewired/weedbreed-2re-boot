@@ -51,6 +51,10 @@ export interface TransportServer {
   close(): Promise<void>;
 }
 
+function ensureError(candidate: unknown): Error {
+  return candidate instanceof Error ? candidate : new Error(String(candidate));
+}
+
 function normaliseHeaderValue(value: string | string[]): string {
   return Array.isArray(value) ? value.join(', ') : value;
 }
@@ -212,9 +216,24 @@ export async function createTransportServer(options: TransportServerOptions): Pr
     serverOptions: options.cors ? { cors: options.cors } : undefined,
   });
 
-  await new Promise<void>((resolve) => {
-    httpServer.listen(port, host, () => resolve());
-  });
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const handleError = (error: unknown) => {
+        httpServer.off('error', handleError);
+        reject(error);
+      };
+
+      httpServer.once('error', handleError);
+      httpServer.listen(port, host, () => {
+        httpServer.off('error', handleError);
+        resolve();
+      });
+    });
+  } catch (error) {
+    await adapter.close();
+    await closeHttpServer(httpServer);
+    throw ensureError(error);
+  }
 
   const address = httpServer.address();
 
