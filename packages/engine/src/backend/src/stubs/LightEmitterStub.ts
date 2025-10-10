@@ -26,7 +26,7 @@ function resolveEnergyWh(
   inputs: LightEmitterInputs,
   dt_h: number
 ): number | undefined {
-  const maybePower = (inputs as LightEmitterInputs & { power_W?: number }).power_W;
+  const maybePower = hasOptionalPower(inputs) ? inputs.power_W : undefined;
 
   if (typeof maybePower === 'undefined') {
     return undefined;
@@ -45,6 +45,12 @@ function resolveEnergyWh(
   }
 
   return maybePower * dt_h;
+}
+
+function hasOptionalPower(
+  inputs: LightEmitterInputs
+): inputs is LightEmitterInputs & { power_W?: number } {
+  return Object.prototype.hasOwnProperty.call(inputs, 'power_W');
 }
 
 function zeroEffect(): LightEmitterOutputs {

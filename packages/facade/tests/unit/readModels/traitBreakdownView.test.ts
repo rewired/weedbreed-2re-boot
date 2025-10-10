@@ -1,16 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import type { Employee, WorkforceState } from '@wb/engine';
+import { uuidSchema, type Employee, type WorkforceState } from '@wb/engine';
 import { createTraitBreakdown } from '../../../src/readModels/traitBreakdownView.ts';
-import type { TraitBreakdownView } from '../../../src/readModels/traitBreakdownView.ts';
 
 function buildEmployee(partial: Partial<Employee>): Employee {
   return {
-    id: '00000000-0000-0000-0000-00000000aaaa',
+    id: uuidSchema.parse('00000000-0000-0000-0000-00000000aaaa'),
     name: 'Trait Tester',
-    roleId: '00000000-0000-0000-0000-00000000bbbb',
+    roleId: uuidSchema.parse('00000000-0000-0000-0000-00000000bbbb'),
     rngSeedUuid: '018f43f1-8b44-7b74-b3ce-5fbd7be3c201',
-    assignedStructureId: '00000000-0000-0000-0000-00000000cccc',
+    assignedStructureId: uuidSchema.parse('00000000-0000-0000-0000-00000000cccc'),
     morale01: 0.7,
     fatigue01: 0.2,
     skills: [],
@@ -44,21 +43,21 @@ describe('createTraitBreakdown', () => {
       roles: [],
       employees: [
         buildEmployee({
-          id: '00000000-0000-0000-0000-00000000d001',
+          id: uuidSchema.parse('00000000-0000-0000-0000-00000000d001'),
           traits: [
             { traitId: 'trait_green_thumb', strength01: 0.6 },
             { traitId: 'trait_frugal', strength01: 0.5 },
           ],
         }),
         buildEmployee({
-          id: '00000000-0000-0000-0000-00000000d002',
+          id: uuidSchema.parse('00000000-0000-0000-0000-00000000d002'),
           traits: [
             { traitId: 'trait_green_thumb', strength01: 0.8 },
             { traitId: 'trait_clumsy', strength01: 0.4 },
           ],
         }),
         buildEmployee({
-          id: '00000000-0000-0000-0000-00000000d003',
+          id: uuidSchema.parse('00000000-0000-0000-0000-00000000d003'),
           traits: [],
         }),
       ],
@@ -74,21 +73,16 @@ describe('createTraitBreakdown', () => {
       market: { structures: [] },
     } satisfies WorkforceState;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const breakdown = createTraitBreakdown(workforce);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const typedBreakdown = breakdown as TraitBreakdownView;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    expect(typedBreakdown.totals).toMatchObject({
+    expect(breakdown.totals).toMatchObject({
       employeesWithTraits: 2,
       totalTraits: 4,
       positiveCount: 3,
       negativeCount: 1,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    expect(typedBreakdown.traits).toEqual([
+    expect(breakdown.traits).toEqual([
       {
         id: 'trait_green_thumb',
         name: 'Green Thumb',

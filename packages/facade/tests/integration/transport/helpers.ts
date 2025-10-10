@@ -1,5 +1,4 @@
 import { createServer } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import { io as createClient, type Socket } from 'socket.io-client';
 import {
   createSocketTransportAdapter,
@@ -22,7 +21,7 @@ export async function createTransportHarness(
     httpServer.listen(0, '127.0.0.1', () => resolve());
   });
 
-  const address = httpServer.address() as AddressInfo | null;
+  const address = httpServer.address();
 
   if (!address || typeof address === 'string') {
     throw new Error('Socket server failed to bind to a port.');

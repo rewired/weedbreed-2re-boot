@@ -1,5 +1,12 @@
-import type { SimulationWorld, Structure, Room, Zone, ZoneDeviceInstance } from '../../domain/world.ts';
-import type { Uuid } from '../../domain/schemas/primitives.ts';
+import {
+  parseDeviceBlueprint,
+  type SimulationWorld,
+  type Structure,
+  type Room,
+  type Zone,
+  type ZoneDeviceInstance
+} from '../../domain/world.ts';
+import { uuidSchema } from '../../domain/schemas/primitives.ts';
 import { createDemoWorld } from '../testHarness.ts';
 import { deterministicUuid } from '../../util/uuid.ts';
 import { fmtNum } from '../../util/format.ts';
@@ -17,10 +24,7 @@ import {
   PERF_HARNESS_ZONE_CLONE_COUNT
 } from '../../constants/perfHarness.ts';
 import { createDeviceInstance } from '../../device/createDeviceInstance.ts';
-import {
-  toDeviceInstanceEffectConfigs,
-  type DeviceBlueprint
-} from '../../domain/blueprints/deviceBlueprint.ts';
+import { toDeviceInstanceEffectConfigs, type DeviceBlueprint } from '../../domain/blueprints/deviceBlueprint.ts';
 import { clamp01 } from '../../util/math.ts';
 import devicePrices from '../../../../../../../data/prices/devicePrices.json' with { type: 'json' };
 import coolAirSplitBlueprint from '../../../../../../../data/blueprints/device/climate/cool-air-split-3000.json' with { type: 'json' };
@@ -34,10 +38,10 @@ interface DeviceBlueprintEntry {
 }
 
 const BASE_DEVICE_BLUEPRINTS: readonly DeviceBlueprintEntry[] = [
-  { blueprint: coolAirSplitBlueprint as DeviceBlueprint, dutyCycle01: PERF_HARNESS_COOL_AIR_DUTY01 },
-  { blueprint: ledVegLightBlueprint as DeviceBlueprint, dutyCycle01: PERF_HARNESS_LED_VEG_LIGHT_DUTY01 },
-  { blueprint: exhaustFanBlueprint as DeviceBlueprint, dutyCycle01: PERF_HARNESS_EXHAUST_FAN_DUTY01 },
-  { blueprint: carbonFilterBlueprint as DeviceBlueprint, dutyCycle01: 1 }
+  { blueprint: parseDeviceBlueprint(coolAirSplitBlueprint), dutyCycle01: PERF_HARNESS_COOL_AIR_DUTY01 },
+  { blueprint: parseDeviceBlueprint(ledVegLightBlueprint), dutyCycle01: PERF_HARNESS_LED_VEG_LIGHT_DUTY01 },
+  { blueprint: parseDeviceBlueprint(exhaustFanBlueprint), dutyCycle01: PERF_HARNESS_EXHAUST_FAN_DUTY01 },
+  { blueprint: parseDeviceBlueprint(carbonFilterBlueprint), dutyCycle01: 1 }
 ];
 
 interface DevicePriceEntry {
@@ -47,34 +51,57 @@ interface DevicePriceEntry {
   readonly maintenanceServiceCost: number;
 }
 
-function resolvePriceEntry(blueprint: DeviceBlueprint): DevicePriceEntry | null {
-  const entry =
-    (devicePrices as { readonly devicePrices?: Record<string, DevicePriceEntry> }).devicePrices?.[
-      blueprint.id
-    ];
+function isDevicePriceEntry(value: unknown): value is DevicePriceEntry {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
 
-  return entry ?? null;
+  const capital = Reflect.get(value, 'capitalExpenditure');
+  const maintenance = Reflect.get(value, 'baseMaintenanceCostPerHour');
+  const increase = Reflect.get(value, 'costIncreasePer1000Hours');
+  const service = Reflect.get(value, 'maintenanceServiceCost');
+
+  return (
+    typeof capital === 'number' &&
+    Number.isFinite(capital) &&
+    typeof maintenance === 'number' &&
+    Number.isFinite(maintenance) &&
+    typeof increase === 'number' &&
+    Number.isFinite(increase) &&
+    typeof service === 'number' &&
+    Number.isFinite(service)
+  );
 }
 
-function toFiniteNumber(value: unknown): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+function resolvePriceEntry(blueprint: DeviceBlueprint): DevicePriceEntry | null {
+  const priceMap = Reflect.get(devicePrices, 'devicePrices');
+
+  if (!priceMap || typeof priceMap !== 'object') {
+    return null;
+  }
+
+  const entry = Reflect.get(priceMap, blueprint.id);
+
+  return isDevicePriceEntry(entry) ? entry : null;
 }
 
 function computeSensibleCapacityW(blueprint: DeviceBlueprint): number {
-  const limits = (blueprint as { readonly limits?: Record<string, unknown> }).limits as
-    | { readonly maxCool_W?: number; readonly coolingCapacity_kW?: number }
-    | undefined;
+  const limits = Reflect.get(blueprint, 'limits');
 
-  if (!limits) {
+  if (!limits || typeof limits !== 'object') {
     return 0;
   }
 
-  if (typeof limits.coolingCapacity_kW === 'number' && Number.isFinite(limits.coolingCapacity_kW)) {
-    return Math.max(0, limits.coolingCapacity_kW * 1_000);
+  const coolingCapacity = Reflect.get(limits, 'coolingCapacity_kW');
+
+  if (typeof coolingCapacity === 'number' && Number.isFinite(coolingCapacity)) {
+    return Math.max(0, coolingCapacity * 1_000);
   }
 
-  if (typeof limits.maxCool_W === 'number' && Number.isFinite(limits.maxCool_W)) {
-    return Math.max(0, limits.maxCool_W);
+  const maxCool = Reflect.get(limits, 'maxCool_W');
+
+  if (typeof maxCool === 'number' && Number.isFinite(maxCool)) {
+    return Math.max(0, maxCool);
   }
 
   return 0;
@@ -86,25 +113,18 @@ function instantiateZoneDevice(
   zoneSeed: string,
   deviceIndex: number
 ): ZoneDeviceInstance {
-  const id = deterministicUuid(
-    'perf-target',
-    `${zoneSeed}:${blueprint.slug}:${fmtNum(deviceIndex)}`
-  );
+  const id = deterministicUuid('perf-target', `${zoneSeed}:${blueprint.slug}:${fmtNum(deviceIndex)}`);
   const qualityPolicy = {
     sampleQuality01: () =>
-      clamp01(
-        (blueprint as { quality?: number }).quality ?? PERF_HARNESS_DEVICE_QUALITY_BASELINE01
-      )
+      clamp01(resolveOptionalNumber(blueprint, 'quality') ?? PERF_HARNESS_DEVICE_QUALITY_BASELINE01)
   };
   const seeded = createDeviceInstance(qualityPolicy, zoneSeed, id, blueprint);
   const { effects } = seeded;
   const { effectConfigs } = toDeviceInstanceEffectConfigs(blueprint);
   const priceEntry = resolvePriceEntry(blueprint);
   const maintenanceIntervalDays =
-    (blueprint as { maintenance?: { intervalDays?: number } }).maintenance?.intervalDays ??
-    PERF_HARNESS_MAINTENANCE_INTERVAL_DAYS;
-  const maintenanceServiceHours =
-    (blueprint as { maintenance?: { hoursPerService?: number } }).maintenance?.hoursPerService ?? 1;
+    resolveMaintenanceNumber(blueprint, 'intervalDays') ?? PERF_HARNESS_MAINTENANCE_INTERVAL_DAYS;
+  const maintenanceServiceHours = resolveMaintenanceNumber(blueprint, 'hoursPerService') ?? 1;
 
   const maintenance = priceEntry
     ? {
@@ -118,7 +138,7 @@ function instantiateZoneDevice(
         recommendedReplacement: false,
         policy: {
           lifetimeHours:
-            (blueprint as { lifetime_h?: number }).lifetime_h ?? PERF_HARNESS_DEVICE_LIFETIME_HOURS,
+            resolveOptionalNumber(blueprint, 'lifetime_h') ?? PERF_HARNESS_DEVICE_LIFETIME_HOURS,
           maintenanceIntervalHours: maintenanceIntervalDays * HOURS_PER_DAY,
           serviceHours: maintenanceServiceHours,
           baseCostPerHourCc: priceEntry.baseMaintenanceCostPerHour,
@@ -135,23 +155,43 @@ function instantiateZoneDevice(
     id,
     slug: blueprint.slug,
     name: blueprint.name,
-    blueprintId: blueprint.id as Uuid,
+    blueprintId: uuidSchema.parse(blueprint.id),
     placementScope: 'zone',
     quality01: seeded.quality01,
     condition01: 1,
-    powerDraw_W: toFiniteNumber((blueprint as { power_W?: number }).power_W),
+    powerDraw_W: blueprint.power_W,
     dutyCycle01: clamp01(dutyCycle01),
     efficiency01: clamp01(
-      (blueprint as { efficiency01?: number }).efficiency01 ??
-        PERF_HARNESS_DEVICE_EFFICIENCY_BASELINE01
+      resolveOptionalNumber(blueprint, 'efficiency01') ?? PERF_HARNESS_DEVICE_EFFICIENCY_BASELINE01
     ),
-    coverage_m2: toFiniteNumber((blueprint as { coverage_m2?: number }).coverage_m2),
-    airflow_m3_per_h: toFiniteNumber((blueprint as { airflow_m3_per_h?: number }).airflow_m3_per_h),
+    coverage_m2: blueprint.coverage_m2 ?? 0,
+    airflow_m3_per_h: blueprint.airflow_m3_per_h ?? 0,
     sensibleHeatRemovalCapacity_W: computeSensibleCapacityW(blueprint),
     effects: effects ?? [],
     effectConfigs,
     maintenance
   } satisfies ZoneDeviceInstance;
+}
+
+function resolveOptionalNumber(blueprint: DeviceBlueprint, key: string): number | undefined {
+  const value = Reflect.get(blueprint, key);
+
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+function resolveMaintenanceNumber(
+  blueprint: DeviceBlueprint,
+  key: 'intervalDays' | 'hoursPerService'
+): number | undefined {
+  const maintenance = Reflect.get(blueprint, 'maintenance');
+
+  if (!maintenance || typeof maintenance !== 'object') {
+    return undefined;
+  }
+
+  const value = Reflect.get(maintenance, key);
+
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
 
 function buildZoneDevices(zoneIndex: number): ZoneDeviceInstance[] {
@@ -167,7 +207,7 @@ function cloneRoom(room: Room): Room {
     zones: room.zones.map((zone) => ({
       ...zone,
       nutrientBuffer_mg: { ...zone.nutrientBuffer_mg },
-      devices: zone.devices.map((device) => ({ ...device } as ZoneDeviceInstance)),
+      devices: zone.devices.map((device): ZoneDeviceInstance => ({ ...device })),
       plants: zone.plants.map((plant) => ({ ...plant }))
     }))
   } satisfies Room;

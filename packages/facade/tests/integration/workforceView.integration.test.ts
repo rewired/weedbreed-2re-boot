@@ -4,19 +4,24 @@ import {
   createWorkforceView,
   type WorkforceViewOptions
 } from '../../src/index.ts';
-import type {
-  Employee,
-  EmployeeRole,
-  Structure,
-  WorkforceState,
-  WorkforceTaskDefinition,
-  WorkforceTaskInstance,
-  WorkforceWarning
+import {
+  employeeSchema,
+  workforceTaskInstanceSchema
+} from '@/backend/src/domain/schemas/workforce.ts';
+import {
+  uuidSchema,
+  type Employee,
+  type EmployeeRole,
+  type Structure,
+  type WorkforceState,
+  type WorkforceTaskDefinition,
+  type WorkforceTaskInstance,
+  type WorkforceWarning
 } from '@wb/engine';
 
 function createRole(id: string, slug: string, name: string): EmployeeRole {
   return {
-    id: id as EmployeeRole['id'],
+    id: uuidSchema.parse(id),
     slug,
     name,
     coreSkills: [],
@@ -39,13 +44,13 @@ function createEmployee(options: {
   gender?: 'm' | 'f' | 'd';
   traits?: Employee['traits'];
   skillTriad?: Employee['skillTriad'];
-}): Employee {
-  const employee = {
-    id: options.id as Employee['id'],
+}): Employee & { gender?: 'm' | 'f' | 'd' } {
+  const base = employeeSchema.parse({
+    id: uuidSchema.parse(options.id),
     name: options.name,
     roleId: options.roleId,
     rngSeedUuid: '018f43f1-8b44-7b74-b3ce-5fbd7be3c201',
-    assignedStructureId: options.structureId as Employee['assignedStructureId'],
+    assignedStructureId: uuidSchema.parse(options.structureId),
     morale01: options.morale01,
     fatigue01: options.fatigue01,
     skills: [
@@ -73,15 +78,25 @@ function createEmployee(options: {
     developmentPlan: [
       { skillKey: 'maintenance', minSkill01: 0.5 }
     ],
-    gender: options.gender
-  };
+    baseRateMultiplier: 1,
+    experience: { hoursAccrued: 0, level01: 0 },
+    laborMarketFactor: 1,
+    timePremiumMultiplier: 1,
+    employmentStartDay: 0,
+    salaryExpectation_per_h: 18,
+    raise: { cadenceSequence: 0 }
+  });
 
-  return employee as Employee & { gender?: 'm' | 'f' | 'd' };
+  if (!options.gender) {
+    return base;
+  }
+
+  return { ...base, gender: options.gender };
 }
 
 function createStructure(id: string, slug: string, name: string): Structure {
   return {
-    id: id as Structure['id'],
+    id: uuidSchema.parse(id),
     slug,
     name,
     floorArea_m2: 400,
@@ -154,23 +169,23 @@ describe('createWorkforceView', () => {
       costModel: { basis: 'perAction', laborMinutes: 90 }
     };
 
-    const harvestTask: WorkforceTaskInstance = {
-      id: '00000000-0000-0000-0000-000000040001' as WorkforceTaskInstance['id'],
+    const harvestTask: WorkforceTaskInstance = workforceTaskInstanceSchema.parse({
+      id: uuidSchema.parse('00000000-0000-0000-0000-000000040001'),
       taskCode: 'harvest_cycle',
       status: 'queued',
       createdAtTick: 6,
       dueTick: 12,
       context: { structureId: structureA.id }
-    };
+    });
 
-    const maintenanceTask: WorkforceTaskInstance = {
-      id: '00000000-0000-0000-0000-000000040002' as WorkforceTaskInstance['id'],
+    const maintenanceTask: WorkforceTaskInstance = workforceTaskInstanceSchema.parse({
+      id: uuidSchema.parse('00000000-0000-0000-0000-000000040002'),
       taskCode: 'repair_device',
       status: 'in-progress',
       createdAtTick: 5,
       assignedEmployeeId: employeeB.id,
       context: { structureId: structureB.id }
-    };
+    });
 
     const overtimeWarning: WorkforceWarning = {
       simTimeHours: 10,

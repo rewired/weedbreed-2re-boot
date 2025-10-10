@@ -2,6 +2,12 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0049): Removed redundant numeric coercions, `as` assertions,
+  and non-null assertions across the perf harness, stubs, workforce scheduler,
+  and façade tests by replacing them with schema parsing, explicit guards, and
+  UUID validation so lint conversions are no longer required and the tests use
+  validated identifiers.
+
 - HOTFIX-042 (Task 0048): Normalised seed-to-harvest reporting scenario defaults
   to use nullish coalescing so falsy-but-valid identifiers persist through the
   CLI and report generator, and added integration coverage for the regression.

@@ -108,7 +108,8 @@ function resolveTaskDemandMinutes(
   task: WorkforceTaskInstance,
   definition: WorkforceTaskDefinition,
 ): number {
-  const baseMinutes = Math.max(0, Number(definition.costModel.laborMinutes) || 0);
+  const laborMinutes = definition.costModel.laborMinutes;
+  const baseMinutes = Math.max(0, Number.isFinite(laborMinutes) ? laborMinutes : 0);
   const context = task.context ?? {};
 
   if (baseMinutes <= 0) {
@@ -118,13 +119,17 @@ function resolveTaskDemandMinutes(
   switch (definition.costModel.basis) {
     case 'perPlant': {
       const plantCountRaw = context.plantCount ?? context.plants ?? 1;
-      const plantCount = Number(plantCountRaw);
-      return baseMinutes * (Number.isFinite(plantCount) && plantCount > 0 ? plantCount : 1);
+      const plantCount =
+        typeof plantCountRaw === 'number' && Number.isFinite(plantCountRaw) && plantCountRaw > 0
+          ? plantCountRaw
+          : 1;
+      return baseMinutes * plantCount;
     }
     case 'perSquareMeter': {
       const areaRaw = context.area_m2 ?? context.squareMeters ?? context.area ?? 1;
-      const area = Number(areaRaw);
-      return baseMinutes * (Number.isFinite(area) && area > 0 ? area : 1);
+      const area =
+        typeof areaRaw === 'number' && Number.isFinite(areaRaw) && areaRaw > 0 ? areaRaw : 1;
+      return baseMinutes * area;
     }
     default:
       return baseMinutes;
