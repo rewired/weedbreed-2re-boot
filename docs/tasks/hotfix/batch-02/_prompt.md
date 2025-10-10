@@ -1,4 +1,4 @@
-# Execute Task 0046 end-to-end (SEC/TDD/DD aligned)
+# Execute Task 0047 end-to-end (SEC/TDD/DD aligned)
 
 You are Codex. Execute the task **exactly** as written in this file:
 - TASK_ID: ${TASK_ID}
