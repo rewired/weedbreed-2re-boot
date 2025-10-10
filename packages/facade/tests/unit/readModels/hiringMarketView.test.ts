@@ -4,14 +4,11 @@ import {
   createHiringMarketView,
   type HiringMarketViewOptions,
 } from '../../../src/readModels/hiringMarketView.ts';
-import type {
-  Structure,
-  WorkforceState,
-} from '@wb/engine';
+import { uuidSchema, type Structure, type WorkforceState } from '@wb/engine';
 
 function createStructure(id: string, name: string): Structure {
   return {
-    id: id as Structure['id'],
+    id: uuidSchema.parse(id),
     slug: name.toLowerCase().replace(/\s+/g, '-'),
     name,
     floorArea_m2: 100,
@@ -44,7 +41,7 @@ describe('createHiringMarketView', () => {
             scanCounter: 2,
             pool: [
               {
-                id: '00000000-0000-0000-0000-00000000cand' as WorkforceState['employees'][number]['id'],
+                id: uuidSchema.parse('00000000-0000-0000-0000-00000000c0ad'),
                 structureId: structure.id,
                 roleSlug: 'gardener',
                 skills3: {

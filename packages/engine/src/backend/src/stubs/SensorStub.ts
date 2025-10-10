@@ -11,7 +11,7 @@ import type { RandomNumberGenerator } from '../util/rng.ts';
 import { clamp } from '../util/math.ts';
 
 function boxMullerTransform(rng: RandomNumberGenerator): number {
-  const TWO = 2 as const;
+  const TWO = 2;
   let u1 = 0;
   let u2 = 0;
 

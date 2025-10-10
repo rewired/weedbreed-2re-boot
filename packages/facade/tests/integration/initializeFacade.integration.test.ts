@@ -14,7 +14,7 @@ describe('initializeFacade', () => {
         countryName: 'Deutschland'
       },
       structures: []
-    } as const;
+    };
 
     const result = initializeFacade({ scenarioId: 'integration', verbose: true, world });
 

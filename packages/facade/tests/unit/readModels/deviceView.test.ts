@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type { DeviceInstance } from '@wb/engine';
+import { uuidSchema, type DeviceInstance } from '@wb/engine';
 import { mapDeviceToView } from '../../../src/readModels/deviceView.ts';
 
 function createDevice(overrides: Partial<DeviceInstance> = {}): DeviceInstance {
   const base: DeviceInstance = {
-    id: '00000000-0000-0000-0000-000000000001' as DeviceInstance['id'],
+    id: uuidSchema.parse('00000000-0000-0000-0000-000000000001'),
     slug: 'test-device',
     name: 'Test Device',
-    blueprintId: '00000000-0000-0000-0000-000000000010' as DeviceInstance['blueprintId'],
+    blueprintId: uuidSchema.parse('00000000-0000-0000-0000-000000000010'),
     placementScope: 'zone',
     quality01: 0.5,
     condition01: 0.5,

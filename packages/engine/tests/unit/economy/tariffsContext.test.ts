@@ -9,8 +9,8 @@ describe('resolveEffectiveTariffs', () => {
     const ctx: EngineRunContext = {};
 
     expect(resolveEffectiveTariffs(ctx)).toEqual({
-      price_electricity: Number(utilityPrices.price_electricity),
-      price_water: Number(utilityPrices.price_water)
+      price_electricity: ensureUtilityPrice(utilityPrices.price_electricity, 'price_electricity'),
+      price_water: ensureUtilityPrice(utilityPrices.price_water, 'price_water')
     });
   });
 
@@ -25,3 +25,18 @@ describe('resolveEffectiveTariffs', () => {
     });
   });
 });
+
+function ensureUtilityPrice(
+  value: unknown,
+  field: 'price_electricity' | 'price_water'
+): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    throw new TypeError(`utilityPrices.${field} must be a finite number.`);
+  }
+
+  if (value < 0) {
+    throw new RangeError(`utilityPrices.${field} must be non-negative.`);
+  }
+
+  return value;
+}
