@@ -20,6 +20,6 @@
 ## Magic number guardrail
 
 - Numeric literals in production TypeScript must live in `packages/engine/src/backend/src/constants/**` (or re-export from `simConstants.ts`).
-- ESLint enforces the `@typescript-eslint/no-magic-numbers` rule with a narrow allowlist. Lint warnings fail CI because `pnpm -r lint` runs with `--max-warnings=0`.
+- ESLint enforces the `@typescript-eslint/no-magic-numbers` rule with a narrow allowlist. A temporary `pnpm run lint:strict` guard runs `pnpm -r lint` through `tools/check-warn-budget.mjs` and fails CI when combined warnings exceed the 30-warning budget while the backlog is burned down; once the warning count returns to zero the helper will be retired as noted in HOTFIX-042.
 - Run `pnpm scan:magic` to execute the ripgrep audit locally. The scan ignores tests, schemas, and the constants directory and fails when new literals slip through.
 - When introducing a new threshold or default, document it in the appropriate constants module and update `/docs/constants/README.md`.

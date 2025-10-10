@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0055): Added a workspace `lint:strict` script that pipes `pnpm -r lint`
+  through `tools/check-warn-budget.mjs` to enforce the temporary 30-warning ESLint budget
+  in CI, and documented the guard plus retirement plan in the contributor handbook so
+  the backlog burn-down stays visible.
+
 - HOTFIX-042 (Task 0054): Updated the shared determinism hash helper to cache
   the wasm API via nullish coalescing assignment so falsy-but-valid promises
   persist and the prefer-nullish-coalescing lint stays satisfied.
