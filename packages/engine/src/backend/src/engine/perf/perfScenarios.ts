@@ -13,12 +13,14 @@ import { fmtNum } from '../../util/format.ts';
 import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
 import {
   PERF_HARNESS_COOL_AIR_DUTY01,
+  PERF_HARNESS_CARBON_FILTER_DUTY01,
   PERF_HARNESS_DEVICE_EFFICIENCY_BASELINE01,
   PERF_HARNESS_DEVICE_LIFETIME_HOURS,
   PERF_HARNESS_DEVICE_QUALITY_BASELINE01,
   PERF_HARNESS_EXHAUST_FAN_DUTY01,
   PERF_HARNESS_LED_VEG_LIGHT_DUTY01,
   PERF_HARNESS_MAINTENANCE_INTERVAL_DAYS,
+  PERF_HARNESS_MAINTENANCE_SERVICE_HOURS,
   PERF_HARNESS_MAINTENANCE_RESTORE01,
   PERF_HARNESS_MAINTENANCE_THRESHOLD01,
   PERF_HARNESS_ZONE_CLONE_COUNT
@@ -41,7 +43,7 @@ const BASE_DEVICE_BLUEPRINTS: readonly DeviceBlueprintEntry[] = [
   { blueprint: parseDeviceBlueprint(coolAirSplitBlueprint), dutyCycle01: PERF_HARNESS_COOL_AIR_DUTY01 },
   { blueprint: parseDeviceBlueprint(ledVegLightBlueprint), dutyCycle01: PERF_HARNESS_LED_VEG_LIGHT_DUTY01 },
   { blueprint: parseDeviceBlueprint(exhaustFanBlueprint), dutyCycle01: PERF_HARNESS_EXHAUST_FAN_DUTY01 },
-  { blueprint: parseDeviceBlueprint(carbonFilterBlueprint), dutyCycle01: 1 }
+  { blueprint: parseDeviceBlueprint(carbonFilterBlueprint), dutyCycle01: PERF_HARNESS_CARBON_FILTER_DUTY01 }
 ];
 
 interface DevicePriceEntry {
@@ -124,7 +126,8 @@ function instantiateZoneDevice(
   const priceEntry = resolvePriceEntry(blueprint);
   const maintenanceIntervalDays =
     resolveMaintenanceNumber(blueprint, 'intervalDays') ?? PERF_HARNESS_MAINTENANCE_INTERVAL_DAYS;
-  const maintenanceServiceHours = resolveMaintenanceNumber(blueprint, 'hoursPerService') ?? 1;
+  const maintenanceServiceHours =
+    resolveMaintenanceNumber(blueprint, 'hoursPerService') ?? PERF_HARNESS_MAINTENANCE_SERVICE_HOURS;
 
   const maintenance = priceEntry
     ? {

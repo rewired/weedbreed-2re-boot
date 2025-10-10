@@ -2,6 +2,11 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0053): Normalised perf scenario device defaults by hoisting
+  the carbon filter duty cycle and maintenance service visit duration into
+  shared constants, wiring perf harness instantiation through the 0–1 naming
+  scheme so lint checks stop flagging inline magic numbers.
+
 - HOTFIX-042 (Task 0052): Hoisted workforce identity gender roll thresholds into
   shared constants, hardened hiring/workforce telemetry emitters to guard topics
   and clone payloads before dispatch, and added unit coverage confirming the
