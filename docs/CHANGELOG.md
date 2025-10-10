@@ -2,6 +2,10 @@
 
 ### Unreleased — Blueprint Taxonomy v2
 
+- HOTFIX-042 (Task 0054): Updated the shared determinism hash helper to cache
+  the wasm API via nullish coalescing assignment so falsy-but-valid promises
+  persist and the prefer-nullish-coalescing lint stays satisfied.
+
 - HOTFIX-042 (Task 0053): Normalised perf scenario device defaults by hoisting
   the carbon filter duty cycle and maintenance service visit duration into
   shared constants, wiring perf harness instantiation through the 0–1 naming
