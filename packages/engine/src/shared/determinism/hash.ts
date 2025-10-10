@@ -6,9 +6,7 @@ const SECONDARY_SEED = BigInt('0x9e3779b97f4a7c15');
 let hashApiPromise: Promise<Awaited<ReturnType<typeof xxhash>>> | undefined;
 
 async function getHashApi() {
-  if (!hashApiPromise) {
-    hashApiPromise = xxhash();
-  }
+  hashApiPromise ??= xxhash();
   return hashApiPromise;
 }
 
