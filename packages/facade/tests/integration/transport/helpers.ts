@@ -108,7 +108,7 @@ export function disconnectClient(socket: Socket): Promise<void> {
       return;
     }
 
-    socket.once('disconnect', () => resolve());
+    socket.once('disconnect', () => { resolve(); });
     socket.disconnect();
   });
 }

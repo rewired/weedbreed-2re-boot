@@ -83,7 +83,7 @@ function resolveStructureId(
     return explicit;
   }
 
-  const roomId = typeof context.roomId === 'string' ? (context.roomId as string) : null;
+  const roomId = typeof context.roomId === 'string' ? (context.roomId) : null;
 
   if (roomId) {
     const structureId = lookups.roomToStructure.get(roomId);
@@ -92,7 +92,7 @@ function resolveStructureId(
     }
   }
 
-  const zoneId = typeof context.zoneId === 'string' ? (context.zoneId as string) : null;
+  const zoneId = typeof context.zoneId === 'string' ? (context.zoneId) : null;
 
   if (zoneId) {
     const structureId = lookups.zoneToStructure.get(zoneId);
@@ -237,13 +237,13 @@ function selectCandidate(
   ) as NonNullable<ReturnType<typeof evaluateCandidate>>[];
 
   if (bestCandidates.length === 1) {
-    return bestCandidates[0]!;
+    return bestCandidates[0];
   }
 
   const ordered = [...bestCandidates].sort((a, b) => a.employee.id.localeCompare(b.employee.id));
   const rotation = Math.abs(Math.trunc(simTimeHours) + structureIndex);
   const index = rotation % ordered.length;
-  return ordered[index]!;
+  return ordered[index];
 }
 
 export function buildSchedulingEntries(

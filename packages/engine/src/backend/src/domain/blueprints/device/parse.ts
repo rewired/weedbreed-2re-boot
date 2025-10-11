@@ -1,10 +1,5 @@
-import {
-  deviceBlueprintSchema,
-  type Co2Config,
-  type DeviceBlueprint,
-  type DeviceEffect,
-  type SensorConfig
-} from './schemaByClass.ts';
+import { deviceBlueprintSchema, type DeviceBlueprint } from './schemaByClass.ts';
+import { type Co2Config, type DeviceEffect, type SensorConfig } from './schemaBase.ts';
 import { guardDeviceBlueprintTaxonomy, type DeviceTaxonomyGuardOptions } from './guardTaxonomy.ts';
 
 export interface ParseDeviceBlueprintOptions extends DeviceTaxonomyGuardOptions {
@@ -62,13 +57,17 @@ export interface DeviceEffectConfigs {
   readonly co2?: Co2Config;
 }
 
+type MutableDeviceEffectConfigs = {
+  -readonly [K in keyof DeviceEffectConfigs]?: DeviceEffectConfigs[K];
+};
+
 export interface DeviceInstanceEffectConfigProjection {
   readonly effects?: readonly DeviceEffect[];
   readonly effectConfigs?: DeviceEffectConfigs;
 }
 
 function clampNoise01(value: number | undefined, fallback: number): number {
-  if (!Number.isFinite(value)) {
+  if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
     return fallback;
   }
 
@@ -151,40 +150,45 @@ function deriveCo2Config(blueprint: DeviceBlueprint): Co2Config | null {
     return null;
   }
 
-  const config: Co2Config = {
+  const configBase = {
     target_ppm: target,
     pulse_ppm_per_tick: pulse,
     safetyMax_ppm: safetyMax
-  } satisfies Co2Config;
+  };
+
+  const optionalConfig: Partial<Co2Config> = {};
 
   const minCandidate =
     toFiniteNumber(limits?.minCO2_ppm) ??
     (Array.isArray(settings?.targetCO2Range) ? toFiniteNumber(settings?.targetCO2Range[0]) : null);
 
   if (minCandidate !== null) {
-    config.min_ppm = minCandidate;
+    optionalConfig.min_ppm = minCandidate;
   }
 
   const ambientCandidate = toFiniteNumber(limits?.ambientCO2_ppm ?? settings?.ambientCO2);
 
   if (ambientCandidate !== null) {
-    config.ambient_ppm = ambientCandidate;
+    optionalConfig.ambient_ppm = ambientCandidate;
   }
 
   const hysteresisCandidate = toFiniteNumber(settings?.hysteresis ?? settings?.hysteresis_ppm);
 
   if (hysteresisCandidate !== null) {
-    config.hysteresis_ppm = hysteresisCandidate;
+    optionalConfig.hysteresis_ppm = hysteresisCandidate;
   }
 
-  return config;
+  return {
+    ...configBase,
+    ...optionalConfig
+  } satisfies Co2Config;
 }
 
 export function toDeviceInstanceEffectConfigs(
   blueprint: DeviceBlueprint
 ): DeviceInstanceEffectConfigProjection {
   const effects: DeviceEffect[] = blueprint.effects ? [...blueprint.effects] : [];
-  const configs: DeviceEffectConfigs = {};
+  const configs: MutableDeviceEffectConfigs = {};
   let hasConfig = false;
 
   if (effects.includes('thermal') && blueprint.thermal) {
@@ -241,7 +245,7 @@ export function toDeviceInstanceEffectConfigs(
 
   return {
     effects: nextEffects,
-    effectConfigs: hasConfig ? configs : undefined
+    effectConfigs: hasConfig ? (configs as DeviceEffectConfigs) : undefined
   } satisfies DeviceInstanceEffectConfigProjection;
 }
 

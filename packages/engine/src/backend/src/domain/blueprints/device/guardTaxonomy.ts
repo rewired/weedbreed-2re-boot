@@ -1,8 +1,8 @@
 import {
-  BlueprintPathOptions,
   BlueprintTaxonomyMismatchError,
   deriveBlueprintClassFromPath
 } from '../taxonomy.ts';
+import type { BlueprintPathOptions } from '../taxonomy.ts';
 
 export interface DeviceTaxonomyGuardOptions extends BlueprintPathOptions {
   readonly filePath?: string;

@@ -73,16 +73,12 @@ const capacityHintsSchema = z
   })
   .partial();
 
+const climateRangeSchema = z.tuple([z.number(), z.number()]).readonly();
+
 const idealConditionsSchema = z
   .object({
-    idealTemperature: z
-      .array(z.number())
-      .length(2)
-      .optional(),
-    idealHumidity: z
-      .array(z.number())
-      .length(2)
-      .optional()
+    idealTemperature: climateRangeSchema.optional(),
+    idealHumidity: climateRangeSchema.optional()
   })
   .partial();
 

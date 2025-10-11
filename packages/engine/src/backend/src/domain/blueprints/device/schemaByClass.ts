@@ -18,6 +18,7 @@ import {
   thermalConfigObjectSchema,
   thermalConfigSchema
 } from './schemaBase.ts';
+import type { DeviceEffect } from './schemaBase.ts';
 
 const climateModeSchema = z.enum(['thermal', 'dehumidifier', 'humidity-controller', 'co2']);
 const airflowSubtypeSchema = z.enum(['exhaust', 'intake', 'recirculation', 'oscillating']);
@@ -125,7 +126,7 @@ const lightingValidators: ClimateValidator = (blueprint, ctx) => {
 export const deviceBlueprintSchema = deviceBlueprintObjectSchema.superRefine((blueprint, ctx) => {
   assertNoMonetaryFields(blueprint, ctx);
 
-  const effects = blueprint.effects ?? [];
+  const effects = (blueprint.effects ?? []) as readonly DeviceEffect[];
 
   if (effects.includes('thermal') && !blueprint.thermal) {
     ctx.addIssue({

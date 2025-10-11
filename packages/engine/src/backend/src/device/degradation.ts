@@ -88,11 +88,13 @@ function resolvePolicyLifetimeHours(policy?: DeviceMaintenancePolicy): number {
     return DEFAULT_BASE_LIFETIME_HOURS;
   }
 
-  if (!Number.isFinite(policy.lifetimeHours) || policy.lifetimeHours <= 0) {
+  const { lifetimeHours } = policy;
+
+  if (typeof lifetimeHours !== 'number' || !Number.isFinite(lifetimeHours) || lifetimeHours <= 0) {
     return DEFAULT_BASE_LIFETIME_HOURS;
   }
 
-  return policy.lifetimeHours;
+  return lifetimeHours;
 }
 
 function resolveIntervalHours(policy: DeviceMaintenancePolicy | undefined, quality01: number): number {
@@ -100,17 +102,24 @@ function resolveIntervalHours(policy: DeviceMaintenancePolicy | undefined, quali
     return Number.POSITIVE_INFINITY;
   }
 
-  if (!Number.isFinite(policy.maintenanceIntervalHours) || policy.maintenanceIntervalHours <= 0) {
+  const intervalHours = policy.maintenanceIntervalHours;
+
+  if (
+    typeof intervalHours !== 'number' ||
+    !Number.isFinite(intervalHours) ||
+    intervalHours <= 0
+  ) {
     return Number.POSITIVE_INFINITY;
   }
 
-  return policy.maintenanceIntervalHours / Math.max(mMaintenance(quality01), MIN_TICK_HOURS);
+  const maintenanceFactor = Math.max(mMaintenance(quality01), MIN_TICK_HOURS);
+  return intervalHours / maintenanceFactor;
 }
 
 function resolveConditionThreshold(policy: DeviceMaintenancePolicy | undefined): number {
   const value = policy?.maintenanceConditionThreshold01;
 
-  if (!Number.isFinite(value)) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
     return 0.4;
   }
 
@@ -120,7 +129,7 @@ function resolveConditionThreshold(policy: DeviceMaintenancePolicy | undefined):
 function resolveRestoreAmount(policy: DeviceMaintenancePolicy | undefined): number {
   const value = policy?.restoreAmount01;
 
-  if (!Number.isFinite(value)) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
     return 0;
   }
 
@@ -128,15 +137,19 @@ function resolveRestoreAmount(policy: DeviceMaintenancePolicy | undefined): numb
 }
 
 function resolveServiceHours(policy: DeviceMaintenancePolicy | undefined, tickHours: number): number {
+  const minimalDuration = Math.max(tickHours, MIN_TICK_HOURS);
+
   if (!policy) {
-    return Math.max(tickHours, MIN_TICK_HOURS);
+    return minimalDuration;
   }
 
-  if (!Number.isFinite(policy.serviceHours) || policy.serviceHours <= 0) {
-    return Math.max(tickHours, MIN_TICK_HOURS);
+  const serviceHours = policy.serviceHours;
+
+  if (typeof serviceHours !== 'number' || !Number.isFinite(serviceHours) || serviceHours <= 0) {
+    return minimalDuration;
   }
 
-  return Math.max(policy.serviceHours, tickHours);
+  return Math.max(serviceHours, minimalDuration);
 }
 
 function computeHourlyMaintenanceCost(
@@ -147,12 +160,12 @@ function computeHourlyMaintenanceCost(
     return 0;
   }
 
-  const base = Number.isFinite(policy.baseCostPerHourCc) ? Math.max(0, policy.baseCostPerHourCc) : 0;
-  const slope = Number.isFinite(policy.costIncreasePer1000HoursCc)
-    ? Math.max(0, policy.costIncreasePer1000HoursCc)
-    : 0;
-  const incremental = slope * (runtimeHours / 1_000);
-  return base + incremental;
+  const base = policy.baseCostPerHourCc;
+  const slope = policy.costIncreasePer1000HoursCc;
+  const safeBase = typeof base === 'number' && Number.isFinite(base) ? Math.max(0, base) : 0;
+  const safeSlope = typeof slope === 'number' && Number.isFinite(slope) ? Math.max(0, slope) : 0;
+  const incremental = safeSlope * (runtimeHours / 1_000);
+  return safeBase + incremental;
 }
 
 function computeServiceVisitCost(policy: DeviceMaintenancePolicy | undefined): number {
@@ -160,7 +173,10 @@ function computeServiceVisitCost(policy: DeviceMaintenancePolicy | undefined): n
     return 0;
   }
 
-  return Number.isFinite(policy.serviceVisitCostCc) ? Math.max(0, policy.serviceVisitCostCc) : 0;
+  const serviceVisitCost = policy.serviceVisitCostCc;
+  return typeof serviceVisitCost === 'number' && Number.isFinite(serviceVisitCost)
+    ? Math.max(0, serviceVisitCost)
+    : 0;
 }
 
 function shouldRecommendReplacement(
@@ -176,7 +192,12 @@ function shouldRecommendReplacement(
     return true;
   }
 
-  const threshold = Math.max(0, Number.isFinite(policy.replacementCostCc) ? policy.replacementCostCc : 0);
+  const replacementCost = policy.replacementCostCc;
+  const threshold =
+    typeof replacementCost === 'number' && Number.isFinite(replacementCost)
+      ? Math.max(0, replacementCost)
+      : 0;
+
   if (threshold === 0) {
     return false;
   }

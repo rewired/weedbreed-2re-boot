@@ -243,7 +243,7 @@ export async function createTransportServer(options: TransportServerOptions): Pr
     throw new Error('Transport server failed to resolve a TCP address.');
   }
 
-  const { port: resolvedPort } = address as AddressInfo;
+  const { port: resolvedPort } = address;
   const resolvedPortLabel = String(resolvedPort);
   const url = `http://${host}:${resolvedPortLabel}`;
 

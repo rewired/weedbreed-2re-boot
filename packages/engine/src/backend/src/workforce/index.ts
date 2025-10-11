@@ -540,7 +540,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
     roles: workforceState.roles,
   });
   marketState = marketResult.market;
-  marketResult.charges.forEach((charge) => recordWorkforceMarketCharge(ctx, charge));
+  marketResult.charges.forEach((charge) => { recordWorkforceMarketCharge(ctx, charge); });
 
   const employeesAfterHire =
     marketResult.newEmployees.length > 0
@@ -627,9 +627,9 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
   }, employeesByStructure);
 
   const waitTimes = [...dispatchOutcome.waitTimes];
-  let totalBaseMinutes = dispatchOutcome.totalBaseMinutes;
-  let totalOvertimeMinutes = dispatchOutcome.totalOvertimeMinutes;
-  let tasksCompleted = dispatchOutcome.tasksCompleted;
+  const totalBaseMinutes = dispatchOutcome.totalBaseMinutes;
+  const totalOvertimeMinutes = dispatchOutcome.totalOvertimeMinutes;
+  const tasksCompleted = dispatchOutcome.tasksCompleted;
 
   for (const contribution of dispatchOutcome.contributions) {
     const structure = structureById.get(contribution.structureId);

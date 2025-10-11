@@ -74,7 +74,7 @@ describe('transport server bootstrap', () => {
     await onceConnected(client);
 
     const errorEvent = new Promise<TransportAck>((resolve) => {
-      client.once(TELEMETRY_ERROR_EVENT, (ack: TransportAck) => resolve(ack));
+      client.once(TELEMETRY_ERROR_EVENT, (ack: TransportAck) => { resolve(ack); });
     });
 
     const ack = await new Promise<TransportAck>((resolve) => {

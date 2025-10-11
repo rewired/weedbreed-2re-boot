@@ -13,8 +13,12 @@ import {
   createTargetPerfWorld
 } from '../../src/backend/src/engine/perf/perfScenarios.ts';
 
-function parseThresholdOverrides(): Partial<PerfBudgetThresholds> {
-  const overrides: Partial<PerfBudgetThresholds> = {};
+type PerfBudgetThresholdOverrides = {
+  -readonly [K in keyof PerfBudgetThresholds]?: PerfBudgetThresholds[K];
+};
+
+function parseThresholdOverrides(): PerfBudgetThresholdOverrides {
+  const overrides: PerfBudgetThresholdOverrides = {};
   const throughput = process.env.PERF_CI_MIN_TICKS_PER_MINUTE;
   const heap = process.env.PERF_CI_MAX_HEAP_MIB;
   const guardBand01 =

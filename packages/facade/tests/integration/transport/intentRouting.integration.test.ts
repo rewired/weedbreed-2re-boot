@@ -26,7 +26,7 @@ describe('transport adapter — intent namespace', () => {
             type: 'hiring.market.scan',
             structureId: '9f61e55c-8435-4ee3-8b56-8c8c6d00f404',
           },
-          (response: TransportAck) => resolve(response)
+          (response: TransportAck) => { resolve(response); }
         );
       });
 
@@ -50,7 +50,7 @@ describe('transport adapter — intent namespace', () => {
       client = await createNamespaceClient(harness, '/intents');
 
       const ack = await new Promise<TransportAck>((resolve) => {
-        client!.emit(INTENT_EVENT, 'not-an-object', (response: TransportAck) => resolve(response));
+        client!.emit(INTENT_EVENT, 'not-an-object', (response: TransportAck) => { resolve(response); });
       });
 
       expect(ack.ok).toBe(false);
@@ -72,11 +72,11 @@ describe('transport adapter — intent namespace', () => {
       client = await createNamespaceClient(harness, '/intents');
 
       const errorEvent = new Promise<TransportAck>((resolve) => {
-        client!.once(INTENT_ERROR_EVENT, (payload: TransportAck) => resolve(payload));
+        client!.once(INTENT_ERROR_EVENT, (payload: TransportAck) => { resolve(payload); });
       });
 
       const ack = await new Promise<TransportAck>((resolve) => {
-        client!.emit('telemetry:rogue', { attempt: true }, (response: TransportAck) => resolve(response));
+        client!.emit('telemetry:rogue', { attempt: true }, (response: TransportAck) => { resolve(response); });
       });
 
       const emitted = await errorEvent;
@@ -107,7 +107,7 @@ describe('transport adapter — intent namespace', () => {
         client!.emit(
           INTENT_EVENT,
           { type: 'workforce.raise.accept', employeeId: '04369c77-7cbf-4094-8510-fccf35a20392' },
-          (response: TransportAck) => resolve(response)
+          (response: TransportAck) => { resolve(response); }
         );
       });
 
