@@ -151,7 +151,7 @@ export function evaluatePestDiseaseSystem(
   const previousRiskStates = new Map(
     health.pestDisease.zoneRisks.map((entry) => [entry.zoneId, entry]),
   );
-  const existingTaskIds = indexExistingTasks(world.workforce?.taskQueue ?? []);
+  const existingTaskIds = indexExistingTasks(world.workforce.taskQueue);
   const supportsInspection = Boolean(findDefinition(world.workforce, PEST_INSPECTION_TASK_CODE));
   const supportsTreatment = Boolean(findDefinition(world.workforce, PEST_TREATMENT_TASK_CODE));
 

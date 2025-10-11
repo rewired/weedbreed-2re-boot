@@ -1,4 +1,5 @@
 import type { EmployeePlan } from '../types.ts';
+import { DEFAULT_EMPLOYEE_SHIFT_HOURS } from '../../../constants/simConstants.ts';
 
 export const BREAK_DURATION_MINUTES = 30;
 
@@ -8,20 +9,20 @@ export const EMPLOYEES: readonly EmployeePlan[] = [
     slug: 'lead-grower',
     name: 'Lead Grower',
     role: 'grower',
-    shiftHours: 8,
+    shiftHours: DEFAULT_EMPLOYEE_SHIFT_HOURS,
   },
   {
     id: '7f20f2f2-bd0c-48ae-b30a-8c0807f67641',
     slug: 'post-harvest-tech',
     name: 'Post Harvest Tech',
     role: 'trimmer',
-    shiftHours: 8,
+    shiftHours: DEFAULT_EMPLOYEE_SHIFT_HOURS,
   },
   {
     id: 'a20958ae-f0e8-4e41-b391-2a8ea56f4baf',
     slug: 'facility-janitor',
     name: 'Facility Janitor',
     role: 'janitor',
-    shiftHours: 8,
+    shiftHours: DEFAULT_EMPLOYEE_SHIFT_HOURS,
   },
 ];

@@ -141,16 +141,15 @@ export function createHumidityActuatorStub(): IHumidityActuator {
         });
       }
 
-      if (mode === 'humidify') {
-        const humidityFactor = getHumidityFactor_k_rh(envState.airTemperatureC);
-        const deltaRH01 = (humidityFactor * (tickCapacity_g / resolvedAirMass)) / 100;
+      // mode === 'humidify' at this point
+      const humidityFactor = getHumidityFactor_k_rh(envState.airTemperatureC);
+      const deltaRH01 = (humidityFactor * (tickCapacity_g / resolvedAirMass)) / 100;
 
-        return ensureFiniteOutputs({
-          deltaRH01,
-          water_g: -tickCapacity_g,
-          energy_Wh: 0
-        });
-      }
+      return ensureFiniteOutputs({
+        deltaRH01,
+        water_g: -tickCapacity_g,
+        energy_Wh: 0
+      });
 
       throw new Error('Unsupported humidity actuator mode');
     }

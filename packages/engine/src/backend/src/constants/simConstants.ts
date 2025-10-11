@@ -141,6 +141,242 @@ export interface SimulationConstants {
    * Default country name used for company headquarters metadata.
    */
   readonly DEFAULT_COMPANY_LOCATION_COUNTRY: string;
+  /**
+   * Base yield per square meter for harvest calculations.
+   */
+  readonly BASE_YIELD_PER_M2_KG: number;
+  /**
+   * Screen-of-green cultivation method yield modifier.
+   */
+  readonly SCREEN_OF_GREEN_YIELD_MODIFIER: number;
+  /**
+   * Minimum yield variation factor.
+   */
+  readonly MIN_YIELD_VARIATION: number;
+  /**
+   * Maximum yield variation factor.
+   */
+  readonly MAX_YIELD_VARIATION: number;
+  /**
+   * Maximum age modifier reduction factor.
+   */
+  readonly MAX_AGE_MODIFIER_REDUCTION: number;
+  /**
+   * Age modifier per cycle factor.
+   */
+  readonly AGE_MODIFIER_PER_CYCLE: number;
+  /**
+   * Default trait strength minimum.
+   */
+  readonly DEFAULT_TRAIT_STRENGTH_MIN: number;
+  /**
+   * Default trait strength maximum.
+   */
+  readonly DEFAULT_TRAIT_STRENGTH_MAX: number;
+  /**
+   * Green thumb trait strength minimum.
+   */
+  readonly GREEN_THUMB_TRAIT_STRENGTH_MIN: number;
+  /**
+   * Green thumb trait strength maximum.
+   */
+  readonly GREEN_THUMB_TRAIT_STRENGTH_MAX: number;
+  /**
+   * Green thumb task duration multiplier factor.
+   */
+  readonly GREEN_THUMB_TASK_DURATION_FACTOR: number;
+  /**
+   * Green thumb task error delta factor.
+   */
+  readonly GREEN_THUMB_TASK_ERROR_FACTOR: number;
+  /**
+   * Green thumb XP rate multiplier factor.
+   */
+  readonly GREEN_THUMB_XP_RATE_FACTOR: number;
+  /**
+   * Night owl trait strength minimum.
+   */
+  readonly NIGHT_OWL_TRAIT_STRENGTH_MIN: number;
+  /**
+   * Night owl trait strength maximum.
+   */
+  readonly NIGHT_OWL_TRAIT_STRENGTH_MAX: number;
+  /**
+   * Night owl task duration factor.
+   */
+  readonly NIGHT_OWL_TASK_DURATION_FACTOR: number;
+  /**
+   * Night owl fatigue factor.
+   */
+  readonly NIGHT_OWL_FATIGUE_FACTOR: number;
+  /**
+   * Night owl morale delta factor.
+   */
+  readonly NIGHT_OWL_MORALE_FACTOR: number;
+  /**
+   * Night owl start hour.
+   */
+  readonly NIGHT_OWL_START_HOUR: number;
+  /**
+   * Night owl end hour.
+   */
+  readonly NIGHT_OWL_END_HOUR: number;
+  /**
+   * Quick learner trait strength minimum.
+   */
+  readonly QUICK_LEARNER_TRAIT_STRENGTH_MIN: number;
+  /**
+   * Quick learner trait strength maximum.
+   */
+  readonly QUICK_LEARNER_TRAIT_STRENGTH_MAX: number;
+  /**
+   * Quick learner XP rate multiplier.
+   */
+  readonly QUICK_LEARNER_XP_RATE_MULTIPLIER: number;
+  /**
+   * Optimist morale delta.
+   */
+  readonly OPTIMIST_MORALE_DELTA: number;
+  /**
+   * Gearhead trait strength minimum.
+   */
+  readonly GEARHEAD_TRAIT_STRENGTH_MIN: number;
+  /**
+   * Gearhead trait strength maximum.
+   */
+  readonly GEARHEAD_TRAIT_STRENGTH_MAX: number;
+  /**
+   * Gearhead device wear factor.
+   */
+  readonly GEARHEAD_DEVICE_WEAR_FACTOR: number;
+  /**
+   * Gearhead task error factor.
+   */
+  readonly GEARHEAD_TASK_ERROR_FACTOR: number;
+  /**
+   * Frugal salary reduction minimum.
+   */
+  readonly FRUGAL_SALARY_REDUCTION_MIN: number;
+  /**
+   * Frugal salary reduction factor.
+   */
+  readonly FRUGAL_SALARY_REDUCTION_FACTOR: number;
+  /**
+   * Meticulous task error factor when skill applies.
+   */
+  readonly METICULOUS_TASK_ERROR_FACTOR_SKILL: number;
+  /**
+   * Meticulous task error factor when skill doesn't apply.
+   */
+  readonly METICULOUS_TASK_ERROR_FACTOR_NO_SKILL: number;
+  /**
+   * Meticulous fatigue factor.
+   */
+  readonly METICULOUS_FATIGUE_FACTOR: number;
+  /**
+   * Clumsy task error factor.
+   */
+  readonly CLUMSY_TASK_ERROR_FACTOR: number;
+  /**
+   * Clumsy device wear factor.
+   */
+  readonly CLUMSY_DEVICE_WEAR_FACTOR: number;
+  /**
+   * Slacker task duration factor.
+   */
+  readonly SLACKER_TASK_DURATION_FACTOR: number;
+  /**
+   * Slacker fatigue factor.
+   */
+  readonly SLACKER_FATIGUE_FACTOR: number;
+  /**
+   * Slacker XP rate factor.
+   */
+  readonly SLACKER_XP_RATE_FACTOR: number;
+  /**
+   * Pessimist morale delta.
+   */
+  readonly PESSIMIST_MORALE_DELTA: number;
+  /**
+   * Forgetful task duration factor.
+   */
+  readonly FORGETFUL_TASK_DURATION_FACTOR: number;
+  /**
+   * Forgetful task error factor.
+   */
+  readonly FORGETFUL_TASK_ERROR_FACTOR: number;
+  /**
+   * Demanding salary premium minimum.
+   */
+  readonly DEMANDING_SALARY_PREMIUM_MIN: number;
+  /**
+   * Demanding salary premium factor.
+   */
+  readonly DEMANDING_SALARY_PREMIUM_FACTOR: number;
+  /**
+   * Slow learner XP rate multiplier.
+   */
+  readonly SLOW_LEARNER_XP_RATE_MULTIPLIER: number;
+  /**
+   * Multiplier clamp minimum.
+   */
+  readonly MULTIPLIER_CLAMP_MIN: number;
+  /**
+   * Multiplier clamp maximum.
+   */
+  readonly MULTIPLIER_CLAMP_MAX: number;
+  /**
+   * Default employee shift hours.
+   */
+  readonly DEFAULT_EMPLOYEE_SHIFT_HOURS: number;
+  /**
+   * Default room height in recipes.
+   */
+  readonly DEFAULT_RECIPE_ROOM_HEIGHT_M: number;
+  /**
+   * Default zone floor area in recipes.
+   */
+  readonly DEFAULT_RECIPE_ZONE_FLOOR_AREA_M2: number;
+  /**
+   * First harvest day for zone 1.
+   */
+  readonly ZONE_1_FIRST_HARVEST_DAY: number;
+  /**
+   * Cycle length days for zone 1.
+   */
+  readonly ZONE_1_CYCLE_LENGTH_DAYS: number;
+  /**
+   * First harvest day for zone 2.
+   */
+  readonly ZONE_2_FIRST_HARVEST_DAY: number;
+  /**
+   * Cycle length days for zone 2.
+   */
+  readonly ZONE_2_CYCLE_LENGTH_DAYS: number;
+  /**
+   * First harvest day for zone 3.
+   */
+  readonly ZONE_3_FIRST_HARVEST_DAY: number;
+  /**
+   * Cycle length days for zone 3.
+   */
+  readonly ZONE_3_CYCLE_LENGTH_DAYS: number;
+  /**
+   * First harvest day for zone 4.
+   */
+  readonly ZONE_4_FIRST_HARVEST_DAY: number;
+  /**
+   * Cycle length days for zone 4.
+   */
+  readonly ZONE_4_CYCLE_LENGTH_DAYS: number;
+  /**
+   * First harvest day for zone 5.
+   */
+  readonly ZONE_5_FIRST_HARVEST_DAY: number;
+  /**
+   * Cycle length days for zone 5.
+   */
+  readonly ZONE_5_CYCLE_LENGTH_DAYS: number;
 }
 
 /**
@@ -314,6 +550,301 @@ export const DEFAULT_COMPANY_LOCATION_CITY = 'Hamburg' as const;
 export const DEFAULT_COMPANY_LOCATION_COUNTRY = 'Deutschland' as const;
 
 /**
+ * Base yield per square meter for harvest calculations.
+ */
+export const BASE_YIELD_PER_M2_KG = 0.42 as const;
+
+/**
+ * Screen-of-green cultivation method yield modifier.
+ */
+export const SCREEN_OF_GREEN_YIELD_MODIFIER = 1.12 as const;
+
+/**
+ * Minimum yield variation factor.
+ */
+export const MIN_YIELD_VARIATION = 0.9 as const;
+
+/**
+ * Maximum yield variation factor.
+ */
+export const MAX_YIELD_VARIATION = 0.2 as const;
+
+/**
+ * Maximum age modifier reduction factor.
+ */
+export const MAX_AGE_MODIFIER_REDUCTION = 0.1 as const;
+
+/**
+ * Age modifier per cycle factor.
+ */
+export const AGE_MODIFIER_PER_CYCLE = 0.015 as const;
+
+/**
+ * Default trait strength minimum.
+ */
+export const DEFAULT_TRAIT_STRENGTH_MIN = 0.35 as const;
+
+/**
+ * Default trait strength maximum.
+ */
+export const DEFAULT_TRAIT_STRENGTH_MAX = 0.75 as const;
+
+/**
+ * Green thumb trait strength minimum.
+ */
+export const GREEN_THUMB_TRAIT_STRENGTH_MIN = 0.45 as const;
+
+/**
+ * Green thumb trait strength maximum.
+ */
+export const GREEN_THUMB_TRAIT_STRENGTH_MAX = 0.8 as const;
+
+/**
+ * Green thumb task duration multiplier factor.
+ */
+export const GREEN_THUMB_TASK_DURATION_FACTOR = 0.18 as const;
+
+/**
+ * Green thumb task error delta factor.
+ */
+export const GREEN_THUMB_TASK_ERROR_FACTOR = 0.03 as const;
+
+/**
+ * Green thumb XP rate multiplier factor.
+ */
+export const GREEN_THUMB_XP_RATE_FACTOR = 0.08 as const;
+
+/**
+ * Night owl trait strength minimum.
+ */
+export const NIGHT_OWL_TRAIT_STRENGTH_MIN = 0.1 as const;
+
+/**
+ * Night owl trait strength maximum.
+ */
+export const NIGHT_OWL_TRAIT_STRENGTH_MAX = 0.2 as const;
+
+/**
+ * Night owl task duration factor.
+ */
+export const NIGHT_OWL_TASK_DURATION_FACTOR = 0.1 as const;
+
+/**
+ * Night owl fatigue factor.
+ */
+export const NIGHT_OWL_FATIGUE_FACTOR = 0.2 as const;
+
+/**
+ * Night owl morale delta factor.
+ */
+export const NIGHT_OWL_MORALE_FACTOR = 0.02 as const;
+
+/**
+ * Night owl start hour.
+ */
+export const NIGHT_OWL_START_HOUR = 20 as const;
+
+/**
+ * Night owl end hour.
+ */
+export const NIGHT_OWL_END_HOUR = 6 as const;
+
+/**
+ * Quick learner trait strength minimum.
+ */
+export const QUICK_LEARNER_TRAIT_STRENGTH_MIN = 0.55 as const;
+
+/**
+ * Quick learner trait strength maximum.
+ */
+export const QUICK_LEARNER_TRAIT_STRENGTH_MAX = 0.85 as const;
+
+/**
+ * Quick learner XP rate multiplier.
+ */
+export const QUICK_LEARNER_XP_RATE_MULTIPLIER = 1.2 as const;
+
+/**
+ * Optimist morale delta.
+ */
+export const OPTIMIST_MORALE_DELTA = 0.03 as const;
+
+/**
+ * Gearhead trait strength minimum.
+ */
+export const GEARHEAD_TRAIT_STRENGTH_MIN = 0.4 as const;
+
+/**
+ * Gearhead trait strength maximum.
+ */
+export const GEARHEAD_TRAIT_STRENGTH_MAX = 0.7 as const;
+
+/**
+ * Gearhead device wear factor.
+ */
+export const GEARHEAD_DEVICE_WEAR_FACTOR = 0.25 as const;
+
+/**
+ * Gearhead task error factor.
+ */
+export const GEARHEAD_TASK_ERROR_FACTOR = 0.02 as const;
+
+/**
+ * Frugal salary reduction minimum.
+ */
+export const FRUGAL_SALARY_REDUCTION_MIN = 0.5 as const;
+
+/**
+ * Frugal salary reduction factor.
+ */
+export const FRUGAL_SALARY_REDUCTION_FACTOR = 0.05 as const;
+
+/**
+ * Meticulous task error factor when skill applies.
+ */
+export const METICULOUS_TASK_ERROR_FACTOR_SKILL = 0.05 as const;
+
+/**
+ * Meticulous task error factor when skill doesn't apply.
+ */
+export const METICULOUS_TASK_ERROR_FACTOR_NO_SKILL = 0.02 as const;
+
+/**
+ * Meticulous fatigue factor.
+ */
+export const METICULOUS_FATIGUE_FACTOR = 0.05 as const;
+
+/**
+ * Clumsy task error factor.
+ */
+export const CLUMSY_TASK_ERROR_FACTOR = 0.06 as const;
+
+/**
+ * Clumsy device wear factor.
+ */
+export const CLUMSY_DEVICE_WEAR_FACTOR = 0.12 as const;
+
+/**
+ * Slacker task duration factor.
+ */
+export const SLACKER_TASK_DURATION_FACTOR = 0.12 as const;
+
+/**
+ * Slacker fatigue factor.
+ */
+export const SLACKER_FATIGUE_FACTOR = 0.18 as const;
+
+/**
+ * Slacker XP rate factor.
+ */
+export const SLACKER_XP_RATE_FACTOR = 0.08 as const;
+
+/**
+ * Pessimist morale delta.
+ */
+export const PESSIMIST_MORALE_DELTA = -0.035 as const;
+
+/**
+ * Forgetful task duration factor.
+ */
+export const FORGETFUL_TASK_DURATION_FACTOR = 0.08 as const;
+
+/**
+ * Forgetful task error factor.
+ */
+export const FORGETFUL_TASK_ERROR_FACTOR = 0.025 as const;
+
+/**
+ * Demanding salary premium minimum.
+ */
+export const DEMANDING_SALARY_PREMIUM_MIN = 1 as const;
+
+/**
+ * Demanding salary premium factor.
+ */
+export const DEMANDING_SALARY_PREMIUM_FACTOR = 0.08 as const;
+
+/**
+ * Slow learner XP rate multiplier.
+ */
+export const SLOW_LEARNER_XP_RATE_MULTIPLIER = 0.82 as const;
+
+/**
+ * Multiplier clamp minimum.
+ */
+export const MULTIPLIER_CLAMP_MIN = 0.25 as const;
+
+/**
+ * Multiplier clamp maximum.
+ */
+export const MULTIPLIER_CLAMP_MAX = 1.75 as const;
+
+/**
+ * Default employee shift hours.
+ */
+export const DEFAULT_EMPLOYEE_SHIFT_HOURS = 8 as const;
+
+/**
+ * Default room height in recipes.
+ */
+export const DEFAULT_RECIPE_ROOM_HEIGHT_M = 3 as const;
+
+/**
+ * Default zone floor area in recipes.
+ */
+export const DEFAULT_RECIPE_ZONE_FLOOR_AREA_M2 = 20 as const;
+
+/**
+ * First harvest day for zone 1.
+ */
+export const ZONE_1_FIRST_HARVEST_DAY = 24 as const;
+
+/**
+ * Cycle length days for zone 1.
+ */
+export const ZONE_1_CYCLE_LENGTH_DAYS = 56 as const;
+
+/**
+ * First harvest day for zone 2.
+ */
+export const ZONE_2_FIRST_HARVEST_DAY = 26 as const;
+
+/**
+ * Cycle length days for zone 2.
+ */
+export const ZONE_2_CYCLE_LENGTH_DAYS = 63 as const;
+
+/**
+ * First harvest day for zone 3.
+ */
+export const ZONE_3_FIRST_HARVEST_DAY = 28 as const;
+
+/**
+ * Cycle length days for zone 3.
+ */
+export const ZONE_3_CYCLE_LENGTH_DAYS = 52 as const;
+
+/**
+ * First harvest day for zone 4.
+ */
+export const ZONE_4_FIRST_HARVEST_DAY = 30 as const;
+
+/**
+ * Cycle length days for zone 4.
+ */
+export const ZONE_4_CYCLE_LENGTH_DAYS = 60 as const;
+
+/**
+ * First harvest day for zone 5.
+ */
+export const ZONE_5_FIRST_HARVEST_DAY = 32 as const;
+
+/**
+ * Cycle length days for zone 5.
+ */
+export const ZONE_5_CYCLE_LENGTH_DAYS = 58 as const;
+
+/**
  * Single source of truth that stores the canonical simulation constants.
  *
  * The registry is frozen once to guarantee immutability and shared between
@@ -349,7 +880,66 @@ const SIMULATION_CONSTANT_REGISTRY = Object.freeze({
   LATITUDE_MIN_DEG,
   LATITUDE_MAX_DEG,
   DEFAULT_COMPANY_LOCATION_CITY,
-  DEFAULT_COMPANY_LOCATION_COUNTRY
+  DEFAULT_COMPANY_LOCATION_COUNTRY,
+  BASE_YIELD_PER_M2_KG,
+  SCREEN_OF_GREEN_YIELD_MODIFIER,
+  MIN_YIELD_VARIATION,
+  MAX_YIELD_VARIATION,
+  MAX_AGE_MODIFIER_REDUCTION,
+  AGE_MODIFIER_PER_CYCLE,
+  DEFAULT_TRAIT_STRENGTH_MIN,
+  DEFAULT_TRAIT_STRENGTH_MAX,
+  GREEN_THUMB_TRAIT_STRENGTH_MIN,
+  GREEN_THUMB_TRAIT_STRENGTH_MAX,
+  GREEN_THUMB_TASK_DURATION_FACTOR,
+  GREEN_THUMB_TASK_ERROR_FACTOR,
+  GREEN_THUMB_XP_RATE_FACTOR,
+  NIGHT_OWL_TRAIT_STRENGTH_MIN,
+  NIGHT_OWL_TRAIT_STRENGTH_MAX,
+  NIGHT_OWL_TASK_DURATION_FACTOR,
+  NIGHT_OWL_FATIGUE_FACTOR,
+  NIGHT_OWL_MORALE_FACTOR,
+  NIGHT_OWL_START_HOUR,
+  NIGHT_OWL_END_HOUR,
+  QUICK_LEARNER_TRAIT_STRENGTH_MIN,
+  QUICK_LEARNER_TRAIT_STRENGTH_MAX,
+  QUICK_LEARNER_XP_RATE_MULTIPLIER,
+  OPTIMIST_MORALE_DELTA,
+  GEARHEAD_TRAIT_STRENGTH_MIN,
+  GEARHEAD_TRAIT_STRENGTH_MAX,
+  GEARHEAD_DEVICE_WEAR_FACTOR,
+  GEARHEAD_TASK_ERROR_FACTOR,
+  FRUGAL_SALARY_REDUCTION_MIN,
+  FRUGAL_SALARY_REDUCTION_FACTOR,
+  METICULOUS_TASK_ERROR_FACTOR_SKILL,
+  METICULOUS_TASK_ERROR_FACTOR_NO_SKILL,
+  METICULOUS_FATIGUE_FACTOR,
+  CLUMSY_TASK_ERROR_FACTOR,
+  CLUMSY_DEVICE_WEAR_FACTOR,
+  SLACKER_TASK_DURATION_FACTOR,
+  SLACKER_FATIGUE_FACTOR,
+  SLACKER_XP_RATE_FACTOR,
+  PESSIMIST_MORALE_DELTA,
+  FORGETFUL_TASK_DURATION_FACTOR,
+  FORGETFUL_TASK_ERROR_FACTOR,
+  DEMANDING_SALARY_PREMIUM_MIN,
+  DEMANDING_SALARY_PREMIUM_FACTOR,
+  SLOW_LEARNER_XP_RATE_MULTIPLIER,
+  MULTIPLIER_CLAMP_MIN,
+  MULTIPLIER_CLAMP_MAX,
+  DEFAULT_EMPLOYEE_SHIFT_HOURS,
+  DEFAULT_RECIPE_ROOM_HEIGHT_M,
+  DEFAULT_RECIPE_ZONE_FLOOR_AREA_M2,
+  ZONE_1_FIRST_HARVEST_DAY,
+  ZONE_1_CYCLE_LENGTH_DAYS,
+  ZONE_2_FIRST_HARVEST_DAY,
+  ZONE_2_CYCLE_LENGTH_DAYS,
+  ZONE_3_FIRST_HARVEST_DAY,
+  ZONE_3_CYCLE_LENGTH_DAYS,
+  ZONE_4_FIRST_HARVEST_DAY,
+  ZONE_4_CYCLE_LENGTH_DAYS,
+  ZONE_5_FIRST_HARVEST_DAY,
+  ZONE_5_CYCLE_LENGTH_DAYS
 } satisfies Readonly<SimulationConstants>);
 
 /**

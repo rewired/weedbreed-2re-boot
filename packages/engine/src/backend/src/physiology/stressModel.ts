@@ -15,7 +15,12 @@ function toStageEnvBand(
     return candidate ?? accessor(envBands.default);
   }
 
-  if (lifecycleStage === 'seedling' || lifecycleStage === 'vegetative') {
+  if (lifecycleStage === 'seedling') {
+    const candidate = envBands.veg ? accessor(envBands.veg) : undefined;
+    return candidate ?? accessor(envBands.default);
+  }
+
+  if (lifecycleStage === 'vegetative') {
     const candidate = envBands.veg ? accessor(envBands.veg) : undefined;
     return candidate ?? accessor(envBands.default);
   }

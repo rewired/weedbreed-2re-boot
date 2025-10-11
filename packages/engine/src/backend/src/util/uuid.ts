@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import type { Uuid } from '../domain/schemas/primitives.ts';
 import type { EmployeeRngSeedUuid } from '../domain/workforce/Employee.ts';
 
-function formatUuid<T extends string>(bytes: Uint8Array): T {
+function formatUuid(bytes: Uint8Array): string {
   const hex = Buffer.from(bytes).toString('hex');
   const parts = [
     hex.slice(0, 8),
@@ -12,7 +12,7 @@ function formatUuid<T extends string>(bytes: Uint8Array): T {
     hex.slice(16, 20),
     hex.slice(20, 32)
   ];
-  return parts.join('-') as T;
+  return parts.join('-');
 }
 
 export function deterministicUuid(seed: string, streamId: string): Uuid {
@@ -26,7 +26,7 @@ export function deterministicUuid(seed: string, streamId: string): Uuid {
   uuidBytes[6] = (uuidBytes[6] & 0x0f) | 0x40;
   uuidBytes[8] = (uuidBytes[8] & 0x3f) | 0x80;
 
-  return formatUuid<Uuid>(uuidBytes);
+  return formatUuid(uuidBytes) as Uuid;
 }
 
 export function deterministicUuidV7(
@@ -43,5 +43,5 @@ export function deterministicUuidV7(
   uuidBytes[6] = (uuidBytes[6] & 0x0f) | 0x70;
   uuidBytes[8] = (uuidBytes[8] & 0x3f) | 0x80;
 
-  return formatUuid<EmployeeRngSeedUuid>(uuidBytes);
+  return formatUuid(uuidBytes) as EmployeeRngSeedUuid;
 }

@@ -19,7 +19,7 @@ function emitEvent(
     return;
   }
 
-  if (!payload || typeof payload !== 'object') {
+  if (typeof payload !== 'object') {
     return;
   }
 

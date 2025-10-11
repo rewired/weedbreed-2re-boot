@@ -23,6 +23,14 @@ import type {
   ZonePlan,
 } from '../types.ts';
 import { EPS_ABS, EPS_REL, computeSummaryHash, recordDailyHash } from '../verify/hashes.ts';
+import { 
+  BASE_YIELD_PER_M2_KG, 
+  SCREEN_OF_GREEN_YIELD_MODIFIER, 
+  MIN_YIELD_VARIATION, 
+  MAX_YIELD_VARIATION, 
+  MAX_AGE_MODIFIER_REDUCTION, 
+  AGE_MODIFIER_PER_CYCLE 
+} from '../../../constants/simConstants.ts';
 
 function deterministicUuid(seed: string): string {
   const digest = createHash('sha256').update(seed).digest('hex');
@@ -56,11 +64,11 @@ function computeAirChangesPerHour(
 }
 
 function computeHarvestYieldKg(zone: ZonePlan, cycleIndex: number, rng: () => number): number {
-  const baseYieldPerM2 = 0.42;
-  const methodModifier = zone.cultivationMethod.slug === 'screen-of-green' ? 1.12 : 1;
-  const variation = 0.9 + rng() * 0.2;
+  const baseYieldPerM2 = BASE_YIELD_PER_M2_KG;
+  const methodModifier = zone.cultivationMethod.slug === 'screen-of-green' ? SCREEN_OF_GREEN_YIELD_MODIFIER : 1;
+  const variation = MIN_YIELD_VARIATION + rng() * MAX_YIELD_VARIATION;
   const productivity = zone.floorArea_m2 * baseYieldPerM2 * methodModifier * variation;
-  const ageModifier = 1 - Math.min(0.1, cycleIndex * 0.015);
+  const ageModifier = 1 - Math.min(MAX_AGE_MODIFIER_REDUCTION, cycleIndex * AGE_MODIFIER_PER_CYCLE);
   return Number((productivity * ageModifier).toFixed(3));
 }
 

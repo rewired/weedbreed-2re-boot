@@ -1,6 +1,7 @@
 import type { ZonePlan } from '../types.ts';
 
 import { ZONE_PLANS } from './zones.ts';
+import { DEFAULT_RECIPE_ROOM_HEIGHT_M, DEFAULT_RECIPE_ZONE_FLOOR_AREA_M2 } from '../../../constants/simConstants.ts';
 
 export interface RoomRecipe {
   readonly id: string;
@@ -23,23 +24,23 @@ export const ROOM_RECIPES: readonly RoomRecipe[] = [
     slug: 'grow-room',
     purpose: 'growroom',
     floorArea_m2: 100,
-    height_m: 3,
+    height_m: DEFAULT_RECIPE_ROOM_HEIGHT_M,
     zones: ZONE_PLANS,
   },
   {
     id: STORAGE_ROOM_ID,
     slug: 'storage-room',
     purpose: 'storageroom',
-    floorArea_m2: 20,
-    height_m: 3,
+    floorArea_m2: DEFAULT_RECIPE_ZONE_FLOOR_AREA_M2,
+    height_m: DEFAULT_RECIPE_ROOM_HEIGHT_M,
     zones: [],
   },
   {
     id: BREAK_ROOM_ID,
     slug: 'break-room',
     purpose: 'breakroom',
-    floorArea_m2: 20,
-    height_m: 3,
+    floorArea_m2: DEFAULT_RECIPE_ZONE_FLOOR_AREA_M2,
+    height_m: DEFAULT_RECIPE_ROOM_HEIGHT_M,
     zones: [],
   },
 ];

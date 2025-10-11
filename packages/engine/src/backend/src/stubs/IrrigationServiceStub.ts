@@ -139,7 +139,7 @@ export function createIrrigationServiceStub(
         return zeroOutputs();
       }
 
-      const events = Array.isArray(inputs.events) ? inputs.events : [];
+      const events = Array.isArray(inputs.events) ? inputs.events as IrrigationEvent[] : [];
 
       if (events.length === 0) {
         return zeroOutputs();

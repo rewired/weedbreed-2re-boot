@@ -1,6 +1,5 @@
 import {
   CP_AIR_J_PER_KG_K,
-  HOURS_PER_TICK,
   SECONDS_PER_HOUR
 } from '../constants/simConstants.ts';
 import type {
@@ -115,7 +114,8 @@ export function createThermalActuatorStub(): IThermalActuator {
             resolvedAirMass,
           ),
         );
-      } else if (mode === 'cool') {
+      } else {
+        // mode === 'cool' at this point
         return ensureFiniteOutputs(
           computeCoolingEffect(
             powerDraw_W,

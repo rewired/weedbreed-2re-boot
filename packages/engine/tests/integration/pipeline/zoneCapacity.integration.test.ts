@@ -12,7 +12,7 @@ import {
 } from '@/backend/src/engine/pipeline/applyDeviceEffects';
 import { updateEnvironment } from '@/backend/src/engine/pipeline/updateEnvironment';
 import { createDemoWorld } from '@/backend/src/engine/testHarness';
-import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat';
+import { createThermalActuatorStub } from '@/backend/src/stubs/ThermalActuatorStub';
 import {
   type DeviceQualityPolicy,
   type ZoneDeviceInstance,
@@ -102,10 +102,19 @@ describe('Phase 1 zone capacity diagnostics', () => {
 
     const runtime = expectDefined(getDeviceEffectsRuntime(ctx));
 
-    const rawDeltaC = applyDeviceHeat(zone, heater, HOURS_PER_TICK);
+    const actuator = createThermalActuatorStub();
+    const inputs = {
+      mode: 'heat' as const,
+      power_W: heater.powerDraw_W,
+      efficiency01: heater.efficiency01,
+      dutyCycle01: heater.dutyCycle01,
+      max_heat_W: undefined
+    };
+    const envState = { airTemperatureC: 25 };
+    const result = actuator.computeEffect(inputs, envState, zone.airMass_kg, HOURS_PER_TICK);
     const recordedDeltaC = runtime.zoneTemperatureDeltaC.get(zone.id) ?? 0;
 
-    expect(recordedDeltaC).toBeCloseTo(rawDeltaC * 0.5, 6);
+    expect(recordedDeltaC).toBeCloseTo(result.deltaT_K * 0.5, 6);
     expect(runtime.zoneCoverageTotals_m2.get(zone.id)).toBeCloseTo(10);
     expect(runtime.zoneCoverageEffectiveness01.get(zone.id)).toBeCloseTo(0.5);
 

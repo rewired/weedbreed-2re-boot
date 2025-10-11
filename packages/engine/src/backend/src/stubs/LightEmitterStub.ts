@@ -5,7 +5,7 @@ import type {
   LightEmitterInputs,
   LightEmitterOutputs
 } from '../domain/interfaces/ILightEmitter.ts';
-import { clamp, clamp01 } from '../util/math.ts';
+import { clamp01 } from '../util/math.ts';
 import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
 
 function ensureFiniteOutputs(outputs: LightEmitterOutputs): LightEmitterOutputs {

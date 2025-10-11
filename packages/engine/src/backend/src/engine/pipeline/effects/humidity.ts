@@ -25,17 +25,16 @@ function resolveLatentDisposition(
       return 1;
     }
 
-    if (thermalInputs.mode === 'auto') {
-      if (thermalDeltaK < 0) {
-        return -1;
-      }
-
-      if (thermalDeltaK > 0) {
-        return 1;
-      }
-
-      return 0;
+    // thermalInputs.mode === 'auto' at this point
+    if (thermalDeltaK < 0) {
+      return -1;
     }
+
+    if (thermalDeltaK > 0) {
+      return 1;
+    }
+
+    return 0;
   }
 
   return 1;
@@ -78,8 +77,8 @@ function computeLatentTemperatureDelta(
 }
 
 function deriveHumidityInputs(device: ZoneDeviceInstance): HumidityActuatorInputs | null {
-  const slug = (device.slug ?? '').toLowerCase();
-  const name = (device.name ?? '').toLowerCase();
+  const slug = device.slug.toLowerCase();
+  const name = device.name.toLowerCase();
   const duty01 = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 0);
 
   if (duty01 <= 0) {

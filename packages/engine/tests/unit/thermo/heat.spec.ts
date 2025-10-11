@@ -6,7 +6,7 @@ import {
   HOURS_PER_TICK,
   SECONDS_PER_HOUR
 } from '@/backend/src/constants/simConstants';
-import { applyDeviceHeat } from '@/backend/src/engine/thermo/heat';
+import { createThermalActuatorStub } from '@/backend/src/stubs/ThermalActuatorStub';
 
 const ZONE_FLOOR_AREA_M2 = 50;
 const ZONE_HEIGHT_M = 3;
@@ -26,9 +26,20 @@ const BASE_DEVICE = {
   efficiency01: DEVICE_EFFICIENCY
 } as const;
 
-describe('applyDeviceHeat', () => {
-  it('returns a positive temperature delta for waste heat', () => {
-    const deltaC = applyDeviceHeat(BASE_ZONE, BASE_DEVICE);
+describe('ThermalActuatorStub', () => {
+  const actuator = createThermalActuatorStub();
+  const envState = { airTemperatureC: 25 };
+
+  it('returns a positive temperature delta for waste heat in heat mode', () => {
+    const inputs = {
+      mode: 'heat' as const,
+      power_W: BASE_DEVICE.powerDraw_W,
+      efficiency01: BASE_DEVICE.efficiency01,
+      dutyCycle01: BASE_DEVICE.dutyCycle01,
+      max_heat_W: undefined
+    };
+
+    const result = actuator.computeEffect(inputs, envState, BASE_ZONE.airMass_kg, HOURS_PER_TICK);
 
     const airMassKg = BASE_ZONE.airMass_kg;
     const wastePower_W =
@@ -37,34 +48,49 @@ describe('applyDeviceHeat', () => {
       (wastePower_W * HOURS_PER_TICK * SECONDS_PER_HOUR) /
       (airMassKg * CP_AIR_J_PER_KG_K);
 
-    expect(deltaC).toBeGreaterThan(0);
-    expect(deltaC).toBeCloseTo(expectedDelta, 12);
+    expect(result.deltaT_K).toBeGreaterThan(0);
+    expect(result.deltaT_K).toBeCloseTo(expectedDelta, 12);
   });
 
   it('returns zero when the duty cycle is zero', () => {
-    const deltaC = applyDeviceHeat(BASE_ZONE, {
-      ...BASE_DEVICE,
-      dutyCycle01: 0
-    });
+    const inputs = {
+      mode: 'heat' as const,
+      power_W: BASE_DEVICE.powerDraw_W,
+      efficiency01: BASE_DEVICE.efficiency01,
+      dutyCycle01: 0,
+      max_heat_W: undefined
+    };
 
-    expect(deltaC).toBe(0);
+    const result = actuator.computeEffect(inputs, envState, BASE_ZONE.airMass_kg, HOURS_PER_TICK);
+
+    expect(result.deltaT_K).toBe(0);
   });
 
   it('returns zero when efficiency equals one', () => {
-    const deltaC = applyDeviceHeat(BASE_ZONE, {
-      ...BASE_DEVICE,
-      efficiency01: 1
-    });
+    const inputs = {
+      mode: 'heat' as const,
+      power_W: BASE_DEVICE.powerDraw_W,
+      efficiency01: 1,
+      dutyCycle01: BASE_DEVICE.dutyCycle01,
+      max_heat_W: undefined
+    };
 
-    expect(deltaC).toBe(0);
+    const result = actuator.computeEffect(inputs, envState, BASE_ZONE.airMass_kg, HOURS_PER_TICK);
+
+    expect(result.deltaT_K).toBe(0);
   });
 
   it('throws an error when the efficiency lies outside the [0,1] range', () => {
+    const inputs = {
+      mode: 'heat' as const,
+      power_W: BASE_DEVICE.powerDraw_W,
+      efficiency01: 1.2,
+      dutyCycle01: BASE_DEVICE.dutyCycle01,
+      max_heat_W: undefined
+    };
+
     expect(() =>
-      applyDeviceHeat(BASE_ZONE, {
-        ...BASE_DEVICE,
-        efficiency01: 1.2
-      })
+      actuator.computeEffect(inputs, envState, BASE_ZONE.airMass_kg, HOURS_PER_TICK)
     ).toThrowError(RangeError);
   });
 });

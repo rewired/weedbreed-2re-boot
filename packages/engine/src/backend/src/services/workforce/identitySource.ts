@@ -49,7 +49,7 @@ export interface ResolveWorkforceIdentityOptions {
   readonly rngSeedUuid: EmployeeRngSeedUuid;
 }
 
-type RandomUserGender = 'male' | 'female' | string;
+type RandomUserGender = string;
 
 interface RandomUserResponse {
   readonly results?: readonly [

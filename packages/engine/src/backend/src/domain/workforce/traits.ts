@@ -4,6 +4,48 @@ import { clamp01 } from '../../util/math.ts';
 import type { RandomNumberGenerator } from '../../util/rng.ts';
 import type { EmployeeSchedule, EmployeeSkillLevel, EmployeeSkillTriad } from './Employee.ts';
 import type { WorkforceTaskDefinition } from './tasks.ts';
+import {
+  DEFAULT_TRAIT_STRENGTH_MIN,
+  DEFAULT_TRAIT_STRENGTH_MAX,
+  GREEN_THUMB_TRAIT_STRENGTH_MIN,
+  GREEN_THUMB_TRAIT_STRENGTH_MAX,
+  GREEN_THUMB_TASK_DURATION_FACTOR,
+  GREEN_THUMB_TASK_ERROR_FACTOR,
+  GREEN_THUMB_XP_RATE_FACTOR,
+  NIGHT_OWL_TRAIT_STRENGTH_MIN,
+  NIGHT_OWL_TRAIT_STRENGTH_MAX,
+  NIGHT_OWL_TASK_DURATION_FACTOR,
+  NIGHT_OWL_FATIGUE_FACTOR,
+  NIGHT_OWL_MORALE_FACTOR,
+  NIGHT_OWL_START_HOUR,
+  NIGHT_OWL_END_HOUR,
+  QUICK_LEARNER_TRAIT_STRENGTH_MIN,
+  QUICK_LEARNER_TRAIT_STRENGTH_MAX,
+  QUICK_LEARNER_XP_RATE_MULTIPLIER,
+  OPTIMIST_MORALE_DELTA,
+  GEARHEAD_TRAIT_STRENGTH_MIN,
+  GEARHEAD_TRAIT_STRENGTH_MAX,
+  GEARHEAD_DEVICE_WEAR_FACTOR,
+  GEARHEAD_TASK_ERROR_FACTOR,
+  FRUGAL_SALARY_REDUCTION_MIN,
+  FRUGAL_SALARY_REDUCTION_FACTOR,
+  METICULOUS_TASK_ERROR_FACTOR_SKILL,
+  METICULOUS_TASK_ERROR_FACTOR_NO_SKILL,
+  METICULOUS_FATIGUE_FACTOR,
+  CLUMSY_TASK_ERROR_FACTOR,
+  CLUMSY_DEVICE_WEAR_FACTOR,
+  SLACKER_TASK_DURATION_FACTOR,
+  SLACKER_FATIGUE_FACTOR,
+  SLACKER_XP_RATE_FACTOR,
+  PESSIMIST_MORALE_DELTA,
+  FORGETFUL_TASK_DURATION_FACTOR,
+  FORGETFUL_TASK_ERROR_FACTOR,
+  DEMANDING_SALARY_PREMIUM_MIN,
+  DEMANDING_SALARY_PREMIUM_FACTOR,
+  SLOW_LEARNER_XP_RATE_MULTIPLIER,
+  MULTIPLIER_CLAMP_MIN,
+  MULTIPLIER_CLAMP_MAX
+} from '../../constants/simConstants.ts';
 
 export type WorkforceTraitId = (typeof traitsJson)[number]['id'];
 export type WorkforceTraitKind = (typeof traitsJson)[number]['type'];
@@ -86,7 +128,7 @@ export interface WorkforceTraitMetadata {
   readonly focusSkills: readonly string[];
 }
 
-const DEFAULT_STRENGTH_RANGE: TraitStrengthRange = { min: 0.35, max: 0.75 };
+const DEFAULT_STRENGTH_RANGE: TraitStrengthRange = { min: DEFAULT_TRAIT_STRENGTH_MIN, max: DEFAULT_TRAIT_STRENGTH_MAX };
 
 const RAW_TRAITS = traitsJson as readonly {
   readonly id: WorkforceTraitId;
@@ -98,50 +140,50 @@ const RAW_TRAITS = traitsJson as readonly {
 const TRAIT_BEHAVIOUR: Record<WorkforceTraitId, TraitBehaviour> = {
   trait_green_thumb: {
     focusSkills: ['gardening'],
-    strengthRange: { min: 0.45, max: 0.8 },
+    strengthRange: { min: GREEN_THUMB_TRAIT_STRENGTH_MIN, max: GREEN_THUMB_TRAIT_STRENGTH_MAX },
     effects: (subject, strength01, context) => {
       const skillKeys = resolveContextSkills(context);
       const applies = skillKeys.some((skill) => skill === 'gardening');
       if (!applies) {
         return {};
       }
-      const multiplier = 1 - 0.18 * strength01;
+      const multiplier = 1 - GREEN_THUMB_TASK_DURATION_FACTOR * strength01;
       return {
         taskDurationMultiplier: clampMultiplier(multiplier),
-        taskErrorDelta: -0.03 * strength01,
-        xpRateMultiplier: 1 + 0.08 * strength01,
+        taskErrorDelta: -GREEN_THUMB_TASK_ERROR_FACTOR * strength01,
+        xpRateMultiplier: 1 + GREEN_THUMB_XP_RATE_FACTOR * strength01,
       } satisfies TraitEffectContribution;
     },
   },
   trait_night_owl: {
     effects: (_subject, strength01, context) => {
       const hour = context.hourOfDay ?? 12;
-      const isNight = hour >= 20 || hour < 6;
+      const isNight = hour >= NIGHT_OWL_START_HOUR || hour < NIGHT_OWL_END_HOUR;
       if (!isNight) {
         return {};
       }
       return {
-        taskDurationMultiplier: clampMultiplier(1 - 0.1 * strength01),
-        fatigueMultiplier: clampMultiplier(1 - 0.2 * strength01),
-        moraleDelta: 0.02 * strength01,
+        taskDurationMultiplier: clampMultiplier(1 - NIGHT_OWL_TASK_DURATION_FACTOR * strength01),
+        fatigueMultiplier: clampMultiplier(1 - NIGHT_OWL_FATIGUE_FACTOR * strength01),
+        moraleDelta: NIGHT_OWL_MORALE_FACTOR * strength01,
       } satisfies TraitEffectContribution;
     },
   },
   trait_quick_learner: {
     conflictsWith: ['trait_slow_learner'],
-    strengthRange: { min: 0.55, max: 0.85 },
-    effects: () => ({ xpRateMultiplier: 1.2 }),
+    strengthRange: { min: QUICK_LEARNER_TRAIT_STRENGTH_MIN, max: QUICK_LEARNER_TRAIT_STRENGTH_MAX },
+    effects: () => ({ xpRateMultiplier: QUICK_LEARNER_XP_RATE_MULTIPLIER }),
   },
   trait_optimist: {
     conflictsWith: ['trait_pessimist'],
-    effects: () => ({ moraleDelta: 0.03 }),
+    effects: () => ({ moraleDelta: OPTIMIST_MORALE_DELTA }),
   },
   trait_gearhead: {
     focusSkills: ['maintenance'],
-    strengthRange: { min: 0.4, max: 0.7 },
+    strengthRange: { min: GEARHEAD_TRAIT_STRENGTH_MIN, max: GEARHEAD_TRAIT_STRENGTH_MAX },
     effects: (_subject, strength01) => ({
-      deviceWearMultiplier: clampMultiplier(1 - 0.25 * strength01),
-      taskErrorDelta: -0.02 * strength01,
+      deviceWearMultiplier: clampMultiplier(1 - GEARHEAD_DEVICE_WEAR_FACTOR * strength01),
+      taskErrorDelta: -GEARHEAD_TASK_ERROR_FACTOR * strength01,
     }),
   },
   trait_frugal: {
@@ -149,7 +191,7 @@ const TRAIT_BEHAVIOUR: Record<WorkforceTraitId, TraitBehaviour> = {
     economyHint: 'Accepts a lower base salary expectation.',
     effects: (_subject, strength01, _context, base) => {
       const baseline = base.salaryExpectation_per_h ?? 0;
-      const reduction = Math.max(0.5, baseline * 0.05) * strength01;
+      const reduction = Math.max(FRUGAL_SALARY_REDUCTION_MIN, baseline * FRUGAL_SALARY_REDUCTION_FACTOR) * strength01;
       return { salaryExpectationDelta_per_h: -reduction } satisfies TraitEffectContribution;
     },
   },
@@ -160,34 +202,34 @@ const TRAIT_BEHAVIOUR: Record<WorkforceTraitId, TraitBehaviour> = {
       const skillKeys = resolveContextSkills(context);
       const applies = skillKeys.some((skill) => skill === 'cleanliness');
       return {
-        taskErrorDelta: applies ? -0.05 * strength01 : -0.02 * strength01,
-        fatigueMultiplier: clampMultiplier(1 - 0.05 * strength01),
+        taskErrorDelta: applies ? -METICULOUS_TASK_ERROR_FACTOR_SKILL * strength01 : -METICULOUS_TASK_ERROR_FACTOR_NO_SKILL * strength01,
+        fatigueMultiplier: clampMultiplier(1 - METICULOUS_FATIGUE_FACTOR * strength01),
       } satisfies TraitEffectContribution;
     },
   },
   trait_clumsy: {
     conflictsWith: ['trait_meticulous'],
     effects: (_subject, strength01) => ({
-      taskErrorDelta: 0.06 * strength01,
-      deviceWearMultiplier: clampMultiplier(1 + 0.12 * strength01),
+      taskErrorDelta: CLUMSY_TASK_ERROR_FACTOR * strength01,
+      deviceWearMultiplier: clampMultiplier(1 + CLUMSY_DEVICE_WEAR_FACTOR * strength01),
     }),
   },
   trait_slacker: {
     conflictsWith: ['trait_meticulous'],
     effects: (_subject, strength01) => ({
-      taskDurationMultiplier: clampMultiplier(1 + 0.12 * strength01),
-      fatigueMultiplier: clampMultiplier(1 + 0.18 * strength01),
-      xpRateMultiplier: 1 - 0.08 * strength01,
+      taskDurationMultiplier: clampMultiplier(1 + SLACKER_TASK_DURATION_FACTOR * strength01),
+      fatigueMultiplier: clampMultiplier(1 + SLACKER_FATIGUE_FACTOR * strength01),
+      xpRateMultiplier: 1 - SLACKER_XP_RATE_FACTOR * strength01,
     }),
   },
   trait_pessimist: {
     conflictsWith: ['trait_optimist'],
-    effects: () => ({ moraleDelta: -0.035 }),
+    effects: () => ({ moraleDelta: PESSIMIST_MORALE_DELTA }),
   },
   trait_forgetful: {
     effects: (_subject, strength01) => ({
-      taskDurationMultiplier: clampMultiplier(1 + 0.08 * strength01),
-      taskErrorDelta: 0.025 * strength01,
+      taskDurationMultiplier: clampMultiplier(1 + FORGETFUL_TASK_DURATION_FACTOR * strength01),
+      taskErrorDelta: FORGETFUL_TASK_ERROR_FACTOR * strength01,
     }),
   },
   trait_demanding: {
@@ -195,13 +237,13 @@ const TRAIT_BEHAVIOUR: Record<WorkforceTraitId, TraitBehaviour> = {
     economyHint: 'Negotiates higher salaries relative to peers.',
     effects: (_subject, strength01, _context, base) => {
       const baseline = base.salaryExpectation_per_h ?? 0;
-      const premium = Math.max(1, baseline * 0.08) * strength01;
+      const premium = Math.max(DEMANDING_SALARY_PREMIUM_MIN, baseline * DEMANDING_SALARY_PREMIUM_FACTOR) * strength01;
       return { salaryExpectationDelta_per_h: premium } satisfies TraitEffectContribution;
     },
   },
   trait_slow_learner: {
     conflictsWith: ['trait_quick_learner'],
-    effects: () => ({ xpRateMultiplier: 0.82 }),
+    effects: () => ({ xpRateMultiplier: SLOW_LEARNER_XP_RATE_MULTIPLIER }),
   },
 };
 
@@ -209,7 +251,7 @@ function clampMultiplier(value: number): number {
   if (!Number.isFinite(value) || value <= 0) {
     return 1;
   }
-  return Math.max(0.25, Math.min(1.75, value));
+  return Math.max(MULTIPLIER_CLAMP_MIN, Math.min(MULTIPLIER_CLAMP_MAX, value));
 }
 
 function resolveBehaviour(traitId: WorkforceTraitId): TraitBehaviour {

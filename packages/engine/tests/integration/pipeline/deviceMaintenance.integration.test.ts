@@ -11,9 +11,7 @@ import type {
   DeviceMaintenancePolicy,
   DeviceMaintenanceState,
   Room,
-  Structure,
   WorkforceTaskDefinition,
-  Zone,
   ZoneDeviceInstance,
   Uuid,
 } from '@/backend/src/domain/world';

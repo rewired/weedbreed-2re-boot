@@ -168,12 +168,12 @@ export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContex
   const currentDayIndex = Math.floor(currentSimHours / HOURS_PER_DAY);
 
   const carrier = ctx as EconomyAccrualCarrier;
-  const economyAccruals = (carrier.economyAccruals ?? {});
+  const economyAccruals = carrier.economyAccruals;
 
   if (payrollSnapshot) {
     const existingWorkforce = economyAccruals.workforce ?? { finalizedDays: [] };
     const workforceFinalized = mergeFinalizedDays(
-      existingWorkforce.finalizedDays ?? [],
+      existingWorkforce.finalizedDays,
       payrollSnapshot.finalized,
     );
 
@@ -186,7 +186,7 @@ export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContex
   if (maintenanceSnapshot) {
     const existingMaintenance = economyAccruals.deviceMaintenance ?? { finalizedDays: [] };
     let finalizedDays = mergeMaintenanceFinalizedDays(
-      existingMaintenance.finalizedDays ?? [],
+      existingMaintenance.finalizedDays,
       maintenanceSnapshot.finalized,
     );
 
@@ -212,7 +212,7 @@ export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContex
     const energyCost = usageSnapshot.energyConsumption_kWh * tariffs.price_electricity;
     const waterCost = usageSnapshot.waterVolume_m3 * tariffs.price_water;
     const existingUtilities = economyAccruals.utilities ?? { finalizedDays: [] };
-    let finalizedDays = existingUtilities.finalizedDays ?? [];
+    let finalizedDays = existingUtilities.finalizedDays;
     const previous = existingUtilities.current;
 
     let nextCurrent: UtilityAccrualState;
@@ -260,7 +260,7 @@ export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContex
   if (hasCultivationCost) {
     const costIncrementCc = cultivationCostPerHour * tickHours;
     const existingCultivation = economyAccruals.cultivation ?? { finalizedDays: [] };
-    let finalizedDays = existingCultivation.finalizedDays ?? [];
+    let finalizedDays = existingCultivation.finalizedDays;
     const previous = existingCultivation.current;
 
     let nextCurrent: CultivationAccrualState;
