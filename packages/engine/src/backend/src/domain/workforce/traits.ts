@@ -12,8 +12,6 @@ import {
   GREEN_THUMB_TASK_DURATION_FACTOR,
   GREEN_THUMB_TASK_ERROR_FACTOR,
   GREEN_THUMB_XP_RATE_FACTOR,
-  NIGHT_OWL_TRAIT_STRENGTH_MIN,
-  NIGHT_OWL_TRAIT_STRENGTH_MAX,
   NIGHT_OWL_TASK_DURATION_FACTOR,
   NIGHT_OWL_FATIGUE_FACTOR,
   NIGHT_OWL_MORALE_FACTOR,
@@ -129,6 +127,10 @@ export interface WorkforceTraitMetadata {
 }
 
 const DEFAULT_STRENGTH_RANGE: TraitStrengthRange = { min: DEFAULT_TRAIT_STRENGTH_MIN, max: DEFAULT_TRAIT_STRENGTH_MAX };
+const DEFAULT_CONTEXT_HOUR = 12;
+const SECOND_TRAIT_SELECTION_THRESHOLD = 0.5;
+const EMPTY_TRAIT_LIST: readonly WorkforceTraitId[] = Object.freeze([]);
+const EMPTY_SKILL_LIST: readonly string[] = Object.freeze([]);
 
 const RAW_TRAITS = traitsJson as readonly {
   readonly id: WorkforceTraitId;
@@ -157,7 +159,7 @@ const TRAIT_BEHAVIOUR: Record<WorkforceTraitId, TraitBehaviour> = {
   },
   trait_night_owl: {
     effects: (_subject, strength01, context) => {
-      const hour = context.hourOfDay ?? 12;
+      const hour = context.hourOfDay ?? DEFAULT_CONTEXT_HOUR;
       const isNight = hour >= NIGHT_OWL_START_HOUR || hour < NIGHT_OWL_END_HOUR;
       if (!isNight) {
         return {};
@@ -254,8 +256,8 @@ function clampMultiplier(value: number): number {
   return Math.max(MULTIPLIER_CLAMP_MIN, Math.min(MULTIPLIER_CLAMP_MAX, value));
 }
 
-function resolveBehaviour(traitId: WorkforceTraitId): TraitBehaviour {
-  return TRAIT_BEHAVIOUR[traitId] ?? {};
+function resolveBehaviour(traitId: WorkforceTraitId): TraitBehaviour | undefined {
+  return TRAIT_BEHAVIOUR[traitId];
 }
 
 function resolveContextSkills(context: TraitEffectContext): readonly string[] {
@@ -263,22 +265,22 @@ function resolveContextSkills(context: TraitEffectContext): readonly string[] {
   if (!definition) {
     return [];
   }
-  return definition.requiredSkills?.map((skill) => skill.skillKey) ?? [];
+  return definition.requiredSkills.map((skill) => skill.skillKey);
 }
 
 const WORKFORCE_TRAIT_METADATA_MUTABLE = new Map<WorkforceTraitId, WorkforceTraitMetadata>(
   RAW_TRAITS.map((trait) => {
     const behaviour = resolveBehaviour(trait.id);
-    const conflicts = new Set(behaviour.conflictsWith ?? []);
+    const conflicts = new Set(behaviour?.conflictsWith ?? EMPTY_TRAIT_LIST);
     const metadata: WorkforceTraitMetadata = {
       id: trait.id,
       name: trait.name,
       description: trait.description,
       type: trait.type,
       conflictsWith: [...conflicts],
-      strengthRange: behaviour.strengthRange ?? DEFAULT_STRENGTH_RANGE,
-      economyHint: behaviour.economyHint,
-      focusSkills: behaviour.focusSkills ?? [],
+      strengthRange: behaviour?.strengthRange ?? DEFAULT_STRENGTH_RANGE,
+      economyHint: behaviour?.economyHint,
+      focusSkills: behaviour?.focusSkills ?? EMPTY_SKILL_LIST,
     };
     return [trait.id, metadata];
   }),
@@ -289,18 +291,23 @@ function ensureBidirectionalConflicts(
 ): void {
   for (const metadata of metadataMap.values()) {
     const behaviour = resolveBehaviour(metadata.id);
-    for (const conflict of behaviour.conflictsWith ?? []) {
+    if (!behaviour) {
+      continue;
+    }
+    for (const conflict of behaviour.conflictsWith ?? EMPTY_TRAIT_LIST) {
       const other = metadataMap.get(conflict);
       if (!other) {
         continue;
       }
-      const otherConflicts = new Set(resolveBehaviour(conflict).conflictsWith ?? []);
+      const existingBehaviour = resolveBehaviour(conflict);
+      const otherConflicts = new Set(existingBehaviour?.conflictsWith ?? EMPTY_TRAIT_LIST);
       if (!otherConflicts.has(metadata.id)) {
         otherConflicts.add(metadata.id);
-        TRAIT_BEHAVIOUR[conflict] = {
-          ...resolveBehaviour(conflict),
+        const updatedBehaviour: TraitBehaviour = {
+          ...(existingBehaviour ?? {}),
           conflictsWith: [...otherConflicts],
-        } satisfies TraitBehaviour;
+        };
+        TRAIT_BEHAVIOUR[conflict] = updatedBehaviour;
         metadataMap.set(conflict, {
           ...other,
           conflictsWith: [...otherConflicts],
@@ -330,7 +337,7 @@ export interface SampleTraitSetOptions {
 
 export function sampleTraitSet(options: SampleTraitSetOptions): readonly WorkforceTraitMetadata[] {
   const { rng } = options;
-  const count = options.desiredCount ?? (rng() < 0.5 ? 1 : 2);
+  const count = options.desiredCount ?? (rng() < SECOND_TRAIT_SELECTION_THRESHOLD ? 1 : 2);
   const pool = listTraitMetadata();
   const available = [...pool];
   const selected: WorkforceTraitMetadata[] = [];
@@ -338,7 +345,8 @@ export function sampleTraitSet(options: SampleTraitSetOptions): readonly Workfor
   while (selected.length < count && available.length > 0) {
     const index = Math.floor(rng() * available.length) % available.length;
     const candidate = available.splice(index, 1)[0];
-    const conflicts = new Set(resolveBehaviour(candidate.id).conflictsWith ?? []);
+    const behaviour = resolveBehaviour(candidate.id);
+    const conflicts = new Set(behaviour?.conflictsWith ?? EMPTY_TRAIT_LIST);
     const hasConflict = selected.some((entry) => conflicts.has(entry.id));
 
     if (hasConflict) {
@@ -376,14 +384,18 @@ export function applyTraitEffects(
   let xpMultiplier = base.xpRateMultiplier ?? 1;
   let salaryDelta = 0;
 
-  for (const assignment of subject.traits ?? []) {
+  for (const assignment of subject.traits) {
     const metadata = WORKFORCE_TRAIT_METADATA.get(assignment.traitId);
     if (!metadata) {
       continue;
     }
 
     const behaviour = resolveBehaviour(metadata.id);
-    const contribution = behaviour.effects?.(subject, clamp01(assignment.strength01), context, base) ?? {};
+    if (!behaviour) {
+      continue;
+    }
+    const contribution =
+      behaviour.effects?.(subject, clamp01(assignment.strength01), context, base) ?? {};
     const existing = breakdownMap.get(metadata.id) ?? { strength01: assignment.strength01 };
 
     if (contribution.taskDurationMultiplier !== undefined) {
@@ -461,7 +473,8 @@ export function resolveSkillLevel(subject: TraitSubject, skillKey: string): numb
   const normalised = skillKey.toLowerCase();
   const byKey = new Map<string, number>();
 
-  for (const entry of subject.skills ?? []) {
+  const skillEntries = subject.skills ?? [];
+  for (const entry of skillEntries) {
     byKey.set(entry.skillKey.toLowerCase(), clamp01(entry.level01));
   }
 

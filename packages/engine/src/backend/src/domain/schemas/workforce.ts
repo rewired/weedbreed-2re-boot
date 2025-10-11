@@ -253,49 +253,48 @@ const workforcePayrollStateSchema = z
   })
   .strict();
 
-const workforceMarketCandidateSkillSchema: z.ZodType<WorkforceMarketCandidateSkill> = z
+const workforceMarketCandidateSkillSchema = z
   .object({
     slug: nonEmptyString,
     value01: zeroToOneNumber,
   })
-  .strict();
+  .strict() satisfies z.ZodType<WorkforceMarketCandidateSkill>;
 
-const workforceMarketMainSkillSchema: z.ZodType<WorkforceMarketCandidateSkill> =
-  workforceMarketCandidateSkillSchema.extend({
-    value01: zeroToOneNumber
-      .min(MIN_MAIN_SKILL_VALUE, 'Main skill must be at least 0.25.')
-      .max(MAX_MAIN_SKILL_VALUE, 'Main skill must not exceed 0.50.'),
-  });
+const workforceMarketMainSkillSchema = workforceMarketCandidateSkillSchema.extend({
+  value01: zeroToOneNumber
+    .min(MIN_MAIN_SKILL_VALUE, 'Main skill must be at least 0.25.')
+    .max(MAX_MAIN_SKILL_VALUE, 'Main skill must not exceed 0.50.'),
+}) satisfies z.ZodType<WorkforceMarketCandidateSkill>;
 
-const workforceMarketSecondarySkillSchema: z.ZodType<WorkforceMarketCandidateSkill> =
-  workforceMarketCandidateSkillSchema.extend({
-    value01: zeroToOneNumber
-      .min(MIN_SECONDARY_SKILL_VALUE, 'Secondary skills must be at least 0.01.')
-      .max(MAX_SECONDARY_SKILL_VALUE, 'Secondary skills must not exceed 0.35.'),
-  });
+const workforceMarketSecondarySkillSchema = workforceMarketCandidateSkillSchema.extend({
+  value01: zeroToOneNumber
+    .min(MIN_SECONDARY_SKILL_VALUE, 'Secondary skills must be at least 0.01.')
+    .max(MAX_SECONDARY_SKILL_VALUE, 'Secondary skills must not exceed 0.35.'),
+}) satisfies z.ZodType<WorkforceMarketCandidateSkill>;
 
-const workforceMarketCandidateTraitSchema: z.ZodType<WorkforceMarketCandidateTrait> = z
+const workforceMarketCandidateTraitSchema = z
   .object({
     id: nonEmptyString,
     strength01: zeroToOneNumber
       .min(MIN_TRAIT_STRENGTH, 'Trait strength must be at least 0.3.')
       .max(MAX_TRAIT_STRENGTH, 'Trait strength must not exceed 0.7.'),
   })
-  .strict();
+  .strict() satisfies z.ZodType<WorkforceMarketCandidateTrait>;
 
-const workforceMarketCandidateSkillsSchema: z.ZodType<WorkforceMarketCandidate['skills3']> = z
+const workforceMarketSecondaryTupleSchema = z
+  .tuple([workforceMarketSecondarySkillSchema, workforceMarketSecondarySkillSchema])
+  .readonly() satisfies z.ZodReadonly<
+  z.ZodTuple<[typeof workforceMarketSecondarySkillSchema, typeof workforceMarketSecondarySkillSchema]>
+>;
+
+const workforceMarketCandidateSkillsSchema = z
   .object({
     main: workforceMarketMainSkillSchema,
-    secondary: z
-      .tuple([
-        workforceMarketSecondarySkillSchema,
-        workforceMarketSecondarySkillSchema,
-      ])
-      .readonly(),
+    secondary: workforceMarketSecondaryTupleSchema,
   })
-  .strict();
+  .strict() satisfies z.ZodType<WorkforceMarketCandidate['skills3']>;
 
-const workforceMarketCandidateSchema: z.ZodType<WorkforceMarketCandidate> = z
+const workforceMarketCandidateSchema = z
   .object({
     id: uuidSchema,
     structureId: uuidSchema,
@@ -309,22 +308,22 @@ const workforceMarketCandidateSchema: z.ZodType<WorkforceMarketCandidate> = z
     ),
     scanCounter: integerNumber.min(0, 'scanCounter cannot be negative.'),
   })
-  .strict();
+  .strict() satisfies z.ZodType<WorkforceMarketCandidate>;
 
-const workforceMarketStructureStateSchema: z.ZodType<WorkforceMarketStructureState> = z
+const workforceMarketStructureStateSchema = z
   .object({
     structureId: uuidSchema,
     lastScanDay: integerNumber.min(0, 'lastScanDay cannot be negative.').optional(),
     scanCounter: integerNumber.min(0, 'scanCounter cannot be negative.'),
     pool: z.array(workforceMarketCandidateSchema).readonly(),
   })
-  .strict();
+  .strict() satisfies z.ZodType<WorkforceMarketStructureState>;
 
-const workforceMarketStateSchema: z.ZodType<WorkforceMarketState> = z
+const workforceMarketStateSchema = z
   .object({
     structures: z.array(workforceMarketStructureStateSchema).readonly(),
   })
-  .strict();
+  .strict() satisfies z.ZodType<WorkforceMarketState>;
 
 export const workforceStateSchema: z.ZodType<WorkforceState> = z.object({
   roles: employeeRoleCollectionSchema,
