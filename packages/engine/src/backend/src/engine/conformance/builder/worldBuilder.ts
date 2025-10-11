@@ -32,15 +32,39 @@ import {
   AGE_MODIFIER_PER_CYCLE 
 } from '../../../constants/simConstants.ts';
 
+const UUID_SEGMENT_LENGTH_TIME_LOW = 8;
+const UUID_SEGMENT_LENGTH_TIME_MID = 4;
+const UUID_SEGMENT_LENGTH_TIME_HIGH_AND_VERSION = 4;
+const UUID_SEGMENT_LENGTH_CLOCK_SEQ = 4;
+const UUID_SEGMENT_LENGTH_NODE = 12;
+const UUID_SEGMENT_LENGTHS = [
+  UUID_SEGMENT_LENGTH_TIME_LOW,
+  UUID_SEGMENT_LENGTH_TIME_MID,
+  UUID_SEGMENT_LENGTH_TIME_HIGH_AND_VERSION,
+  UUID_SEGMENT_LENGTH_CLOCK_SEQ,
+  UUID_SEGMENT_LENGTH_NODE,
+] as const;
+const LONG_SHIFT_BREAK_THRESHOLD_HOURS = 8;
+const FIRST_BREAK_START_HOUR = 4;
+const STORAGE_CLEANING_INTERVAL_DAYS = 7;
+const STORAGE_CLEANING_HOUR = 6;
+const BREAKROOM_CLEANING_INTERVAL_DAYS = 14;
+const BREAKROOM_CLEANING_HOUR = 7;
+const METRIC_DECIMAL_PRECISION = 3;
+
+type WorkforceBreakEntry = DailyRecord['workforce']['breaks'][number];
+type WorkforceJanitorialEntry = DailyRecord['workforce']['janitorial'][number];
+
 function deterministicUuid(seed: string): string {
   const digest = createHash('sha256').update(seed).digest('hex');
-  return [
-    digest.slice(0, 8),
-    digest.slice(8, 12),
-    digest.slice(12, 16),
-    digest.slice(16, 20),
-    digest.slice(20, 32),
-  ].join('-');
+  let offset = 0;
+  const segments = UUID_SEGMENT_LENGTHS.map((segmentLength) => {
+    const nextOffset = offset + segmentLength;
+    const segment = digest.slice(offset, nextOffset);
+    offset = nextOffset;
+    return segment;
+  });
+  return segments.join('-');
 }
 
 function computeLightingCount(area_m2: number, coverage_m2: number): number {
@@ -69,7 +93,41 @@ function computeHarvestYieldKg(zone: ZonePlan, cycleIndex: number, rng: () => nu
   const variation = MIN_YIELD_VARIATION + rng() * MAX_YIELD_VARIATION;
   const productivity = zone.floorArea_m2 * baseYieldPerM2 * methodModifier * variation;
   const ageModifier = 1 - Math.min(MAX_AGE_MODIFIER_REDUCTION, cycleIndex * AGE_MODIFIER_PER_CYCLE);
-  return Number((productivity * ageModifier).toFixed(3));
+  return roundToPrecision(productivity * ageModifier);
+}
+
+function roundToPrecision(value: number): number {
+  return Number(value.toFixed(METRIC_DECIMAL_PRECISION));
+}
+
+interface ZoneMetrics {
+  readonly id: string;
+  readonly lightingCount: number;
+  readonly coverageRatio: number;
+  readonly climateCount: number;
+  readonly airChangesPerHour: number;
+}
+
+function buildZoneMetrics(): ZoneMetrics[] {
+  return ZONE_PLANS.map((zone) => {
+    const lightingCount = computeLightingCount(zone.floorArea_m2, LIGHT_BLUEPRINT.coverage_m2);
+    const coverageRatio = roundToPrecision(
+      computeCoverageRatio(zone.floorArea_m2, LIGHT_BLUEPRINT.coverage_m2, lightingCount)
+    );
+    const volume_m3 = zone.floorArea_m2 * zone.height_m;
+    const climateCount = computeClimateCount(volume_m3, CLIMATE_BLUEPRINT.airflow_m3_per_h);
+    const airChangesPerHour = roundToPrecision(
+      computeAirChangesPerHour(volume_m3, CLIMATE_BLUEPRINT.airflow_m3_per_h, climateCount)
+    );
+
+    return {
+      id: zone.id,
+      lightingCount,
+      coverageRatio,
+      climateCount,
+      airChangesPerHour,
+    };
+  });
 }
 
 export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun {
@@ -81,29 +139,8 @@ export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun 
     throw new Error('seed must be provided');
   }
 
-  const lightingCountPerZone = ZONE_PLANS.map((zone) =>
-    computeLightingCount(zone.floorArea_m2, LIGHT_BLUEPRINT.coverage_m2)
-  );
-  const lightingCoveragePerZone = lightingCountPerZone.map((count, index) =>
-    computeCoverageRatio(
-      ZONE_PLANS[index]?.floorArea_m2 ?? 0,
-      LIGHT_BLUEPRINT.coverage_m2,
-      count
-    )
-  );
-  const climateCountPerZone = ZONE_PLANS.map((zone) =>
-    computeClimateCount(zone.floorArea_m2 * zone.height_m, CLIMATE_BLUEPRINT.airflow_m3_per_h)
-  );
-  const adjustedAirChangesPerHourPerZone = climateCountPerZone.map((count, index) => {
-    const zone = ZONE_PLANS[index];
-
-    if (!zone) {
-      return 0;
-    }
-
-    const volume = zone.floorArea_m2 * zone.height_m;
-    return computeAirChangesPerHour(volume, CLIMATE_BLUEPRINT.airflow_m3_per_h, count);
-  });
+  const zoneMetrics = buildZoneMetrics();
+  const zoneMetricsById = new Map(zoneMetrics.map((metrics) => [metrics.id, metrics] as const));
 
   const harvestLots: HarvestLotRecord[] = [];
   const replants: PlantingRecord[] = [];
@@ -125,15 +162,15 @@ export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun 
     let harvestEvents = 0;
     let storageTransfers = 0;
     let replantEvents = 0;
-    const workforceBreaks: DailyRecord['workforce']['breaks'] = [];
-    const workforceJanitorial: DailyRecord['workforce']['janitorial'] = [];
+    const workforceBreaks: WorkforceBreakEntry[] = [];
+    const workforceJanitorial: WorkforceJanitorialEntry[] = [];
 
     for (const employee of EMPLOYEES) {
-      if (employee.shiftHours >= 8) {
+      if (employee.shiftHours >= LONG_SHIFT_BREAK_THRESHOLD_HOURS) {
         workforceBreaks.push({
           employeeId: employee.id,
           roomId: BREAK_ROOM_ID,
-          startHour: 4,
+          startHour: FIRST_BREAK_START_HOUR,
           durationMinutes: BREAK_DURATION_MINUTES,
         });
       }
@@ -142,22 +179,22 @@ export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun 
     const janitor = EMPLOYEES.find((employee) => employee.role === 'janitor');
 
     if (janitor) {
-      if (day % 7 === 0) {
+      if (day % STORAGE_CLEANING_INTERVAL_DAYS === 0) {
         workforceJanitorial.push({
           employeeId: janitor.id,
           roomId: STORAGE_ROOM_ID,
           task: 'cleaning',
-          hour: 6,
+          hour: STORAGE_CLEANING_HOUR,
         });
         janitorialStorageDays.add(day);
       }
 
-      if (day % 14 === 0) {
+      if (day % BREAKROOM_CLEANING_INTERVAL_DAYS === 0) {
         workforceJanitorial.push({
           employeeId: janitor.id,
           roomId: BREAK_ROOM_ID,
           task: 'cleaning',
-          hour: 7,
+          hour: BREAKROOM_CLEANING_HOUR,
         });
         janitorialBreakroomDays.add(day);
       }
@@ -333,7 +370,6 @@ export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun 
   );
 
   const structureFloorArea = ROOM_RECIPES.reduce((area, room) => area + room.floorArea_m2, 0);
-  const zoneIndex = new Map(ZONE_PLANS.map((zone, index) => [zone.id, index] as const));
 
   const topologySummary: ScenarioSummary['topology'] = {
     companyId: COMPANY_ID,
@@ -350,9 +386,9 @@ export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun 
         zones:
           room.purpose === 'growroom'
             ? room.zones.map((zone) => {
-                const index = zoneIndex.get(zone.id);
+                const metrics = zoneMetricsById.get(zone.id);
 
-                if (index === undefined) {
+                if (!metrics) {
                   throw new Error(`Missing zone index for ${zone.id}`);
                 }
 
@@ -363,15 +399,13 @@ export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun 
                   cultivationMethodSlug: zone.cultivationMethod.slug,
                   lighting: {
                     blueprintId: LIGHT_BLUEPRINT.id,
-                    count: lightingCountPerZone[index],
-                    coverageRatio: Number(lightingCoveragePerZone[index]?.toFixed(3) ?? '0'),
+                    count: metrics.lightingCount,
+                    coverageRatio: metrics.coverageRatio,
                   },
                   climate: {
                     blueprintId: CLIMATE_BLUEPRINT.id,
-                    count: climateCountPerZone[index],
-                    airChangesPerHour: Number(
-                      adjustedAirChangesPerHourPerZone[index]?.toFixed(3) ?? '0'
-                    ),
+                    count: metrics.climateCount,
+                    airChangesPerHour: metrics.airChangesPerHour,
                   },
                 };
               })
@@ -413,7 +447,7 @@ export function buildGoldenScenarioRun(days: number, seed: string): ScenarioRun 
     },
     events: {
       totals,
-      averagePerDay: Number((totalEventsAcrossDays / days).toFixed(3)),
+      averagePerDay: roundToPrecision(totalEventsAcrossDays / days),
     },
   };
 
