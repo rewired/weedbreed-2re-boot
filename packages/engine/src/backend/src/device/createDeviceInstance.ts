@@ -18,10 +18,10 @@ export interface DeviceInstanceSeededAttributes {
 }
 
 export function createDeviceInstance(
-  qualityPolicy: DeviceQualityPolicy,
+  qualityPolicy: DeviceQualityPolicy | null | undefined,
   seed: string,
   id: Uuid,
-  blueprint: DeviceBlueprint
+  blueprint: DeviceBlueprint | null | undefined
 ): DeviceInstanceSeededAttributes {
   if (!qualityPolicy) {
     throw new Error('qualityPolicy must be provided');
@@ -31,13 +31,16 @@ export function createDeviceInstance(
     throw new Error('blueprint must be provided');
   }
 
+  const policy = qualityPolicy;
+  const deviceBlueprint = blueprint;
+
   const rng = createRng(seed, `device:${id}`);
-  const sampledQuality = qualityPolicy.sampleQuality01(rng);
+  const sampledQuality = policy.sampleQuality01(rng);
   if (!Number.isFinite(sampledQuality)) {
     throw new Error('quality01 sample must be a finite number');
   }
   const quality01 = clamp01(sampledQuality);
-  const { effects, effectConfigs } = toDeviceInstanceEffectConfigs(blueprint);
+  const { effects, effectConfigs } = toDeviceInstanceEffectConfigs(deviceBlueprint);
   const frozenEffects = freezeEffects(effects);
   const frozenConfigs = freezeEffectConfigs(effectConfigs);
 

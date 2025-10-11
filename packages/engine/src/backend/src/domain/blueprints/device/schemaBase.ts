@@ -65,13 +65,14 @@ export const filtrationConfigObjectSchema = z.object({
 });
 
 export const sensorMeasurementTypeSchema = z.enum(['temperature', 'humidity', 'ppfd', 'co2']);
+const DEFAULT_SENSOR_NOISE_FRACTION = 0.05;
 
 export const sensorConfigObjectSchema = z.object({
   measurementType: sensorMeasurementTypeSchema,
   noise01: finiteNumber
     .min(0, 'sensor.noise01 must be >= 0.')
     .max(1, 'sensor.noise01 must be <= 1.')
-    .default(0.05)
+    .default(DEFAULT_SENSOR_NOISE_FRACTION)
 });
 
 export const co2ConfigObjectSchema = z.object({
@@ -128,6 +129,8 @@ export const deviceBlueprintObjectSchema = z
   .passthrough();
 
 const MONETARY_KEYWORDS = ['price', 'tariff', 'fee', 'capex', 'opex', 'expense', 'expenditure'] as const;
+const COST_TOKEN_LENGTH = 'cost'.length;
+const UPPERCASE_TOKEN_PATTERN = /[A-Z]/u;
 
 export function containsMonetaryToken(key: string): boolean {
   const lower = key.toLowerCase();
@@ -139,9 +142,9 @@ export function containsMonetaryToken(key: string): boolean {
   const costIndex = lower.indexOf('cost');
 
   if (costIndex !== -1) {
-    const nextChar = key[costIndex + 4];
+    const nextChar = key.charAt(costIndex + COST_TOKEN_LENGTH);
 
-    if (nextChar === undefined) {
+    if (nextChar === '') {
       return true;
     }
 
@@ -149,11 +152,11 @@ export function containsMonetaryToken(key: string): boolean {
       return true;
     }
 
-    if (nextChar === nextChar.toUpperCase()) {
+    if (nextChar === 's') {
       return true;
     }
 
-    if (lower.startsWith('costs', costIndex)) {
+    if (UPPERCASE_TOKEN_PATTERN.test(nextChar)) {
       return true;
     }
   }

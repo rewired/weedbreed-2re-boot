@@ -15,15 +15,21 @@ import type { Uuid } from '../domain/schemas/primitives.ts';
 
 const DEFAULT_BASE_LIFETIME_HOURS = 8_760; // One year of continuous runtime.
 const MIN_TICK_HOURS = FLOAT_TOLERANCE;
+const DEFAULT_QUALITY_FALLBACK01 = 0.5;
+const DEGRADE_FLOOR01 = 0.4;
+const DEGRADE_RANGE01 = 0.6;
+const MAINTENANCE_BASE01 = 0.5;
+const MAINTENANCE_RANGE01 = 0.5;
+const COST_INCREASE_HOURS_STEP = 1_000;
 
 export function mDegrade(quality01: number): number {
-  const quality = clamp01(Number.isFinite(quality01) ? quality01 : 0.5);
-  return clamp01(0.4 + 0.6 * (1 - quality));
+  const quality = clamp01(Number.isFinite(quality01) ? quality01 : DEFAULT_QUALITY_FALLBACK01);
+  return clamp01(DEGRADE_FLOOR01 + DEGRADE_RANGE01 * (1 - quality));
 }
 
 export function mMaintenance(quality01: number): number {
-  const quality = clamp01(Number.isFinite(quality01) ? quality01 : 0.5);
-  return clamp01(0.5 + 0.5 * (1 - quality));
+  const quality = clamp01(Number.isFinite(quality01) ? quality01 : DEFAULT_QUALITY_FALLBACK01);
+  return clamp01(MAINTENANCE_BASE01 + MAINTENANCE_RANGE01 * (1 - quality));
 }
 
 export interface DeviceMaintenanceTaskPlan {
@@ -120,7 +126,7 @@ function resolveConditionThreshold(policy: DeviceMaintenancePolicy | undefined):
   const value = policy?.maintenanceConditionThreshold01;
 
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    return 0.4;
+    return DEGRADE_FLOOR01;
   }
 
   return clamp01(value);
@@ -164,7 +170,7 @@ function computeHourlyMaintenanceCost(
   const slope = policy.costIncreasePer1000HoursCc;
   const safeBase = typeof base === 'number' && Number.isFinite(base) ? Math.max(0, base) : 0;
   const safeSlope = typeof slope === 'number' && Number.isFinite(slope) ? Math.max(0, slope) : 0;
-  const incremental = safeSlope * (runtimeHours / 1_000);
+  const incremental = safeSlope * (runtimeHours / COST_INCREASE_HOURS_STEP);
   return safeBase + incremental;
 }
 
@@ -211,7 +217,9 @@ export function updateZoneDeviceLifecycle(
   const { device, structure, room, zone, workshopRoom, seed, tickHours, currentTick } = input;
   const duty = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 1);
   const hoursThisTick = Math.max(0, tickHours) * duty;
-  const quality = clamp01(Number.isFinite(device.quality01) ? device.quality01 : 0.5);
+  const quality = clamp01(
+    Number.isFinite(device.quality01) ? device.quality01 : DEFAULT_QUALITY_FALLBACK01
+  );
   const policy = device.maintenance?.policy;
   const previousMaintenance = device.maintenance;
   const previousWindow = previousMaintenance?.maintenanceWindow;

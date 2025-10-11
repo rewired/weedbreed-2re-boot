@@ -216,10 +216,7 @@ function buildCultivationMethodCatalog(): Map<Uuid, CultivationMethodDescriptor>
 }
 
 export function getCultivationMethodCatalog(): ReadonlyMap<Uuid, CultivationMethodDescriptor> {
-  if (!cultivationMethodCatalogCache) {
-    cultivationMethodCatalogCache = buildCultivationMethodCatalog();
-  }
-
+  cultivationMethodCatalogCache ??= buildCultivationMethodCatalog();
   return cultivationMethodCatalogCache;
 }
 
@@ -503,4 +500,3 @@ export function scheduleCultivationTasks(
 
   return { newTasks: tasks } satisfies ScheduleCultivationTasksResult;
 }
-

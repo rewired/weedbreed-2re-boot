@@ -2,6 +2,23 @@ import { deviceBlueprintSchema, type DeviceBlueprint } from './schemaByClass.ts'
 import { type Co2Config, type DeviceEffect, type SensorConfig } from './schemaBase.ts';
 import { guardDeviceBlueprintTaxonomy, type DeviceTaxonomyGuardOptions } from './guardTaxonomy.ts';
 
+interface BlueprintSettingsRecord {
+  readonly targetCO2?: unknown;
+  readonly targetCO2Range?: unknown;
+  readonly pulsePpmPerTick?: unknown;
+  readonly ambientCO2?: unknown;
+  readonly hysteresis?: unknown;
+  readonly hysteresis_ppm?: unknown;
+}
+
+interface BlueprintLimitsRecord {
+  readonly maxCO2_ppm?: unknown;
+  readonly minCO2_ppm?: unknown;
+  readonly ambientCO2_ppm?: unknown;
+}
+
+const DEFAULT_SENSOR_NOISE01 = 0.05;
+
 export interface ParseDeviceBlueprintOptions extends DeviceTaxonomyGuardOptions {
   readonly slugRegistry?: Map<string, string>;
 }
@@ -108,7 +125,7 @@ function deriveSensorConfig(blueprint: DeviceBlueprint): SensorConfig | undefine
   if (blueprint.sensor) {
     return {
       measurementType: blueprint.sensor.measurementType,
-      noise01: clampNoise01(blueprint.sensor.noise01, 0.05)
+      noise01: clampNoise01(blueprint.sensor.noise01, DEFAULT_SENSOR_NOISE01)
     } satisfies SensorConfig;
   }
 
@@ -120,7 +137,7 @@ function deriveSensorConfig(blueprint: DeviceBlueprint): SensorConfig | undefine
 
   return {
     measurementType: inferred,
-    noise01: 0.05
+    noise01: DEFAULT_SENSOR_NOISE01
   } satisfies SensorConfig;
 }
 
@@ -137,14 +154,16 @@ function deriveCo2Config(blueprint: DeviceBlueprint): Co2Config | null {
     return { ...blueprint.co2 } satisfies Co2Config;
   }
 
-  const settings = (blueprint as Record<string, unknown>).settings as Record<string, unknown> | undefined;
-  const limits = (blueprint as Record<string, unknown>).limits as Record<string, unknown> | undefined;
+  const settings = (blueprint as { settings?: BlueprintSettingsRecord }).settings;
+  const limits = (blueprint as { limits?: BlueprintLimitsRecord }).limits;
+  const targetRangeValue = settings?.targetCO2Range;
+  const targetRange = Array.isArray(targetRangeValue) ? targetRangeValue : null;
 
   const target = toFiniteNumber(settings?.targetCO2);
   const pulse = toFiniteNumber(settings?.pulsePpmPerTick);
   const safetyMax =
     toFiniteNumber(limits?.maxCO2_ppm) ??
-    (Array.isArray(settings?.targetCO2Range) ? toFiniteNumber(settings?.targetCO2Range[1]) : null);
+    (targetRange && targetRange.length > 1 ? toFiniteNumber(targetRange[1]) : null);
 
   if (target === null || pulse === null || safetyMax === null) {
     return null;
@@ -160,7 +179,7 @@ function deriveCo2Config(blueprint: DeviceBlueprint): Co2Config | null {
 
   const minCandidate =
     toFiniteNumber(limits?.minCO2_ppm) ??
-    (Array.isArray(settings?.targetCO2Range) ? toFiniteNumber(settings?.targetCO2Range[0]) : null);
+    (targetRange && targetRange.length > 0 ? toFiniteNumber(targetRange[0]) : null);
 
   if (minCandidate !== null) {
     optionalConfig.min_ppm = minCandidate;

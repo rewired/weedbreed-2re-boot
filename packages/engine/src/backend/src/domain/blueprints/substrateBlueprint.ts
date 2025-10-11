@@ -93,7 +93,7 @@ export const substrateBlueprintSchema = z
           message: 'unitPrice_per_kg must be omitted when purchaseUnit is "liter".'
         });
       }
-    } else if (blueprint.purchaseUnit === 'kilogram') {
+    } else {
       if (blueprint.unitPrice_per_kg === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

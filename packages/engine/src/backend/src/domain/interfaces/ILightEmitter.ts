@@ -1,5 +1,3 @@
-import type { LightSchedule } from '../entities.ts';
-
 /**
  * Inputs describing light-emitting device parameters.
  */

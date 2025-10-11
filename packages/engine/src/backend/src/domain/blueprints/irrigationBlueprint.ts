@@ -102,7 +102,7 @@ export function parseIrrigationBlueprint(
   input: unknown,
   options: ParseIrrigationBlueprintOptions
 ): IrrigationBlueprint {
-  if (!options?.knownSubstrateSlugs) {
+  if (!options.knownSubstrateSlugs) {
     throw new Error('knownSubstrateSlugs must be provided to validate irrigation compatibility.');
   }
 

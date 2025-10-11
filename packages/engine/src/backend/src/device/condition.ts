@@ -12,6 +12,7 @@ import { clamp01 } from '../util/math.ts';
 
 const BASE_WEAR_RATE01 = 0.01;
 const QUALITY_WEAR_SLOPE = 0.5;
+const DEFAULT_REPAIR_SUCCESS_THRESHOLD01 = 0.5;
 
 export interface RepairOptions {
   readonly condition01: number;
@@ -102,7 +103,7 @@ function determineRepairSuccess(
     return sampleSuccess(successChance01);
   }
 
-  return successChance01 >= 0.5;
+  return successChance01 >= DEFAULT_REPAIR_SUCCESS_THRESHOLD01;
 }
 
 function assertFinite(label: string, value: number): void {

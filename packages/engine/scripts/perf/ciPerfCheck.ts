@@ -1,5 +1,6 @@
 import process from 'node:process';
 
+import { BYTES_PER_MEBIBYTE } from '../../src/backend/src/constants/simConstants.ts';
 import { withPerfHarness } from '../../src/backend/src/engine/testHarness.ts';
 import {
   evaluatePerfBudget,
@@ -16,6 +17,12 @@ import {
 type PerfBudgetThresholdOverrides = {
   -readonly [K in keyof PerfBudgetThresholds]?: PerfBudgetThresholds[K];
 };
+
+const NANOSECONDS_PER_MILLISECOND = 1_000_000;
+const DECIMAL_PLACES_HIGH = 3;
+const DECIMAL_PLACES_STANDARD = 2;
+const WHOLE_NUMBER_PRECISION = 0;
+const PERCENT_SCALE = 100;
 
 function parseThresholdOverrides(): PerfBudgetThresholdOverrides {
   const overrides: PerfBudgetThresholdOverrides = {};
@@ -42,7 +49,7 @@ function parseThresholdOverrides(): PerfBudgetThresholdOverrides {
     const value = Number.parseFloat(heap);
 
     if (Number.isFinite(value) && value > 0) {
-      overrides.maxHeapBytes = value * 1024 * 1024;
+      overrides.maxHeapBytes = value * BYTES_PER_MEBIBYTE;
     }
   }
 
@@ -98,7 +105,7 @@ const scenarioDefinitions = [
 
 const scenarioResults = scenarioDefinitions.map((scenario) => {
   const scenarioResult = withPerfHarness({ ticks: tickCount, worldFactory: scenario.worldFactory });
-  const averageMs = scenarioResult.averageDurationNs / 1_000_000;
+  const averageMs = scenarioResult.averageDurationNs / NANOSECONDS_PER_MILLISECOND;
   const status: 'pass' | 'fail' =
     Number.isFinite(averageMs) && averageMs <= scenario.thresholdMs ? 'pass' : 'fail';
 
@@ -113,16 +120,16 @@ const scenarioResults = scenarioDefinitions.map((scenario) => {
 
 const lines = [
   'WeedBreed Engine CI performance budget',
-  `Tick samples: ${evaluation.metrics.tickCount} (requested ${tickCount})`,
-  `Average duration: ${(evaluation.metrics.averageDurationNs / 1_000_000).toFixed(3)} ms`,
-  `Throughput: ${evaluation.metrics.ticksPerMinute.toFixed(2)} ticks/min (min ${thresholds.minTicksPerMinute.toFixed(0)})`,
-  `Heap peak: ${evaluation.metrics.maxHeapUsedMiB.toFixed(2)} MiB (max ${(thresholds.maxHeapBytes / (1024 * 1024)).toFixed(2)} MiB)`,
-  `Guard band: ${(thresholds.warningGuard01 * 100).toFixed(1)}%`
+  `Tick samples: ${String(evaluation.metrics.tickCount)} (requested ${String(tickCount)})`,
+  `Average duration: ${(evaluation.metrics.averageDurationNs / NANOSECONDS_PER_MILLISECOND).toFixed(DECIMAL_PLACES_HIGH)} ms`,
+  `Throughput: ${evaluation.metrics.ticksPerMinute.toFixed(DECIMAL_PLACES_STANDARD)} ticks/min (min ${thresholds.minTicksPerMinute.toFixed(WHOLE_NUMBER_PRECISION)})`,
+  `Heap peak: ${evaluation.metrics.maxHeapUsedMiB.toFixed(DECIMAL_PLACES_STANDARD)} MiB (max ${(thresholds.maxHeapBytes / BYTES_PER_MEBIBYTE).toFixed(DECIMAL_PLACES_STANDARD)} MiB)`,
+  `Guard band: ${(thresholds.warningGuard01 * PERCENT_SCALE).toFixed(1)}%`
 ];
 
 for (const scenario of scenarioResults) {
   lines.push(
-    `${scenario.label}: ${scenario.averageMs.toFixed(3)} ms avg (budget ${scenario.thresholdMs.toFixed(3)} ms)`
+    `${scenario.label}: ${scenario.averageMs.toFixed(DECIMAL_PLACES_HIGH)} ms avg (budget ${scenario.thresholdMs.toFixed(DECIMAL_PLACES_HIGH)} ms)`
   );
 }
 
@@ -156,7 +163,7 @@ if (failedScenarios.length > 0) {
   console.error('\nScenario regressions:');
   for (const scenario of failedScenarios) {
     console.error(
-      `- ${scenario.label} average ${scenario.averageMs.toFixed(3)} ms exceeds ${scenario.thresholdMs.toFixed(3)} ms budget.`
+      `- ${scenario.label} average ${scenario.averageMs.toFixed(DECIMAL_PLACES_HIGH)} ms exceeds ${scenario.thresholdMs.toFixed(DECIMAL_PLACES_HIGH)} ms budget.`
     );
   }
   process.exitCode = 1;

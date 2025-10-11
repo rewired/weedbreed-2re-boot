@@ -73,9 +73,7 @@ function buildLocationIndexTable(options: LoadLocationIndexOptions = {}): Locati
 export function loadLocationIndexTable(
   options: LoadLocationIndexOptions = {},
 ): LocationIndexTable {
-  if (!cachedTable) {
-    cachedTable = buildLocationIndexTable(options);
-  }
+  cachedTable ??= buildLocationIndexTable(options);
 
   return { ...cachedTable, overrides: [...cachedTable.overrides] } satisfies LocationIndexTable;
 }

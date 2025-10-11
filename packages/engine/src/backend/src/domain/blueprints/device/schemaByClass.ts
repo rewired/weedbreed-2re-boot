@@ -1,23 +1,6 @@
 import { z } from 'zod';
 
-import {
-  airflowConfigObjectSchema,
-  airflowConfigSchema,
-  assertNoMonetaryFields,
-  co2ConfigObjectSchema,
-  deviceBlueprintObjectSchema,
-  deviceEffectSchema,
-  filtrationConfigObjectSchema,
-  filtrationConfigSchema,
-  humidityConfigObjectSchema,
-  humidityConfigSchema,
-  lightingConfigObjectSchema,
-  lightingConfigSchema,
-  sensorConfigObjectSchema,
-  sensorConfigSchema,
-  thermalConfigObjectSchema,
-  thermalConfigSchema
-} from './schemaBase.ts';
+import { assertNoMonetaryFields, deviceBlueprintObjectSchema } from './schemaBase.ts';
 import type { DeviceEffect } from './schemaBase.ts';
 
 const climateModeSchema = z.enum(['thermal', 'dehumidifier', 'humidity-controller', 'co2']);
