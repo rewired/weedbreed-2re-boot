@@ -1,6 +1,24 @@
 import { z } from 'zod';
 
-import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
+import { 
+  HOURS_PER_DAY,
+  MIN_BASE_RATE_MULTIPLIER,
+  MAX_BASE_RATE_MULTIPLIER,
+  MIN_HOURS_PER_DAY,
+  MAX_HOURS_PER_DAY,
+  MAX_OVERTIME_HOURS_PER_DAY,
+  MAX_DAYS_PER_WEEK,
+  MIN_LABOR_MARKET_FACTOR,
+  MAX_LABOR_MARKET_FACTOR,
+  MIN_TIME_PREMIUM_MULTIPLIER,
+  MAX_TIME_PREMIUM_MULTIPLIER,
+  MIN_MAIN_SKILL_VALUE,
+  MAX_MAIN_SKILL_VALUE,
+  MIN_SECONDARY_SKILL_VALUE,
+  MAX_SECONDARY_SKILL_VALUE,
+  MIN_TRAIT_STRENGTH,
+  MAX_TRAIT_STRENGTH
+} from '../../constants/simConstants.ts';
 import { finiteNumber, integerNumber, nonEmptyString, uuidSchema } from './primitives.ts';
 import { domainEntitySchema, sluggedEntitySchema, zeroToOneNumber } from './base.ts';
 import type {
@@ -48,8 +66,8 @@ export const employeeRoleSchema: z.ZodType<EmployeeRole> = domainEntitySchema
     coreSkills: z.array(employeeSkillRequirementSchema).readonly().default([]),
     tags: z.array(nonEmptyString).readonly().optional(),
     baseRateMultiplier: finiteNumber
-      .min(0.1, 'baseRateMultiplier must be positive when provided.')
-      .max(10, 'baseRateMultiplier must not exceed 10.')
+      .min(MIN_BASE_RATE_MULTIPLIER, 'baseRateMultiplier must be positive when provided.')
+      .max(MAX_BASE_RATE_MULTIPLIER, 'baseRateMultiplier must not exceed 10.')
       .optional(),
   });
 
@@ -70,14 +88,14 @@ export const employeeTraitAssignmentSchema: z.ZodType<EmployeeTraitAssignment> =
 
 export const employeeScheduleSchema: z.ZodType<EmployeeSchedule> = z.object({
   hoursPerDay: finiteNumber
-    .min(5, 'hoursPerDay must be at least 5 hours.')
-    .max(16, 'hoursPerDay must not exceed 16 hours.'),
+    .min(MIN_HOURS_PER_DAY, 'hoursPerDay must be at least 5 hours.')
+    .max(MAX_HOURS_PER_DAY, 'hoursPerDay must not exceed 16 hours.'),
   overtimeHoursPerDay: finiteNumber
     .min(0, 'overtimeHoursPerDay cannot be negative.')
-    .max(5, 'overtimeHoursPerDay must not exceed 5 hours.'),
+    .max(MAX_OVERTIME_HOURS_PER_DAY, 'overtimeHoursPerDay must not exceed 5 hours.'),
   daysPerWeek: finiteNumber
     .min(1, 'daysPerWeek must be at least 1.')
-    .max(7, 'daysPerWeek must not exceed 7.'),
+    .max(MAX_DAYS_PER_WEEK, 'daysPerWeek must not exceed 7.'),
   shiftStartHour: finiteNumber
     .min(0, 'shiftStartHour cannot be negative.')
     .max(HOURS_PER_DAY - 1, `shiftStartHour must be < ${String(HOURS_PER_DAY)}.`)
@@ -118,15 +136,15 @@ export const employeeSchema: z.ZodType<Employee> = domainEntitySchema.extend({
   schedule: employeeScheduleSchema,
   notes: nonEmptyString.optional(),
   baseRateMultiplier: finiteNumber
-    .min(0.1, 'baseRateMultiplier must be at least 0.1.')
-    .max(10, 'baseRateMultiplier must not exceed 10.'),
+    .min(MIN_BASE_RATE_MULTIPLIER, 'baseRateMultiplier must be at least 0.1.')
+    .max(MAX_BASE_RATE_MULTIPLIER, 'baseRateMultiplier must not exceed 10.'),
   experience: employeeExperienceSchema,
   laborMarketFactor: finiteNumber
-    .min(0.1, 'laborMarketFactor must be at least 0.1.')
-    .max(10, 'laborMarketFactor must not exceed 10.'),
+    .min(MIN_LABOR_MARKET_FACTOR, 'laborMarketFactor must be at least 0.1.')
+    .max(MAX_LABOR_MARKET_FACTOR, 'laborMarketFactor must not exceed 10.'),
   timePremiumMultiplier: finiteNumber
-    .min(0.5, 'timePremiumMultiplier must be at least 0.5.')
-    .max(5, 'timePremiumMultiplier must not exceed 5.'),
+    .min(MIN_TIME_PREMIUM_MULTIPLIER, 'timePremiumMultiplier must be at least 0.5.')
+    .max(MAX_TIME_PREMIUM_MULTIPLIER, 'timePremiumMultiplier must not exceed 5.'),
   employmentStartDay: finiteNumber
     .min(0, 'employmentStartDay cannot be negative.')
     .transform((value) => Math.trunc(value)),
@@ -245,23 +263,23 @@ const workforceMarketCandidateSkillSchema: z.ZodType<WorkforceMarketCandidateSki
 const workforceMarketMainSkillSchema: z.ZodType<WorkforceMarketCandidateSkill> =
   workforceMarketCandidateSkillSchema.extend({
     value01: zeroToOneNumber
-      .min(0.25, 'Main skill must be at least 0.25.')
-      .max(0.5, 'Main skill must not exceed 0.50.'),
+      .min(MIN_MAIN_SKILL_VALUE, 'Main skill must be at least 0.25.')
+      .max(MAX_MAIN_SKILL_VALUE, 'Main skill must not exceed 0.50.'),
   });
 
 const workforceMarketSecondarySkillSchema: z.ZodType<WorkforceMarketCandidateSkill> =
   workforceMarketCandidateSkillSchema.extend({
     value01: zeroToOneNumber
-      .min(0.01, 'Secondary skills must be at least 0.01.')
-      .max(0.35, 'Secondary skills must not exceed 0.35.'),
+      .min(MIN_SECONDARY_SKILL_VALUE, 'Secondary skills must be at least 0.01.')
+      .max(MAX_SECONDARY_SKILL_VALUE, 'Secondary skills must not exceed 0.35.'),
   });
 
 const workforceMarketCandidateTraitSchema: z.ZodType<WorkforceMarketCandidateTrait> = z
   .object({
     id: nonEmptyString,
     strength01: zeroToOneNumber
-      .min(0.3, 'Trait strength must be at least 0.3.')
-      .max(0.7, 'Trait strength must not exceed 0.7.'),
+      .min(MIN_TRAIT_STRENGTH, 'Trait strength must be at least 0.3.')
+      .max(MAX_TRAIT_STRENGTH, 'Trait strength must not exceed 0.7.'),
   })
   .strict();
 

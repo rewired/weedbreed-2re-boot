@@ -3,12 +3,21 @@ import crypto from 'node:crypto';
 import type { HarvestLot, PlantLifecycleStage } from '../domain/world.ts';
 import type { Uuid } from '../domain/schemas/primitives.ts';
 import type { StrainBlueprint } from '../domain/blueprints/strainBlueprint.ts';
+import { 
+  HARVEST_QUALITY_HEALTH_WEIGHT,
+  HARVEST_QUALITY_STRESS_WEIGHT,
+  HARVEST_QUALITY_GENETIC_WEIGHT,
+  HARVEST_QUALITY_HIGH_THRESHOLD,
+  HARVEST_QUALITY_HIGH_BONUS_FACTOR,
+  SECONDS_PER_HOUR,
+  MILLISECONDS_PER_SECOND
+} from '../constants/simConstants.ts';
 import { clamp01 } from './math.ts';
 import { getDryMatterFraction, getHarvestIndex } from './growth.ts';
 
-const W_HEALTH = 0.55;
-const W_STRESS = 0.25;
-const W_GENET = 0.2;
+const W_HEALTH = HARVEST_QUALITY_HEALTH_WEIGHT;
+const W_STRESS = HARVEST_QUALITY_STRESS_WEIGHT;
+const W_GENET = HARVEST_QUALITY_GENETIC_WEIGHT;
 
 export function calculateHarvestQuality(
   finalHealth01: number,
@@ -23,8 +32,8 @@ export function calculateHarvestQuality(
 
   quality01 = clamp01(quality01 * methodMod);
 
-  if (quality01 > 0.95) {
-    quality01 = 0.95 + 0.5 * (quality01 - 0.95);
+  if (quality01 > HARVEST_QUALITY_HIGH_THRESHOLD) {
+    quality01 = HARVEST_QUALITY_HIGH_THRESHOLD + HARVEST_QUALITY_HIGH_BONUS_FACTOR * (quality01 - HARVEST_QUALITY_HIGH_THRESHOLD);
   }
 
   return clamp01(quality01);
@@ -50,7 +59,7 @@ export function createHarvestLot(
   sourceZoneId: Uuid
 ): HarvestLot {
   const id = crypto.randomUUID() as Uuid;
-  const harvestDateIso = new Date(harvestedAtSimHours * 3600 * 1000)
+  const harvestDateIso = new Date(harvestedAtSimHours * SECONDS_PER_HOUR * MILLISECONDS_PER_SECOND)
     .toISOString()
     .split('T')[0];
 

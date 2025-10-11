@@ -1,4 +1,22 @@
-import { HOURS_PER_DAY } from '../constants/simConstants.ts';
+import { 
+  HOURS_PER_DAY,
+  DEFAULT_DRY_MATTER_FRACTION,
+  DEFAULT_HARVEST_INDEX,
+  SEEDLING_PHASE_MULTIPLIER,
+  VEGETATIVE_PHASE_MULTIPLIER,
+  FLOWERING_PHASE_MULTIPLIER,
+  HARVEST_READY_PHASE_MULTIPLIER,
+  Q10_TEMPERATURE_DIVISOR,
+  TEMPERATURE_FACTOR_CLAMP_MAX,
+  EXTREME_TEMPERATURE_FACTOR,
+  GRAMS_PER_KILOGRAM,
+  NOISE_FACTOR,
+  HEALTH_DECAY_RATE_PER_HOUR,
+  HEALTH_VARIATION_MIN,
+  HEALTH_VARIATION_RANGE,
+  HEALTH_RECOVERY_STRESS_THRESHOLD,
+  HEALTH_RECOVERY_RATE_PER_HOUR
+} from '../constants/simConstants.ts';
 import type { PlantLifecycleStage } from '../domain/entities.ts';
 import type {
   GrowthModel,
@@ -9,8 +27,8 @@ import type {
 import type { RandomNumberGenerator } from './rng.ts';
 import { clamp, clamp01 } from './math.ts';
 
-const DEFAULT_DRY_MATTER_FRACTION = 0.2;
-const DEFAULT_HARVEST_INDEX = 0.7;
+const DEFAULT_DRY_MATTER_FRACTION_VALUE = DEFAULT_DRY_MATTER_FRACTION;
+const DEFAULT_HARVEST_INDEX_VALUE = DEFAULT_HARVEST_INDEX;
 
 function resolveDryMatterFraction(
   config: DryMatterFractionConfig,
@@ -20,7 +38,7 @@ function resolveDryMatterFraction(
     return clamp01(config);
   }
 
-  const flowering = config.flowering ?? config.vegetation ?? DEFAULT_DRY_MATTER_FRACTION;
+  const flowering = config.flowering ?? config.vegetation ?? DEFAULT_DRY_MATTER_FRACTION_VALUE;
 
   if (stage === 'vegetative' || stage === 'seedling') {
     return clamp01(config.vegetation ?? flowering);
@@ -34,7 +52,7 @@ function resolveHarvestIndex(config: HarvestIndexConfig, stage: PlantLifecycleSt
     return clamp01(config);
   }
 
-  const flowering = config.targetFlowering ?? DEFAULT_HARVEST_INDEX;
+  const flowering = config.targetFlowering ?? DEFAULT_HARVEST_INDEX_VALUE;
 
   if (stage === 'flowering' || stage === 'harvest-ready') {
     return clamp01(flowering);
@@ -45,10 +63,10 @@ function resolveHarvestIndex(config: HarvestIndexConfig, stage: PlantLifecycleSt
 
 function getPhaseMultiplier(lifecycleStage: PlantLifecycleStage, growthModel: GrowthModel): number {
   const defaults: Record<PlantLifecycleStage, number> = {
-    seedling: 0.35,
-    vegetative: 1,
-    flowering: 0.75,
-    'harvest-ready': 0.1
+    seedling: SEEDLING_PHASE_MULTIPLIER,
+    vegetative: VEGETATIVE_PHASE_MULTIPLIER,
+    flowering: FLOWERING_PHASE_MULTIPLIER,
+    'harvest-ready': HARVEST_READY_PHASE_MULTIPLIER
   };
   const configured = growthModel.phaseCapMultiplier;
 
@@ -89,17 +107,17 @@ export function getHarvestIndex(growthModel: GrowthModel, stage: PlantLifecycleS
  */
 export function calculateTemperatureGrowthFactor(tempC: number, growthModel: GrowthModel): number {
   const { Q10, T_ref_C, min_C, max_C } = growthModel.temperature;
-  let factor = Math.pow(Q10, (tempC - T_ref_C) / 10);
+  let factor = Math.pow(Q10, (tempC - T_ref_C) / Q10_TEMPERATURE_DIVISOR);
 
   if (!Number.isFinite(factor)) {
     factor = 0;
   }
 
   if (tempC < min_C || tempC > max_C) {
-    factor *= 0.1;
+    factor *= EXTREME_TEMPERATURE_FACTOR;
   }
 
-  return clamp(factor, 0, 2);
+  return clamp(factor, 0, TEMPERATURE_FACTOR_CLAMP_MAX);
 }
 
 /**
@@ -122,7 +140,7 @@ export function calculateBiomassIncrement(
   const dryMatterFraction = getDryMatterFraction(growthModel, lifecycleStage);
   // Blueprint stores baseLightUseEfficiency in kilograms of dry matter per mol of PAR.
   // Convert to grams before applying the daily light integral increment which is already tick-scoped.
-  const lightUseEfficiency_g_per_mol = growthModel.baseLightUseEfficiency * 1_000;
+  const lightUseEfficiency_g_per_mol = growthModel.baseLightUseEfficiency * GRAMS_PER_KILOGRAM;
   const tickFractionOfDay = tickHours / HOURS_PER_DAY;
   const baseGrowth =
     dli_mol_m2d_inc *
@@ -135,7 +153,7 @@ export function calculateBiomassIncrement(
   let netGrowth = baseGrowth - maintenanceCost;
 
   if (strain.noise?.enabled) {
-    const noise = (rng() - 0.5) * 2 * strain.noise.pct;
+    const noise = (rng() - 0.5) * NOISE_FACTOR * strain.noise.pct;
     netGrowth *= 1 + noise;
   }
 
@@ -147,7 +165,7 @@ export function calculateBiomassIncrement(
     netGrowth = 0;
   }
 
-  const maxBiomass_g = growthModel.maxBiomassDry * 1_000;
+  const maxBiomass_g = growthModel.maxBiomassDry * GRAMS_PER_KILOGRAM;
 
   if (currentBiomass_g + netGrowth > maxBiomass_g) {
     netGrowth = Math.max(0, maxBiomass_g - currentBiomass_g);
@@ -164,9 +182,9 @@ export function calculateHealthDecay(
 ): number {
   void currentHealth01;
 
-  const decayRatePerHour = clamp01(stress01) * 0.01;
+  const decayRatePerHour = clamp01(stress01) * HEALTH_DECAY_RATE_PER_HOUR;
   let loss = decayRatePerHour * tickHours;
-  const variation = 0.9 + rng() * 0.2;
+  const variation = HEALTH_VARIATION_MIN + rng() * HEALTH_VARIATION_RANGE;
   loss *= variation;
   return loss;
 }
@@ -176,10 +194,10 @@ export function calculateHealthRecovery(
   currentHealth01: number,
   tickHours: number
 ): number {
-  if (stress01 >= 0.2 || currentHealth01 >= 1) {
+  if (stress01 >= HEALTH_RECOVERY_STRESS_THRESHOLD || currentHealth01 >= 1) {
     return 0;
   }
 
-  const recoveryRatePerHour = (1 - clamp01(stress01)) * 0.005;
+  const recoveryRatePerHour = (1 - clamp01(stress01)) * HEALTH_RECOVERY_RATE_PER_HOUR;
   return recoveryRatePerHour * tickHours * (1 - clamp01(currentHealth01));
 }

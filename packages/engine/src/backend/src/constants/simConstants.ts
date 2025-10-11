@@ -377,6 +377,158 @@ export interface SimulationConstants {
    * Cycle length days for zone 5.
    */
   readonly ZONE_5_CYCLE_LENGTH_DAYS: number;
+  /**
+   * Minimum base rate multiplier.
+   */
+  readonly MIN_BASE_RATE_MULTIPLIER: number;
+  /**
+   * Maximum base rate multiplier.
+   */
+  readonly MAX_BASE_RATE_MULTIPLIER: number;
+  /**
+   * Minimum hours per day for employee schedule.
+   */
+  readonly MIN_HOURS_PER_DAY: number;
+  /**
+   * Maximum hours per day for employee schedule.
+   */
+  readonly MAX_HOURS_PER_DAY: number;
+  /**
+   * Maximum overtime hours per day.
+   */
+  readonly MAX_OVERTIME_HOURS_PER_DAY: number;
+  /**
+   * Maximum days per week.
+   */
+  readonly MAX_DAYS_PER_WEEK: number;
+  /**
+   * Minimum labor market factor.
+   */
+  readonly MIN_LABOR_MARKET_FACTOR: number;
+  /**
+   * Maximum labor market factor.
+   */
+  readonly MAX_LABOR_MARKET_FACTOR: number;
+  /**
+   * Minimum time premium multiplier.
+   */
+  readonly MIN_TIME_PREMIUM_MULTIPLIER: number;
+  /**
+   * Maximum time premium multiplier.
+   */
+  readonly MAX_TIME_PREMIUM_MULTIPLIER: number;
+  /**
+   * Minimum main skill value.
+   */
+  readonly MIN_MAIN_SKILL_VALUE: number;
+  /**
+   * Maximum main skill value.
+   */
+  readonly MAX_MAIN_SKILL_VALUE: number;
+  /**
+   * Minimum secondary skill value.
+   */
+  readonly MIN_SECONDARY_SKILL_VALUE: number;
+  /**
+   * Maximum secondary skill value.
+   */
+  readonly MAX_SECONDARY_SKILL_VALUE: number;
+  /**
+   * Minimum trait strength.
+   */
+  readonly MIN_TRAIT_STRENGTH: number;
+  /**
+   * Maximum trait strength.
+   */
+  readonly MAX_TRAIT_STRENGTH: number;
+  /**
+   * Default dry matter fraction.
+   */
+  readonly DEFAULT_DRY_MATTER_FRACTION: number;
+  /**
+   * Default harvest index.
+   */
+  readonly DEFAULT_HARVEST_INDEX: number;
+  /**
+   * Seedling phase multiplier.
+   */
+  readonly SEEDLING_PHASE_MULTIPLIER: number;
+  /**
+   * Vegetative phase multiplier.
+   */
+  readonly VEGETATIVE_PHASE_MULTIPLIER: number;
+  /**
+   * Flowering phase multiplier.
+   */
+  readonly FLOWERING_PHASE_MULTIPLIER: number;
+  /**
+   * Harvest ready phase multiplier.
+   */
+  readonly HARVEST_READY_PHASE_MULTIPLIER: number;
+  /**
+   * Temperature factor divisor for Q10 calculation.
+   */
+  readonly Q10_TEMPERATURE_DIVISOR: number;
+  /**
+   * Temperature factor clamp maximum.
+   */
+  readonly TEMPERATURE_FACTOR_CLAMP_MAX: number;
+  /**
+   * Extreme temperature factor reduction.
+   */
+  readonly EXTREME_TEMPERATURE_FACTOR: number;
+  /**
+   * Grams per kilogram conversion factor.
+   */
+  readonly GRAMS_PER_KILOGRAM: number;
+  /**
+   * Noise factor for biomass calculation.
+   */
+  readonly NOISE_FACTOR: number;
+  /**
+   * Health decay rate per hour.
+   */
+  readonly HEALTH_DECAY_RATE_PER_HOUR: number;
+  /**
+   * Health variation minimum.
+   */
+  readonly HEALTH_VARIATION_MIN: number;
+  /**
+   * Health variation range.
+   */
+  readonly HEALTH_VARIATION_RANGE: number;
+  /**
+   * Health recovery stress threshold.
+   */
+  readonly HEALTH_RECOVERY_STRESS_THRESHOLD: number;
+  /**
+   * Health recovery rate per hour.
+   */
+  readonly HEALTH_RECOVERY_RATE_PER_HOUR: number;
+  /**
+   * Harvest quality health weight.
+   */
+  readonly HARVEST_QUALITY_HEALTH_WEIGHT: number;
+  /**
+   * Harvest quality stress weight.
+   */
+  readonly HARVEST_QUALITY_STRESS_WEIGHT: number;
+  /**
+   * Harvest quality genetic weight.
+   */
+  readonly HARVEST_QUALITY_GENETIC_WEIGHT: number;
+  /**
+   * Harvest quality high threshold.
+   */
+  readonly HARVEST_QUALITY_HIGH_THRESHOLD: number;
+  /**
+   * Harvest quality high bonus factor.
+   */
+  readonly HARVEST_QUALITY_HIGH_BONUS_FACTOR: number;
+  /**
+   * Milliseconds per second conversion factor.
+   */
+  readonly MILLISECONDS_PER_SECOND: number;
 }
 
 /**
@@ -845,6 +997,196 @@ export const ZONE_5_FIRST_HARVEST_DAY = 32 as const;
 export const ZONE_5_CYCLE_LENGTH_DAYS = 58 as const;
 
 /**
+ * Minimum base rate multiplier.
+ */
+export const MIN_BASE_RATE_MULTIPLIER = 0.1 as const;
+
+/**
+ * Maximum base rate multiplier.
+ */
+export const MAX_BASE_RATE_MULTIPLIER = 10 as const;
+
+/**
+ * Minimum hours per day for employee schedule.
+ */
+export const MIN_HOURS_PER_DAY = 5 as const;
+
+/**
+ * Maximum hours per day for employee schedule.
+ */
+export const MAX_HOURS_PER_DAY = 16 as const;
+
+/**
+ * Maximum overtime hours per day.
+ */
+export const MAX_OVERTIME_HOURS_PER_DAY = 5 as const;
+
+/**
+ * Maximum days per week.
+ */
+export const MAX_DAYS_PER_WEEK = 7 as const;
+
+/**
+ * Minimum labor market factor.
+ */
+export const MIN_LABOR_MARKET_FACTOR = 0.1 as const;
+
+/**
+ * Maximum labor market factor.
+ */
+export const MAX_LABOR_MARKET_FACTOR = 10 as const;
+
+/**
+ * Minimum time premium multiplier.
+ */
+export const MIN_TIME_PREMIUM_MULTIPLIER = 0.5 as const;
+
+/**
+ * Maximum time premium multiplier.
+ */
+export const MAX_TIME_PREMIUM_MULTIPLIER = 5 as const;
+
+/**
+ * Minimum main skill value.
+ */
+export const MIN_MAIN_SKILL_VALUE = 0.25 as const;
+
+/**
+ * Maximum main skill value.
+ */
+export const MAX_MAIN_SKILL_VALUE = 0.5 as const;
+
+/**
+ * Minimum secondary skill value.
+ */
+export const MIN_SECONDARY_SKILL_VALUE = 0.01 as const;
+
+/**
+ * Maximum secondary skill value.
+ */
+export const MAX_SECONDARY_SKILL_VALUE = 0.35 as const;
+
+/**
+ * Minimum trait strength.
+ */
+export const MIN_TRAIT_STRENGTH = 0.3 as const;
+
+/**
+ * Maximum trait strength.
+ */
+export const MAX_TRAIT_STRENGTH = 0.7 as const;
+
+/**
+ * Default dry matter fraction.
+ */
+export const DEFAULT_DRY_MATTER_FRACTION = 0.2 as const;
+
+/**
+ * Default harvest index.
+ */
+export const DEFAULT_HARVEST_INDEX = 0.7 as const;
+
+/**
+ * Seedling phase multiplier.
+ */
+export const SEEDLING_PHASE_MULTIPLIER = 0.35 as const;
+
+/**
+ * Vegetative phase multiplier.
+ */
+export const VEGETATIVE_PHASE_MULTIPLIER = 1 as const;
+
+/**
+ * Flowering phase multiplier.
+ */
+export const FLOWERING_PHASE_MULTIPLIER = 0.75 as const;
+
+/**
+ * Harvest ready phase multiplier.
+ */
+export const HARVEST_READY_PHASE_MULTIPLIER = 0.1 as const;
+
+/**
+ * Temperature factor divisor for Q10 calculation.
+ */
+export const Q10_TEMPERATURE_DIVISOR = 10 as const;
+
+/**
+ * Temperature factor clamp maximum.
+ */
+export const TEMPERATURE_FACTOR_CLAMP_MAX = 2 as const;
+
+/**
+ * Extreme temperature factor reduction.
+ */
+export const EXTREME_TEMPERATURE_FACTOR = 0.1 as const;
+
+/**
+ * Grams per kilogram conversion factor.
+ */
+export const GRAMS_PER_KILOGRAM = 1000 as const;
+
+/**
+ * Noise factor for biomass calculation.
+ */
+export const NOISE_FACTOR = 2 as const;
+
+/**
+ * Health decay rate per hour.
+ */
+export const HEALTH_DECAY_RATE_PER_HOUR = 0.01 as const;
+
+/**
+ * Health variation minimum.
+ */
+export const HEALTH_VARIATION_MIN = 0.9 as const;
+
+/**
+ * Health variation range.
+ */
+export const HEALTH_VARIATION_RANGE = 0.2 as const;
+
+/**
+ * Health recovery stress threshold.
+ */
+export const HEALTH_RECOVERY_STRESS_THRESHOLD = 0.2 as const;
+
+/**
+ * Health recovery rate per hour.
+ */
+export const HEALTH_RECOVERY_RATE_PER_HOUR = 0.005 as const;
+
+/**
+ * Harvest quality health weight.
+ */
+export const HARVEST_QUALITY_HEALTH_WEIGHT = 0.55 as const;
+
+/**
+ * Harvest quality stress weight.
+ */
+export const HARVEST_QUALITY_STRESS_WEIGHT = 0.25 as const;
+
+/**
+ * Harvest quality genetic weight.
+ */
+export const HARVEST_QUALITY_GENETIC_WEIGHT = 0.2 as const;
+
+/**
+ * Harvest quality high threshold.
+ */
+export const HARVEST_QUALITY_HIGH_THRESHOLD = 0.95 as const;
+
+/**
+ * Harvest quality high bonus factor.
+ */
+export const HARVEST_QUALITY_HIGH_BONUS_FACTOR = 0.5 as const;
+
+/**
+ * Milliseconds per second conversion factor.
+ */
+export const MILLISECONDS_PER_SECOND = 1000 as const;
+
+/**
  * Single source of truth that stores the canonical simulation constants.
  *
  * The registry is frozen once to guarantee immutability and shared between
@@ -939,7 +1281,45 @@ const SIMULATION_CONSTANT_REGISTRY = Object.freeze({
   ZONE_4_FIRST_HARVEST_DAY,
   ZONE_4_CYCLE_LENGTH_DAYS,
   ZONE_5_FIRST_HARVEST_DAY,
-  ZONE_5_CYCLE_LENGTH_DAYS
+  ZONE_5_CYCLE_LENGTH_DAYS,
+  MIN_BASE_RATE_MULTIPLIER,
+  MAX_BASE_RATE_MULTIPLIER,
+  MIN_HOURS_PER_DAY,
+  MAX_HOURS_PER_DAY,
+  MAX_OVERTIME_HOURS_PER_DAY,
+  MAX_DAYS_PER_WEEK,
+  MIN_LABOR_MARKET_FACTOR,
+  MAX_LABOR_MARKET_FACTOR,
+  MIN_TIME_PREMIUM_MULTIPLIER,
+  MAX_TIME_PREMIUM_MULTIPLIER,
+  MIN_MAIN_SKILL_VALUE,
+  MAX_MAIN_SKILL_VALUE,
+  MIN_SECONDARY_SKILL_VALUE,
+  MAX_SECONDARY_SKILL_VALUE,
+  MIN_TRAIT_STRENGTH,
+  MAX_TRAIT_STRENGTH,
+  DEFAULT_DRY_MATTER_FRACTION,
+  DEFAULT_HARVEST_INDEX,
+  SEEDLING_PHASE_MULTIPLIER,
+  VEGETATIVE_PHASE_MULTIPLIER,
+  FLOWERING_PHASE_MULTIPLIER,
+  HARVEST_READY_PHASE_MULTIPLIER,
+  Q10_TEMPERATURE_DIVISOR,
+  TEMPERATURE_FACTOR_CLAMP_MAX,
+  EXTREME_TEMPERATURE_FACTOR,
+  GRAMS_PER_KILOGRAM,
+  NOISE_FACTOR,
+  HEALTH_DECAY_RATE_PER_HOUR,
+  HEALTH_VARIATION_MIN,
+  HEALTH_VARIATION_RANGE,
+  HEALTH_RECOVERY_STRESS_THRESHOLD,
+  HEALTH_RECOVERY_RATE_PER_HOUR,
+  HARVEST_QUALITY_HEALTH_WEIGHT,
+  HARVEST_QUALITY_STRESS_WEIGHT,
+  HARVEST_QUALITY_GENETIC_WEIGHT,
+  HARVEST_QUALITY_HIGH_THRESHOLD,
+  HARVEST_QUALITY_HIGH_BONUS_FACTOR,
+  MILLISECONDS_PER_SECOND
 } satisfies Readonly<SimulationConstants>);
 
 /**
