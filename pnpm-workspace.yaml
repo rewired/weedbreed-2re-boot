@@ -2,5 +2,6 @@ packages:
   - packages/*
 
 ignoredBuiltDependencies:
+  - '@swc/core'
   - esbuild
   - simple-git-hooks
