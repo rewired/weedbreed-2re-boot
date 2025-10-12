@@ -82,10 +82,14 @@ describe('resolveStorageRoomForStructure', () => {
 
     const result = resolveStorageRoomForStructure(structure.id, world);
 
-    expect(result).toEqual({
-      ok: false,
-      reason: 'ambiguous',
-      candidates: expect.arrayContaining([storageRoom.id, '00000000-0000-0000-0000-00000000ffff'])
-    });
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error('Expected ambiguous lookup to fail');
+    }
+
+    expect(result.reason).toBe('ambiguous');
+    expect(result.candidates).toEqual(
+      expect.arrayContaining([storageRoom.id, '00000000-0000-0000-0000-00000000ffff'])
+    );
   });
 });

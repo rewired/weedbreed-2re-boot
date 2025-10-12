@@ -70,7 +70,7 @@ describe('IrrigationServiceStub', () => {
     const result = stub.computeEffect(inputs, BASE_BUFFER_STATE, HOURS_PER_TICK);
 
     expect(result.leached_mg.N).toBeCloseTo(40, 5);
-    expect(result.uptake_mg.N ?? 0).toBe(0);
+    expect(result.uptake_mg.N).toBeUndefined();
   });
 
   it('returns zeros when no events are provided', () => {

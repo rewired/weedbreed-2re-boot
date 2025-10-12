@@ -63,36 +63,34 @@ const substrateSlugRegistry = (() => {
 
 function resolveParser(relativePath: string): { readonly label: string; readonly parse: ParserFn } {
   const [domain, namespace] = relativePath.split('/');
-  const filePath = resolveBlueprintPath(relativePath);
-
   switch (domain) {
     case 'container':
       return {
         label: 'container',
-        parse: (input, _context) => {
-          parseContainerBlueprint(input, { filePath });
+        parse: (input, context) => {
+          parseContainerBlueprint(input, { filePath: context.filePath });
         }
       } satisfies { label: string; parse: ParserFn };
     case 'cultivation-method':
       return {
         label: 'cultivation-method',
-        parse: (input, _context) => {
-          parseCultivationMethodBlueprint(input, { filePath });
+        parse: (input, context) => {
+          parseCultivationMethodBlueprint(input, { filePath: context.filePath });
         }
       } satisfies { label: string; parse: ParserFn };
     case 'structure':
       return {
         label: 'structure',
-        parse: (input, _context) => {
-          parseStructureBlueprint(input, { filePath });
+        parse: (input, context) => {
+          parseStructureBlueprint(input, { filePath: context.filePath });
         }
       } satisfies { label: string; parse: ParserFn };
     case 'room':
       if (namespace === 'purpose') {
         return {
           label: 'room.purpose',
-          parse: (input, _context) => {
-            parseRoomPurposeBlueprint(input, { filePath });
+          parse: (input, context) => {
+            parseRoomPurposeBlueprint(input, { filePath: context.filePath });
           }
         } satisfies { label: string; parse: ParserFn };
       }
@@ -100,31 +98,31 @@ function resolveParser(relativePath: string): { readonly label: string; readonly
     case 'disease':
       return {
         label: 'disease',
-        parse: (input, _context) => {
-          parseDiseaseBlueprint(input, { filePath });
+        parse: (input, context) => {
+          parseDiseaseBlueprint(input, { filePath: context.filePath });
         }
       } satisfies { label: string; parse: ParserFn };
     case 'pest':
       return {
         label: 'pest',
-        parse: (input, _context) => {
-          parsePestBlueprint(input, { filePath });
+        parse: (input, context) => {
+          parsePestBlueprint(input, { filePath: context.filePath });
         }
       } satisfies { label: string; parse: ParserFn };
     case 'personnel':
       if (namespace === 'role') {
         return {
           label: 'personnel.role',
-          parse: (input, _context) => {
-            parsePersonnelRoleBlueprint(input, { filePath });
+          parse: (input, context) => {
+            parsePersonnelRoleBlueprint(input, { filePath: context.filePath });
           }
         } satisfies { label: string; parse: ParserFn };
       }
       if (namespace === 'skill') {
         return {
           label: 'personnel.skill',
-          parse: (input, _context) => {
-            parsePersonnelSkillBlueprint(input, { filePath });
+          parse: (input, context) => {
+            parsePersonnelSkillBlueprint(input, { filePath: context.filePath });
           }
         } satisfies { label: string; parse: ParserFn };
       }
@@ -132,29 +130,29 @@ function resolveParser(relativePath: string): { readonly label: string; readonly
     case 'device':
       return {
         label: 'device',
-        parse: (input, _context) => {
-          parseDeviceBlueprint(input, { filePath });
+        parse: (input, context) => {
+          parseDeviceBlueprint(input, { filePath: context.filePath });
         }
       } satisfies { label: string; parse: ParserFn };
     case 'irrigation':
       return {
         label: 'irrigation',
-        parse: (input, _context) => {
-          parseIrrigationBlueprint(input, { filePath, knownSubstrateSlugs: substrateSlugRegistry });
+        parse: (input, context) => {
+          parseIrrigationBlueprint(input, { filePath: context.filePath, knownSubstrateSlugs: substrateSlugRegistry });
         }
       } satisfies { label: string; parse: ParserFn };
     case 'strain':
       return {
         label: 'strain',
-        parse: (input, _context) => {
-          parseStrainBlueprint(input, { filePath });
+        parse: (input, context) => {
+          parseStrainBlueprint(input, { filePath: context.filePath });
         }
       } satisfies { label: string; parse: ParserFn };
     case 'substrate':
       return {
         label: 'substrate',
-        parse: (input, _context) => {
-          parseSubstrateBlueprint(input, { filePath });
+        parse: (input, context) => {
+          parseSubstrateBlueprint(input, { filePath: context.filePath });
         }
       } satisfies { label: string; parse: ParserFn };
     default:

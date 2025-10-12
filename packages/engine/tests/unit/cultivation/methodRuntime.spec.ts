@@ -24,6 +24,11 @@ import type {
   Uuid,
 } from '@/backend/src/domain/world';
 
+const STERILISATION_TASK_CODE = soilMultiCycle.reusePolicy.sterilizationTaskCode;
+if (!STERILISATION_TASK_CODE) {
+  throw new Error('Test substrate requires a sterilizationTaskCode');
+}
+
 function createTaskDefinition(taskCode: string): WorkforceTaskDefinition {
   return {
     taskCode,
@@ -108,7 +113,7 @@ describe('cultivation method runtime task scheduling', () => {
       employees: [],
       taskDefinitions: [
         createTaskDefinition('cultivation.repot'),
-        createTaskDefinition(soilMultiCycle.reusePolicy.sterilizationTaskCode ?? 'cultivation.substrate.sterilize'),
+        createTaskDefinition(STERILISATION_TASK_CODE),
         createTaskDefinition('cultivation.substrate.dispose'),
       ],
       taskQueue: [],
@@ -143,9 +148,9 @@ describe('cultivation method runtime task scheduling', () => {
       methodCatalog: catalog,
     });
 
-    const steriliseCode = soilMultiCycle.reusePolicy.sterilizationTaskCode ?? 'cultivation.substrate.sterilize';
     expect(firstPassTasks, 'first harvest schedules sterilisation').toHaveLength(1);
-    expect(firstPassTasks[0]?.taskCode).toBe(steriliseCode);
+    const [firstTask] = firstPassTasks;
+    expect(firstTask.taskCode).toBe(STERILISATION_TASK_CODE);
 
     // Second cycle should trigger substrate disposal (maxCycles = 2)
     const secondCyclePlants: Plant[] = zone.plants.map((plant) => ({
@@ -170,7 +175,8 @@ describe('cultivation method runtime task scheduling', () => {
     });
 
     expect(secondPassTasks, 'second harvest schedules disposal').toHaveLength(1);
-    expect(secondPassTasks[0]?.taskCode).toBe('cultivation.substrate.dispose');
+    const [secondTask] = secondPassTasks;
+    expect(secondTask.taskCode).toBe('cultivation.substrate.dispose');
 
     // Third cycle should trigger container repot (service life 3) and another sterilisation.
     const thirdCyclePlants: Plant[] = zone.plants.map((plant) => ({
@@ -195,13 +201,15 @@ describe('cultivation method runtime task scheduling', () => {
     });
 
     const taskCodes = thirdPassTasks.map((task) => task.taskCode).sort();
-    expect(taskCodes).toEqual(['cultivation.repot', steriliseCode].sort());
+    expect(taskCodes).toEqual(['cultivation.repot', STERILISATION_TASK_CODE].sort());
 
-    const contexts = thirdPassTasks.map((task) => task.context ?? {});
-    contexts.forEach((context) => {
-      expect(context.zoneId).toBe(zone.id);
-      expect(context.structureId).toBe(structure.id);
+    thirdPassTasks.forEach((task) => {
+      if (!task.context) {
+        throw new Error('Expected cultivation task to include context metadata');
+      }
+
+      expect(task.context.zoneId).toBe(zone.id);
+      expect(task.context.structureId).toBe(structure.id);
     });
   });
 });
-

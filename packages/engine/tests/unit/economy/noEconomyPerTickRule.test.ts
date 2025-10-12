@@ -1,16 +1,35 @@
-/* eslint-disable wb-sim/no-economy-per-tick */
-import { parser as typescriptEslintParser } from 'typescript-eslint';
+/* eslint-disable wb-sim/no-economy-per-tick, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call */
+import { parse as tsParse, parseForESLint as tsParseForESLint } from '@typescript-eslint/parser';
 import { Linter } from 'eslint';
 import { describe, expect, it } from 'vitest';
 
 import { noEconomyPerTickRule } from '../../../../../tools/eslint/rules/no-economy-per-tick';
 
 const linter = new Linter({ configType: 'eslintrc' });
-linter.defineParser(
-  '@typescript-eslint/parser',
-  typescriptEslintParser as unknown as Linter.ParserModule
-);
-linter.defineRule('wb-sim/no-economy-per-tick', noEconomyPerTickRule);
+
+const parserModule: Linter.ParserModule = {
+  parse(code, options) {
+    return tsParse(code, options);
+  },
+  parseForESLint(code, options) {
+    return tsParseForESLint(code, options);
+  },
+};
+linter.defineParser('@typescript-eslint/parser', parserModule);
+
+const ruleCreate = noEconomyPerTickRule.create;
+if (typeof ruleCreate !== 'function') {
+  throw new Error('Expected no-economy-per-tick rule to expose a create function');
+}
+
+const ruleMeta = typeof noEconomyPerTickRule.meta === 'object' && noEconomyPerTickRule.meta !== null ? noEconomyPerTickRule.meta : undefined;
+const ruleModule: Linter.RuleModule = {
+  meta: ruleMeta,
+  create(context) {
+    return ruleCreate(context);
+  },
+};
+linter.defineRule('wb-sim/no-economy-per-tick', ruleModule);
 
 function lint(code: string) {
   const messages = linter.verify(
@@ -19,11 +38,11 @@ function lint(code: string) {
       parser: '@typescript-eslint/parser',
       parserOptions: {
         ecmaVersion: 2022,
-        sourceType: 'module'
+        sourceType: 'module',
       },
       rules: {
-        'wb-sim/no-economy-per-tick': 'error'
-      }
+        'wb-sim/no-economy-per-tick': 'error',
+      },
     },
     { filename: 'packages/engine/src/economy/example.ts' }
   );
@@ -32,7 +51,7 @@ function lint(code: string) {
 }
 
 describe('no-economy-per-tick ESLint rule', () => {
-  it('flags monetary *_per_tick identifiers', async () => {
+  it('flags monetary *_per_tick identifiers', () => {
     const messages = lint(`
       const maintenanceCost_per_tick = 4;
       const pricing = { energy_cost_per_tick_cc: 2 };
@@ -45,7 +64,7 @@ describe('no-economy-per-tick ESLint rule', () => {
     }
   });
 
-  it('allows physical *_per_tick identifiers', async () => {
+  it('allows physical *_per_tick identifiers', () => {
     const messages = lint(`
       const co2Pulse = { pulse_ppm_per_tick: 120 };
       const humidity = zone.humidity_change_per_tick;

@@ -15,9 +15,9 @@ import {
   toNumber,
 } from '../../../util/expectors';
 
-function expectObjectProperty<T extends string>(
+function expectObjectProperty(
   source: Record<string, unknown>,
-  key: T,
+  key: string,
 ): Record<string, unknown> {
   const hasProperty = hasKey(source, key);
   expect(hasProperty).toBe(true);
@@ -28,9 +28,9 @@ function expectObjectProperty<T extends string>(
   return expectDefined(asObject(source[key]));
 }
 
-function expectNumberProperty<T extends string>(
+function expectNumberProperty(
   source: Record<string, unknown>,
-  key: T,
+  key: string,
 ): number {
   const hasProperty = hasKey(source, key);
   expect(hasProperty).toBe(true);

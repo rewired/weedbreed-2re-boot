@@ -179,17 +179,18 @@ describe('Tick pipeline — sensor readings', () => {
 
     expect(captured).toHaveLength(1);
     const [reading] = captured;
-    expect(reading?.measuredValue).toBeCloseTo(baselineTemperature, 5);
+
+    expect(reading.measuredValue).toBeCloseTo(baselineTemperature, 5);
     expect(nextZone.environment.airTemperatureC).toBeGreaterThan(baselineTemperature);
-    expect(reading?.error).toBe(0);
-    expect(reading?.trueValue).toBeCloseTo(baselineTemperature, 5);
-    expect(reading?.measurementType).toBe('temperature');
-    expect(reading?.noise01).toBe(0);
-    expect(reading?.noiseSample).toBe(0);
-    expect(reading?.rngStreamId).toBe(`sensor:${sensorId}`);
-    expect(reading?.sampledAtSimTimeHours).toBe(world.simTimeHours);
-    expect(reading?.sampledTick).toBe(0);
-    expect(reading?.tickDurationHours).toBeGreaterThan(0);
+    expect(reading.error).toBe(0);
+    expect(reading.trueValue).toBeCloseTo(baselineTemperature, 5);
+    expect(reading.measurementType).toBe('temperature');
+    expect(reading.noise01).toBe(0);
+    expect(reading.noiseSample).toBe(0);
+    expect(reading.rngStreamId).toBe(`sensor:${sensorId}`);
+    expect(reading.sampledAtSimTimeHours).toBe(world.simTimeHours);
+    expect(reading.sampledTick).toBe(0);
+    expect(reading.tickDurationHours).toBeGreaterThan(0);
   });
 
   it('records readings from multiple sensors', () => {
@@ -265,13 +266,24 @@ describe('Tick pipeline — sensor readings', () => {
     runTick(world, ctx);
 
     expect(readingsByDevice.size).toBe(2);
-    const temperatureReading = readingsByDevice.get(temperatureSensorId)?.[0];
-    const humidityReading = readingsByDevice.get(humiditySensorId)?.[0];
+    const temperatureReadings = readingsByDevice.get(temperatureSensorId);
+    const humidityReadings = readingsByDevice.get(humiditySensorId);
 
-    expect(temperatureReading?.measuredValue).toBeDefined();
-    expect(temperatureReading?.measurementType).toBe('temperature');
-    expect(humidityReading?.measuredValue).toBeDefined();
-    expect(humidityReading?.measurementType).toBe('humidity');
+    if (!temperatureReadings || temperatureReadings.length === 0) {
+      throw new Error('Expected temperature sensor readings');
+    }
+
+    if (!humidityReadings || humidityReadings.length === 0) {
+      throw new Error('Expected humidity sensor readings');
+    }
+
+    const temperatureReading = temperatureReadings[0];
+    const humidityReading = humidityReadings[0];
+
+    expect(temperatureReading.measuredValue).toBeDefined();
+    expect(temperatureReading.measurementType).toBe('temperature');
+    expect(humidityReading.measuredValue).toBeDefined();
+    expect(humidityReading.measurementType).toBe('humidity');
   });
 
   it('produces error telemetry when noise is applied', () => {
@@ -423,10 +435,18 @@ describe('Tick pipeline — sensor readings', () => {
 
     expect(readingsA).toHaveLength(1);
     expect(readingsB).toHaveLength(1);
-    expect(readingsA[0]?.measuredValue).toBe(readingsB[0]?.measuredValue);
-    expect(readingsA[0]?.error).toBe(readingsB[0]?.error);
-    expect(readingsA[0]?.noiseSample).toBe(readingsB[0]?.noiseSample);
-    expect(readingsA[0]?.sampledAtSimTimeHours).toBe(readingsB[0]?.sampledAtSimTimeHours);
+
+    const readingA = readingsA.at(0);
+    const readingB = readingsB.at(0);
+
+    if (!readingA || !readingB) {
+      throw new Error('Expected deterministic sensor readings for identical seeds');
+    }
+
+    expect(readingA.measuredValue).toBe(readingB.measuredValue);
+    expect(readingA.error).toBe(readingB.error);
+    expect(readingA.noiseSample).toBe(readingB.noiseSample);
+    expect(readingA.sampledAtSimTimeHours).toBe(readingB.sampledAtSimTimeHours);
   });
 
   it('changes sensor readings when the device id changes', () => {
@@ -475,7 +495,15 @@ describe('Tick pipeline — sensor readings', () => {
 
     expect(readingsA).toHaveLength(1);
     expect(readingsB).toHaveLength(1);
-    expect(readingsA[0]?.measuredValue).not.toBe(readingsB[0]?.measuredValue);
-    expect(readingsA[0]?.error).not.toBe(readingsB[0]?.error);
+
+    const readingA = readingsA.at(0);
+    const readingB = readingsB.at(0);
+
+    if (!readingA || !readingB) {
+      throw new Error('Expected sensor readings when comparing device ids');
+    }
+
+    expect(readingA.measuredValue).not.toBe(readingB.measuredValue);
+    expect(readingA.error).not.toBe(readingB.error);
   });
 });

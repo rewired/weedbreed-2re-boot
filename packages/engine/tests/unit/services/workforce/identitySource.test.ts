@@ -4,6 +4,12 @@ import type { EmployeeRngSeedUuid } from '@/backend/src/domain/workforce/Employe
 import { getTraitMetadata } from '@/backend/src/domain/workforce/traits';
 import { resolveWorkforceIdentity } from '@/backend/src/services/workforce/identitySource';
 
+interface FetchInitStub {
+  readonly signal?: AbortSignal;
+}
+
+type FetchMockFn = (input: URL, init?: FetchInitStub) => Promise<Response>;
+
 describe('resolveWorkforceIdentity', () => {
   const ONLINE_SEED = 'online-seed';
   const RNG_SEED_ALPHA = '018f29ce-0000-7000-8000-0000000000a1' as EmployeeRngSeedUuid;
@@ -17,10 +23,9 @@ describe('resolveWorkforceIdentity', () => {
   });
 
   it('returns identity from randomuser when the HTTP request succeeds', async () => {
-    const fetchMock = vi.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>(() =>
-      Promise.resolve({
-        ok: true,
-        json: async () => ({
+    const fetchMock = vi.fn<FetchMockFn>(() => {
+      const response = new Response(
+        JSON.stringify({
           results: [
             {
               gender: 'male',
@@ -28,8 +33,13 @@ describe('resolveWorkforceIdentity', () => {
             },
           ],
         }),
-      } as unknown as Response),
-    );
+        {
+          headers: { 'content-type': 'application/json' },
+        },
+      );
+
+      return Promise.resolve(response);
+    });
 
     vi.stubGlobal('fetch', fetchMock as unknown as typeof fetch);
 
@@ -39,7 +49,12 @@ describe('resolveWorkforceIdentity', () => {
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const requestUrl = fetchMock.mock.calls[0][0] as URL;
+    const firstCall = fetchMock.mock.calls.at(0);
+    if (!firstCall) {
+      throw new Error('Expected resolveWorkforceIdentity to issue a fetch request');
+    }
+
+    const [requestUrl] = firstCall;
     expect(requestUrl).toBeInstanceOf(URL);
     expect(requestUrl.searchParams.get('seed')).toBe(ONLINE_SEED);
     expect(requestUrl.searchParams.get('inc')).toBe('gender,name');
@@ -60,7 +75,7 @@ describe('resolveWorkforceIdentity', () => {
   });
 
   it('falls back to pseudodata when the randomuser request times out', async () => {
-    const fetchMock = vi.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>((_, init) =>
+    const fetchMock = vi.fn<FetchMockFn>((_, init) =>
       new Promise((_, reject) => {
         init?.signal?.addEventListener('abort', () => {
           reject(new DOMException('aborted', 'AbortError'));
@@ -88,7 +103,7 @@ describe('resolveWorkforceIdentity', () => {
   });
 
   it('uses deterministic pseudodata when the HTTP request fails', async () => {
-    const fetchMock = vi.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>(() =>
+    const fetchMock = vi.fn<FetchMockFn>(() =>
       Promise.reject(new Error('network unavailable')),
     );
 

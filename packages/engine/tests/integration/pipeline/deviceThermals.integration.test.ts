@@ -99,7 +99,7 @@ describe('Tick pipeline — device thermal effects', () => {
     const { world: nextWorld } = runTick(world, ctx);
 
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
-    const tickHours = (ctx as { tickDurationHours: number }).tickDurationHours ?? HOURS_PER_TICK;
+    const tickHours = ctx.tickDurationHours ?? HOURS_PER_TICK;
     const tickSeconds = tickHours * SECONDS_PER_HOUR;
     const airMassKg = zone.airMass_kg;
 

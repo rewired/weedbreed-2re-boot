@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { HOURS_PER_TICK } from '@/backend/src/constants/simConstants';
 import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine';
 import { createDemoWorld } from '@/backend/src/engine/testHarness';
-import type { ZoneDeviceInstance, Zone, Uuid } from '@/backend/src/domain/world';
+import type { ZoneDeviceInstance, Uuid } from '@/backend/src/domain/world';
 import type { DeviceBlueprint } from '@/backend/src/domain/blueprints/deviceBlueprint';
 import { deviceQuality } from '../../testUtils/deviceHelpers.ts';
 

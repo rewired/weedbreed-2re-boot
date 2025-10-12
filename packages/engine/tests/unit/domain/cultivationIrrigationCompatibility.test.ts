@@ -82,15 +82,20 @@ const irrigationBlueprints = irrigationFixtures.map((fixture) =>
     cultivationMethods.forEach((method) => {
       method.substrates.forEach((substrateSlug: string) => {
         const compatibleMethods = compatibilityIndex.get(substrateSlug);
-        expect(compatibleMethods, `No irrigation method exposes substrate ${substrateSlug}`).toBeDefined();
-        expect(compatibleMethods?.length ?? 0).toBeGreaterThan(0);
+
+        if (!compatibleMethods || compatibleMethods.length === 0) {
+          throw new Error(`No irrigation method exposes substrate ${substrateSlug}`);
+        }
+
+        expect(compatibleMethods.length).toBeGreaterThan(0);
       });
     });
   });
 
   it('resolves default cultivation substrates to an irrigation method automatically', () => {
     cultivationMethods.forEach((method) => {
-      const defaultSubstrate = method.meta?.defaults?.substrateSlug as string | undefined;
+      const defaultConfig = method.meta as { defaults?: { substrateSlug?: string } };
+      const defaultSubstrate = defaultConfig.defaults?.substrateSlug;
       expect(defaultSubstrate, `Cultivation method ${method.slug} is missing a default substrate`).toBeTruthy();
 
       if (!defaultSubstrate) {

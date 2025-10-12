@@ -18,6 +18,11 @@ import type {
   Uuid,
 } from '@/backend/src/domain/world';
 
+const STERILISATION_TASK_CODE = soilMultiCycle.reusePolicy.sterilizationTaskCode;
+if (!STERILISATION_TASK_CODE) {
+  throw new Error('Test substrate is expected to expose sterilizationTaskCode');
+}
+
 function createTaskDefinition(taskCode: string, priority = 60): WorkforceTaskDefinition {
   return {
     taskCode,
@@ -60,7 +65,7 @@ describe('cultivation method task scheduling integration', () => {
       employees: [],
       taskDefinitions: [
         createTaskDefinition('cultivation.repot', 80),
-        createTaskDefinition(soilMultiCycle.reusePolicy.sterilizationTaskCode ?? 'cultivation.substrate.sterilize', 70),
+        createTaskDefinition(STERILISATION_TASK_CODE, 70),
         createTaskDefinition('cultivation.substrate.dispose', 90),
       ],
       taskQueue: [],
@@ -105,11 +110,11 @@ describe('cultivation method task scheduling integration', () => {
       workforce: workforceState,
     } satisfies SimulationWorld;
 
-    const ctx: EngineRunContext = { telemetry: { emit: () => {} } };
+    const ctx: EngineRunContext = { telemetry: { emit: () => undefined } };
     let previousQueueLength = 0;
 
     function extractNewTasks(currentWorld: SimulationWorld): WorkforceTaskInstance[] {
-      const queue = currentWorld.workforce?.taskQueue ?? [];
+      const queue = currentWorld.workforce.taskQueue;
       const newEntries = queue.slice(previousQueueLength);
       previousQueueLength = queue.length;
       return newEntries;
@@ -118,8 +123,7 @@ describe('cultivation method task scheduling integration', () => {
     // Cycle 1 - expect sterilisation task
     world = runStages(world, ctx, PIPELINE_ORDER);
     let newTasks = extractNewTasks(world);
-    const steriliseCode = soilMultiCycle.reusePolicy.sterilizationTaskCode ?? 'cultivation.substrate.sterilize';
-    expect(newTasks.map((task) => task.taskCode)).toEqual([steriliseCode]);
+    expect(newTasks.map((task) => task.taskCode)).toEqual([STERILISATION_TASK_CODE]);
 
     // Prepare Cycle 2 - update harvest tick to current cycle
     world = updateZone(world, (_structure, _room, incomingZone) => {
@@ -148,13 +152,16 @@ describe('cultivation method task scheduling integration', () => {
     world = runStages(world, ctx, PIPELINE_ORDER);
     newTasks = extractNewTasks(world);
     const sortedCodes = newTasks.map((task) => task.taskCode).sort();
-    expect(sortedCodes).toEqual(['cultivation.repot', steriliseCode].sort());
+    expect(sortedCodes).toEqual(['cultivation.repot', STERILISATION_TASK_CODE].sort());
 
     // Ensure contexts carry zone metadata for downstream scheduling
     newTasks.forEach((task) => {
-      expect(task.context?.zoneId).toBe(world.company.structures[0]?.rooms[0]?.zones[0]?.id);
-      expect(task.context?.structureId).toBe(world.company.structures[0]?.id);
+      if (!task.context) {
+        throw new Error('Expected cultivation tasks to include context metadata');
+      }
+
+      expect(task.context.zoneId).toBe(world.company.structures[0]?.rooms[0]?.zones[0]?.id);
+      expect(task.context.structureId).toBe(world.company.structures[0]?.id);
     });
   });
 });
-

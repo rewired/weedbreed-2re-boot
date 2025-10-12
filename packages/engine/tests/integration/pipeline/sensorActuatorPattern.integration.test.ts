@@ -32,7 +32,7 @@ describe('Tick pipeline — sensor + actuator pattern', () => {
       powerDraw_W: 500,
       dutyCycle01: 1,
       efficiency01: 0.8,
-      coverage_m2: zone.floorArea_m2 ?? 0,
+      coverage_m2: zone.floorArea_m2,
       airflow_m3_per_h: 0,
       sensibleHeatRemovalCapacity_W: 0,
       effects: ['sensor', 'thermal'],

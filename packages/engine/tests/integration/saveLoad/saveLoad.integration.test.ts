@@ -60,7 +60,13 @@ describe('save/load integration', () => {
       unknown
     >;
     const world = baseline.world as Record<string, unknown>;
-    const company = (world.company as Record<string, unknown>) ?? {};
+    const companyValue = world.company;
+
+    if (typeof companyValue !== 'object' || companyValue === null) {
+      throw new Error('Expected baseline save fixture to include a company object');
+    }
+
+    const company = { ...(companyValue as Record<string, unknown>) };
     delete company.structures;
     world.company = company;
 

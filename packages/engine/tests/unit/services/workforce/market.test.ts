@@ -13,11 +13,12 @@ import type {
   WorkforceState,
 } from '@/backend/src/domain/workforce/WorkforceState';
 import type { WorkforceConfig } from '@/backend/src/config/workforce';
+import { uuidSchema } from '@/backend/src/domain/schemas/primitives';
 import { expectDefined } from '../../../util/expectors';
 
 const baseRoles: EmployeeRole[] = [
   {
-    id: '00000000-0000-0000-0000-00000000role' as EmployeeRole['id'],
+    id: uuidSchema.parse('00000000-0000-0000-0000-00000000role'),
     slug: 'gardener',
     name: 'Gardener',
     coreSkills: [

@@ -6,7 +6,7 @@ import { fmtNum } from '../../util/format.ts';
 export interface SaveGameMigrationStep {
   readonly fromVersion: number;
   readonly toVersion: number;
-  readonly migrate: (input: unknown) => unknown | Promise<unknown>;
+  readonly migrate: (input: unknown) => Promise<unknown>;
 }
 
 const schemaVersionSchema = saveGameEnvelopeSchema.extend({

@@ -8,7 +8,6 @@ import {
   loadAllStrainBlueprints,
   loadStrainBlueprint
 } from '@/backend/src/domain/blueprints/strainBlueprintLoader';
-import type { StrainBlueprint } from '@/backend/src/domain/blueprints/strainBlueprint';
 import type { Uuid } from '@/backend/src/domain/entities';
 import { resolveBlueprintPath } from '../../testUtils/paths.ts';
 import {

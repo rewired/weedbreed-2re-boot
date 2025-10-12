@@ -54,6 +54,10 @@ describe('seed-to-harvest orchestrator integration', () => {
       ).toEqual(['seedling->vegetative', 'vegetative->flowering', 'flowering->harvest-ready']);
     }
 
+    if (result.photoperiodTransitions.length === 0) {
+      throw new Error('Expected a photoperiod transition for White Widow run');
+    }
+
     const photoperiodFlip = result.photoperiodTransitions[0];
     expect(result.photoperiodTransitions).toHaveLength(1);
     expect(photoperiodFlip).toMatchObject({
@@ -64,12 +68,15 @@ describe('seed-to-harvest orchestrator integration', () => {
       nextSchedule: { onHours: 12, offHours: 12, startHour: 0 }
     });
 
-    const zone = photoperiodFlip ? findZone(result.world, photoperiodFlip.zoneId) : null;
-    expect(zone).not.toBeNull();
-    expect(zone?.lightSchedule).toEqual(photoperiodFlip.nextSchedule);
-    expect(zone?.photoperiodPhase).toBe('flowering');
+    const zone = findZone(result.world, photoperiodFlip.zoneId);
+    if (!zone) {
+      throw new Error('Expected zone referenced by photoperiod transition to exist');
+    }
 
-    const finalPlants = zone?.plants ?? [];
+    expect(zone.lightSchedule).toEqual(photoperiodFlip.nextSchedule);
+    expect(zone.photoperiodPhase).toBe('flowering');
+
+    const finalPlants = zone.plants;
     expect(finalPlants).toHaveLength(transitionsByPlant.size);
     expect(finalPlants.every((plant) => plant.lifecycleStage === 'harvest-ready')).toBe(true);
     expect(finalPlants.every((plant) => plant.status === 'harvested')).toBe(true);

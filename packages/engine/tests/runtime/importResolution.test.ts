@@ -63,7 +63,13 @@ describe("JSON import attributes", () => {
   });
 });
 
-async function collectEntrypoints() {
+async function collectEntrypoints(): Promise<
+  {
+    readonly filePath: string;
+    readonly label: string;
+    readonly specifier: string;
+  }[]
+> {
   const files = [
     ...(await listImmediateTsFiles(pipelineDir)),
     ...(await listImmediateTsFiles(domainSchemasDir)),
@@ -81,20 +87,20 @@ async function collectEntrypoints() {
   }));
 }
 
-async function listImmediateTsFiles(directory) {
+async function listImmediateTsFiles(directory: string): Promise<string[]> {
   const entries = await readdir(directory, { withFileTypes: true });
   return entries
     .filter((entry) => entry.isFile() && entry.name.endsWith(".ts"))
     .map((entry) => path.join(directory, entry.name));
 }
 
-function toImportSpecifier(absPath) {
+function toImportSpecifier(absPath: string): string {
   const relativePath = path.relative(testModuleDir, absPath);
   const normalized = relativePath.split(path.sep).join("/");
   return normalized.startsWith(".") ? normalized : `./${normalized}`;
 }
 
-async function collectTsFilesRecursive(directory) {
+async function collectTsFilesRecursive(directory: string): Promise<string[]> {
   const entries = await readdir(directory, { withFileTypes: true });
   const files: string[] = [];
 

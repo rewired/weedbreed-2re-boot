@@ -23,6 +23,6 @@ export const migrateV0ToV1: SaveGameMigrationStep = {
         : undefined,
     };
 
-    return saveGameSchema.parse(migrated);
+    return Promise.resolve(saveGameSchema.parse(migrated));
   },
 };
