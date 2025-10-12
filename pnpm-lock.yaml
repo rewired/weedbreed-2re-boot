@@ -66,6 +66,9 @@ importers:
       '@wb/transport-sio':
         specifier: workspace:*
         version: link:../transport-sio
+      zod:
+        specifier: 3.24.0
+        version: 3.24.0
     devDependencies:
       socket.io-client:
         specifier: ^4.7.5

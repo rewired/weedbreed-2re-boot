@@ -2,6 +2,7 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- Task 0023: Added façade read-model schema validators with versioned metadata, unit coverage for happy/negative paths, and documentation for the three schema identifiers to lock UI contracts to Proposal §6.
 - HOTFIX-043 (Task 0060): Replace perf harness device price lookups, workforce economy context fixtures, and telemetry integration assertions with schema-validated DTOs so `no-unsafe-*` lint guards stay green and SEC §1 determinism stays enforced.
 - HOTFIX-043 (Task 0061): Remove redundant optional chains, adopt `??` defaults, and document invariants across workforce/pipeline modules to satisfy nullish guardrails and SEC §5 contracts.
 - HOTFIX-043 (Task 0062): Replaced dynamic deletes with WeakMap-backed runtime stores and immutable intent/config helpers across workforce, cultivation, device, sensor, irrigation, and economy pipelines so SEC §2 tick snapshots stay deterministic and lint no-dynamic-delete guards remain green.
