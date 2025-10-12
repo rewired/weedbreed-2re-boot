@@ -49,6 +49,13 @@ export {
   type TransportServer,
   type TransportServerOptions,
 } from './transport/server.ts';
+export {
+  createReadModelHttpServer,
+  type ReadModelHttpLogger,
+  type ReadModelHttpServer,
+  type ReadModelHttpServerOptions,
+  type ReadModelProviders,
+} from './server/http.ts';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.

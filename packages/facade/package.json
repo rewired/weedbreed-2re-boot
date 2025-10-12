@@ -9,6 +9,7 @@
   ],
   "dependencies": {
     "@wb/transport-sio": "workspace:*",
+    "fastify": "4.28.1",
     "zod": "3.24.0"
   },
   "devDependencies": {
@@ -20,6 +21,7 @@
     "lint": "eslint --max-warnings=0 \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "dev": "tsx watch src/index.ts",
+    "dev:server": "tsx src/server/devServer.ts",
     "transport:dev": "tsx src/transport/devServer.ts"
   },
   "engines": {
