@@ -337,6 +337,7 @@ costing and scheduling remain aligned with SEC §7.5 and §10.
 
 - **Engine:** pure, deterministic, no network/time syscalls; advances tick and returns state + events.
 - **Façade:** validates intents, resolves tariffs, computes read‑models, orchestrates tick, exposes telemetry (read‑only) over adapter.
+  - Read-model HTTP surface (`packages/facade/src/server/http.ts`) wraps Fastify routes for `/api/companyTree`, `/api/structureTariffs`, and `/api/workforceView`, validating every payload with the shared Zod schemas before replying and logging schema mismatches as 500s.
 - **Transport Adapter:** Socket.IO default; SSE supported; **never accept inbound writes on telemetry**.
 
 ---
