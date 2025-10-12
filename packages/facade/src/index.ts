@@ -42,6 +42,12 @@ export {
   type HiringMarketViewOptions,
 } from './readModels/hiringMarketView.js';
 export {
+  fetchCompanyTree,
+  fetchStructureTariffs,
+  fetchWorkforceView,
+  ReadModelClientError,
+} from './readModels/client.js';
+export {
   createHiringMarketHireIntent,
   createHiringMarketScanIntent,
 } from './intents/hiring.js';
