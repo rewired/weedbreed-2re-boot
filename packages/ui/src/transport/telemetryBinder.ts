@@ -3,6 +3,10 @@ import {
   recordZoneSnapshot,
   recordWorkforceKpi,
   appendHarvestCreated,
+  clearTelemetrySnapshots,
+  markTelemetryConnected,
+  markTelemetryConnecting,
+  markTelemetryDisconnected,
   type TelemetryTickCompletedPayload,
   type TelemetryZoneSnapshotPayload,
   type WorkforceKpiTelemetrySnapshot,
@@ -343,6 +347,7 @@ export function createTelemetryBinder(
     clearReconnectTimer();
 
     reconnectTimer = timers.setTimeout(() => {
+      markTelemetryConnecting();
       socket.connect();
     }, delayMs);
 
@@ -354,28 +359,32 @@ export function createTelemetryBinder(
     });
   }
 
-  function handleDisconnect(reason: unknown): void {
+  function handleDisconnect(reason: unknown, { schedule }: { schedule: boolean }): void {
     const reasonString = typeof reason === "string" ? reason : undefined;
+    markTelemetryDisconnected(reasonString);
     emitter.emit("disconnected", { reason: reasonString });
-    scheduleReconnect(reasonString);
+
+    if (schedule) {
+      scheduleReconnect(reasonString);
+    }
   }
 
   socket.on("connect", () => {
     reconnectAttempt = 0;
     closing = false;
     clearReconnectTimer();
+    clearTelemetrySnapshots();
+    markTelemetryConnected();
     emitter.emit("connected", undefined);
   });
 
   socket.on("disconnect", (reason) => {
     if (closing) {
-      emitter.emit("disconnected", {
-        reason: typeof reason === "string" ? reason : undefined
-      });
+      handleDisconnect(reason, { schedule: false });
       return;
     }
 
-    handleDisconnect(reason);
+    handleDisconnect(reason, { schedule: true });
   });
 
   socket.on("connect_error", (error: unknown) => {
@@ -412,6 +421,7 @@ export function createTelemetryBinder(
   return {
     connect() {
       closing = false;
+      markTelemetryConnecting();
       socket.connect();
     },
     async disconnect() {

@@ -11,7 +11,11 @@ vi.mock("@ui/state/telemetry", () => ({
   recordTickCompleted: vi.fn(),
   recordZoneSnapshot: vi.fn(),
   recordWorkforceKpi: vi.fn(),
-  appendHarvestCreated: vi.fn()
+  appendHarvestCreated: vi.fn(),
+  clearTelemetrySnapshots: vi.fn(),
+  markTelemetryConnected: vi.fn(),
+  markTelemetryConnecting: vi.fn(),
+  markTelemetryDisconnected: vi.fn()
 }));
 
 type SocketHandler = (...args: unknown[]) => void;

@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+export type TelemetryConnectionStatus = "disconnected" | "connecting" | "connected";
+
 export interface TelemetryTickCompletedPayload {
   readonly simTimeHours: number;
   readonly targetTicksPerHour?: number;
@@ -62,20 +64,37 @@ interface TelemetryStore {
   readonly zoneSnapshots: Map<string, TelemetryZoneSnapshotPayload>;
   readonly workforceKpi: WorkforceKpiTelemetrySnapshot | null;
   readonly harvestEvents: readonly TelemetryHarvestCreatedPayload[];
+  readonly connectionStatus: TelemetryConnectionStatus;
+  readonly lastDisconnectReason: string | null;
   readonly setTickCompleted: (payload: TelemetryTickCompletedPayload) => void;
   readonly setZoneSnapshot: (payload: TelemetryZoneSnapshotPayload) => void;
   readonly setWorkforceKpi: (snapshot: WorkforceKpiTelemetrySnapshot) => void;
   readonly addHarvestEvent: (payload: TelemetryHarvestCreatedPayload) => void;
   readonly clearHarvestEvents: () => void;
+  readonly clearTelemetrySnapshots: () => void;
+  readonly markConnecting: () => void;
+  readonly markConnected: () => void;
+  readonly markDisconnected: (reason?: string) => void;
 }
 
 const createInitialHarvestEvents = (): readonly TelemetryHarvestCreatedPayload[] => [];
 
+const createInitialZoneSnapshots = (): Map<string, TelemetryZoneSnapshotPayload> =>
+  new Map<string, TelemetryZoneSnapshotPayload>();
+
+const createInitialTelemetrySnapshots = () => ({
+  tickCompleted: null as TelemetryTickCompletedPayload | null,
+  zoneSnapshots: createInitialZoneSnapshots(),
+  workforceKpi: null as WorkforceKpiTelemetrySnapshot | null,
+  harvestEvents: createInitialHarvestEvents()
+});
+
+const INITIAL_CONNECTION_STATUS: TelemetryConnectionStatus = "disconnected";
+
 export const useTelemetryStore = create<TelemetryStore>((set) => ({
-  tickCompleted: null,
-  zoneSnapshots: new Map<string, TelemetryZoneSnapshotPayload>(),
-  workforceKpi: null,
-  harvestEvents: createInitialHarvestEvents(),
+  ...createInitialTelemetrySnapshots(),
+  connectionStatus: INITIAL_CONNECTION_STATUS,
+  lastDisconnectReason: null,
   setTickCompleted: (payload) => {
     set(() => ({ tickCompleted: { ...payload } }));
   },
@@ -96,6 +115,23 @@ export const useTelemetryStore = create<TelemetryStore>((set) => ({
   },
   clearHarvestEvents: () => {
     set(() => ({ harvestEvents: createInitialHarvestEvents() }));
+  },
+  clearTelemetrySnapshots: () => {
+    set(() => ({
+      ...createInitialTelemetrySnapshots()
+    }));
+  },
+  markConnecting: () => {
+    set(() => ({ connectionStatus: "connecting", lastDisconnectReason: null }));
+  },
+  markConnected: () => {
+    set(() => ({ connectionStatus: "connected", lastDisconnectReason: null }));
+  },
+  markDisconnected: (reason) => {
+    set(() => ({
+      connectionStatus: "disconnected",
+      lastDisconnectReason: typeof reason === "string" ? reason : null
+    }));
   }
 }));
 
@@ -113,6 +149,18 @@ export function useWorkforceKpiTelemetry(): WorkforceKpiTelemetrySnapshot | null
 
 export function useHarvestTelemetry(): readonly TelemetryHarvestCreatedPayload[] {
   return useTelemetryStore((state) => state.harvestEvents);
+}
+
+export interface TelemetryConnectionSnapshot {
+  readonly status: TelemetryConnectionStatus;
+  readonly lastDisconnectReason: string | null;
+}
+
+export function useTelemetryConnection(): TelemetryConnectionSnapshot {
+  return useTelemetryStore((state) => ({
+    status: state.connectionStatus,
+    lastDisconnectReason: state.lastDisconnectReason
+  }));
 }
 
 export function recordTickCompleted(payload: TelemetryTickCompletedPayload): void {
@@ -135,11 +183,26 @@ export function clearHarvestTelemetry(): void {
   useTelemetryStore.getState().clearHarvestEvents();
 }
 
+export function clearTelemetrySnapshots(): void {
+  useTelemetryStore.getState().clearTelemetrySnapshots();
+}
+
+export function markTelemetryConnecting(): void {
+  useTelemetryStore.getState().markConnecting();
+}
+
+export function markTelemetryConnected(): void {
+  useTelemetryStore.getState().markConnected();
+}
+
+export function markTelemetryDisconnected(reason?: string): void {
+  useTelemetryStore.getState().markDisconnected(reason);
+}
+
 export function resetTelemetryStore(): void {
   useTelemetryStore.setState(() => ({
-    tickCompleted: null,
-    zoneSnapshots: new Map<string, TelemetryZoneSnapshotPayload>(),
-    workforceKpi: null,
-    harvestEvents: createInitialHarvestEvents()
+    ...createInitialTelemetrySnapshots(),
+    connectionStatus: INITIAL_CONNECTION_STATUS,
+    lastDisconnectReason: null
   }));
 }
