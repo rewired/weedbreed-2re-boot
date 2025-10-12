@@ -10,7 +10,8 @@ export default defineConfig({
       "@engine/constants": path.resolve(
         __dirname,
         "../engine/src/backend/src/constants"
-      )
+      ),
+      "@wb/transport-sio": path.resolve(__dirname, "../transport-sio/src/index.ts")
     }
   },
   test: {

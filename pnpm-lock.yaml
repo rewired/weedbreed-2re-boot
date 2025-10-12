@@ -134,6 +134,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@wb/transport-sio':
+        specifier: workspace:*
+        version: link:../transport-sio
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
