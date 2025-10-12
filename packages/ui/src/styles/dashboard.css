@@ -1,0 +1,39 @@
+@tailwind components;
+
+@layer components {
+  .dashboard-card {
+    @apply rounded-xl border border-border-base bg-canvas-subtle/60 p-6 shadow-sm backdrop-blur;
+  }
+
+  .dashboard-card__heading {
+    @apply flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-accent-muted;
+  }
+
+  .dashboard-card__title {
+    @apply text-sm font-semibold tracking-tight text-text-primary;
+  }
+
+  .dashboard-card__metric {
+    @apply text-2xl font-semibold text-text-primary;
+  }
+
+  .dashboard-card__meta {
+    @apply text-sm text-text-muted;
+  }
+
+  .dashboard-events__list {
+    @apply mt-4 space-y-3;
+  }
+
+  .dashboard-events__item {
+    @apply flex items-start justify-between gap-3 rounded-lg border border-border-base/40 bg-canvas-raised/60 px-4 py-3;
+  }
+
+  .dashboard-events__time {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-accent-muted;
+  }
+
+  .dashboard-grid {
+    @apply grid gap-4 md:grid-cols-2 xl:grid-cols-4;
+  }
+}
