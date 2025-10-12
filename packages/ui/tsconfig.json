@@ -9,7 +9,8 @@
     "types": ["node", "vite/client"],
     "baseUrl": "../../",
     "paths": {
-      "@ui/*": ["packages/ui/src/*"]
+      "@ui/*": ["packages/ui/src/*"],
+      "@wb/transport-sio": ["packages/transport-sio/src/index.ts"]
     }
   },
   "include": [
