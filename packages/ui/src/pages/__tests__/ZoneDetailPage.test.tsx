@@ -52,7 +52,9 @@ describe("ZoneDetailPage", () => {
       }
       const metricWithin = within(section);
       expect(metricWithin.getByText("—")).toBeInTheDocument();
-      expect(metricWithin.getByText(placeholder)).toBeInTheDocument();
+      const description = metricWithin.getByText(placeholder);
+      expect(description).toBeInTheDocument();
+      expect(section.getAttribute("aria-describedby")).toBe(description.id);
     });
 
     expect(screen.getByRole("heading", { level: SECTION_HEADING_LEVEL, name: /Environmental metrics/i })).toBeInTheDocument();
