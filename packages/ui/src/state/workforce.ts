@@ -1,4 +1,5 @@
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
+import { useWorkforceKpiTelemetry } from "@ui/state/telemetry";
 
 const WORKFORCE_STUB_TOTAL_TEAM_MEMBERS = 28;
 const WORKFORCE_STUB_ACTIVE_TEAM_MEMBERS = 24;
@@ -146,14 +147,32 @@ export function useWorkforceSnapshot(overrides?: WorkforceSnapshotOverrides): Wo
     () => workforceStore.getSnapshot()
   );
 
+  const kpiSnapshot = useWorkforceKpiTelemetry();
+
+  const telemetrySnapshot = useMemo(() => {
+    if (!kpiSnapshot) {
+      return snapshot;
+    }
+
+    const averageUtilizationPercent = Math.round(kpiSnapshot.utilization01 * 100);
+
+    return {
+      ...snapshot,
+      utilization: {
+        ...snapshot.utilization,
+        averageUtilizationPercent
+      }
+    } satisfies WorkforceSnapshot;
+  }, [snapshot, kpiSnapshot]);
+
   if (!overrides) {
-    return snapshot;
+    return telemetrySnapshot;
   }
 
   return {
-    headcount: { ...snapshot.headcount, ...overrides.headcount },
-    roleMix: overrides.roleMix ?? snapshot.roleMix,
-    utilization: { ...snapshot.utilization, ...overrides.utilization },
-    warnings: overrides.warnings ?? snapshot.warnings
+    headcount: { ...telemetrySnapshot.headcount, ...overrides.headcount },
+    roleMix: overrides.roleMix ?? telemetrySnapshot.roleMix,
+    utilization: { ...telemetrySnapshot.utilization, ...overrides.utilization },
+    warnings: overrides.warnings ?? telemetrySnapshot.warnings
   };
 }

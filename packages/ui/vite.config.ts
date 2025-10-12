@@ -6,7 +6,11 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@ui": path.resolve(__dirname, "./src")
+      "@ui": path.resolve(__dirname, "./src"),
+      "@engine/constants": path.resolve(
+        __dirname,
+        "../engine/src/backend/src/constants"
+      )
     }
   },
   test: {
