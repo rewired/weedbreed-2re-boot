@@ -31,16 +31,16 @@
         "packages/tools-monitor/src/*"
       ],
       "@wb/engine": [
-        "packages/engine/src/index.ts"
+        "packages/engine/src/index"
       ],
       "@wb/facade": [
-        "packages/facade/src/index.ts"
+        "packages/facade/src/index"
       ],
       "@wb/transport-sio": [
-        "packages/transport-sio/src/index.ts"
+        "packages/transport-sio/src/index"
       ],
       "@wb/tools-monitor": [
-        "packages/tools-monitor/src/index.ts"
+        "packages/tools-monitor/src/index"
       ],
       "@engine/constants/*": [
         "packages/engine/src/backend/src/constants/*"

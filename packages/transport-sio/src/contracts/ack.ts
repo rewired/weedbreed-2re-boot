@@ -18,6 +18,13 @@ const SOCKET_ERROR_CODE_VALUES = new Set<TransportAckErrorCode>(
   Object.values(SOCKET_ERROR_CODES) as TransportAckErrorCode[]
 );
 
+function isTransportAckErrorCode(value: unknown): value is TransportAckErrorCode {
+  return (
+    typeof value === 'string' &&
+    SOCKET_ERROR_CODE_VALUES.has(value as TransportAckErrorCode)
+  );
+}
+
 /**
  * Structured error payload returned when an acknowledgement fails.
  */
@@ -46,11 +53,11 @@ function isTransportAckError(value: unknown): value is TransportAckError {
   const record = value as Record<string, unknown>;
   const { code, message } = record;
 
-  if (typeof code !== 'string' || typeof message !== 'string' || message.length === 0) {
+  if (!isTransportAckErrorCode(code) || typeof message !== 'string' || message.length === 0) {
     return false;
   }
 
-  return SOCKET_ERROR_CODE_VALUES.has(code);
+  return true;
 }
 
 /**

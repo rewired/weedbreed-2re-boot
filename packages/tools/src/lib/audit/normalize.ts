@@ -1,11 +1,13 @@
 import { fileURLToPath } from 'node:url';
 
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
 import {
   DEPENDENCY_FIELDS,
   scanWorkspace,
   type LockDependencyMap,
   type ManifestInfo
-} from './scan.ts';
+} from './scan.js';
 
 const DEFAULT_START_DIR = fileURLToPath(new URL('.', import.meta.url));
 

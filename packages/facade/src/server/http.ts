@@ -1,4 +1,6 @@
 import Fastify, { type FastifyInstance, type FastifyReply } from 'fastify';
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
 import {
   companyTreeSchema,
   structureTariffsSchema,
@@ -6,7 +8,7 @@ import {
   type CompanyTreeReadModel,
   type StructureTariffsReadModel,
   type WorkforceViewReadModel
-} from '../readModels/api/schemas.ts';
+} from '../readModels/api/schemas.js';
 
 /**
  * Minimal logger contract consumed by the read-model HTTP server.

@@ -1,10 +1,12 @@
 import type { Server as HttpServer } from 'node:http';
 import { Server, type Namespace, type ServerOptions } from 'socket.io';
-import { SOCKET_ERROR_CODES } from './contracts/ack.ts';
-import type { TransportAck } from './contracts/ack.ts';
+/* eslint-disable wb-sim/no-ts-import-js-extension */
 
-export { SOCKET_ERROR_CODES, assertTransportAck } from './contracts/ack.ts';
-export type { TransportAck, TransportAckError, TransportAckErrorCode } from './contracts/ack.ts';
+import { SOCKET_ERROR_CODES } from './contracts/ack.js';
+import type { TransportAck } from './contracts/ack.js';
+
+export { SOCKET_ERROR_CODES, assertTransportAck } from './contracts/ack.js';
+export type { TransportAck, TransportAckError, TransportAckErrorCode } from './contracts/ack.js';
 
 /**
  * Event payload emitted to telemetry subscribers.

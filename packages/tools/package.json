@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.build.json",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint --max-warnings=0 \"src/**/*.ts\"",
     "format": "prettier --check \"src/**/*.ts\"",

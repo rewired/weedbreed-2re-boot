@@ -1,3 +1,5 @@
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
 import type {
   Structure,
   WorkforceConfig,
@@ -5,7 +7,7 @@ import type {
   WorkforceMarketState,
   WorkforceState,
 } from '@wb/engine';
-import { DEFAULT_WORKFORCE_CONFIG } from '@/backend/src/config/workforce.ts';
+import { DEFAULT_WORKFORCE_CONFIG } from '@/backend/src/config/workforce.js';
 
 function toPercent(value01: number): number {
   return Math.round(value01 * 100);

@@ -1,3 +1,5 @@
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
 import {
   createServer as createHttpServer,
   type IncomingMessage,
@@ -8,7 +10,7 @@ import {
   type SocketTransportAdapter,
   type SocketTransportAdapterOptions,
   type TransportIntentEnvelope,
-} from './adapter.ts';
+} from './adapter.js';
 
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 7101;
@@ -60,7 +62,11 @@ function ensureError(candidate: unknown): Error {
 }
 
 function normaliseHeaderValue(value: string | readonly string[]): string {
-  return Array.isArray(value) ? value.join(', ') : value;
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  return value.join(', ');
 }
 
 type HealthHandler = (request: IncomingMessage, response: ServerResponse) => void;

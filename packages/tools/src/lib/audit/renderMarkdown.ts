@@ -1,4 +1,6 @@
-import type { CandidateCategory, PackageAuditSummary } from './normalize.ts';
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
+import type { CandidateCategory, PackageAuditSummary } from './normalize.js';
 
 const CATEGORY_LABEL: Record<CandidateCategory, string> = {
   greenlist: 'Greenlist',

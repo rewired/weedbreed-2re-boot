@@ -1,5 +1,7 @@
 import process from 'node:process';
-import { createTransportServer, type TransportServer } from './server.ts';
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
+import { createTransportServer, type TransportServer } from './server.js';
 
 const host = process.env.FACADE_TRANSPORT_HOST ?? '127.0.0.1';
 const port = Number.parseInt(process.env.FACADE_TRANSPORT_PORT ?? '7101', 10);
