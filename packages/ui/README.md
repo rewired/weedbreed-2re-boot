@@ -53,3 +53,12 @@ pnpm --filter @wb/ui dev
 Configure the UI to point at the façade transport once the binder is available.
 The workspace currently renders static placeholders while contracts for
 telemetry, intents, and read-models land in follow-up tasks.
+
+## Testing intent submissions locally
+
+Intent forms use the shared Socket.IO intent client introduced in Task 0034.
+To verify acknowledgements and error handling end-to-end, pair the workspace
+with the façade transport server and follow the steps in the
+[Intent Playground](../../docs/tools/intent-playground.md). The playground
+document explains how to run the façade, connect the UI, and inspect
+acknowledgements for exemplar intents such as selecting irrigation methods.
