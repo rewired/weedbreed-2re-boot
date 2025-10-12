@@ -3,7 +3,6 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import {
   createSocketTransportAdapter,
   type SocketTransportAdapter,
@@ -17,9 +16,14 @@ const DEFAULT_PORT = 7101;
 /**
  * CORS configuration compatible with the underlying Socket.IO transport adapter.
  */
-export type TransportCorsOptions = NonNullable<
-  NonNullable<SocketTransportAdapterOptions['serverOptions']>['cors']
->;
+export interface TransportCorsOptions {
+  readonly origin?: string | true | RegExp | string[];
+  readonly credentials?: boolean;
+  readonly allowedHeaders?: string | string[];
+  readonly exposedHeaders?: string | string[];
+  readonly methods?: string | string[];
+  readonly maxAge?: number;
+}
 
 /**
  * Options accepted by {@link createTransportServer}.
@@ -55,8 +59,27 @@ function ensureError(candidate: unknown): Error {
   return candidate instanceof Error ? candidate : new Error(String(candidate));
 }
 
-function normaliseHeaderValue(value: string | string[]): string {
+function normaliseHeaderValue(value: string | readonly string[]): string {
   return Array.isArray(value) ? value.join(', ') : value;
+}
+
+type HealthHandler = (request: IncomingMessage, response: ServerResponse) => void;
+
+const HTTP_STATUS_OK = 200;
+const HTTP_STATUS_NOT_FOUND = 404;
+const ACCESS_CONTROL_ALLOW_METHODS = 'GET, OPTIONS';
+
+function getRequestOrigin(request: IncomingMessage): string | undefined {
+  const header = request.headers.origin;
+  if (typeof header === 'string') {
+    return header;
+  }
+
+  if (Array.isArray(header)) {
+    return header[0];
+  }
+
+  return undefined;
 }
 
 function resolveAllowedOrigin(
@@ -67,10 +90,7 @@ function resolveAllowedOrigin(
     return undefined;
   }
 
-  const requestOriginHeader = request.headers.origin;
-  const requestOrigin = Array.isArray(requestOriginHeader)
-    ? requestOriginHeader[0]
-    : requestOriginHeader;
+  const requestOrigin = getRequestOrigin(request);
   const { origin } = cors;
 
   if (origin === '*') {
@@ -150,10 +170,10 @@ function applyCorsHeaders(
   }
 }
 
-function createHealthHandler(statusBody: string, cors?: TransportCorsOptions) {
+function createHealthHandler(statusBody: string, cors?: TransportCorsOptions): HealthHandler {
   return (request: IncomingMessage, response: ServerResponse): void => {
     if (!request.url) {
-      response.writeHead(404);
+      response.writeHead(HTTP_STATUS_NOT_FOUND);
       response.end();
       return;
     }
@@ -162,7 +182,7 @@ function createHealthHandler(statusBody: string, cors?: TransportCorsOptions) {
 
     if (method === 'GET' && new URL(url, 'http://localhost').pathname === '/healthz') {
       applyCorsHeaders(request, response, cors);
-      response.statusCode = 200;
+      response.statusCode = HTTP_STATUS_OK;
       response.setHeader('content-type', 'application/json; charset=utf-8');
       response.end(statusBody);
       return;
@@ -170,12 +190,12 @@ function createHealthHandler(statusBody: string, cors?: TransportCorsOptions) {
 
     if (method === 'OPTIONS') {
       applyCorsHeaders(request, response, cors);
-      response.setHeader('access-control-allow-methods', 'GET, OPTIONS');
+      response.setHeader('access-control-allow-methods', ACCESS_CONTROL_ALLOW_METHODS);
       response.end();
       return;
     }
 
-    response.writeHead(404);
+    response.writeHead(HTTP_STATUS_NOT_FOUND);
     response.end();
   };
 }
@@ -188,7 +208,7 @@ async function closeHttpServer(server: ReturnType<typeof createHttpServer>): Pro
   await new Promise<void>((resolve, reject) => {
     server.close((error) => {
       if (error && (error as NodeJS.ErrnoException).code !== 'ERR_SERVER_NOT_RUNNING') {
-        reject(error);
+        reject(ensureError(error));
         return;
       }
 
@@ -210,17 +230,20 @@ export async function createTransportServer(options: TransportServerOptions): Pr
   const httpServer = createHttpServer(
     createHealthHandler('{"status":"ok"}', options.cors)
   );
+  const serverOptions: SocketTransportAdapterOptions['serverOptions'] | undefined = options.cors
+    ? { cors: options.cors }
+    : undefined;
   const adapter = createSocketTransportAdapter({
     httpServer,
     onIntent: options.onIntent,
-    serverOptions: options.cors ? { cors: options.cors } : undefined,
+    serverOptions,
   });
 
   try {
     await new Promise<void>((resolve, reject) => {
       const handleError = (error: unknown) => {
         httpServer.off('error', handleError);
-        reject(error);
+        reject(ensureError(error));
       };
 
       httpServer.once('error', handleError);
@@ -258,3 +281,15 @@ export async function createTransportServer(options: TransportServerOptions): Pr
     },
   } satisfies TransportServer;
 }
+
+
+
+
+
+
+
+
+
+
+
+

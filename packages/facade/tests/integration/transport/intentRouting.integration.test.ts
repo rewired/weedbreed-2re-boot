@@ -11,16 +11,17 @@ import { createNamespaceClient, createTransportHarness, disconnectClient } from 
 describe('transport adapter — intent namespace', () => {
   it('routes valid intents to the provided handler', async () => {
     const received: TransportIntentEnvelope[] = [];
-    const harness = await createTransportHarness(async (intent) => {
+    const harness = await createTransportHarness((intent) => {
       received.push(intent);
     });
     let client: Awaited<ReturnType<typeof createNamespaceClient>> | null = null;
 
     try {
-      client = await createNamespaceClient(harness, '/intents');
+      const connectedClient = await createNamespaceClient(harness, '/intents');
+      client = connectedClient;
 
       const ack = await new Promise<TransportAck>((resolve) => {
-        client!.emit(
+        connectedClient.emit(
           INTENT_EVENT,
           {
             type: 'hiring.market.scan',
@@ -47,10 +48,13 @@ describe('transport adapter — intent namespace', () => {
     let client: Awaited<ReturnType<typeof createNamespaceClient>> | null = null;
 
     try {
-      client = await createNamespaceClient(harness, '/intents');
+      const connectedClient = await createNamespaceClient(harness, '/intents');
+      client = connectedClient;
 
       const ack = await new Promise<TransportAck>((resolve) => {
-        client!.emit(INTENT_EVENT, 'not-an-object', (response: TransportAck) => { resolve(response); });
+        connectedClient.emit(INTENT_EVENT, 'not-an-object', (response: TransportAck) => {
+          resolve(response);
+        });
       });
 
       expect(ack.ok).toBe(false);
@@ -69,14 +73,19 @@ describe('transport adapter — intent namespace', () => {
     let client: Awaited<ReturnType<typeof createNamespaceClient>> | null = null;
 
     try {
-      client = await createNamespaceClient(harness, '/intents');
+      const connectedClient = await createNamespaceClient(harness, '/intents');
+      client = connectedClient;
 
       const errorEvent = new Promise<TransportAck>((resolve) => {
-        client!.once(INTENT_ERROR_EVENT, (payload: TransportAck) => { resolve(payload); });
+        connectedClient.once(INTENT_ERROR_EVENT, (payload: TransportAck) => {
+          resolve(payload);
+        });
       });
 
       const ack = await new Promise<TransportAck>((resolve) => {
-        client!.emit('telemetry:rogue', { attempt: true }, (response: TransportAck) => { resolve(response); });
+        connectedClient.emit('telemetry:rogue', { attempt: true }, (response: TransportAck) => {
+          resolve(response);
+        });
       });
 
       const emitted = await errorEvent;
@@ -101,10 +110,11 @@ describe('transport adapter — intent namespace', () => {
     let client: Awaited<ReturnType<typeof createNamespaceClient>> | null = null;
 
     try {
-      client = await createNamespaceClient(harness, '/intents');
+      const connectedClient = await createNamespaceClient(harness, '/intents');
+      client = connectedClient;
 
       const ack = await new Promise<TransportAck>((resolve) => {
-        client!.emit(
+        connectedClient.emit(
           INTENT_EVENT,
           { type: 'workforce.raise.accept', employeeId: '04369c77-7cbf-4094-8510-fccf35a20392' },
           (response: TransportAck) => { resolve(response); }

@@ -14,10 +14,13 @@ describe('transport adapter — telemetry namespace', () => {
     let client: Awaited<ReturnType<typeof createNamespaceClient>> | null = null;
 
     try {
-      client = await createNamespaceClient(harness, '/telemetry');
+      const connectedClient = await createNamespaceClient(harness, '/telemetry');
+      client = connectedClient;
 
       const received = new Promise<TelemetryEvent>((resolve) => {
-        client!.once(TELEMETRY_EVENT, (event: TelemetryEvent) => { resolve(event); });
+        connectedClient.once(TELEMETRY_EVENT, (event: TelemetryEvent) => {
+          resolve(event);
+        });
       });
 
       harness.adapter.publishTelemetry({
@@ -43,14 +46,19 @@ describe('transport adapter — telemetry namespace', () => {
     let client: Awaited<ReturnType<typeof createNamespaceClient>> | null = null;
 
     try {
-      client = await createNamespaceClient(harness, '/telemetry');
+      const connectedClient = await createNamespaceClient(harness, '/telemetry');
+      client = connectedClient;
 
       const errorEvent = new Promise<TransportAck>((resolve) => {
-        client!.once(TELEMETRY_ERROR_EVENT, (ack: TransportAck) => { resolve(ack); });
+        connectedClient.once(TELEMETRY_ERROR_EVENT, (ack: TransportAck) => {
+          resolve(ack);
+        });
       });
 
       const ack = await new Promise<TransportAck>((resolve) => {
-        client!.emit('telemetry:rogue', { attempt: true }, (response: TransportAck) => { resolve(response); });
+        connectedClient.emit('telemetry:rogue', { attempt: true }, (response: TransportAck) => {
+          resolve(response);
+        });
       });
 
       const eventAck = await errorEvent;

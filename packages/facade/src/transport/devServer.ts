@@ -1,5 +1,5 @@
 import process from 'node:process';
-import { createTransportServer } from './server.ts';
+import { createTransportServer, type TransportServer } from './server.ts';
 
 const host = process.env.FACADE_TRANSPORT_HOST ?? '127.0.0.1';
 const port = Number.parseInt(process.env.FACADE_TRANSPORT_PORT ?? '7101', 10);
@@ -14,11 +14,11 @@ async function main(): Promise<void> {
     throw new Error('FACADE_TRANSPORT_PORT must be a positive integer.');
   }
 
-  const server = await createTransportServer({
+  const server: TransportServer = await createTransportServer({
     host,
     port,
     cors: { origin: corsOrigin },
-    async onIntent(intent) {
+    onIntent(intent) {
       console.warn('Intent received without a registered handler:', intent);
     },
   });
@@ -50,3 +50,5 @@ main().catch((error: unknown) => {
   console.error('Failed to start transport server:', normalisedError);
   process.exit(1);
 });
+
+

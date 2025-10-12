@@ -7,11 +7,32 @@ import {
 } from '../../../src/transport/adapter.ts';
 import {
   createTransportServer,
+  type TransportCorsOptions,
   type TransportServer,
 } from '../../../src/transport/server.ts';
 import { disconnectClient, onceConnected } from './helpers.ts';
 
 const TEST_HOST = '127.0.0.1';
+
+function extractCorsOrigin(server: TransportServer, namespace: 'telemetry' | 'intents'): string | undefined {
+  const socketNamespace = server.namespaces[namespace] as unknown;
+  if (!socketNamespace || typeof socketNamespace !== 'object') {
+    return undefined;
+  }
+
+  const socketServer = (socketNamespace as { server?: unknown }).server;
+  if (!socketServer || typeof socketServer !== 'object') {
+    return undefined;
+  }
+
+  const opts = (socketServer as { opts?: unknown }).opts;
+  if (!opts || typeof opts !== 'object') {
+    return undefined;
+  }
+
+  const cors = (opts as { cors?: TransportCorsOptions }).cors;
+  return cors?.origin;
+}
 
 describe('transport server bootstrap', () => {
   let server: TransportServer | null = null;
@@ -31,20 +52,19 @@ describe('transport server bootstrap', () => {
   });
 
   it('exposes telemetry and intent namespaces and responds to health checks', async () => {
-    server = await createTransportServer({
+    server = (await createTransportServer({
       host: TEST_HOST,
       port: 0,
       cors: { origin: 'http://localhost:5173' },
-      async onIntent() {
-        // Intents are not handled during bootstrap; this will be wired by later tracks.
+      onIntent(intent) {
+        void intent;
       },
-    });
+    }));
 
     expect(server.namespaces.telemetry.name).toBe('/telemetry');
     expect(server.namespaces.intents.name).toBe('/intents');
-    expect(server.namespaces.telemetry.server.opts.cors?.origin).toBe(
-      'http://localhost:5173'
-    );
+
+    expect(extractCorsOrigin(server, 'telemetry')).toBe('http://localhost:5173');
 
     const healthResponse = await fetch(`${server.url}/healthz`, {
       headers: { Origin: 'http://localhost:5173' },
@@ -58,11 +78,13 @@ describe('transport server bootstrap', () => {
   });
 
   it('rejects telemetry writes when no handler is registered', async () => {
-    server = await createTransportServer({
+    server = (await createTransportServer({
       host: TEST_HOST,
       port: 0,
-      async onIntent() {},
-    });
+      onIntent(intent) {
+        void intent;
+      },
+    }));
 
     const client = createClient(`${server.url}/telemetry`, {
       transports: ['websocket'],
@@ -91,3 +113,7 @@ describe('transport server bootstrap', () => {
     expect(emittedAck.error?.code).toBe(SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED);
   });
 });
+
+
+
+

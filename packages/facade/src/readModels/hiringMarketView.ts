@@ -5,6 +5,7 @@ import type {
   WorkforceMarketState,
   WorkforceState,
 } from '@wb/engine';
+import { DEFAULT_WORKFORCE_CONFIG } from '@/backend/src/config/workforce.ts';
 
 function toPercent(value01: number): number {
   return Math.round(value01 * 100);
@@ -136,11 +137,7 @@ function mapStructure(
 }
 
 function resolveConfig(config?: WorkforceConfig['market']): HiringMarketConfigView {
-  const resolved = config ?? {
-    scanCooldown_days: 30,
-    poolSize: 16,
-    scanCost_cc: 1000,
-  };
+  const resolved = config ?? DEFAULT_WORKFORCE_CONFIG.market;
 
   return {
     scanCooldownDays: resolved.scanCooldown_days,

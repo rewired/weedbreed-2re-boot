@@ -1,10 +1,15 @@
 import { createServer } from 'node:http';
+import { createServer } from 'node:http';
 import { io as createClient, type Socket } from 'socket.io-client';
 import {
   createSocketTransportAdapter,
   type SocketTransportAdapter,
   type TransportIntentEnvelope,
 } from '../../../src/transport/adapter.ts';
+
+const noopIntentHandler = (intent: TransportIntentEnvelope): void => {
+  void intent;
+};
 
 function ensureError(candidate: unknown): Error {
   return candidate instanceof Error ? candidate : new Error(String(candidate));
@@ -17,9 +22,10 @@ export interface TransportHarness {
 }
 
 export async function createTransportHarness(
-  onIntent: (intent: TransportIntentEnvelope) => void | Promise<void> = () => {}
+  onIntent?: (intent: TransportIntentEnvelope) => void | Promise<void>
 ): Promise<TransportHarness> {
   const httpServer = createServer();
+  const intentHandler = onIntent ?? noopIntentHandler;
 
   await new Promise<void>((resolve, reject) => {
     const handleError = (error: unknown) => {
@@ -42,7 +48,7 @@ export async function createTransportHarness(
 
   const adapter = createSocketTransportAdapter({
     httpServer,
-    onIntent,
+    onIntent: intentHandler,
   });
 
   return {
@@ -108,7 +114,9 @@ export function disconnectClient(socket: Socket): Promise<void> {
       return;
     }
 
-    socket.once('disconnect', () => { resolve(); });
+    socket.once('disconnect', () => {
+      resolve();
+    });
     socket.disconnect();
   });
 }
