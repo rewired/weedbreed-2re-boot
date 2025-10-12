@@ -22,7 +22,25 @@ const DEMO_CONTAINER_ID = '00000000-0000-4000-8000-000000000005' as Uuid;
 const DEMO_SUBSTRATE_ID = '00000000-0000-4000-8000-000000000006' as Uuid;
 const DEMO_IRRIGATION_ID = '00000000-0000-4000-8000-000000000007' as Uuid;
 const DEMO_CULTIVATION_METHOD_ID = '00000000-0000-4000-8000-000000000008' as Uuid;
-const DEMO_ZONE_AIR_MASS_KG = 60 * 3 * AIR_DENSITY_KG_PER_M3;
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Demo constants encode fixed scenario geometry */
+const DEMO_STRUCTURE_HEIGHT_M = 3 as const;
+const DEMO_STRUCTURE_FLOOR_AREA_M2 = 400 as const;
+const DEMO_ROOM_FLOOR_AREA_M2 = 120 as const;
+const DEMO_ZONE_FLOOR_AREA_M2 = 60 as const;
+const DEMO_STORAGE_ROOM_FLOOR_AREA_M2 = 40 as const;
+const DEMO_LIGHT_ON_HOURS = 18 as const;
+const DEMO_LIGHT_OFF_HOURS = 6 as const;
+const DEMO_ZONE_TEMPERATURE_C = 22 as const;
+const DEMO_ZONE_RELATIVE_HUMIDITY01 = 0.55 as const;
+const DEMO_NUTRIENT_BUFFER_P_MG = 500 as const;
+const DEMO_NUTRIENT_BUFFER_K_MG = 800 as const;
+const DEMO_ZONE_MOISTURE01 = 0.5 as const;
+const DEMO_LOCATION_LAT_DEG = 53.55 as const;
+const DEMO_PERF_HARNESS_WARMUP_TICKS = 5 as const;
+
+const DEMO_ZONE_AIR_VOLUME_M3 = DEMO_ZONE_FLOOR_AREA_M2 * DEMO_STRUCTURE_HEIGHT_M;
+const DEMO_ZONE_AIR_MASS_KG = DEMO_ZONE_AIR_VOLUME_M3 * AIR_DENSITY_KG_PER_M3;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
 
 const DEMO_WORKFORCE: WorkforceState = {
   roles: [],
@@ -56,7 +74,7 @@ const DEMO_WORLD: SimulationWorld = {
     name: 'Demo Company',
     location: {
       lon: 10.0,
-      lat: 53.55,
+      lat: DEMO_LOCATION_LAT_DEG,
       cityName: 'Hamburg',
       countryName: 'Germany'
     },
@@ -65,8 +83,8 @@ const DEMO_WORLD: SimulationWorld = {
         id: DEMO_STRUCTURE_ID,
         slug: 'demo-structure',
         name: 'Demo Structure',
-        floorArea_m2: 400,
-        height_m: 3,
+        floorArea_m2: DEMO_STRUCTURE_FLOOR_AREA_M2,
+        height_m: DEMO_STRUCTURE_HEIGHT_M,
         devices: [],
         rooms: [
           {
@@ -74,40 +92,40 @@ const DEMO_WORLD: SimulationWorld = {
             slug: 'veg-room',
             name: 'Vegetative Room',
             purpose: 'growroom',
-            floorArea_m2: 120,
-            height_m: 3,
+            floorArea_m2: DEMO_ROOM_FLOOR_AREA_M2,
+            height_m: DEMO_STRUCTURE_HEIGHT_M,
             devices: [],
             zones: [
               {
                 id: DEMO_ZONE_ID,
                 slug: 'zone-a',
                 name: 'Zone A',
-                floorArea_m2: 60,
-                height_m: 3,
+                floorArea_m2: DEMO_ZONE_FLOOR_AREA_M2,
+                height_m: DEMO_STRUCTURE_HEIGHT_M,
                 cultivationMethodId: DEMO_CULTIVATION_METHOD_ID,
                 irrigationMethodId: DEMO_IRRIGATION_ID,
                 containerId: DEMO_CONTAINER_ID,
                 substrateId: DEMO_SUBSTRATE_ID,
                 airMass_kg: DEMO_ZONE_AIR_MASS_KG,
                 lightSchedule: {
-                  onHours: 18,
-                  offHours: 6,
+                  onHours: DEMO_LIGHT_ON_HOURS,
+                  offHours: DEMO_LIGHT_OFF_HOURS,
                   startHour: 0
                 },
                 photoperiodPhase: 'vegetative',
                 environment: {
-                  airTemperatureC: 22,
-                  relativeHumidity01: 0.55,
+                  airTemperatureC: DEMO_ZONE_TEMPERATURE_C,
+                  relativeHumidity01: DEMO_ZONE_RELATIVE_HUMIDITY01,
                   co2_ppm: AMBIENT_CO2_PPM
                 },
                 ppfd_umol_m2s: 0,
                 dli_mol_m2d_inc: 0,
                 nutrientBuffer_mg: {
                   N: 1000,
-                  P: 500,
-                  K: 800
+                  P: DEMO_NUTRIENT_BUFFER_P_MG,
+                  K: DEMO_NUTRIENT_BUFFER_K_MG
                 },
-                moisture01: 0.5,
+                moisture01: DEMO_ZONE_MOISTURE01,
                 plants: [],
                 devices: []
               }
@@ -118,8 +136,8 @@ const DEMO_WORLD: SimulationWorld = {
             slug: 'storage-room',
             name: 'Storage Room',
             purpose: 'storageroom',
-            floorArea_m2: 40,
-            height_m: 3,
+            floorArea_m2: DEMO_STORAGE_ROOM_FLOOR_AREA_M2,
+            height_m: DEMO_STRUCTURE_HEIGHT_M,
             devices: [],
             zones: [],
             class: 'room.storage',
@@ -213,7 +231,7 @@ export function withPerfHarness(options: PerfHarnessOptions): PerfHarnessResult 
   const tickCount = Math.max(1, Math.trunc(options.ticks));
   const worldFactory = options.worldFactory ?? createDemoWorld;
   const contextFactory = options.contextFactory ?? (() => ({}));
-  const warmupTicks = Math.min(tickCount, 5);
+  const warmupTicks = Math.min(tickCount, DEMO_PERF_HARNESS_WARMUP_TICKS);
 
   // Warm-up phase to allow for JIT compilation and other runtime optimizations
   for (let i = 0; i < warmupTicks; i += 1) {

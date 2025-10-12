@@ -22,8 +22,20 @@ import type { StrainBlueprint } from '../domain/blueprints/strainBlueprint.ts';
 
 const DEFAULT_STRAIN_ID = '550e8400-e29b-41d4-a716-446655440001' as Uuid;
 const DEFAULT_PLANT_COUNT = 6;
-const DEFAULT_VEGETATIVE_SCHEDULE: LightSchedule = { onHours: 18, offHours: 6, startHour: 0 };
-const DEFAULT_FLOWERING_SCHEDULE: LightSchedule = { onHours: 12, offHours: 12, startHour: 0 };
+const VEGETATIVE_LIGHT_ON_HOURS = 18 as const;
+const VEGETATIVE_LIGHT_OFF_HOURS = 6 as const;
+const FLOWERING_LIGHT_ON_HOURS = 12 as const;
+const FLOWERING_LIGHT_OFF_HOURS = 12 as const;
+const DEFAULT_VEGETATIVE_SCHEDULE: LightSchedule = {
+  onHours: VEGETATIVE_LIGHT_ON_HOURS,
+  offHours: VEGETATIVE_LIGHT_OFF_HOURS,
+  startHour: 0
+};
+const DEFAULT_FLOWERING_SCHEDULE: LightSchedule = {
+  onHours: FLOWERING_LIGHT_ON_HOURS,
+  offHours: FLOWERING_LIGHT_OFF_HOURS,
+  startHour: 0
+};
 
 export type SeedToHarvestTargetStage = PlantLifecycleStage | 'harvested';
 
@@ -341,11 +353,7 @@ function updateZoneInWorld(
   zoneId: Uuid,
   updater: (zone: Zone) => Zone
 ): SimulationWorld {
-  let structuresChanged = false;
-
   const nextStructures = world.company.structures.map((structure) => {
-    let roomsChanged = false;
-
     const nextRooms = structure.rooms.map((room) => {
       const zoneIndex = room.zones.findIndex((zone) => zone.id === zoneId);
 
@@ -360,7 +368,6 @@ function updateZoneInWorld(
         return room;
       }
 
-      roomsChanged = true;
       const nextZones = room.zones.slice();
       nextZones[zoneIndex] = nextZone;
 
@@ -370,17 +377,23 @@ function updateZoneInWorld(
       } satisfies Room;
     });
 
+    const roomsChanged = nextRooms.some(
+      (candidate, index) => candidate !== structure.rooms[index]
+    );
+
     if (!roomsChanged) {
       return structure;
     }
-
-    structuresChanged = true;
 
     return {
       ...structure,
       rooms: nextRooms
     } satisfies Structure;
   });
+
+  const structuresChanged = nextStructures.some(
+    (candidate, index) => candidate !== world.company.structures[index]
+  );
 
   if (!structuresChanged) {
     return world;

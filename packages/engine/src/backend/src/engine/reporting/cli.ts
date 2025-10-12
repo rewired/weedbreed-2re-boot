@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { generateSeedToHarvestReport } from './generateSeedToHarvestReport.ts';
+import { DEFAULT_PERF_TICKS, generateSeedToHarvestReport } from './generateSeedToHarvestReport.ts';
 
 interface CliArguments {
   readonly ticks?: number;
@@ -120,7 +120,7 @@ function printUsage(): void {
   const usage = `Usage: seed-to-harvest-report [options]
 
 Options:
-  --ticks <number>     Number of ticks to sample for the perf harness (default: 25)
+  --ticks <number>     Number of ticks to sample for the perf harness (default: ${String(DEFAULT_PERF_TICKS)})
   --scenario <name>    Scenario label to embed in the report metadata (default: demo-world)
   --output <file>      Relative path under /reporting for the JSON artifact
   -h, --help           Show this help message
@@ -131,7 +131,7 @@ Options:
 
 function normaliseTickCount(raw: number | undefined): number {
   if (typeof raw !== 'number') {
-    return 25;
+    return DEFAULT_PERF_TICKS;
   }
 
   const ticks = Math.max(1, Math.trunc(raw));
@@ -149,14 +149,16 @@ function resolveRepoRoot(): string {
 }
 
 function buildDefaultFileName(scenario: string, generatedAt: string): string {
-  const safeScenario = scenario.replace(/[^a-z0-9\-]+/gi, '-').replace(/-{2,}/g, '-').toLowerCase();
+  const safeScenario = scenario.replace(/[^a-z0-9-]+/gi, '-').replace(/-{2,}/g, '-').toLowerCase();
   const safeTimestamp = generatedAt.replace(/[:]/g, '-');
   return `seed-to-harvest-${safeScenario}-${safeTimestamp}.json`;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
-  void main().catch((error) => {
-    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+  void main().catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+    process.stderr.write(`${message}\n`);
     process.exitCode = 1;
   });
 }
+

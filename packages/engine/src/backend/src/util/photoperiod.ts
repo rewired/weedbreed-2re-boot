@@ -6,7 +6,8 @@ import {
 import type { LightSchedule, Plant, Zone } from '../domain/entities.ts';
 import type { PhaseDurations, StageChangeThresholds } from '../domain/blueprints/strainBlueprint.ts';
 
-const INTEGRATION_EPSILON = FLOAT_TOLERANCE * 1e-3;
+const EPSILON_SCALE = 1e-3;
+const INTEGRATION_EPSILON = FLOAT_TOLERANCE * EPSILON_SCALE;
 
 function normaliseHour(value: number): number {
   if (!Number.isFinite(value)) {

@@ -136,14 +136,8 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
   const zoneDLIMap = runtime.zoneDLI_mol_m2d_inc;
   const zoneCo2Map = runtime.zoneCo2Delta_ppm;
 
-  let structuresChanged = false;
-
   const nextStructures = world.company.structures.map((structure) => {
-    let roomsChanged = false;
-
     const nextRooms = structure.rooms.map((room) => {
-      let zonesChanged = false;
-
       const nextZones = room.zones.map((zone) => {
         const additionDeltaC = zoneHeatMap.get(zone.id) ?? 0;
         const netDeltaC = additionDeltaC;
@@ -172,8 +166,9 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
         return nextZone;
       });
 
+      const zonesChanged = nextZones.some((candidate, index) => candidate !== room.zones[index]);
+
       if (zonesChanged) {
-        roomsChanged = true;
         return {
           ...room,
           zones: nextZones
@@ -183,8 +178,11 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
       return room;
     });
 
+    const roomsChanged = nextRooms.some(
+      (candidate, index) => candidate !== structure.rooms[index]
+    );
+
     if (roomsChanged) {
-      structuresChanged = true;
       return {
         ...structure,
         rooms: nextRooms
@@ -195,6 +193,10 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
   });
 
   clearDeviceEffectsRuntime(ctx);
+
+  const structuresChanged = nextStructures.some(
+    (candidate, index) => candidate !== world.company.structures[index]
+  );
 
   if (!structuresChanged) {
     return world;

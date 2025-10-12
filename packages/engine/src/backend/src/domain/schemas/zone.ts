@@ -22,6 +22,12 @@ import { plantSchema } from './plant.ts';
 
 const [STRUCTURE_SCOPE, ROOM_SCOPE, ZONE_SCOPE] = DEVICE_PLACEMENT_SCOPES;
 
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Zone schema defaults rely on canonical neutral values */
+const DEFAULT_MAINTENANCE_THRESHOLD01 = 0.5 as const;
+const DEFAULT_RELATIVE_HUMIDITY01 = 0.5 as const;
+const DEFAULT_ZONE_MOISTURE01 = 0.5 as const;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
+
 export const lightScheduleSchema: z.ZodType<LightSchedule> = z
   .object({
     onHours: finiteNumber
@@ -86,7 +92,7 @@ const deviceMaintenancePolicySchema = z
     maintenanceConditionThreshold01: finiteNumber
       .min(0, 'maintenance.policy.maintenanceConditionThreshold01 must be >= 0.')
       .max(1, 'maintenance.policy.maintenanceConditionThreshold01 must be <= 1.')
-      .default(0.5),
+      .default(DEFAULT_MAINTENANCE_THRESHOLD01),
   })
   .strict();
 
@@ -175,7 +181,7 @@ export const zoneDeviceSchema: z.ZodType<ZoneDeviceInstance> = baseDeviceSchema.
 
 const zoneEnvironmentSchema: z.ZodType<ZoneEnvironment> = z.object({
   airTemperatureC: finiteNumber,
-  relativeHumidity01: zeroToOneNumber.default(0.5),
+  relativeHumidity01: zeroToOneNumber.default(DEFAULT_RELATIVE_HUMIDITY01),
   co2_ppm: finiteNumber
     .min(0, 'co2_ppm must be >= 0.')
     .default(AMBIENT_CO2_PPM),
@@ -207,7 +213,7 @@ const zoneBaseSchema = domainEntitySchema
     nutrientBuffer_mg: z
       .record(z.string(), finiteNumber.min(0, 'Nutrient buffer values cannot be negative.'))
       .default({}),
-    moisture01: zeroToOneNumber.default(0.5),
+    moisture01: zeroToOneNumber.default(DEFAULT_ZONE_MOISTURE01),
   });
 
 export const zoneSchema: z.ZodType<Zone> = zoneBaseSchema.transform((zone) => ({

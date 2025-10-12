@@ -5,14 +5,14 @@ import {
   emitWorkforceRaiseEvent,
   emitWorkforceTermination,
   emitWorkforceWarnings,
+  type WorkforceRaiseTelemetryEvent,
+  type WorkforceTerminationTelemetryEvent,
 } from '../../telemetry/workforce.ts';
 import { emitHiringEmployeeOnboarded, emitHiringMarketScanCompleted } from '../../telemetry/hiring.ts';
 import { cloneTelemetryPayload } from '../../telemetry/payload.ts';
 import type {
   WorkforceKpiSnapshot,
   WorkforcePayrollState,
-  WorkforceRaiseTelemetryEvent,
-  WorkforceTerminationTelemetryEvent,
   WorkforceWarning,
 } from '../../domain/world.ts';
 import type { MarketHireTelemetry, MarketScanTelemetry } from '../market/candidates.ts';
@@ -44,10 +44,6 @@ function emitDeviceTelemetry(
   const { topic, payload } = event;
 
   if (typeof topic !== 'string' || topic.length === 0) {
-    return;
-  }
-
-  if (!payload || typeof payload !== 'object') {
     return;
   }
 
@@ -106,4 +102,3 @@ export function emitWorkforceTelemetry(
     }
   }
 }
-

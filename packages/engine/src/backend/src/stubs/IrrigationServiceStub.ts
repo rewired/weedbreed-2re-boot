@@ -11,6 +11,10 @@ import type {
 import { clamp } from '../util/math.ts';
 import { resolveTickHoursValue } from '../engine/resolveTickHours.ts';
 
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Irrigation stub uses deterministic leaching floor */
+const DEFAULT_LEACHING_MIN01 = 0.1 as const;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
+
 function multiplyNutrientRecord(
   record: Record<string, number>,
   factor: number,
@@ -110,7 +114,7 @@ function createBufferInputs(
     buffer_mg,
     flow_mg: nutrients_mg,
     uptake_demand_mg: {},
-    leaching01: clamp(0.1, 0, 1),
+    leaching01: clamp(DEFAULT_LEACHING_MIN01, 0, 1),
     nutrientSource: inputs.nutrientSource,
   };
 }

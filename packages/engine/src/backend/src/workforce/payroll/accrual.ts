@@ -7,6 +7,7 @@ import type {
   WorkforceStructurePayrollTotals,
   WorkforceTaskDefinition,
 } from '../../domain/world.ts';
+import { MIN_BASE_RATE_MULTIPLIER, MIN_TIME_PREMIUM_MULTIPLIER } from '../../constants/simConstants.ts';
 import { bankersRound, clamp01 } from '../../util/math.ts';
 import { computeExperienceMultiplier } from '../traits/effects.ts';
 
@@ -21,6 +22,9 @@ export interface PayrollAccumulator {
 export const BASE_WAGE_PER_HOUR = 5;
 export const SKILL_WAGE_RATE_PER_POINT = 10;
 export const OVERTIME_RATE_MULTIPLIER = 1.25;
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Skill normalisation uses fixed neutral midpoint */
+const DEFAULT_SKILL_LEVEL01 = 0.5 as const;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
 
 export function createEmptyPayrollTotals(): PayrollAccumulator {
   return { baseMinutes: 0, otMinutes: 0, baseCost: 0, otCost: 0, totalLaborCost: 0 };
@@ -80,7 +84,7 @@ export function resolveRelevantSkillLevel(
 ): number {
   if (definition.requiredSkills.length === 0) {
     if (employee.skills.length === 0) {
-      return 0.5;
+      return DEFAULT_SKILL_LEVEL01;
     }
 
     const sum = employee.skills.reduce((acc, skill) => acc + clamp01(skill.level01), 0);
@@ -96,7 +100,7 @@ export function resolveRelevantSkillLevel(
 
   return definition.requiredSkills.length > 0
     ? clamp01(total / definition.requiredSkills.length)
-    : 0.5;
+    : DEFAULT_SKILL_LEVEL01;
 }
 
 export function computePayrollContribution(
@@ -116,11 +120,11 @@ export function computePayrollContribution(
 
   const skillLevel = resolveRelevantSkillLevel(employee, definition);
   const normalizedIndex = Math.max(0, Number.isFinite(locationIndex) ? locationIndex : 1);
-  const roleMultiplier = Math.max(0.1, role?.baseRateMultiplier ?? 1);
-  const employeeMultiplier = Math.max(0.1, employee.baseRateMultiplier);
-  const laborMarketFactor = Math.max(0.1, employee.laborMarketFactor);
+  const roleMultiplier = Math.max(MIN_BASE_RATE_MULTIPLIER, role?.baseRateMultiplier ?? 1);
+  const employeeMultiplier = Math.max(MIN_BASE_RATE_MULTIPLIER, employee.baseRateMultiplier);
+  const laborMarketFactor = Math.max(MIN_BASE_RATE_MULTIPLIER, employee.laborMarketFactor);
   const experienceMultiplier = computeExperienceMultiplier(employee.experience);
-  const timePremiumMultiplier = Math.max(0.5, employee.timePremiumMultiplier);
+  const timePremiumMultiplier = Math.max(MIN_TIME_PREMIUM_MULTIPLIER, employee.timePremiumMultiplier);
   const hourlyBase = BASE_WAGE_PER_HOUR + SKILL_WAGE_RATE_PER_POINT * skillLevel;
   const hourlyRate =
     hourlyBase * normalizedIndex * roleMultiplier * employeeMultiplier * laborMarketFactor * experienceMultiplier;
@@ -141,10 +145,12 @@ export function resolveStructureLocation(
   structure: Structure | undefined,
   companyLocation: CompanyLocation,
 ): CompanyLocation {
-  const candidate = (structure as Structure & { location?: CompanyLocation })?.location;
+  if (structure) {
+    const { location } = structure as Structure & { location?: CompanyLocation };
 
-  if (candidate?.cityName && candidate.countryName) {
-    return candidate;
+    if (location?.cityName && location.countryName) {
+      return location;
+    }
   }
 
   return companyLocation;
@@ -198,4 +204,3 @@ export function finalizePayrollState(state: WorkforcePayrollState): WorkforcePay
     byStructure: roundedStructures,
   } satisfies WorkforcePayrollState;
 }
-

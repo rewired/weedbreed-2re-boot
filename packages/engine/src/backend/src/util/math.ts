@@ -1,6 +1,10 @@
 /**
  * Numeric helper utilities shared across the simulation engine.
  */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Banker's rounding uses 0.5 thresholds */
+const HALF = 0.5 as const;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
+
 export function clamp(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) {
     if (value === Number.POSITIVE_INFINITY) {
@@ -46,13 +50,13 @@ export function bankersRound(value: number, decimals = 2): number {
   const diff = scaled - floorValue;
   const epsilon = Number.EPSILON * Math.max(1, Math.abs(scaled));
 
-  if (Math.abs(diff - 0.5) <= epsilon) {
+  if (Math.abs(diff - HALF) <= epsilon) {
     const isEven = Math.abs(floorValue) % 2 === 0;
     const evenValue = isEven ? floorValue : floorValue + Math.sign(scaled || 1);
     return evenValue / factor;
   }
 
-  if (diff < 0.5) {
+  if (diff < HALF) {
     return floorValue / factor;
   }
 

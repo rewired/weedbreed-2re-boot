@@ -59,6 +59,10 @@ import {
 } from './payroll/accrual.ts';
 import { emitWorkforceTelemetry, type DeviceTelemetryEvent } from './telemetry/workforceEmit.ts';
 
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Workforce KPIs use fixed percentile thresholds */
+const WAIT_TIME_PERCENTILE = 0.95 as const;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
+
 const workforceRuntimeStore = new WeakMap<EngineRunContext, WorkforceRuntimeMutable>();
 const workforcePayrollAccrualStore = new WeakMap<EngineRunContext, WorkforcePayrollAccrualSnapshot>();
 const workforceMarketChargeStore = new WeakMap<EngineRunContext, readonly WorkforceMarketCharge[]>();
@@ -204,7 +208,9 @@ function createSnapshot(
   }, 0);
   const utilisation = capacityMinutes > 0 ? clamp01((baseMinutes + overtimeMinutes) / capacityMinutes) : 0;
   const sortedWaits = [...waitTimes].sort((a, b) => a - b);
-  const index = sortedWaits.length > 0 ? Math.max(0, Math.ceil(sortedWaits.length * 0.95) - 1) : 0;
+  const index = sortedWaits.length > 0
+    ? Math.max(0, Math.ceil(sortedWaits.length * WAIT_TIME_PERCENTILE) - 1)
+    : 0;
   const p95Wait = sortedWaits.length > 0 ? sortedWaits[index] : 0;
 
   return {
@@ -468,22 +474,24 @@ function partitionIntents(
   const terminations: WorkforceTerminationIntent[] = [];
 
   for (const intent of intents) {
-    if (intent.type === 'hiring.market.scan' || intent.type === 'hiring.market.hire') {
-      market.push(intent);
-      continue;
-    }
+    switch (intent.type) {
+      case 'hiring.market.scan':
+      case 'hiring.market.hire':
+        market.push(intent);
+        break;
 
-    if (
-      intent.type === 'workforce.raise.accept' ||
-      intent.type === 'workforce.raise.bonus' ||
-      intent.type === 'workforce.raise.ignore'
-    ) {
-      raises.push(intent as WorkforceRaiseIntent);
-      continue;
-    }
+      case 'workforce.raise.accept':
+      case 'workforce.raise.bonus':
+      case 'workforce.raise.ignore':
+        raises.push(intent);
+        break;
 
-    if (intent.type === 'workforce.employee.terminate') {
-      terminations.push(intent);
+      case 'workforce.employee.terminate':
+        terminations.push(intent);
+        break;
+
+      default:
+        break;
     }
   }
 
@@ -492,11 +500,18 @@ function partitionIntents(
 
 export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
   const runtime = ensureWorkforceRuntime(ctx);
-  let workforceState = (world as SimulationWorld & { workforce?: WorkforceState }).workforce;
+  const originalWorkforceState = (world as SimulationWorld & { workforce?: WorkforceState }).workforce;
   const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
   const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
 
-  workforceState = appendCultivationTasks(world, workforceState, ctx, currentSimHours, currentSimDay);
+  const workforceAfterScheduling = appendCultivationTasks(
+    world,
+    originalWorkforceState,
+    ctx,
+    currentSimHours,
+    currentSimDay,
+  );
+  let workforceState = workforceAfterScheduling;
 
   const pestEvaluation = evaluatePestDiseaseSystem(world, currentSimHours);
 
@@ -511,7 +526,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
   }
 
   const shouldUpdateHealth = world.health !== pestEvaluation.health;
-  const shouldUpdateWorkforce = (world as SimulationWorld & { workforce?: WorkforceState }).workforce !== workforceState;
+  const shouldUpdateWorkforce = originalWorkforceState !== workforceState;
 
   if (shouldUpdateHealth || shouldUpdateWorkforce) {
     world = { ...world, health: pestEvaluation.health, workforce: workforceState } satisfies SimulationWorld;
@@ -520,12 +535,13 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
   emitPestDiseaseRiskWarnings(ctx.telemetry, pestEvaluation.warnings);
   emitPestDiseaseTaskEvents(ctx.telemetry, pestEvaluation.taskEvents);
 
-  if (!workforceState) {
+  if (!workforceAfterScheduling) {
     runtime.kpiSnapshot = createSnapshot(world.simTimeHours, [], 0, 0, 0, 0, 0, []);
     clearWorkforcePayrollAccrual(ctx);
     return world;
   }
 
+  workforceState = workforceAfterScheduling;
   const workforceConfig = resolveWorkforceConfig(workforceConfigStore.get(ctx));
   const intents = extractWorkforceIntents(ctx);
   const partitions = partitionIntents(intents);
@@ -710,4 +726,3 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
 
   return { ...world, workforce: nextWorkforce } satisfies SimulationWorld;
 }
-

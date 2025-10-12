@@ -88,7 +88,8 @@ export function evaluateTaskTraitEffects(
 
 function isBreakroomTask(task: WorkforceTaskInstance): boolean {
   const context = task.context ?? {};
-  const purpose = String(context.roomPurpose ?? context.purpose ?? '').toLowerCase();
+  const rawPurpose = context.roomPurpose ?? context.purpose;
+  const purpose = typeof rawPurpose === 'string' ? rawPurpose.toLowerCase() : '';
 
   if (purpose === 'breakroom' || context.breakroom === true) {
     return true;
@@ -159,4 +160,3 @@ export function evaluateWellbeingTraitEffects(
     breakdown: wellbeingEffect.breakdown,
   } satisfies WellbeingTraitEffects;
 }
-

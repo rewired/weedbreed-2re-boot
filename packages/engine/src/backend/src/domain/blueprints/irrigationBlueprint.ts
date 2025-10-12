@@ -102,10 +102,6 @@ export function parseIrrigationBlueprint(
   input: unknown,
   options: ParseIrrigationBlueprintOptions
 ): IrrigationBlueprint {
-  if (!options.knownSubstrateSlugs) {
-    throw new Error('knownSubstrateSlugs must be provided to validate irrigation compatibility.');
-  }
-
   const slugSet =
     options.knownSubstrateSlugs instanceof Set
       ? (options.knownSubstrateSlugs as ReadonlySet<string>)

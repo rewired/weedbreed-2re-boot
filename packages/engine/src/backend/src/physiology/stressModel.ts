@@ -10,22 +10,22 @@ function toStageEnvBand(
 ): EnvBand | undefined {
   const { envBands } = strain;
 
-  if (lifecycleStage === 'flowering' || lifecycleStage === 'harvest-ready') {
-    const candidate = envBands.flower ? accessor(envBands.flower) : undefined;
-    return candidate ?? accessor(envBands.default);
-  }
+  switch (lifecycleStage) {
+    case 'flowering':
+    case 'harvest-ready': {
+      const candidate = envBands.flower ? accessor(envBands.flower) : undefined;
+      return candidate ?? accessor(envBands.default);
+    }
 
-  if (lifecycleStage === 'seedling') {
-    const candidate = envBands.veg ? accessor(envBands.veg) : undefined;
-    return candidate ?? accessor(envBands.default);
-  }
+    case 'seedling':
+    case 'vegetative': {
+      const candidate = envBands.veg ? accessor(envBands.veg) : undefined;
+      return candidate ?? accessor(envBands.default);
+    }
 
-  if (lifecycleStage === 'vegetative') {
-    const candidate = envBands.veg ? accessor(envBands.veg) : undefined;
-    return candidate ?? accessor(envBands.default);
+    default:
+      return accessor(envBands.default);
   }
-
-  return accessor(envBands.default);
 }
 
 function quadraticRamp(distance: number, threshold: number, tolerance: number): number {

@@ -210,18 +210,11 @@ export function applyIrrigationAndNutrients(
   }
 
   const nextStructures = world.company.structures.map((structure) => {
-    let structureChanged = false;
-
     const nextRooms = structure.rooms.map((room) => {
-      let roomChanged = false;
-
       const nextZones = room.zones.map((zone) => {
         if (!runtime.zoneBufferUpdates_mg.has(zone.id)) {
           return zone;
         }
-
-        roomChanged = true;
-        structureChanged = true;
 
         return {
           ...zone,
@@ -229,12 +222,18 @@ export function applyIrrigationAndNutrients(
         } satisfies Zone;
       });
 
+      const roomChanged = nextZones.some((candidate, index) => candidate !== room.zones[index]);
+
       if (!roomChanged) {
         return room;
       }
 
       return { ...room, zones: nextZones } satisfies typeof room;
     });
+
+    const structureChanged = nextRooms.some(
+      (candidate, index) => candidate !== structure.rooms[index]
+    );
 
     if (!structureChanged) {
       return structure;

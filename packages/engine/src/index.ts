@@ -28,7 +28,7 @@ interface DifficultyConfigEntry extends Record<string, unknown> {
   };
 }
 
-const difficultyMap = difficultyConfig as Record<string, DifficultyConfigEntry>;
+const difficultyMap = difficultyConfig as Partial<Record<string, DifficultyConfigEntry>>;
 
 function requireUtilityPrice(value: unknown, field: 'price_electricity' | 'price_water'): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) {

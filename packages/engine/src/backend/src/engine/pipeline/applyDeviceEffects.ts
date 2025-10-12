@@ -91,18 +91,12 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
   const seed = world.seed;
 
   let maintenanceCostThisTickCc = 0;
-  let structuresChanged = false;
-
   const nextStructures = world.company.structures.map((structure) => {
     const workshopRoom = structure.rooms.find((room) => room.purpose === 'workshop');
-    let roomsChanged = false;
 
     const nextRooms = structure.rooms.map((room) => {
-      let zonesChanged = false;
-
       const nextZones = room.zones.map((zone) => {
         const aggregation = initializeZoneAggregation(zone, ctx, runtime);
-        let devicesChanged = false;
 
         const deviceOutcomes: DeviceDegradationOutcome[] = zone.devices.map((device) => {
           const outcome = updateZoneDeviceLifecycle({
@@ -115,10 +109,6 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
             tickHours,
             currentTick
           });
-
-          if (outcome.device !== device) {
-            devicesChanged = true;
-          }
 
           if (outcome.costAccruedCc) {
             maintenanceCostThisTickCc += outcome.costAccruedCc;
@@ -180,9 +170,11 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
         finalizeZoneAggregation(aggregation);
 
         const nextDevices = deviceOutcomes.map((outcome) => outcome.device);
+        const devicesChanged = nextDevices.some(
+          (nextDevice, index) => nextDevice !== zone.devices[index]
+        );
 
         if (devicesChanged) {
-          zonesChanged = true;
           return {
             ...zone,
             devices: nextDevices
@@ -192,8 +184,9 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
         return zone;
       });
 
+      const zonesChanged = nextZones.some((candidate, index) => candidate !== room.zones[index]);
+
       if (zonesChanged) {
-        roomsChanged = true;
         return {
           ...room,
           zones: nextZones
@@ -203,8 +196,11 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
       return room;
     });
 
+    const roomsChanged = nextRooms.some(
+      (candidate, index) => candidate !== structure.rooms[index]
+    );
+
     if (roomsChanged) {
-      structuresChanged = true;
       return {
         ...structure,
         rooms: nextRooms
@@ -217,6 +213,10 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
   if (maintenanceCostThisTickCc !== 0) {
     updateDeviceMaintenanceAccrual(ctx, currentDayIndex, tickHours, maintenanceCostThisTickCc);
   }
+
+  const structuresChanged = nextStructures.some(
+    (candidate, index) => candidate !== world.company.structures[index]
+  );
 
   if (!structuresChanged) {
     return world;

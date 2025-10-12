@@ -5,6 +5,10 @@ import type {
 } from '../../domain/world.ts';
 import { clamp01 } from '../../util/math.ts';
 
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Termination ripple uses canonical morale delta */
+const DEFAULT_MORALE_RIPPLE01 = -0.02 as const;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
+
 export interface TerminationProcessingResult {
   readonly employees: ReadonlyMap<Employee['id'], Employee>;
   readonly terminatedIds: ReadonlySet<Employee['id']>;
@@ -42,7 +46,7 @@ export function processTerminationIntents({
       severanceCc: intent.severanceCc,
     });
 
-    const ripple = intent.moraleRipple01 ?? -0.02;
+    const ripple = intent.moraleRipple01 ?? DEFAULT_MORALE_RIPPLE01;
 
     if (ripple === 0) {
       continue;
@@ -63,4 +67,3 @@ export function processTerminationIntents({
 
   return { employees: directory, terminatedIds: terminated, telemetry };
 }
-

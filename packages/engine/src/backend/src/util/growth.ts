@@ -27,6 +27,10 @@ import type {
 import type { RandomNumberGenerator } from './rng.ts';
 import { clamp, clamp01 } from './math.ts';
 
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Growth noise uses centered uniform distribution */
+const UNIFORM_NOISE_CENTER = 0.5 as const;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
+
 const DEFAULT_DRY_MATTER_FRACTION_VALUE = DEFAULT_DRY_MATTER_FRACTION;
 const DEFAULT_HARVEST_INDEX_VALUE = DEFAULT_HARVEST_INDEX;
 
@@ -153,7 +157,7 @@ export function calculateBiomassIncrement(
   let netGrowth = baseGrowth - maintenanceCost;
 
   if (strain.noise?.enabled) {
-    const noise = (rng() - 0.5) * NOISE_FACTOR * strain.noise.pct;
+    const noise = (rng() - UNIFORM_NOISE_CENTER) * NOISE_FACTOR * strain.noise.pct;
     netGrowth *= 1 + noise;
   }
 

@@ -16,6 +16,9 @@ import {
 import type { WorkforceAssignment } from '../types.ts';
 
 const SCORE_EPSILON = FLOAT_TOLERANCE;
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Neutral skill average uses canonical midpoint */
+const DEFAULT_SKILL_AVERAGE01 = 0.5 as const;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
 
 interface EmployeeUsage {
   baseMinutes: number;
@@ -142,7 +145,8 @@ function computeSkillScore(
 ): { valid: boolean; score: number } {
   if (definition.requiredSkills.length === 0) {
     const aggregated = employee.skills.reduce((sum, skill) => sum + clamp01(skill.level01), 0);
-    const average = employee.skills.length > 0 ? aggregated / employee.skills.length : 0.5;
+    const average =
+      employee.skills.length > 0 ? aggregated / employee.skills.length : DEFAULT_SKILL_AVERAGE01;
     return { valid: true, score: clamp01(average) };
   }
 
@@ -216,25 +220,25 @@ function evaluateCandidate(
 }
 
 function selectCandidate(
-  candidates: readonly ReturnType<typeof evaluateCandidate>[],
+  candidates: readonly NonNullable<ReturnType<typeof evaluateCandidate>>[],
   structureIndex: number,
   simTimeHours: number,
 ): NonNullable<ReturnType<typeof evaluateCandidate>> {
   if (candidates.length === 1) {
-    return candidates[0]!;
+    return candidates[0];
   }
 
   let bestScore = -Infinity;
 
   for (const candidate of candidates) {
-    if (candidate && candidate.score > bestScore) {
+    if (candidate.score > bestScore) {
       bestScore = candidate.score;
     }
   }
 
   const bestCandidates = candidates.filter(
-    (candidate) => candidate && Math.abs(candidate.score - bestScore) <= SCORE_EPSILON,
-  ) as NonNullable<ReturnType<typeof evaluateCandidate>>[];
+    (candidate) => Math.abs(candidate.score - bestScore) <= SCORE_EPSILON,
+  );
 
   if (bestCandidates.length === 1) {
     return bestCandidates[0];
@@ -452,7 +456,8 @@ export function isMaintenanceTask(task: WorkforceTaskInstance): boolean {
   }
 
   const context = task.context ?? {};
-  const category = String(context.taskCategory ?? context.category ?? '').toLowerCase();
+  const rawCategory = context.taskCategory ?? context.category;
+  const category = typeof rawCategory === 'string' ? rawCategory.toLowerCase() : '';
   return category === 'maintenance';
 }
 
@@ -477,4 +482,3 @@ export function resolveStructureLookups(worldStructures: readonly Structure[]): 
 
   return { roomToStructure, zoneToStructure };
 }
-

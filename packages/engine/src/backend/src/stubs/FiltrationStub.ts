@@ -6,6 +6,15 @@ import type {
 import { clamp01 } from '../util/math.ts';
 import { resolveAirflow } from '../util/environment.ts';
 
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Filtration stub uses fixed empirical constants */
+const FILTRATION_REFERENCE_AIRFLOW_M3_PER_H = 200 as const;
+const FILTRATION_PRESSURE_EXPONENT = 1.5 as const;
+const FILTRATION_REDUCTION_MULTIPLIER = 0.005 as const;
+const FILTRATION_MAX_REDUCTION_FACTOR = 0.3 as const;
+const FILTRATION_HEPA_REMOVAL_FACTOR = 0.99 as const;
+const FILTRATION_PREFILTER_REMOVAL_FACTOR = 0.6 as const;
+/* eslint-enable @typescript-eslint/no-magic-numbers */
+
 function resolveBasePressureDrop(value: number): number {
   if (!Number.isFinite(value) || value <= 0) {
     return 0;
@@ -49,19 +58,20 @@ export function createFiltrationStub(): IFiltrationUnit {
       }
 
       const conditionFactor = 1 + (1 - condition01) * 2;
-      const airflowRatio = Math.max(airflow_m3_per_h / 200, 0);
-      const pressure_drop_pa = basePressureDrop_pa * conditionFactor * Math.pow(airflowRatio, 1.5);
-      const unclampedReduction = pressure_drop_pa * 0.005 * airflow_m3_per_h;
-      const maxReduction = airflow_m3_per_h * 0.3;
+      const airflowRatio = Math.max(airflow_m3_per_h / FILTRATION_REFERENCE_AIRFLOW_M3_PER_H, 0);
+      const pressure_drop_pa =
+        basePressureDrop_pa * conditionFactor * Math.pow(airflowRatio, FILTRATION_PRESSURE_EXPONENT);
+      const unclampedReduction = pressure_drop_pa * FILTRATION_REDUCTION_MULTIPLIER * airflow_m3_per_h;
+      const maxReduction = airflow_m3_per_h * FILTRATION_MAX_REDUCTION_FACTOR;
       const airflow_reduction_m3_per_h = Math.min(Math.max(unclampedReduction, 0), maxReduction);
       const odor_concentration_delta = -efficiency01 * condition01 * (airflow_m3_per_h / 100) * resolvedDt_h;
 
       let particulateRemoval01 = 0;
 
       if (inputs.filterType === 'hepa') {
-        particulateRemoval01 = efficiency01 * 0.99;
+        particulateRemoval01 = efficiency01 * FILTRATION_HEPA_REMOVAL_FACTOR;
       } else if (inputs.filterType === 'pre-filter') {
-        particulateRemoval01 = efficiency01 * 0.6;
+        particulateRemoval01 = efficiency01 * FILTRATION_PREFILTER_REMOVAL_FACTOR;
       }
 
       return {

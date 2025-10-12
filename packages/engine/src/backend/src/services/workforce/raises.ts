@@ -1,6 +1,7 @@
 import { clamp01 } from '../../util/math.ts';
 import { createRng } from '../../util/rng.ts';
 import { fmtNum } from '../../util/format.ts';
+import { MIN_BASE_RATE_MULTIPLIER } from '../../constants/simConstants.ts';
 import type {
   Employee,
   EmployeeRaiseState,
@@ -96,7 +97,7 @@ export function applyRaiseIntent(options: {
   const multiplier = 1 + rateIncrease;
   const nextSequence = employee.raise.cadenceSequence + 1;
   const updatedMorale = clamp01(employee.morale01 + moraleDelta);
-  const updatedBaseRateMultiplier = Math.max(0.1, employee.baseRateMultiplier * multiplier);
+  const updatedBaseRateMultiplier = Math.max(MIN_BASE_RATE_MULTIPLIER, employee.baseRateMultiplier * multiplier);
   const updatedSalaryExpectation = Math.max(
     0,
     employee.salaryExpectation_per_h * multiplier,

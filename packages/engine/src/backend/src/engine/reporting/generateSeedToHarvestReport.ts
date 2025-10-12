@@ -66,7 +66,7 @@ export interface SeedToHarvestReport {
 const DEFAULT_SCENARIO_NAME = 'demo-world';
 
 /** Number of ticks sampled when the perf harness runs without overrides. */
-const DEFAULT_PERF_TICKS = 25 as const;
+export const DEFAULT_PERF_TICKS = 25 as const;
 
 export function generateSeedToHarvestReport(
   options: SeedToHarvestReportOptions = {}

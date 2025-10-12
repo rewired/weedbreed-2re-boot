@@ -193,7 +193,7 @@ export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContex
     const previousCurrent = existingMaintenance.current;
     const nextCurrent = maintenanceSnapshot.current;
 
-    if (previousCurrent && nextCurrent && previousCurrent.dayIndex !== nextCurrent.dayIndex) {
+    if (previousCurrent && previousCurrent.dayIndex !== nextCurrent.dayIndex) {
       const alreadyFinalized = finalizedDays.some((entry) => entry.dayIndex === previousCurrent.dayIndex);
 
       if (!alreadyFinalized) {

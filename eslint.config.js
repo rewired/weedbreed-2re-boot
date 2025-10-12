@@ -44,7 +44,7 @@ export default tseslint.config(
       "@typescript-eslint/no-magic-numbers": [
         "warn",
         {
-          ignore: [-1, 0, 1, 2, 10, 60, 100, 1000],
+          ignore: [-1, 0, 1, 2, 6, 10, 12, 18, 25, 30, 60, 100, 1000, 1e-3],
           ignoreArrayIndexes: true,
           ignoreDefaultValues: true,
           enforceConst: true,
