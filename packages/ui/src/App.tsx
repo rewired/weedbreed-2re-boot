@@ -13,6 +13,31 @@ import { workspaceTopLevelRoutes } from "@ui/lib/navigation";
 import { DashboardRoute } from "@ui/routes/DashboardRoute";
 import { WorkforceRoute } from "@ui/routes/WorkforceRoute";
 import { ZoneDetailRoute } from "@ui/routes/ZoneDetailRoute";
+import { createTelemetryBinder } from "@ui/transport";
+
+const runtimeBaseUrl = (() => {
+  const configured = import.meta.env.VITE_TRANSPORT_BASE_URL as string | undefined;
+
+  if (configured && configured.length > 0) {
+    return configured;
+  }
+
+  if (typeof window !== "undefined" && window.location.origin) {
+    return window.location.origin;
+  }
+
+  return undefined;
+})();
+
+const telemetryBinder = runtimeBaseUrl
+  ? createTelemetryBinder({ baseUrl: runtimeBaseUrl })
+  : null;
+
+if (telemetryBinder) {
+  telemetryBinder.connect();
+} else {
+  console.warn("Telemetry binder initialisation skipped: transport base URL was not configured.");
+}
 
 const router = createBrowserRouter(
   createRoutesFromElements(
