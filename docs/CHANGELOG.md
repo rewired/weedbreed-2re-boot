@@ -2,6 +2,9 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- Task 0038: Hardened the CI workflow with Node.js 22 + pnpm 10.18.1 setup,
+  pnpm/Vite caching, an explicit façade contract test gate, and refreshed the
+  README and dev-stack docs to surface the new lint/test coverage expectations.
 - Task 0037: Added a façade contract test harness that boots the read-model HTTP
   server and Socket.IO transport, exercised telemetry read-only rejections and
   intent acknowledgement contracts under `tests/contract/**`, and wired a
