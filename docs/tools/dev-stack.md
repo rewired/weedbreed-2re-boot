@@ -1,5 +1,20 @@
 # Dev Stack Notes
 
+## Continuous Integration expectations
+
+Frontend and transport contributions must remain green in CI. Every push and
+pull request runs on Node.js 22 with pnpm 10.18.1 and executes:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm test
+pnpm --filter @wb/facade test:contract
+```
+
+Keep workspace scripts aligned with these commands so CI matches the workflow
+documented in TDD §2.
+
 ## Façade Transport Server Bootstrap
 
 The façade exposes a Socket.IO transport server that brokers telemetry and intent

@@ -2,6 +2,8 @@
 
 > **Status:** Active • **Runtime:** Node.js 22 LTS • **Package manager:** pnpm ≥ 10.17 • **Language:** TypeScript (ESM) • **Test:** Vitest • **Repo style:** pnpm workspaces
 
+> **CI coverage:** `pnpm install` → `pnpm lint` → `pnpm test` → `pnpm --filter @wb/facade test:contract` on every push/PR (Node.js 22).
+
 Weed Breed (Re‑Reboot) is a deterministic, tick‑based simulation about controlled‑environment cultivation, resources, and economics. The project emphasizes **reproducibility**, **testability** (Golden Master / Conformance), and **contract‑driven development** via living documents (**SEC**, **TDD**, **DD**, **VISION_SCOPE**).
 
 ---
