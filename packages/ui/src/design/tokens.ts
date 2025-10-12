@@ -34,7 +34,7 @@ export const workspaceCopy = {
   appName: "Weed Breed",
   leftRail: {
     header: "Operations",
-    placeholder: "Navigation coming soon"
+    placeholder: "Navigate across dashboard, workforce, and growroom zones."
   },
   main: {
     heading: "Workspace",
