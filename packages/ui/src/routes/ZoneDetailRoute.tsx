@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
-import { AlertTriangle, Leaf } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { ZoneDetailPage } from "@ui/pages/ZoneDetailPage";
 import { resolveZoneByParams } from "@ui/lib/navigation";
 
 export function ZoneDetailRoute(): ReactElement {
@@ -24,21 +25,12 @@ export function ZoneDetailRoute(): ReactElement {
   const { structure, zone } = resolved;
 
   return (
-    <section className="flex flex-1 flex-col gap-6">
-      <header className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.25em] text-accent-muted">{structure.name}</p>
-        <div className="flex items-center gap-3">
-          <Leaf aria-hidden="true" className="size-6 text-accent-primary" />
-          <h2 className="text-3xl font-semibold text-text-primary">{zone.name}</h2>
-        </div>
-        <p className="text-sm text-text-muted">
-          Cultivation method <span className="font-medium text-text-primary">{zone.cultivationMethod}</span> · Telemetry surface coming soon.
-        </p>
-      </header>
-      <div className="rounded-xl border border-border-base bg-canvas-subtle/60 p-6 text-sm text-text-muted">
-        This placeholder preserves routing while downstream tasks hydrate the zone detail view with environment, labour, and
-        diagnostics read-models.
-      </div>
-    </section>
+    <ZoneDetailPage
+      structureId={structure.id}
+      structureName={structure.name}
+      zoneId={zone.id}
+      zoneName={zone.name}
+      cultivationMethodId={zone.cultivationMethod}
+    />
   );
 }
