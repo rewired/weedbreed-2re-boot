@@ -3,7 +3,7 @@
 You are Codex. Follow this exactly.
 
 # 0) Fixed inputs
-- TASK_ID: "0026"
+- TASK_ID: "0027"
 - TASK_DIR: "/docs/tasks/frontend"
 - TASK_GLOB: `${TASK_DIR}/${TASK_ID}-*.md`
 
