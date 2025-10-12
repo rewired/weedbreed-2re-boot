@@ -1,4 +1,5 @@
-import { useSyncExternalStore } from "react";
+import { useMemo } from "react";
+import { useZoneSnapshot } from "@ui/state/telemetry";
 
 export interface ZoneDetailMetadata {
   readonly structureId: string;
@@ -40,11 +41,6 @@ export interface ZoneDetailSnapshot {
   readonly metrics: readonly ZoneTelemetryMetric[];
   readonly coverage: readonly ZoneDeviceCoverageSummary[];
   readonly actions: readonly ZoneIntentPlaceholderAction[];
-}
-
-export interface ZoneDetailStore {
-  getSnapshot(): ZoneDetailSnapshot;
-  subscribe(listener: () => void): () => void;
 }
 
 const ZONE_DETAIL_STUB_AREA_M2 = 48;
@@ -164,29 +160,89 @@ const zoneDetailStubSnapshot: ZoneDetailSnapshot = Object.freeze({
   ])
 });
 
-const zoneDetailStore: ZoneDetailStore = {
-  getSnapshot: () => zoneDetailStubSnapshot,
-  subscribe: (listener: () => void) => {
-    void listener;
-    return () => undefined;
-  }
-};
-
 export type ZoneDetailMetadataOverrides = Partial<ZoneDetailMetadata>;
 
 export function useZoneDetailSnapshot(overrides?: ZoneDetailMetadataOverrides): ZoneDetailSnapshot {
-  const snapshot = useSyncExternalStore(
-    (listener) => zoneDetailStore.subscribe(listener),
-    () => zoneDetailStore.getSnapshot(),
-    () => zoneDetailStore.getSnapshot()
+  const metadata = useMemo(
+    () => ({ ...zoneDetailStubSnapshot.metadata, ...overrides }),
+    [overrides]
   );
+  const zoneTelemetry = useZoneSnapshot(metadata.zoneId);
 
-  if (!overrides) {
-    return snapshot;
+  const metrics = useMemo(() => {
+    if (!zoneTelemetry) {
+      return zoneDetailStubSnapshot.metrics;
+    }
+
+    return zoneDetailStubSnapshot.metrics.map((metric) => {
+      switch (metric.id) {
+        case "zone-metric-ppfd":
+          return {
+            ...metric,
+            formattedValue: formatWhole(zoneTelemetry.ppfd),
+            isAvailable: Number.isFinite(zoneTelemetry.ppfd),
+            unavailableReason: metric.unavailableReason
+          } satisfies ZoneTelemetryMetric;
+        case "zone-metric-dli":
+          return {
+            ...metric,
+            formattedValue: formatOneDecimal(zoneTelemetry.dli_incremental),
+            isAvailable: Number.isFinite(zoneTelemetry.dli_incremental),
+            unavailableReason: metric.unavailableReason
+          } satisfies ZoneTelemetryMetric;
+        case "zone-metric-temperature":
+          return {
+            ...metric,
+            formattedValue: formatOneDecimal(zoneTelemetry.temp_c),
+            isAvailable: Number.isFinite(zoneTelemetry.temp_c),
+            unavailableReason: metric.unavailableReason
+          } satisfies ZoneTelemetryMetric;
+        case "zone-metric-relative-humidity":
+          return {
+            ...metric,
+            formattedValue: formatWhole(zoneTelemetry.rh),
+            isAvailable: Number.isFinite(zoneTelemetry.rh),
+            unavailableReason: metric.unavailableReason
+          } satisfies ZoneTelemetryMetric;
+        case "zone-metric-co2":
+          return {
+            ...metric,
+            formattedValue: formatWhole(zoneTelemetry.co2_ppm),
+            isAvailable: Number.isFinite(zoneTelemetry.co2_ppm),
+            unavailableReason: metric.unavailableReason
+          } satisfies ZoneTelemetryMetric;
+        case "zone-metric-ach":
+          return {
+            ...metric,
+            formattedValue: formatOneDecimal(zoneTelemetry.ach),
+            isAvailable: Number.isFinite(zoneTelemetry.ach),
+            unavailableReason: metric.unavailableReason
+          } satisfies ZoneTelemetryMetric;
+        default:
+          return metric;
+      }
+    });
+  }, [zoneTelemetry]);
+
+  return useMemo(
+    () => ({
+      metadata,
+      metrics,
+      coverage: zoneDetailStubSnapshot.coverage,
+      actions: zoneDetailStubSnapshot.actions
+    }),
+    [metadata, metrics]
+  );
+}
+
+function formatWhole(value: number): string {
+  return Number.isFinite(value) ? Math.round(value).toString() : "—";
+}
+
+function formatOneDecimal(value: number): string {
+  if (!Number.isFinite(value)) {
+    return "—";
   }
 
-  return {
-    ...snapshot,
-    metadata: { ...snapshot.metadata, ...overrides }
-  };
+  return (Math.round(value * 10) / 10).toString();
 }

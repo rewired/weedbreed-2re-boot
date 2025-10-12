@@ -1,4 +1,6 @@
-import { useSyncExternalStore } from "react";
+import { useMemo } from "react";
+import { HOURS_PER_DAY } from "@engine/constants/simConstants.ts";
+import { useTelemetryTick } from "@ui/state/telemetry";
 
 const DASHBOARD_STUB_TARGET_TICKS_PER_HOUR = 30;
 const DASHBOARD_STUB_ACTUAL_TICKS_PER_HOUR = 28;
@@ -51,11 +53,6 @@ export interface DashboardSnapshot {
   readonly events: readonly DashboardEventSnapshot[];
 }
 
-export interface DashboardStore {
-  getSnapshot(): DashboardSnapshot;
-  subscribe(listener: () => void): () => void;
-}
-
 const stubSnapshot: DashboardSnapshot = Object.freeze({
   tickRate: {
     targetTicksPerHour: DASHBOARD_STUB_TARGET_TICKS_PER_HOUR,
@@ -84,18 +81,72 @@ const stubSnapshot: DashboardSnapshot = Object.freeze({
   ])
 });
 
-const dashboardStore: DashboardStore = {
-  getSnapshot: () => stubSnapshot,
-  subscribe: (listener: () => void) => {
-    void listener;
-    return () => undefined;
+const MINUTES_PER_HOUR = 60;
+
+function deriveClock(simTimeHours: number): DashboardClockSnapshot {
+  if (!Number.isFinite(simTimeHours)) {
+    return stubSnapshot.clock;
   }
-};
+
+  const totalHours = Math.max(0, simTimeHours);
+  let day = Math.floor(totalHours / HOURS_PER_DAY) + 1;
+  let hour = Math.floor(totalHours % HOURS_PER_DAY);
+  const fractionalHours = totalHours - Math.floor(totalHours);
+  let minute = Math.round(fractionalHours * MINUTES_PER_HOUR);
+
+  if (minute === MINUTES_PER_HOUR) {
+    minute = 0;
+    hour += 1;
+    if (hour === HOURS_PER_DAY) {
+      hour = 0;
+      day += 1;
+    }
+  }
+
+  return {
+    day,
+    hour,
+    minute
+  } satisfies DashboardClockSnapshot;
+}
 
 export function useDashboardSnapshot(): DashboardSnapshot {
-  return useSyncExternalStore(
-    (listener) => dashboardStore.subscribe(listener),
-    () => dashboardStore.getSnapshot(),
-    () => dashboardStore.getSnapshot()
-  );
+  const tickTelemetry = useTelemetryTick();
+
+  return useMemo(() => {
+    if (!tickTelemetry) {
+      return stubSnapshot;
+    }
+
+    const clock = deriveClock(tickTelemetry.simTimeHours);
+
+    return {
+      tickRate: {
+        targetTicksPerHour:
+          tickTelemetry.targetTicksPerHour ?? stubSnapshot.tickRate.targetTicksPerHour,
+        actualTicksPerHour:
+          tickTelemetry.actualTicksPerHour ?? stubSnapshot.tickRate.actualTicksPerHour
+      },
+      clock,
+      costs: {
+        operatingCostPerHour:
+          tickTelemetry.operatingCostPerHour ?? stubSnapshot.costs.operatingCostPerHour,
+        labourCostPerHour:
+          tickTelemetry.labourCostPerHour ?? stubSnapshot.costs.labourCostPerHour,
+        utilitiesCostPerHour:
+          tickTelemetry.utilitiesCostPerHour ?? stubSnapshot.costs.utilitiesCostPerHour
+      },
+      resources: {
+        energyKwhPerDay:
+          tickTelemetry.energyKwhPerDay ?? stubSnapshot.resources.energyKwhPerDay,
+        energyCostPerHour:
+          tickTelemetry.energyCostPerHour ?? stubSnapshot.resources.energyCostPerHour,
+        waterCubicMetersPerDay:
+          tickTelemetry.waterCubicMetersPerDay ?? stubSnapshot.resources.waterCubicMetersPerDay,
+        waterCostPerHour:
+          tickTelemetry.waterCostPerHour ?? stubSnapshot.resources.waterCostPerHour
+      },
+      events: stubSnapshot.events
+    } satisfies DashboardSnapshot;
+  }, [tickTelemetry]);
 }
