@@ -1,3 +1,5 @@
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
 import {
   createEngineBootstrapConfig,
   parseCompanyWorld,
@@ -7,7 +9,7 @@ import {
 
 export type { ParsedCompanyWorld } from '@wb/engine';
 export { parseCompanyWorld } from '@wb/engine';
-export { mapDeviceToView, type DeviceView } from './readModels/deviceView.ts';
+export { mapDeviceToView, type DeviceView } from './readModels/deviceView.js';
 export {
   createWorkforceView,
   type WorkforceDirectoryFilters,
@@ -22,13 +24,13 @@ export {
   type WorkforceView,
   type WorkforceViewOptions,
   type WorkforceWarningView
-} from './readModels/workforceView.ts';
+} from './readModels/workforceView.js';
 export {
   createTraitBreakdown,
   type TraitBreakdownEntry,
   type TraitBreakdownTotals,
   type TraitBreakdownView,
-} from './readModels/traitBreakdownView.ts';
+} from './readModels/traitBreakdownView.js';
 export {
   createHiringMarketView,
   type HiringMarketCandidateSkillView,
@@ -38,24 +40,24 @@ export {
   type HiringMarketStructureView,
   type HiringMarketView,
   type HiringMarketViewOptions,
-} from './readModels/hiringMarketView.ts';
+} from './readModels/hiringMarketView.js';
 export {
   createHiringMarketHireIntent,
   createHiringMarketScanIntent,
-} from './intents/hiring.ts';
+} from './intents/hiring.js';
 export {
   createTransportServer,
   type TransportCorsOptions,
   type TransportServer,
   type TransportServerOptions,
-} from './transport/server.ts';
+} from './transport/server.js';
 export {
   createReadModelHttpServer,
   type ReadModelHttpLogger,
   type ReadModelHttpServer,
   type ReadModelHttpServerOptions,
   type ReadModelProviders,
-} from './server/http.ts';
+} from './server/http.js';
 
 /**
  * Parameters required to initialise the façade layer that brokers between the engine and clients.

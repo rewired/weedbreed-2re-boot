@@ -1,12 +1,15 @@
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
 import {
   COMPANY_TREE_SCHEMA_VERSION,
   STRUCTURE_TARIFFS_SCHEMA_VERSION,
   WORKFORCE_VIEW_SCHEMA_VERSION,
+  uuidSchema,
   type CompanyTreeReadModel,
   type StructureTariffsReadModel,
   type WorkforceViewReadModel
-} from '../readModels/api/schemas.ts';
-import { createReadModelHttpServer } from './http.ts';
+} from '../readModels/api/schemas.js';
+import { createReadModelHttpServer } from './http.js';
 
 const DEFAULT_SIM_TIME_HOURS = 0;
 const DEMO_ZONE_AREA_M2 = 48;
@@ -25,19 +28,19 @@ const DECIMAL_RADIX = 10;
 const SAMPLE_COMPANY_TREE: CompanyTreeReadModel = {
   schemaVersion: COMPANY_TREE_SCHEMA_VERSION,
   simTime: DEFAULT_SIM_TIME_HOURS,
-  companyId: '00000000-0000-0000-0000-000000100000',
+  companyId: uuidSchema.parse('00000000-0000-0000-0000-000000100000'),
   name: 'Weed Breed Demo GmbH',
   structures: [
     {
-      id: '00000000-0000-0000-0000-000000100001',
+      id: uuidSchema.parse('00000000-0000-0000-0000-000000100001'),
       name: 'Demo Campus',
       rooms: [
         {
-          id: '00000000-0000-0000-0000-000000100002',
+          id: uuidSchema.parse('00000000-0000-0000-0000-000000100002'),
           name: 'Propagation Room',
           zones: [
             {
-              id: '00000000-0000-0000-0000-000000100003',
+              id: uuidSchema.parse('00000000-0000-0000-0000-000000100003'),
               name: 'Zone Alpha',
               area_m2: DEMO_ZONE_AREA_M2,
               volume_m3: DEMO_ZONE_VOLUME_M3

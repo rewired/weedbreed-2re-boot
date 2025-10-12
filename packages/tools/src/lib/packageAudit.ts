@@ -1,3 +1,5 @@
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
 export {
   CANDIDATES,
   generatePackageAudit,
@@ -5,5 +7,5 @@ export {
   type CandidateCategory,
   type CandidateReport,
   type PackageAuditSummary
-} from './audit/normalize.ts';
-export { renderPackageAuditMarkdown } from './audit/renderMarkdown.ts';
+} from './audit/normalize.js';
+export { renderPackageAuditMarkdown } from './audit/renderMarkdown.js';

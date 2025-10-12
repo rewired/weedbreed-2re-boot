@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { uuidSchema } from '@wb/engine';
 
+export { uuidSchema };
+
 function nonEmptyString(fieldName: string): z.ZodString {
   return z
     .string({ invalid_type_error: `${fieldName} must be a string.` })

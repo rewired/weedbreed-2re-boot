@@ -11,6 +11,7 @@
 - HOTFIX-043 (Task 0064): Hoist engine trait weights, builder constants, and RNG seeds into `simConstants` with mirrored docs, eliminating magic number lint warnings.
 - HOTFIX-043 (Task 0065): Prune unused bindings, normalise `const`/`async` usage, and refresh tests in schema utilities to meet lint hygiene expectations.
 - HOTFIX-043 (Task 0066): Migrate thermo tests to `createThermalActuatorStub`, retire `applyDeviceHeat`, and document the Phase 6 helper so deprecated lint failures disappear.
+- HOTFIX-043 (Task 0067): Split façade, transport, and tooling TypeScript configs into type-check (`noEmit`) and build variants, replaced local `.ts` specifiers with `.js` ESM imports, wired façade builds against the engine/transport dist artifacts, and hardened transport ack guards plus façade dev fixtures so NodeNext emit passes without brand/type regressions.
 
 ### Unreleased — Blueprint Taxonomy v2
 

@@ -1,3 +1,5 @@
+/* eslint-disable wb-sim/no-ts-import-js-extension */
+
 export {
   createSocketTransportAdapter,
   INTENT_ERROR_EVENT,
@@ -13,7 +15,7 @@ export {
   type TransportAckError,
   type TransportAckErrorCode,
   type TransportIntentEnvelope,
-} from './adapter.ts';
+} from './adapter.js';
 
 /**
  * Configuration options required to initialise the Socket.IO transport adapter.

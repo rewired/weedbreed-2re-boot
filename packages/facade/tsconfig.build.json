@@ -1,0 +1,40 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "composite": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "allowImportingTsExtensions": false,
+    "paths": {
+      "@wb/engine": [
+        "./packages/engine/dist/index.d.ts"
+      ],
+      "@wb/engine/*": [
+        "./packages/engine/dist/*"
+      ],
+      "@wb/transport-sio": [
+        "./packages/transport-sio/dist/index.d.ts"
+      ],
+      "@wb/transport-sio/*": [
+        "./packages/transport-sio/dist/*"
+      ],
+      "@engine/constants/*": [
+        "./packages/engine/dist/backend/src/constants/*"
+      ],
+      "@/backend/*": [
+        "./packages/engine/dist/backend/*"
+      ],
+      "@/shared/*": [
+        "./packages/engine/dist/shared/*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "tests",
+    "dist",
+    "node_modules"
+  ]
+}
