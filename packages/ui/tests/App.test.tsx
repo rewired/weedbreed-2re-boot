@@ -6,9 +6,11 @@ describe("App", () => {
   it("renders left rail navigation and workspace placeholder", () => {
     render(<App />);
 
+    const globalNavigation = screen.getByRole("navigation", { name: /global navigation/i });
+    expect(globalNavigation).toBeInTheDocument();
     expect(
-      screen.getByRole("navigation", { name: /workspace sections/i })
-    ).toBeInTheDocument();
+      screen.getByRole("link", { name: /dashboard/i, exact: false })
+    ).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("main", { name: /workspace content/i })).toBeInTheDocument();
     expect(screen.getByText(/workspace bootstrap/i)).toBeVisible();
   });
