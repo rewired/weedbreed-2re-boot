@@ -1,0 +1,35 @@
+{
+  "intents": {
+    "setLightSchedule": {
+      "title": "Adjust light schedule",
+      "description": "Configure the daily photoperiod for this zone per SEC §4.2.",
+      "fields": {
+        "onHours": {
+          "label": "Lights on",
+          "help": "Hours per day that fixtures remain on."
+        },
+        "offHours": {
+          "label": "Lights off",
+          "help": "Hours per day that fixtures remain off."
+        },
+        "startHour": {
+          "label": "Start hour",
+          "help": "Hour of the day when the light cycle begins (0-23.75)."
+        }
+      },
+      "validation": {
+        "sum": "Light cycle hours must total 24 per SEC §4.2.",
+        "quarter": "Photoperiod values must use 15 minute (0.25h) increments.",
+        "start": "Start hour must be between 0 and 23.75 inclusive."
+      },
+      "actions": {
+        "submit": "Update schedule"
+      },
+      "status": {
+        "submitting": "Submitting intent…",
+        "success": "Light schedule updated. Awaiting telemetry confirmation.",
+        "toastErrorTitle": "Intent submission failed"
+      }
+    }
+  }
+}
