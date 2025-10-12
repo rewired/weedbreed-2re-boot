@@ -18,7 +18,7 @@ import { expectDefined } from '../../../util/expectors';
 
 const baseRoles: EmployeeRole[] = [
   {
-    id: uuidSchema.parse('00000000-0000-0000-0000-00000000role'),
+    id: uuidSchema.parse('00000000-0000-4000-8000-000000000041'),
     slug: 'gardener',
     name: 'Gardener',
     coreSkills: [

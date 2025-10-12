@@ -62,22 +62,49 @@ export function createThermalActuatorStub(): IThermalActuator {
 
       const resolvedDt_h = resolveTickHoursValue(dt_h);
       const resolvedAirMass = resolveAirMassKg(airMass_kg);
-      const powerDraw_W = Math.max(0, inputs.power_W);
+      const dutyCycle = clamp01(inputs.dutyCycle01 ?? 1);
+      const powerDraw_W = Math.max(0, inputs.power_W) * dutyCycle;
 
       if (powerDraw_W === 0 || resolvedDt_h === 0 || resolvedAirMass === 0) {
         return { deltaT_K: 0, energy_Wh: 0, used_W: 0 };
       }
 
-      const mode = inputs.mode;
+      switch (inputs.mode) {
+        case 'auto': {
+          const setpoint = inputs.setpoint_C;
 
-      if (mode === 'auto') {
-        const setpoint = inputs.setpoint_C;
+          if (typeof setpoint !== 'number' || !Number.isFinite(setpoint)) {
+            throw new Error('Auto mode requires setpoint_C');
+          }
 
-        if (typeof setpoint !== 'number' || !Number.isFinite(setpoint)) {
-          throw new Error('Auto mode requires setpoint_C');
+          if (setpoint > envState.airTemperatureC) {
+            return ensureFiniteOutputs(
+              computeHeatingEffect(
+                powerDraw_W,
+                efficiency,
+                inputs.max_heat_W,
+                resolvedDt_h,
+                resolvedAirMass,
+              ),
+            );
+          }
+
+          if (setpoint < envState.airTemperatureC) {
+            return ensureFiniteOutputs(
+              computeCoolingEffect(
+                powerDraw_W,
+                efficiency,
+                inputs.max_cool_W,
+                resolvedDt_h,
+                resolvedAirMass,
+              ),
+            );
+          }
+
+          return { deltaT_K: 0, energy_Wh: 0, used_W: 0 };
         }
 
-        if (setpoint > envState.airTemperatureC) {
+        case 'heat':
           return ensureFiniteOutputs(
             computeHeatingEffect(
               powerDraw_W,
@@ -87,9 +114,8 @@ export function createThermalActuatorStub(): IThermalActuator {
               resolvedAirMass,
             ),
           );
-        }
 
-        if (setpoint < envState.airTemperatureC) {
+        case 'cool':
           return ensureFiniteOutputs(
             computeCoolingEffect(
               powerDraw_W,
@@ -99,35 +125,10 @@ export function createThermalActuatorStub(): IThermalActuator {
               resolvedAirMass,
             ),
           );
-        }
 
-        return { deltaT_K: 0, energy_Wh: 0, used_W: 0 };
+        default:
+          throw new Error('Unsupported thermal actuator mode');
       }
-
-      if (mode === 'heat') {
-        return ensureFiniteOutputs(
-          computeHeatingEffect(
-            powerDraw_W,
-            efficiency,
-            inputs.max_heat_W,
-            resolvedDt_h,
-            resolvedAirMass,
-          ),
-        );
-      } else {
-        // mode === 'cool' at this point
-        return ensureFiniteOutputs(
-          computeCoolingEffect(
-            powerDraw_W,
-            efficiency,
-            inputs.max_cool_W,
-            resolvedDt_h,
-            resolvedAirMass,
-          ),
-        );
-      }
-
-      throw new Error('Unsupported thermal actuator mode');
     },
   } satisfies IThermalActuator;
 }

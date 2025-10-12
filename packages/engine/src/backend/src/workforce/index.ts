@@ -500,7 +500,7 @@ function partitionIntents(
 
 export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
   const runtime = ensureWorkforceRuntime(ctx);
-  const originalWorkforceState = (world as SimulationWorld & { workforce?: WorkforceState }).workforce;
+  const originalWorkforceState = world.workforce;
   const currentSimHours = Number.isFinite(world.simTimeHours) ? world.simTimeHours : 0;
   const currentSimDay = Math.floor(currentSimHours / HOURS_PER_DAY);
 
@@ -511,7 +511,7 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
     currentSimHours,
     currentSimDay,
   );
-  let workforceState = workforceAfterScheduling;
+  let workforceState = workforceAfterScheduling ?? originalWorkforceState;
 
   const pestEvaluation = evaluatePestDiseaseSystem(world, currentSimHours);
 
@@ -526,22 +526,20 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
   }
 
   const shouldUpdateHealth = world.health !== pestEvaluation.health;
-  const shouldUpdateWorkforce = originalWorkforceState !== workforceState;
+  const shouldUpdateWorkforce =
+    workforceState !== originalWorkforceState;
 
   if (shouldUpdateHealth || shouldUpdateWorkforce) {
-    world = { ...world, health: pestEvaluation.health, workforce: workforceState } satisfies SimulationWorld;
+    world = {
+      ...world,
+      health: pestEvaluation.health,
+      workforce: workforceState
+    } satisfies SimulationWorld;
   }
 
   emitPestDiseaseRiskWarnings(ctx.telemetry, pestEvaluation.warnings);
   emitPestDiseaseTaskEvents(ctx.telemetry, pestEvaluation.taskEvents);
 
-  if (!workforceAfterScheduling) {
-    runtime.kpiSnapshot = createSnapshot(world.simTimeHours, [], 0, 0, 0, 0, 0, []);
-    clearWorkforcePayrollAccrual(ctx);
-    return world;
-  }
-
-  workforceState = workforceAfterScheduling;
   const workforceConfig = resolveWorkforceConfig(workforceConfigStore.get(ctx));
   const intents = extractWorkforceIntents(ctx);
   const partitions = partitionIntents(intents);

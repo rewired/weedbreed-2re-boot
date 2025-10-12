@@ -19,7 +19,7 @@ import type { MarketHireTelemetry, MarketScanTelemetry } from '../market/candida
 
 export interface DeviceTelemetryEvent {
   readonly topic: string;
-  readonly payload: Record<string, unknown>;
+  readonly payload?: Record<string, unknown>;
 }
 
 export interface WorkforceTelemetryBatch {
@@ -44,6 +44,10 @@ function emitDeviceTelemetry(
   const { topic, payload } = event;
 
   if (typeof topic !== 'string' || topic.length === 0) {
+    return;
+  }
+
+  if (!payload || typeof payload !== 'object') {
     return;
   }
 

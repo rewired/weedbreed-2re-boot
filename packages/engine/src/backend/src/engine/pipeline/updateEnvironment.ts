@@ -159,23 +159,17 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
         zonePPFDMap.delete(zone.id);
         zoneDLIMap.delete(zone.id);
 
-        if (nextZone !== zone) {
-          zonesChanged = true;
-        }
-
-        return nextZone;
+        return nextZone !== zone ? nextZone : zone;
       });
 
       const zonesChanged = nextZones.some((candidate, index) => candidate !== room.zones[index]);
 
-      if (zonesChanged) {
-        return {
-          ...room,
-          zones: nextZones
-        };
-      }
-
-      return room;
+      return zonesChanged
+        ? {
+            ...room,
+            zones: nextZones
+          }
+        : room;
     });
 
     const roomsChanged = nextRooms.some(

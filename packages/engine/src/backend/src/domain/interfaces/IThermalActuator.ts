@@ -16,6 +16,8 @@ export interface ThermalActuatorInputs {
   readonly max_cool_W?: number;
   /** Optional temperature setpoint in degrees Celsius for auto mode. */
   readonly setpoint_C?: number;
+  /** Duty cycle on the canonical [0,1] scale describing utilisation during the tick. */
+  readonly dutyCycle01?: number;
 }
 
 /**

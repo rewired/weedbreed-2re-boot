@@ -128,30 +128,32 @@ export function createHumidityActuatorStub(): IHumidityActuator {
         return { deltaRH01: 0, water_g: 0, energy_Wh: 0 };
       }
 
-      const mode = inputs.mode;
+      switch (inputs.mode) {
+        case 'dehumidify': {
+          const humidityFactor = getHumidityFactor_k_rh(envState.airTemperatureC);
+          const deltaRH01 = (-humidityFactor * (tickCapacity_g / resolvedAirMass)) / 100;
 
-      if (mode === 'dehumidify') {
-        const humidityFactor = getHumidityFactor_k_rh(envState.airTemperatureC);
-        const deltaRH01 = (-humidityFactor * (tickCapacity_g / resolvedAirMass)) / 100;
+          return ensureFiniteOutputs({
+            deltaRH01,
+            water_g: tickCapacity_g,
+            energy_Wh: 0
+          });
+        }
 
-        return ensureFiniteOutputs({
-          deltaRH01,
-          water_g: tickCapacity_g,
-          energy_Wh: 0
-        });
+        case 'humidify': {
+          const humidityFactor = getHumidityFactor_k_rh(envState.airTemperatureC);
+          const deltaRH01 = (humidityFactor * (tickCapacity_g / resolvedAirMass)) / 100;
+
+          return ensureFiniteOutputs({
+            deltaRH01,
+            water_g: -tickCapacity_g,
+            energy_Wh: 0
+          });
+        }
+
+        default:
+          throw new Error('Unsupported humidity actuator mode');
       }
-
-      // mode === 'humidify' at this point
-      const humidityFactor = getHumidityFactor_k_rh(envState.airTemperatureC);
-      const deltaRH01 = (humidityFactor * (tickCapacity_g / resolvedAirMass)) / 100;
-
-      return ensureFiniteOutputs({
-        deltaRH01,
-        water_g: -tickCapacity_g,
-        energy_Wh: 0
-      });
-
-      throw new Error('Unsupported humidity actuator mode');
     }
   } satisfies IHumidityActuator;
 }
