@@ -9,8 +9,19 @@
     "types": ["node", "vite/client"],
     "baseUrl": "../../",
     "paths": {
-      "@ui/*": ["packages/ui/src/*"],
-      "@wb/transport-sio": ["packages/transport-sio/src/index.ts"]
+      "@wb/engine/*": ["packages/engine/src/*"],
+      "@wb/facade/*": ["packages/facade/src/*"],
+      "@wb/transport-sio/*": ["packages/transport-sio/src/*"],
+      "@wb/tools-monitor/*": ["packages/tools-monitor/src/*"],
+      "@wb/engine": ["packages/engine/src/index"],
+      "@wb/facade": ["packages/facade/src/index"],
+      "@wb/transport-sio": ["packages/transport-sio/src/index"],
+      "@wb/tools-monitor": ["packages/tools-monitor/src/index"],
+      "@engine/constants/*": ["packages/engine/src/backend/src/constants/*"],
+      "@/backend/*": ["packages/engine/src/backend/*"],
+      "@/shared/*": ["packages/engine/src/shared/*"],
+      "@/tests/*": ["packages/engine/tests/*"],
+      "@ui/*": ["packages/ui/src/*"]
     }
   },
   "include": [
