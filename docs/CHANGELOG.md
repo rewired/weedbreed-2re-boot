@@ -2,6 +2,11 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- Task 0037: Added a façade contract test harness that boots the read-model HTTP
+  server and Socket.IO transport, exercised telemetry read-only rejections and
+  intent acknowledgement contracts under `tests/contract/**`, and wired a
+  dedicated `test:contract` script so the suite can run in isolation via
+  `pnpm --filter @wb/facade test:contract`.
 - Task 0023: Added façade read-model schema validators with versioned metadata, unit coverage for happy/negative paths, and documentation for the three schema identifiers to lock UI contracts to Proposal §6.
 - Task 0024: Introduced Fastify-backed façade HTTP endpoints for company tree, structure tariffs, and workforce view read-models with schema validation guards, integration coverage for success/error responses, and a dev server script for local pairing with the transport adapter.
 - Task 0025: Delivered façade read-model client SDK fetch helpers with typed error handling, unit coverage for network/schema failures, and REST client documentation for manual endpoint verification.
