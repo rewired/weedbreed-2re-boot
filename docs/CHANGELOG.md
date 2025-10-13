@@ -2,6 +2,11 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- HOTFIX-043 (Task 0070): Swapped the `pnpm run dev:stack` script's `concurrently`
+  argument quoting to double quotes so Windows shells stop forwarding literal
+  `'` characters, unblocking the façade read-model, transport, and UI dev stack
+  from boot failures on cmd and PowerShell.
+
 - Task 0069: Split the workspace lint workflow into a warning-tolerant local
   script and a strict `lint:ci` variant, updated the pre-push hook/CI pipeline
   to gate on the strict run, and refreshed the README and contributing guide to

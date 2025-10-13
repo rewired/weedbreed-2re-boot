@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "pnpm -r --parallel dev",
-    "dev:stack": "pnpm exec concurrently --kill-others --restart-tries 0 --names 'facade-rm,facade-transport,ui' --prefix-colors 'cyan.bold,magenta.bold,green.bold' \"pnpm --filter @wb/facade dev:server\" \"pnpm --filter @wb/facade transport:dev\" \"pnpm --filter @wb/ui dev\"",
+    "dev:stack": "pnpm exec concurrently --kill-others --restart-tries 0 --names \"facade-rm,facade-transport,ui\" --prefix-colors \"cyan.bold,magenta.bold,green.bold\" \"pnpm --filter @wb/facade dev:server\" \"pnpm --filter @wb/facade transport:dev\" \"pnpm --filter @wb/ui dev\"",
     "build": "pnpm -r build",
     "typecheck": "pnpm -w tsc -p packages/engine/tsconfig.spec.json --noEmit",
     "lint": "pnpm exec eslint \"packages/**/*.{ts,tsx}\"",
