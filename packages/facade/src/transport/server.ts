@@ -186,10 +186,17 @@ function createHealthHandler(statusBody: string, cors?: TransportCorsOptions): H
 
     const { method, url } = request;
 
-    if (method === 'GET' && new URL(url, 'http://localhost').pathname === '/healthz') {
+    if ((method === 'GET' || method === 'HEAD') && new URL(url, 'http://localhost').pathname === '/healthz') {
       applyCorsHeaders(request, response, cors);
       response.statusCode = HTTP_STATUS_OK;
       response.setHeader('content-type', 'application/json; charset=utf-8');
+      response.setHeader('content-length', String(Buffer.byteLength(statusBody)));
+
+      if (method === 'HEAD') {
+        response.end();
+        return;
+      }
+
       response.end(statusBody);
       return;
     }
