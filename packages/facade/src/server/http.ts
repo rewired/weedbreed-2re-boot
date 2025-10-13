@@ -62,7 +62,9 @@ type MaybePromise<T> = T | Promise<T>;
  */
 export function createReadModelHttpServer(options: ReadModelHttpServerOptions): FastifyInstance {
   const app = Fastify({ logger: false });
+  const HTTP_STATUS_OK = 200;
   const HTTP_STATUS_INTERNAL_ERROR = 500;
+  const HEALTH_STATUS_RESPONSE = { status: 'ok' } as const;
   const logger: ReadModelHttpLogger = options.logger ?? {
     error(message: string, details?: Record<string, unknown>) {
       console.error(message, details);
@@ -84,6 +86,21 @@ export function createReadModelHttpServer(options: ReadModelHttpServerOptions): 
       return reply.status(HTTP_STATUS_INTERNAL_ERROR).send({ error: 'Failed to compose read-model.' });
     }
   }
+
+  app.route({
+    method: ['GET', 'HEAD'],
+    url: '/healthz',
+    handler(request, reply) {
+      reply.status(HTTP_STATUS_OK);
+      reply.header('content-type', 'application/json; charset=utf-8');
+
+      if (request.method === 'HEAD') {
+        return reply.send();
+      }
+
+      return reply.send(HEALTH_STATUS_RESPONSE);
+    },
+  });
 
   app.get('/api/companyTree', (_request, reply) =>
     handleReadModel(reply, 'companyTree', options.providers.companyTree, (payload) =>
