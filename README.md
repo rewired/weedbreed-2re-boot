@@ -2,7 +2,7 @@
 
 > **Status:** Active • **Runtime:** Node.js 22 LTS • **Package manager:** pnpm ≥ 10.17 • **Language:** TypeScript (ESM) • **Test:** Vitest • **Repo style:** pnpm workspaces
 
-> **CI coverage:** `pnpm install` → `pnpm lint` → `pnpm test` → `pnpm --filter @wb/facade test:contract` on every push/PR (Node.js 22).
+> **CI coverage:** `pnpm install` → `pnpm lint:ci` → `pnpm test` → `pnpm --filter @wb/facade test:contract` on every push/PR (Node.js 22).
 
 Weed Breed (Re‑Reboot) is a deterministic, tick‑based simulation about controlled‑environment cultivation, resources, and economics. The project emphasizes **reproducibility**, **testability** (Golden Master / Conformance), and **contract‑driven development** via living documents (**SEC**, **TDD**, **DD**, **VISION_SCOPE**).
 
@@ -71,7 +71,12 @@ pnpm --filter @wb/engine test
 ### Lint & Format
 
 ```sh
+# Local eslint run keeps warnings visible without failing the run
 pnpm -r lint
+
+# CI/strict linting fails on any warning
+pnpm lint:ci
+
 pnpm -r format
 ```
 
@@ -148,7 +153,8 @@ pnpm --filter @wb/engine sim:run
 
 * `build` — typecheck & compile
 * `test` — unit/integration tests (Vitest)
-* `lint` — ESLint rules (includes custom rules, e.g., forbid `Math.random`)
+* `lint` — ESLint rules with warnings surfaced but non-blocking for local workflows
+* `lint:ci` — Strict ESLint run (`--max-warnings 0`) for pre-push/CI guardrails
 * `perf:ci` — run performance checks for ms/tick regressions
 
 Run in all workspaces: `pnpm -r <script>`.
