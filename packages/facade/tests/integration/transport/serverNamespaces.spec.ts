@@ -75,6 +75,19 @@ describe('transport server bootstrap', () => {
     expect(healthResponse.headers.get('access-control-allow-origin')).toBe(
       'http://localhost:5173'
     );
+
+    const headResponse = await fetch(`${server.url}/healthz`, {
+      method: 'HEAD',
+      headers: { Origin: 'http://localhost:5173' },
+    });
+
+    expect(headResponse.status).toBe(200);
+    expect(headResponse.headers.get('access-control-allow-origin')).toBe(
+      'http://localhost:5173'
+    );
+    expect(headResponse.headers.get('content-type')).toBe(
+      'application/json; charset=utf-8'
+    );
   });
 
   it('rejects telemetry writes when no handler is registered', async () => {
