@@ -75,6 +75,17 @@ pnpm -r lint
 pnpm -r format
 ```
 
+### Run the Mini Frontend Stack
+
+```sh
+# Boots façade read-model HTTP server, façade Socket.IO transport, and the Vite UI dev server
+pnpm run dev:stack
+```
+
+> Ensure `packages/ui/.env.local` (or your shell env) sets
+> `VITE_TRANSPORT_BASE_URL` to the façade transport URL, e.g.
+> `http://localhost:7101`, before starting the stack.
+
 ### Quick Local Simulation (example)
 
 ```sh
