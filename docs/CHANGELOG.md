@@ -2,6 +2,11 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- Task 0069: Split the workspace lint workflow into a warning-tolerant local
+  script and a strict `lint:ci` variant, updated the pre-push hook/CI pipeline
+  to gate on the strict run, and refreshed the README and contributing guide to
+  document the distinction.
+
 - Task 0068: Wired a root `pnpm run dev:stack` helper (via `concurrently`) that
   boots the façade read-model server, façade Socket.IO transport, and Vite UI
   dev server together, and documented the workflow in the README to align with

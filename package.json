@@ -13,7 +13,8 @@
     "dev:stack": "pnpm exec concurrently --kill-others --restart-tries 0 --names 'facade-rm,facade-transport,ui' --prefix-colors 'cyan.bold,magenta.bold,green.bold' \"pnpm --filter @wb/facade dev:server\" \"pnpm --filter @wb/facade transport:dev\" \"pnpm --filter @wb/ui dev\"",
     "build": "pnpm -r build",
     "typecheck": "pnpm -w tsc -p packages/engine/tsconfig.spec.json --noEmit",
-    "lint": "pnpm exec eslint --max-warnings 0 \"packages/**/*.{ts,tsx}\"",
+    "lint": "pnpm exec eslint \"packages/**/*.{ts,tsx}\"",
+    "lint:ci": "pnpm exec eslint --max-warnings 0 \"packages/**/*.{ts,tsx}\"",
     "lint:strict": "node ./tools/check-warn-budget.mjs --budget 30 -- pnpm -r --workspace-concurrency=1 lint -- --max-warnings=2147483647 --format json",
     "test": "pnpm -r test",
     "test:imports": "pnpm --filter @wb/engine test:imports",
@@ -34,7 +35,7 @@
     "tasks:write": "tsx tools/tasks/renumberTasks.mts --write",
     "tasks:check": "tsx tools/tasks/renumberTasks.mts --dry --verify",
     "scan:magic": "node ./tools/scripts/scan-magic-numbers.mjs",
-    "prepush": "pnpm typecheck && pnpm lint && pnpm test"
+    "prepush": "pnpm typecheck && pnpm lint:ci && pnpm test"
   },
   "devDependencies": {
     "@eslint/js": "^9.5.0",
