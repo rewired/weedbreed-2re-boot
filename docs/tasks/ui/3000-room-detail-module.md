@@ -1,6 +1,6 @@
 # Room Detail Module
 
-**ID:** 0103
+**ID:** 3000
 **Status:** Planned
 **Owner:** unassigned
 **Priority:** P1
@@ -18,7 +18,7 @@ Delivering this module ensures room diagnostics, baselines, and movement afforda
   - Display device tiles by class with condition %, contribution, eligibility, and workforce timeline entries for the room.
   - Provide UI triggers for create/duplicate zone, move zones, set baselines, and device move/remove/replace flows provided by sibling tasks.
 - Out:
-  - Implementing the zone creation/duplication and movement internals (handled by Task 0107/0108).
+  - Implementing the zone creation/duplication and movement internals (handled by Task 7000/8000).
   - Editing device firmware or automation beyond baseline target adjustments.
 
 ## Deliverables

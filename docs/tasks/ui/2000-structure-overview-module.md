@@ -1,6 +1,6 @@
 # Structure Overview Module
 
-**ID:** 0102
+**ID:** 2000
 **Status:** Planned
 **Owner:** unassigned
 **Priority:** P1
@@ -17,7 +17,7 @@ This view provides entry points for duplicate/move/capacity advisor flows and al
   - Display rooms grid with purpose, area/volume, free capacity, zone count, warning badges, and workforce snapshot panel.
   - Surface buttons/links that launch duplicate room, device move, and capacity advisor flows provided by sibling tasks.
 - Out:
-  - Implementing the duplicate/move/capacity advisor internals (handled by Tasks 0107 and 0108).
+  - Implementing the duplicate/move/capacity advisor internals (handled by Tasks 7000 and 8000).
   - Editing tariffs or other global economy configuration (read-only per plan).
 
 ## Deliverables
@@ -33,7 +33,7 @@ This view provides entry points for duplicate/move/capacity advisor flows and al
 - Capacity/coverage tiles visualize lighting coverage vs demand, HVAC/ACH vs room volume, and hourly power draw with warning badges when limits are breached.
 - Rooms grid lists each room with purpose, area/volume, free capacity, zone counts, and warning badges while exposing duplicate/move entry points.
 - Workforce snapshot highlights latest actions scoped to the structure using read-model data.
-- Buttons for duplicate room and device move trigger the flows defined in Tasks 0107/0108 (stubbing while those tasks are pending is acceptable).
+- Buttons for duplicate room and device move trigger the flows defined in Tasks 7000/8000 (stubbing while those tasks are pending is acceptable).
 
 ## References
 - docs/proposals/20251013-ui-plan.md §1.1, §11.3
