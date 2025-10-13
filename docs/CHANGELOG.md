@@ -2,6 +2,11 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- HOTFIX-044: Patched the workspace router to declare the `/` layout route
+  explicitly, preventing `No routes matched location "/"` crashes that
+  manifested as a blank page when visiting the Vite dev server root, and added
+  regression coverage for the root-path redirect to the dashboard.
+
 - HOTFIX-043 (Task 0070): Swapped the `pnpm run dev:stack` script's `concurrently`
   argument quoting to double quotes so Windows shells stop forwarding literal
   `'` characters, unblocking the façade read-model, transport, and UI dev stack
