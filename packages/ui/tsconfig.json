@@ -15,7 +15,7 @@
       "@wb/tools-monitor/*": ["packages/tools-monitor/src/*"],
       "@wb/engine": ["packages/engine/src/index"],
       "@wb/facade": ["packages/facade/src/index"],
-      "@wb/transport-sio": ["packages/transport-sio/src/index"],
+      "@wb/transport-sio": ["packages/transport-sio/src/client"],
       "@wb/tools-monitor": ["packages/tools-monitor/src/index"],
       "@engine/constants/*": ["packages/engine/src/backend/src/constants/*"],
       "@/backend/*": ["packages/engine/src/backend/*"],

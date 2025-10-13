@@ -2,6 +2,11 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- HOTFIX-045: Split the Socket.IO transport package into server and browser-safe
+  entry points, updated the UI toolchain to consume the client variant during
+  dev builds, and added coverage so the shared event identifiers/ack guards stay
+  available without bundling Node.js-only dependencies (fixes the "Buffer is not
+  defined" runtime when loading the dashboard).
 - HOTFIX-044: Patched the workspace router to declare the `/` layout route
   explicitly, preventing `No routes matched location "/"` crashes that
   manifested as a blank page when visiting the Vite dev server root, and added
