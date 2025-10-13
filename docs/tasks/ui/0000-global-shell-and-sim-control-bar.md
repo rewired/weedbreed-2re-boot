@@ -1,6 +1,6 @@
 # Global Shell & Sim Control Bar
 
-**ID:** 0100
+**ID:** 0000
 **Status:** Planned
 **Owner:** unassigned
 **Priority:** P1
