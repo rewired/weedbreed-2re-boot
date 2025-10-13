@@ -2,6 +2,10 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- Task 0068: Wired a root `pnpm run dev:stack` helper (via `concurrently`) that
+  boots the façade read-model server, façade Socket.IO transport, and Vite UI
+  dev server together, and documented the workflow in the README to align with
+  Proposal 20251009.
 - Task 0038: Hardened the CI workflow with Node.js 22 + pnpm 10.18.1 setup,
   pnpm/Vite caching, an explicit façade contract test gate, and refreshed the
   README and dev-stack docs to surface the new lint/test coverage expectations.
