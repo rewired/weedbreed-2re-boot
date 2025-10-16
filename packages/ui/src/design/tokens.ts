@@ -34,10 +34,52 @@ export const workspaceCopy = {
   appName: "Weed Breed",
   leftRail: {
     header: "Operations",
-    placeholder: "Navigate across dashboard, workforce, and growroom zones."
+    placeholder: "Navigate across company overview, structures, workforce, and strains.",
+    collapseToggle: {
+      collapse: "Collapse navigation",
+      expand: "Expand navigation"
+    },
+    sections: {
+      company: {
+        label: "Company",
+        description: "Overview, balance, and tick cadence"
+      },
+      structures: {
+        label: "Structures",
+        description: "Facilities, rooms, and grow zones"
+      },
+      hr: {
+        label: "HR",
+        description: "Workforce scheduling and KPIs"
+      },
+      strains: {
+        label: "Strains",
+        description: "Genetics library and cultivation notes"
+      }
+    }
   },
   main: {
     heading: "Workspace",
     body: "This surface will render telemetry dashboards, read-model summaries, and workflow tools."
+  },
+  simControlBar: {
+    label: "Simulation controls",
+    play: "Play",
+    pause: "Pause",
+    step: "Step",
+    speedsLabel: "Speed",
+    tickClockLabel: "Sim time",
+    balanceLabel: "Balance",
+    balanceDeltaLabel: "Δ per hour",
+    localeLabels: {
+      "en-US": {
+        day: "Day",
+        deltaSuffix: "per hour"
+      },
+      "de-DE": {
+        day: "Tag",
+        deltaSuffix: "pro Stunde"
+      }
+    }
   }
 } as const;

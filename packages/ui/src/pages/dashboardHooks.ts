@@ -1,12 +1,9 @@
 import { useMemo } from "react";
-import { HOURS_PER_DAY } from "@engine/constants/simConstants.ts";
 import { useTelemetryTick } from "@ui/state/telemetry";
+import { DEFAULT_SIMULATION_CLOCK, deriveSimulationClock } from "@ui/lib/simTime";
 
 const DASHBOARD_STUB_TARGET_TICKS_PER_HOUR = 30;
 const DASHBOARD_STUB_ACTUAL_TICKS_PER_HOUR = 28;
-const DASHBOARD_STUB_DAY = 12;
-const DASHBOARD_STUB_HOUR = 6;
-const DASHBOARD_STUB_MINUTE = 15;
 const DASHBOARD_STUB_OPERATING_COST_PER_HOUR = 126.5;
 const DASHBOARD_STUB_LABOUR_COST_PER_HOUR = 48.25;
 const DASHBOARD_STUB_UTILITIES_COST_PER_HOUR = 32.1;
@@ -59,9 +56,7 @@ const stubSnapshot: DashboardSnapshot = Object.freeze({
     actualTicksPerHour: DASHBOARD_STUB_ACTUAL_TICKS_PER_HOUR
   },
   clock: {
-    day: DASHBOARD_STUB_DAY,
-    hour: DASHBOARD_STUB_HOUR,
-    minute: DASHBOARD_STUB_MINUTE
+    ...DEFAULT_SIMULATION_CLOCK
   },
   costs: {
     operatingCostPerHour: DASHBOARD_STUB_OPERATING_COST_PER_HOUR,
@@ -81,35 +76,6 @@ const stubSnapshot: DashboardSnapshot = Object.freeze({
   ])
 });
 
-const MINUTES_PER_HOUR = 60;
-
-function deriveClock(simTimeHours: number): DashboardClockSnapshot {
-  if (!Number.isFinite(simTimeHours)) {
-    return stubSnapshot.clock;
-  }
-
-  const totalHours = Math.max(0, simTimeHours);
-  let day = Math.floor(totalHours / HOURS_PER_DAY) + 1;
-  let hour = Math.floor(totalHours % HOURS_PER_DAY);
-  const fractionalHours = totalHours - Math.floor(totalHours);
-  let minute = Math.round(fractionalHours * MINUTES_PER_HOUR);
-
-  if (minute === MINUTES_PER_HOUR) {
-    minute = 0;
-    hour += 1;
-    if (hour === HOURS_PER_DAY) {
-      hour = 0;
-      day += 1;
-    }
-  }
-
-  return {
-    day,
-    hour,
-    minute
-  } satisfies DashboardClockSnapshot;
-}
-
 export function useDashboardSnapshot(): DashboardSnapshot {
   const tickTelemetry = useTelemetryTick();
 
@@ -118,7 +84,7 @@ export function useDashboardSnapshot(): DashboardSnapshot {
       return stubSnapshot;
     }
 
-    const clock = deriveClock(tickTelemetry.simTimeHours);
+    const clock = deriveSimulationClock(tickTelemetry.simTimeHours, stubSnapshot.clock);
 
     return {
       tickRate: {

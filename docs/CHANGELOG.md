@@ -2,6 +2,11 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- Task 0000: Introduced the global workspace shell with a responsive left rail
+  (Company → Structures → HR → Strains), a sticky simulation control bar with
+  play/pause/step and deterministic speed chips, locale-aware balance and tick
+  clock formatting, and coverage for collapsible navigation plus control bar
+  behaviour across breakpoints.
 - HOTFIX-045: Split the Socket.IO transport package into server and browser-safe
   entry points, updated the UI toolchain to consume the client variant during
   dev builds, and added coverage so the shared event identifiers/ack guards stay
