@@ -1,75 +1,98 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { ZoneDetailPage } from "@ui/pages/ZoneDetailPage";
+import { resetReadModelStore } from "@ui/state/readModels";
 
-const STRUCTURE_ID = "structure-evergreen-gardens";
-const STRUCTURE_NAME = "Evergreen Gardens";
-const ZONE_ID = "zone-flower-1";
-const ZONE_NAME = "Flower Room 1";
-const CULTIVATION_METHOD_ID = "screen-of-green";
-
-const METRIC_ASSERTIONS = [
-  { label: /ppfd/i, placeholder: /Telemetry pending from canopy sensors/i },
-  { label: /daily light integral/i, placeholder: /Telemetry pending from canopy sensors/i },
-  { label: /air temperature/i, placeholder: /Telemetry pending from climate nodes/i },
-  { label: /relative humidity/i, placeholder: /Telemetry pending from climate nodes/i },
-  { label: /co₂ concentration/i, placeholder: /Telemetry pending from gas sensors/i },
-  { label: /air changes per hour/i, placeholder: /Telemetry pending from airflow monitors/i }
-] as const;
-
-const ACTION_ASSERTIONS = [
-  { label: /adjust lighting schedule/i, tooltip: /Task 0035/i },
-  { label: /schedule irrigation/i, tooltip: /Task 0036/i },
-  { label: /plan harvest/i, tooltip: /Task 0032\/0033/i }
-] as const;
-
-const EXPECTED_COVERAGE_ITEM_COUNT = 3;
-const ZONE_TITLE_HEADING_LEVEL = 2;
-const SECTION_HEADING_LEVEL = 3;
+const STRUCTURE_ID = "structure-green-harbor";
+const ROOM_ID = "room-veg-a";
+const ZONE_ID = "zone-veg-a-1";
+const MIN_EXPECTED_SPARKLINES = 3;
 
 describe("ZoneDetailPage", () => {
-  it("renders metric placeholders, coverage summaries, and disabled actions", () => {
-    render(
-      <ZoneDetailPage
-        structureId={STRUCTURE_ID}
-        structureName={STRUCTURE_NAME}
-        zoneId={ZONE_ID}
-        zoneName={ZONE_NAME}
-        cultivationMethodId={CULTIVATION_METHOD_ID}
-      />
-    );
+  beforeEach(() => {
+    resetReadModelStore();
+  });
 
-    expect(screen.getByRole("heading", { level: ZONE_TITLE_HEADING_LEVEL, name: ZONE_NAME })).toBeInTheDocument();
-    expect(screen.getByText(STRUCTURE_NAME)).toBeInTheDocument();
+  it("renders zone header, KPIs, pest context, climate, devices, and actions", () => {
+    render(<ZoneDetailPage structureId={STRUCTURE_ID} roomId={ROOM_ID} zoneId={ZONE_ID} />);
+
+    expect(screen.getByRole("heading", { name: /Veg A-1/i })).toBeInTheDocument();
+    expect(screen.getByText(/Green Harbor/i)).toBeInTheDocument();
+    expect(screen.getByText(/Northern Lights/i)).toBeInTheDocument();
     expect(screen.getByText(/Vegetative stage/i)).toBeInTheDocument();
-    expect(screen.getByText(/48 m²/)).toBeInTheDocument();
+    expect(screen.getByText(/Max 150/i)).toBeInTheDocument();
 
-    METRIC_ASSERTIONS.forEach(({ label, placeholder }) => {
-      const heading = screen.getByRole("heading", { level: SECTION_HEADING_LEVEL, name: label });
-      const section = heading.closest("section");
-      if (!(section instanceof HTMLElement)) {
-        throw new Error("Metric card should render inside a section element");
-      }
-      const metricWithin = within(section);
-      expect(metricWithin.getByText("—")).toBeInTheDocument();
-      const description = metricWithin.getByText(placeholder);
-      expect(description).toBeInTheDocument();
-      expect(section.getAttribute("aria-describedby")).toBe(description.id);
-    });
+    const cultivationLabel = screen.getByText(/Sea Of Green/i);
+    expect(cultivationLabel.previousElementSibling).toHaveTextContent(/Cultivation method/i);
+    const irrigationLabel = screen.getByText(/Drip Inline/i);
+    expect(irrigationLabel.previousElementSibling).toHaveTextContent(/Irrigation method/i);
 
-    expect(screen.getByRole("heading", { level: SECTION_HEADING_LEVEL, name: /Environmental metrics/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: SECTION_HEADING_LEVEL, name: /Device coverage/i })).toBeInTheDocument();
+    const kpiSection = screen.getByRole("heading", { name: /Plant health KPIs/i }).closest("section");
+    if (!kpiSection) {
+      throw new Error("KPI section not rendered as section");
+    }
+    const kpiWithin = within(kpiSection);
+    expect(kpiWithin.getByLabelText(/Plant health metric/i)).toBeInTheDocument();
+    const sparkline = kpiWithin.getAllByTestId("sparkline-chart");
+    expect(sparkline.length).toBeGreaterThanOrEqual(MIN_EXPECTED_SPARKLINES);
+    expect(kpiWithin.getByText(/Median 9\d%/i)).toBeInTheDocument();
 
-    const coverageItems = screen.getAllByRole("listitem");
-    expect(coverageItems).toHaveLength(EXPECTED_COVERAGE_ITEM_COUNT);
-    coverageItems.forEach((item) => {
-      expect(within(item).getByText(/^Pending$/i)).toBeInTheDocument();
-    });
+    const pestSection = screen.getByRole("heading", { name: /Pest & disease readiness/i }).closest("section");
+    if (!pestSection) {
+      throw new Error("Pest section missing");
+    }
+    const pestWithin = within(pestSection);
+    const statusList = pestWithin.getByLabelText("Pest counts");
+    const statusItems = within(statusList).getAllByRole("listitem");
+    expect(within(statusItems[0]).getByText(/0$/)).toBeInTheDocument();
+    expect(within(statusItems[1]).getByText(/1$/)).toBeInTheDocument();
+    expect(pestWithin.getByText(/Free plants/i).nextElementSibling).toHaveTextContent(/6/);
+    expect(pestWithin.getByText(/Density/i).nextElementSibling).toHaveTextContent(/0\.8/);
+    expect(pestWithin.getAllByText(/Day \d/)).not.toHaveLength(0);
 
-    ACTION_ASSERTIONS.forEach(({ label, tooltip }) => {
-      const button = screen.getByRole("button", { name: label });
+    const climateSection = screen.getByRole("heading", { name: /Climate snapshot/i }).closest("section");
+    if (!climateSection) {
+      throw new Error("Climate section missing");
+    }
+    const climateWithin = within(climateSection);
+    expect(climateWithin.getByText(/Temperature/i)).toBeInTheDocument();
+    expect(climateWithin.getAllByText(/Target/i).length).toBeGreaterThan(0);
+
+    const achCard = climateWithin.getByLabelText(/Air changes per hour/i);
+    expect(within(achCard).getByText(/5\.10 ACH/i)).toBeInTheDocument();
+    expect(within(achCard).getByText(/Target 6\.00 ACH/i)).toBeInTheDocument();
+    expect(within(achCard).getByText(/Check immediately/i)).toBeInTheDocument();
+
+    const deviceSection = screen.getByRole("heading", { name: /Device coverage/i }).closest("section");
+    if (!deviceSection) {
+      throw new Error("Device section missing");
+    }
+    const deviceWithin = within(deviceSection);
+    const lightingGroup = deviceWithin.getByLabelText(/Lighting devices/i);
+    const lightingWithin = within(lightingGroup);
+    expect(lightingWithin.getByRole("heading", { name: /Lighting/i })).toBeInTheDocument();
+    expect(lightingWithin.getByText(/LumenMax 320/i)).toBeInTheDocument();
+    expect(lightingWithin.getByText(/coverage below target/i)).toBeInTheDocument();
+
+    const actionsSection = screen.getByRole("heading", { name: /Zone operations/i }).closest("section");
+    if (!actionsSection) {
+      throw new Error("Actions section missing");
+    }
+    const actionsWithin = within(actionsSection);
+    const harvestButton = actionsWithin.getByRole("button", { name: /Harvest zone/i });
+    expect(harvestButton).not.toBeDisabled();
+    const cullButton = actionsWithin.getByRole("button", { name: /Cull plants/i });
+    expect(cullButton).not.toBeDisabled();
+    const sowButton = actionsWithin.getByRole("button", { name: /Sow seedlings/i });
+    expect(sowButton).toBeDisabled();
+    expect(sowButton).toHaveAttribute("title", expect.stringMatching(/requires an empty zone/i));
+
+    const deviceControlButtons = actionsWithin.getAllByRole("button", { name: /Adjust|Tune/i });
+    expect(deviceControlButtons.length).toBeGreaterThan(0);
+    deviceControlButtons.forEach((button) => {
       expect(button).toBeDisabled();
-      expect(button).toHaveAttribute("title", expect.stringMatching(tooltip));
+      expect(button).toHaveAttribute("title", expect.stringMatching(/Task/i));
     });
   });
 });
+

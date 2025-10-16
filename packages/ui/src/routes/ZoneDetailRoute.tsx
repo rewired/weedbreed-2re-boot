@@ -22,15 +22,7 @@ export function ZoneDetailRoute(): ReactElement {
     );
   }
 
-  const { structure, zone } = resolved;
+  const { structure, zone, room } = resolved;
 
-  return (
-    <ZoneDetailPage
-      structureId={structure.id}
-      structureName={structure.name}
-      zoneId={zone.id}
-      zoneName={zone.name}
-      cultivationMethodId={zone.cultivationMethod}
-    />
-  );
+  return <ZoneDetailPage structureId={structure.id} roomId={room?.id ?? null} zoneId={zone.id} />;
 }
