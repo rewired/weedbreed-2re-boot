@@ -38,6 +38,11 @@
   PPFD/DLI rendering, schedule submission guards, grid snapping, and device
   toggle behaviour via Vitest suites in `packages/ui/src/components/controls`
   and `packages/ui/src/lib`.
+- Task 7000: Introduced facility expansion flows covering room creation,
+  zone creation, sowing, duplication, and area updates. Added deterministic
+  validation utilities with Vitest coverage for capacity checks, compatibility
+  statuses, and acquisition previews, and scaffolded reusable dialog components
+  under `packages/ui/src/components/forms` that dispatch the new intents.
 - Task 5300: Delivered the climate control card with per-metric temperature,
   humidity, CO₂, and ACH sections using the shared control scaffold, rendered
   deviation badges driven by numeric tolerances, added climate device class
