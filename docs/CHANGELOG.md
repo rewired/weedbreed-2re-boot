@@ -30,6 +30,13 @@
   PPFD/DLI rendering, schedule submission guards, grid snapping, and device
   toggle behaviour via Vitest suites in `packages/ui/src/components/controls`
   and `packages/ui/src/lib`.
+- Task 5300: Delivered the climate control card with per-metric temperature,
+  humidity, CO₂, and ACH sections using the shared control scaffold, rendered
+  deviation badges driven by numeric tolerances, added climate device class
+  tiles exposing throughput/capacity percentages plus enable/move/remove
+  affordances, filtered ghost placeholders for missing classes, and added
+  deterministic Vitest coverage alongside shared percentage formatting
+  utilities under `packages/ui/src/lib`.
 - Task 0000: Introduced the global workspace shell with a responsive left rail
   (Company → Structures → HR → Strains), a sticky simulation control bar with
   play/pause/step and deterministic speed chips, locale-aware balance and tick
