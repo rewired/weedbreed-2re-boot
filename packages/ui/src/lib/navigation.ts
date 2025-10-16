@@ -78,7 +78,7 @@ export const workspaceStructures: WorkspaceStructureNavItem[] = [
 export const workspaceTopLevelRoutes = {
   company: { label: "Company overview", path: "/dashboard" },
   structures: { label: "Structures overview", path: "/structures" },
-  hr: { label: "Workforce KPIs", path: "/workforce" },
+  hr: { label: "HR & workforce", path: "/workforce" },
   strains: { label: "Strain library", path: "/strains" }
 } as const;
 

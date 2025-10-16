@@ -34,7 +34,7 @@ export const workspaceCopy = {
   appName: "Weed Breed",
   leftRail: {
     header: "Operations",
-    placeholder: "Navigate across company overview, structures, workforce, and strains.",
+    placeholder: "Navigate across company overview, structures, HR, and strains.",
     collapseToggle: {
       collapse: "Collapse navigation",
       expand: "Expand navigation"
