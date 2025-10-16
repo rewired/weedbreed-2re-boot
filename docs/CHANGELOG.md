@@ -23,6 +23,13 @@
   `packages/ui/src/components/controls`, added ghost device-class placeholders
   that emit structured `onGhostAction` payloads, and shipped Vitest coverage
   for header rendering, deviation states, and ghost activation callbacks.
+- Task 5200: Composed the lighting control card atop the shared scaffold with
+  target PPFD editing, a schedule editor that enforces the SEC 15-minute grid,
+  DLI preview pill, and device contribution toggles, added reusable
+  light-schedule validation utilities under `packages/ui/src/lib`, and covered
+  PPFD/DLI rendering, schedule submission guards, grid snapping, and device
+  toggle behaviour via Vitest suites in `packages/ui/src/components/controls`
+  and `packages/ui/src/lib`.
 - Task 0000: Introduced the global workspace shell with a responsive left rail
   (Company → Structures → HR → Strains), a sticky simulation control bar with
   play/pause/step and deterministic speed chips, locale-aware balance and tick

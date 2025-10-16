@@ -8,3 +8,5 @@ export type {
 } from "./ControlCard";
 
 export { ControlCard } from "./ControlCard";
+export type { LightingControlCardProps, LightingDeviceTileProps } from "./LightingControlCard";
+export { LightingControlCard } from "./LightingControlCard";
