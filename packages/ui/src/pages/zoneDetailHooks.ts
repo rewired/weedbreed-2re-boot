@@ -1,5 +1,17 @@
 import { useMemo } from "react";
 import { HOURS_PER_DAY } from "@engine/constants/simConstants.ts";
+import {
+  type ControlCardDeviationThresholds,
+  type ControlCardGhostPlaceholderDefinition,
+  type ControlCardMetricValue
+} from "@ui/components/controls/ControlCard";
+import type {
+  ClimateControlDeviceClassSection,
+  ClimateControlDeviceTileProps,
+  ClimateControlMetricDefinition
+} from "@ui/components/controls/ClimateControlCard";
+import type { LightingDeviceTileProps } from "@ui/components/controls/LightingControlCard";
+import { normalizeLightSchedule, type LightScheduleInput } from "@ui/lib/lightScheduleValidation";
 import { createRng } from "@ui/lib/createRng";
 import {
   useRoomReadModel,
@@ -10,10 +22,13 @@ import {
 import type {
   DeviceSummary,
   RoomReadModel,
+  StructureReadModel,
   TimelineEntry,
   ZoneReadModel,
   ZoneTaskEntry
 } from "@ui/state/readModels.types";
+import { recordZoneLightSchedule, useZoneLightSchedule } from "@ui/state/intents";
+import { type TelemetryZoneSnapshotPayload, useZoneSnapshot } from "@ui/state/telemetry";
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
@@ -130,6 +145,40 @@ export interface ZoneDetailSnapshot {
   readonly deviceGroups: readonly ZoneDeviceGroup[];
   readonly actions: readonly ZoneActionButton[];
   readonly deviceControls: readonly ZoneDeviceControl[];
+  readonly controls: ZoneControlCardsSnapshot;
+}
+
+export interface ZoneLightingControlSnapshot {
+  readonly title: string;
+  readonly description: string | null;
+  readonly measuredPpfd: number;
+  readonly targetPpfd: number;
+  readonly deviation: ControlCardDeviationThresholds;
+  readonly schedule: LightScheduleInput;
+  readonly onTargetChange: (nextValue: number) => void;
+  readonly onScheduleSubmit: (schedule: LightScheduleInput) => void;
+  readonly isScheduleSubmitting: boolean;
+  readonly deviceTiles: readonly LightingDeviceTileProps[];
+  readonly ghostPlaceholders: readonly ControlCardGhostPlaceholderDefinition[];
+  readonly deviceSectionEmptyLabel: string;
+  readonly scheduleSubmitLabel: string;
+}
+
+export interface ZoneClimateControlSnapshot {
+  readonly title: string;
+  readonly description: string | null;
+  readonly temperature: ClimateControlMetricDefinition;
+  readonly humidity: ClimateControlMetricDefinition;
+  readonly co2: ClimateControlMetricDefinition;
+  readonly ach: ClimateControlMetricDefinition;
+  readonly deviceClasses: readonly ClimateControlDeviceClassSection[];
+  readonly ghostPlaceholders: readonly ControlCardGhostPlaceholderDefinition[];
+  readonly deviceSectionEmptyLabel: string;
+}
+
+export interface ZoneControlCardsSnapshot {
+  readonly lighting: ZoneLightingControlSnapshot;
+  readonly climate: ZoneClimateControlSnapshot;
 }
 
 const formatterWhole = new Intl.NumberFormat("en-US", {
@@ -150,6 +199,16 @@ const formatterTwoDecimal = new Intl.NumberFormat("en-US", {
 const PERCENT_UNIT_LABEL = "%" as const;
 const SPARKLINE_POINT_COUNT = 24;
 const DEFAULT_DISABLED_REASON = "Command wiring pending follow-up tasks." as const;
+const DEFAULT_LIGHT_SCHEDULE: LightScheduleInput = Object.freeze({ onHours: 18, offHours: 6, startHour: 0 });
+const DEFAULT_LIGHTING_DEVIATION: ControlCardDeviationThresholds = Object.freeze({
+  warningDelta: 50,
+  criticalDelta: 150
+});
+const DEFAULT_CLIMATE_DEVIATION: ControlCardDeviationThresholds = Object.freeze({
+  warningDelta: 1,
+  criticalDelta: 2
+});
+export const CAPACITY_ADVISOR_ACTION_LABEL = "Open Capacity Advisor" as const;
 
 const DEFAULT_ZONE_DETAIL_SNAPSHOT: ZoneDetailSnapshot = Object.freeze({
   header: Object.freeze({
@@ -181,7 +240,56 @@ const DEFAULT_ZONE_DETAIL_SNAPSHOT: ZoneDetailSnapshot = Object.freeze({
   climate: Object.freeze({ metrics: Object.freeze([]) }),
   deviceGroups: Object.freeze([]),
   actions: Object.freeze([]),
-  deviceControls: Object.freeze([])
+  deviceControls: Object.freeze([]),
+  controls: Object.freeze({
+    lighting: Object.freeze({
+      title: "Lighting controls",
+      description: null,
+      measuredPpfd: 0,
+      targetPpfd: 0,
+      deviation: DEFAULT_LIGHTING_DEVIATION,
+      schedule: DEFAULT_LIGHT_SCHEDULE,
+      onTargetChange: (nextValue: number) => {
+        void nextValue;
+      },
+      onScheduleSubmit: (schedule: LightScheduleInput) => {
+        void schedule;
+      },
+      isScheduleSubmitting: false,
+      deviceTiles: Object.freeze([]),
+      ghostPlaceholders: Object.freeze([]),
+      deviceSectionEmptyLabel: "No lighting devices configured.",
+      scheduleSubmitLabel: "Save schedule"
+    }),
+    climate: Object.freeze({
+      title: "Climate controls",
+      description: null,
+      temperature: Object.freeze({
+        label: "Temperature",
+        measured: Object.freeze({ label: "Measured", displayValue: "—" }),
+        target: Object.freeze({ label: "Target", displayValue: "—" })
+      }),
+      humidity: Object.freeze({
+        label: "Relative humidity",
+        measured: Object.freeze({ label: "Measured", displayValue: "—" }),
+        target: Object.freeze({ label: "Target", displayValue: "—" })
+      }),
+      co2: Object.freeze({
+        label: "CO₂",
+        measured: Object.freeze({ label: "Measured", displayValue: "—" }),
+        target: Object.freeze({ label: "Target", displayValue: "—" })
+      }),
+      ach: Object.freeze({
+        label: "Air changes per hour",
+        measured: Object.freeze({ label: "Measured", displayValue: "—" }),
+        target: Object.freeze({ label: "Target", displayValue: "—" }),
+        deviation: DEFAULT_CLIMATE_DEVIATION
+      }),
+      deviceClasses: Object.freeze([]),
+      ghostPlaceholders: Object.freeze([]),
+      deviceSectionEmptyLabel: "No climate devices configured."
+    })
+  })
 });
 
 const ZONE_STAGE_BASELINES = Object.freeze({
@@ -217,6 +325,25 @@ const ZONE_STAGE_BASELINES = Object.freeze({
   })
 });
 
+const ZONE_STAGE_LIGHTING_TARGETS = Object.freeze({
+  vegetative: 550,
+  flowering: 780,
+  propagation: 320,
+  drying: 180,
+  default: 500
+});
+
+const REQUIRED_LIGHTING_CLASSES = Object.freeze(["lighting"] as const);
+export const REQUIRED_CLIMATE_CLASSES = Object.freeze(["climate", "airflow"] as const);
+export const RELEVANT_CLIMATE_CLASSES = Object.freeze([
+  "climate",
+  "airflow",
+  "co2",
+  "humidifier",
+  "dehumidifier",
+  "heater"
+] as const);
+
 export function useZoneDetailView(
   structureId: string,
   roomId: string | null,
@@ -226,13 +353,15 @@ export function useZoneDetailView(
   const room = useRoomReadModel(structureId, roomId);
   const zone = useZoneReadModel(structureId, roomId, zoneId);
   const simulation = useSimulationReadModel();
+  const lightSchedule = useZoneLightSchedule(zoneId);
+  const zoneTelemetry = useZoneSnapshot(zoneId);
 
   return useMemo(() => {
     if (!zone) {
       return DEFAULT_ZONE_DETAIL_SNAPSHOT;
     }
 
-    const header = buildZoneHeader(structure?.name ?? "Structure", room, zone);
+  const header = buildZoneHeader(structure?.name ?? "Structure", room, zone);
     const kpis = buildZoneKpiOverview(zone);
     const context = buildZoneContext(room, zone);
     const pest = buildZonePestSnapshot(zone, context);
@@ -240,6 +369,15 @@ export function useZoneDetailView(
     const deviceGroups = buildZoneDeviceGroups(structureId, roomId, zone);
     const actions = buildZoneActions(structureId, roomId, zone);
     const deviceControls = buildDeviceControls(structureId, roomId, zone);
+    const controls = buildZoneControlCards(
+      structureId,
+      roomId,
+      structure,
+      room,
+      zone,
+      lightSchedule,
+      zoneTelemetry
+    );
 
     return {
       header,
@@ -248,7 +386,8 @@ export function useZoneDetailView(
       climate,
       deviceGroups,
       actions,
-      deviceControls
+      deviceControls,
+      controls
     } satisfies ZoneDetailSnapshot;
   }, [
     structure?.name,
@@ -256,7 +395,10 @@ export function useZoneDetailView(
     zone,
     simulation.simTimeHours,
     structureId,
-    roomId
+    roomId,
+    lightSchedule,
+    zoneTelemetry,
+    structure
   ]);
 }
 
@@ -301,7 +443,7 @@ function buildZoneHeader(
     structureName,
     zoneName: zone.name,
     cultivarLabel: formatSlug(zone.strainId),
-    stageLabel: deriveStageLabel(zone),
+    stageLabel: deriveZoneStageLabel(zone),
     badges,
     hints
   } satisfies ZoneHeaderSnapshot;
@@ -533,6 +675,307 @@ function createClimateMetric(
     status,
     statusLabel: statusLabel(status)
   } satisfies ZoneClimateMetric;
+}
+
+function buildZoneControlCards(
+  structureId: string,
+  roomId: string | null,
+  structure: StructureReadModel | null,
+  room: RoomReadModel | null,
+  zone: ZoneReadModel,
+  schedule: LightScheduleInput,
+  telemetry: TelemetryZoneSnapshotPayload | null
+): ZoneControlCardsSnapshot {
+  const normalizedSchedule = normalizeLightSchedule(schedule);
+
+  const lighting = buildZoneLightingControl(
+    structureId,
+    roomId,
+    room,
+    zone,
+    normalizedSchedule,
+    telemetry
+  );
+  const climate = buildZoneClimateControl(structure, room, zone, telemetry);
+
+  return { lighting, climate } satisfies ZoneControlCardsSnapshot;
+}
+
+function buildZoneLightingControl(
+  structureId: string,
+  roomId: string | null,
+  room: RoomReadModel | null,
+  zone: ZoneReadModel,
+  schedule: LightScheduleInput,
+  telemetry: TelemetryZoneSnapshotPayload | null
+): ZoneLightingControlSnapshot {
+  const targetPpfd = selectStageLightingTarget(zone, room);
+  const measuredPpfd = telemetry?.ppfd ?? targetPpfd;
+  const deviceTiles = createZoneLightingTiles(zone);
+  const ghostPlaceholders = deviceTiles.length > 0
+    ? ([] as ControlCardGhostPlaceholderDefinition[])
+    : REQUIRED_LIGHTING_CLASSES.map((classId) => ({
+        deviceClassId: classId,
+        label: "Lighting coverage",
+        description: "Install lighting fixtures to meet canopy PPFD targets.",
+        actionLabel: CAPACITY_ADVISOR_ACTION_LABEL
+      } satisfies ControlCardGhostPlaceholderDefinition));
+
+  return {
+    title: "Lighting controls",
+    description: `Target PPFD baseline derived from ${deriveZoneStageLabel(zone).toLowerCase()} stage assumptions.`,
+    measuredPpfd,
+    targetPpfd,
+    deviation: DEFAULT_LIGHTING_DEVIATION,
+    schedule,
+    onTargetChange: (nextValue: number) => {
+      console.info("[stub] set zone lighting target", {
+        structureId,
+        roomId,
+        zoneId: zone.id,
+        targetPPFD: nextValue
+      });
+    },
+    onScheduleSubmit: (nextSchedule: LightScheduleInput) => {
+      recordZoneLightSchedule(zone.id, nextSchedule);
+      console.info("[stub] set zone lighting schedule", {
+        structureId,
+        roomId,
+        zoneId: zone.id,
+        schedule: nextSchedule
+      });
+    },
+    isScheduleSubmitting: false,
+    deviceTiles,
+    ghostPlaceholders,
+    deviceSectionEmptyLabel: "No lighting devices configured for this zone.",
+    scheduleSubmitLabel: "Save schedule"
+  } satisfies ZoneLightingControlSnapshot;
+}
+
+function buildZoneClimateControl(
+  structure: StructureReadModel | null,
+  room: RoomReadModel | null,
+  zone: ZoneReadModel,
+  telemetry: TelemetryZoneSnapshotPayload | null
+): ZoneClimateControlSnapshot {
+  const baseline = selectStageBaseline(zone, room);
+  const measuredTemperature = telemetry?.temp_c ?? zone.climateSnapshot.temperature_C;
+  const measuredHumidity = telemetry?.rh ?? zone.climateSnapshot.relativeHumidity_percent;
+  const measuredCo2 = telemetry?.co2_ppm ?? zone.climateSnapshot.co2_ppm;
+  const measuredAch = telemetry?.ach ?? zone.climateSnapshot.ach_measured;
+
+  const temperature = createClimateMetricDefinition(
+    "temperature",
+    "Temperature",
+    measuredTemperature,
+    baseline.temperature_C,
+    DEFAULT_CLIMATE_DEVIATION,
+    "±1.0 °C tolerance"
+  );
+
+  const humidity = createClimateMetricDefinition(
+    "humidity",
+    "Relative humidity",
+    measuredHumidity,
+    baseline.relativeHumidity_percent,
+    { warningDelta: 5, criticalDelta: 10 },
+    "±5% tolerance"
+  );
+
+  const co2 = createClimateMetricDefinition(
+    "co2",
+    "CO₂",
+    measuredCo2,
+    baseline.co2_ppm,
+    { warningDelta: 120, criticalDelta: 240 },
+    "±120 ppm tolerance"
+  );
+
+  const ach = createClimateMetricDefinition(
+    "ach",
+    "Air changes per hour",
+    measuredAch,
+    zone.climateSnapshot.ach_target,
+    { warningDelta: 0.4, criticalDelta: 0.8 },
+    "±0.4 ACH tolerance"
+  );
+
+  const deviceClasses = buildZoneClimateDeviceSections(structure, room, zone);
+  const presentClassIds = new Set(deviceClasses.map((section) => section.classId));
+  const climateGhosts: ControlCardGhostPlaceholderDefinition[] = [];
+
+  for (const classId of REQUIRED_CLIMATE_CLASSES) {
+    if (presentClassIds.has(classId)) {
+      continue;
+    }
+    climateGhosts.push({
+      deviceClassId: classId,
+      label: formatDeviceClass(classId),
+      description: `Add ${formatDeviceClass(classId).toLowerCase()} devices to reach target capacity.`,
+      actionLabel: CAPACITY_ADVISOR_ACTION_LABEL
+    });
+  }
+
+  return {
+    title: "Climate controls",
+    description: "Compare measured telemetry against SEC-aligned climate baselines.",
+    temperature,
+    humidity,
+    co2,
+    ach,
+    deviceClasses,
+    ghostPlaceholders: climateGhosts,
+    deviceSectionEmptyLabel: "No climate devices configured for this zone."
+  } satisfies ZoneClimateControlSnapshot;
+}
+
+function createClimateMetricDefinition(
+  metricId: string,
+  label: string,
+  measured: number,
+  target: number,
+  thresholds: ControlCardDeviationThresholds,
+  toleranceLabel: string
+): ClimateControlMetricDefinition {
+  return {
+    label,
+    measured: createMetricValue(metricId, "Measured", measured),
+    target: createMetricValue(metricId, "Target", target),
+    deviation: thresholds,
+    toleranceLabel
+  } satisfies ClimateControlMetricDefinition;
+}
+
+function createMetricValue(metricId: string, label: string, value: number): ControlCardMetricValue {
+  return {
+    label,
+    displayValue: formatMeasuredValue(metricId, value),
+    numericValue: value
+  } satisfies ControlCardMetricValue;
+}
+
+function createZoneLightingTiles(zone: ZoneReadModel): LightingDeviceTileProps[] {
+  const lightingDevices = zone.devices.filter((device) => device.class === "lighting");
+  const totalCoverage = lightingDevices.reduce(
+    (sum, device) => sum + Math.max(0, device.coverageArea_m2),
+    0
+  );
+  const totalPower = lightingDevices.reduce(
+    (sum, device) => sum + Math.max(0, device.powerDraw_kWh_per_hour),
+    0
+  );
+
+  return lightingDevices.map((device) => {
+    const coverageFraction = totalCoverage > 0 ? clamp01(device.coverageArea_m2 / totalCoverage) : 0;
+    const powerFraction = totalPower > 0 ? clamp01(device.powerDraw_kWh_per_hour / totalPower) : 0;
+    const contributionFraction01 = coverageFraction > 0 ? coverageFraction : powerFraction;
+
+    return {
+      id: device.id,
+      name: device.name,
+      contributionFraction01,
+      isEnabled: true,
+      onToggle: (nextEnabled: boolean) => {
+        console.info("[stub] toggle zone lighting device", {
+          zoneId: zone.id,
+          deviceId: device.id,
+          nextEnabled
+        });
+      },
+      description: buildLightingDeviceDescription(device)
+    } satisfies LightingDeviceTileProps;
+  });
+}
+
+function buildLightingDeviceDescription(device: DeviceSummary): string | undefined {
+  if (device.coverageArea_m2 > 0) {
+    return `${formatArea(device.coverageArea_m2)} coverage`;
+  }
+  if (device.powerDraw_kWh_per_hour > 0) {
+    return `${formatterOneDecimal.format(device.powerDraw_kWh_per_hour)} kWh/hour draw`;
+  }
+  return undefined;
+}
+
+function buildZoneClimateDeviceSections(
+  structure: StructureReadModel | null,
+  room: RoomReadModel | null,
+  zone: ZoneReadModel
+): ClimateControlDeviceClassSection[] {
+  const relevantClasses = new Set(RELEVANT_CLIMATE_CLASSES);
+  const grouped = new Map<string, ClimateControlDeviceTileProps[]>();
+
+  const candidates: DeviceSummary[] = [
+    ...zone.devices,
+    ...(room?.devices ?? []),
+    ...(structure?.devices ?? [])
+  ];
+
+  for (const device of candidates) {
+    if (!relevantClasses.has(device.class)) {
+      continue;
+    }
+
+    const existing = grouped.get(device.class) ?? [];
+    const tile = createClimateDeviceTile(zone, device);
+    if (!existing.some((candidate) => candidate.id === tile.id)) {
+      existing.push(tile);
+    }
+    grouped.set(device.class, existing);
+  }
+
+  return Array.from(grouped.entries())
+    .map(([classId, devices]) => ({
+      classId,
+      label: formatDeviceClass(classId),
+      devices: devices.sort((left, right) => left.name.localeCompare(right.name))
+    }))
+    .sort((left, right) => left.label.localeCompare(right.label));
+}
+
+function createClimateDeviceTile(zone: ZoneReadModel, device: DeviceSummary): ClimateControlDeviceTileProps {
+  const throughput = device.airflow_m3_per_hour > 0
+    ? clamp01(device.airflow_m3_per_hour / Math.max(zone.volume_m3, 1))
+    : 0;
+  const capacity = device.coverageArea_m2 > 0
+    ? clamp01(device.coverageArea_m2 / Math.max(zone.area_m2, 1))
+    : throughput;
+
+  return {
+    id: device.id,
+    name: device.name,
+    throughputFraction01: throughput,
+    capacityFraction01: capacity,
+    isEnabled: true,
+    onToggleEnabled: (nextEnabled: boolean) => {
+      console.info("[stub] toggle climate device", {
+        zoneId: zone.id,
+        deviceId: device.id,
+        nextEnabled
+      });
+    },
+    onMove: () => {
+      console.info("[stub] move climate device", { zoneId: zone.id, deviceId: device.id });
+    },
+    onRemove: () => {
+      console.info("[stub] remove climate device", { zoneId: zone.id, deviceId: device.id });
+    },
+    description: buildClimateDeviceDescription(device)
+  } satisfies ClimateControlDeviceTileProps;
+}
+
+function buildClimateDeviceDescription(device: DeviceSummary): string | undefined {
+  if (device.airflow_m3_per_hour > 0) {
+    return `${formatAirflow(device.airflow_m3_per_hour)} airflow`;
+  }
+  if (device.coverageArea_m2 > 0) {
+    return `${formatArea(device.coverageArea_m2)} coverage`;
+  }
+  if (device.powerDraw_kWh_per_hour > 0) {
+    return `${formatterOneDecimal.format(device.powerDraw_kWh_per_hour)} kWh/hour draw`;
+  }
+  return undefined;
 }
 
 function buildZoneDeviceGroups(
@@ -823,6 +1266,19 @@ function clampPercent(value: number): number {
   return Math.min(100, Math.max(0, value));
 }
 
+function clamp01(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+  if (value <= 0) {
+    return 0;
+  }
+  if (value >= 1) {
+    return 1;
+  }
+  return value;
+}
+
 function roundPercent(value: number): number {
   return Math.round(clampPercent(value));
 }
@@ -840,7 +1296,7 @@ function formatSlug(slug: string): string {
     .join(" ");
 }
 
-function deriveStageLabel(zone: ZoneReadModel): string {
+export function deriveZoneStageLabel(zone: ZoneReadModel): string {
   const lowerName = zone.name.toLowerCase();
   if (lowerName.includes("veg")) {
     return "Vegetative";
@@ -929,7 +1385,7 @@ function selectStageBaseline(
   zone: ZoneReadModel,
   room: RoomReadModel | null
 ): (typeof ZONE_STAGE_BASELINES)[keyof typeof ZONE_STAGE_BASELINES] {
-  const stage = deriveStageLabel(zone).toLowerCase();
+  const stage = deriveZoneStageLabel(zone).toLowerCase();
 
   if (stage.startsWith("veg")) {
     return ZONE_STAGE_BASELINES.vegetative;
@@ -952,6 +1408,68 @@ function selectStageBaseline(
   }
 
   return ZONE_STAGE_BASELINES.default;
+}
+
+function inferLightingTargetFromText(text: string | null | undefined): number {
+  if (!text) {
+    return ZONE_STAGE_LIGHTING_TARGETS.default;
+  }
+
+  const normalized = text.toLowerCase();
+
+  if (normalized.includes("veg")) {
+    return ZONE_STAGE_LIGHTING_TARGETS.vegetative;
+  }
+
+  if (normalized.includes("flow") || normalized.includes("bloom")) {
+    return ZONE_STAGE_LIGHTING_TARGETS.flowering;
+  }
+
+  if (normalized.includes("prop") || normalized.includes("clone") || normalized.includes("nursery")) {
+    return ZONE_STAGE_LIGHTING_TARGETS.propagation;
+  }
+
+  if (normalized.includes("dry") || normalized.includes("cure")) {
+    return ZONE_STAGE_LIGHTING_TARGETS.drying;
+  }
+
+  return ZONE_STAGE_LIGHTING_TARGETS.default;
+}
+
+export function selectStageLightingTarget(zone: ZoneReadModel, room: RoomReadModel | null): number {
+  const stageLabelTarget = inferLightingTargetFromText(deriveZoneStageLabel(zone));
+  if (stageLabelTarget !== ZONE_STAGE_LIGHTING_TARGETS.default) {
+    return stageLabelTarget;
+  }
+
+  const zoneNameTarget = inferLightingTargetFromText(zone.name);
+  if (zoneNameTarget !== ZONE_STAGE_LIGHTING_TARGETS.default) {
+    return zoneNameTarget;
+  }
+
+  const roomNameTarget = inferLightingTargetFromText(room?.name);
+  if (roomNameTarget !== ZONE_STAGE_LIGHTING_TARGETS.default) {
+    return roomNameTarget;
+  }
+
+  return ZONE_STAGE_LIGHTING_TARGETS.default;
+}
+
+export function selectRoomLightingFallbackTarget(room: RoomReadModel | null): number {
+  if (!room) {
+    return ZONE_STAGE_LIGHTING_TARGETS.default;
+  }
+
+  const roomNameTarget = inferLightingTargetFromText(room.name);
+  if (roomNameTarget !== ZONE_STAGE_LIGHTING_TARGETS.default) {
+    return roomNameTarget;
+  }
+
+  if (room.purpose === "storageroom") {
+    return ZONE_STAGE_LIGHTING_TARGETS.drying;
+  }
+
+  return ZONE_STAGE_LIGHTING_TARGETS.default;
 }
 
 function deriveClimateStatus(
