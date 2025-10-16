@@ -1,4 +1,5 @@
 import { useMemo, useSyncExternalStore } from "react";
+import { create } from "zustand";
 import { useWorkforceKpiTelemetry } from "@ui/state/telemetry";
 
 const WORKFORCE_STUB_TOTAL_TEAM_MEMBERS = 28;
@@ -59,6 +60,73 @@ export interface WorkforceStore {
   getSnapshot(): WorkforceSnapshot;
   subscribe(listener: () => void): () => void;
 }
+
+export interface WorkforceFilterSelection {
+  readonly structureId: string | null;
+  readonly roomId: string | null;
+  readonly zoneId: string | null;
+  readonly role: string | null;
+}
+
+export interface WorkforceFilterStore {
+  readonly selection: WorkforceFilterSelection;
+  readonly setStructure: (structureId: string | null) => void;
+  readonly setRoom: (roomId: string | null) => void;
+  readonly setZone: (zoneId: string | null) => void;
+  readonly setRole: (role: string | null) => void;
+  readonly reset: () => void;
+}
+
+function createDefaultFilterSelection(): WorkforceFilterSelection {
+  return {
+    structureId: null,
+    roomId: null,
+    zoneId: null,
+    role: null
+  } satisfies WorkforceFilterSelection;
+}
+
+const useWorkforceFilterStore = create<WorkforceFilterStore>((set) => ({
+  selection: createDefaultFilterSelection(),
+  setStructure: (structureId) => {
+    set((state) => ({
+      selection: {
+        structureId,
+        roomId: null,
+        zoneId: null,
+        role: state.selection.role
+      }
+    }));
+  },
+  setRoom: (roomId) => {
+    set((state) => ({
+      selection: {
+        ...state.selection,
+        roomId,
+        zoneId: null
+      }
+    }));
+  },
+  setZone: (zoneId) => {
+    set((state) => ({
+      selection: {
+        ...state.selection,
+        zoneId
+      }
+    }));
+  },
+  setRole: (role) => {
+    set((state) => ({
+      selection: {
+        ...state.selection,
+        role
+      }
+    }));
+  },
+  reset: () => {
+    set({ selection: createDefaultFilterSelection() });
+  }
+}));
 
 const workforceStubSnapshot: WorkforceSnapshot = Object.freeze({
   headcount: Object.freeze({
@@ -175,4 +243,12 @@ export function useWorkforceSnapshot(overrides?: WorkforceSnapshotOverrides): Wo
     utilization: { ...telemetrySnapshot.utilization, ...overrides.utilization },
     warnings: overrides.warnings ?? telemetrySnapshot.warnings
   };
+}
+
+export function useWorkforceFilters(): WorkforceFilterStore {
+  return useWorkforceFilterStore();
+}
+
+export function resetWorkforceFilters(): void {
+  useWorkforceFilterStore.getState().reset();
 }

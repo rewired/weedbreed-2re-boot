@@ -18,6 +18,14 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- Task 6000: Replaced the workforce KPI shell with the HR directory, activity
+  timeline, task queues, capacity snapshot, and action panel. Introduced
+  workforce filter state via Zustand, wired the HR route to the new intent
+  client, refreshed HR navigation labels, and added deterministic Vitest
+  coverage for directory rendering, filtering, task queue actions, and intent
+  dispatch flows (`packages/ui/src/pages/WorkforcePage.tsx`,
+  `packages/ui/src/components/workforce/**`,
+  `packages/ui/src/pages/__tests__/WorkforcePage.test.tsx`).
 - Task 5100: Established the shared control card scaffold with reusable header
   metrics, deviation badge, and device grid sections under
   `packages/ui/src/components/controls`, added ghost device-class placeholders
