@@ -1,7 +1,8 @@
 import type { ReactElement } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { createTelemetryBinder } from "@ui/transport";
+import { createTelemetryBinder, createReadModelClient } from "@ui/transport";
 import { workspaceRoutes } from "@ui/routes/workspaceRoutes";
+import { configureReadModelClient, refreshReadModels } from "@ui/state/readModels";
 
 const runtimeBaseUrl = (() => {
   const configured = import.meta.env.VITE_TRANSPORT_BASE_URL as string | undefined;
@@ -21,10 +22,24 @@ const telemetryBinder = runtimeBaseUrl
   ? createTelemetryBinder({ baseUrl: runtimeBaseUrl })
   : null;
 
+const readModelClient = runtimeBaseUrl
+  ? createReadModelClient({ baseUrl: runtimeBaseUrl })
+  : null;
+
 if (telemetryBinder) {
   telemetryBinder.connect();
 } else {
   console.warn("Telemetry binder initialisation skipped: transport base URL was not configured.");
+}
+
+if (readModelClient) {
+  configureReadModelClient(readModelClient);
+  void refreshReadModels().catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn("Read-model bootstrap failed", { message });
+  });
+} else {
+  console.warn("Read-model client initialisation skipped: transport base URL was not configured.");
 }
 
 const router = createBrowserRouter(workspaceRoutes);

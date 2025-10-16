@@ -1,5 +1,21 @@
 # Changelog
 
+### #1000 Read-model aggregation layer
+
+- Added a Zustand-backed read-model store that exposes simulation, economy,
+  structure/room/zone, price book, compatibility, and HR snapshots with
+  deterministic stubs plus refresh/error handling aligned with SEC/TDD
+  guardrails (`packages/ui/src/state/readModels.ts`).
+- Published memoized React hooks for downstream UI modules to consume the
+  aggregated read models, derived structure/room/zone collections, and status
+  metadata while retaining deterministic fallbacks
+  (`packages/ui/src/lib/readModelHooks.ts`).
+- Extended the UI transport client with a fetcher that normalises and deep-freezes
+  read-model payloads, added shared fixtures for validation, and shipped coverage
+  spanning store behaviour, hooks, and transport normalisation under
+  `packages/ui/src/state/__tests__`, `packages/ui/src/lib/__tests__`, and
+  `packages/ui/src/transport/__tests__`.
+
 ### Unreleased — Hotfix Batch 03
 
 - Task 0000: Introduced the global workspace shell with a responsive left rail

@@ -11,3 +11,8 @@ export {
   type SuccessfulIntentAck,
   type FailedIntentAck
 } from "./intentClient";
+export {
+  createReadModelClient,
+  type ReadModelClientOptions,
+  type ReadModelClient
+} from "./readModelClient";

@@ -39,11 +39,11 @@ describe("SimControlBar", () => {
     expect(controlSection).toHaveAttribute("data-position-desktop", "top");
   });
 
-  it("toggles play and pause state when the primary button is pressed", async () => {
+  it("toggles play and pause state when the primary button is pressed", () => {
     render(<SimControlBar />);
 
     const pauseButton = screen.getByRole("button", { name: workspaceCopy.simControlBar.pause });
-    await act(async () => {
+    act(() => {
       fireEvent.click(pauseButton);
     });
 
@@ -51,12 +51,12 @@ describe("SimControlBar", () => {
     expect(playButton).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("updates the active speed chip when a different multiplier is selected", async () => {
+  it("updates the active speed chip when a different multiplier is selected", () => {
     render(<SimControlBar />);
 
     const targetSpeed = 25;
     const speedButton = screen.getByRole("button", { name: `${String(targetSpeed)}×` });
-    await act(async () => {
+    act(() => {
       fireEvent.click(speedButton);
     });
 
