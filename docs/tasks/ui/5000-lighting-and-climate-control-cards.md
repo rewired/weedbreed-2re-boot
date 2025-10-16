@@ -36,3 +36,9 @@ These cards enforce the 24-hour light schedule constraint and centralize device 
 ## References
 - docs/proposals/20251013-ui-plan.md §2, §11.6
 - AGENTS.md (root) — device placement & heat coupling guidance
+
+## Execution Order Checklist
+- [ ] 5100 — Control Card Foundation
+- [ ] 5200 — Lighting Control Card & Schedule Validation
+- [ ] 5300 — Climate Control Card Device Tiles
+- [ ] 5400 — Control Card Integration & Documentation
