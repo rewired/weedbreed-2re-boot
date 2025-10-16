@@ -90,6 +90,10 @@ export function buildRoomPath(structureId: string, roomId: string): string {
   return `/structures/${structureId}/rooms/${roomId}`;
 }
 
+export function buildStructureCapacityAdvisorPath(structureId: string): string {
+  return `/structures/${structureId}/capacity-advisor`;
+}
+
 export interface ResolvedZoneNavItem {
   structure: WorkspaceStructureNavItem;
   zone: WorkspaceZoneNavItem;

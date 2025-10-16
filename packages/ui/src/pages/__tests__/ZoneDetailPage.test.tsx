@@ -1,7 +1,31 @@
-import { render, screen, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const navigateMock = vi.fn();
+
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+  return {
+    ...actual,
+    useNavigate: () => navigateMock
+  };
+});
+
+import { render, screen, within, fireEvent } from "@testing-library/react";
 import { ZoneDetailPage } from "@ui/pages/ZoneDetailPage";
-import { resetReadModelStore } from "@ui/state/readModels";
+import { applyReadModelSnapshot, resetReadModelStore } from "@ui/state/readModels";
+import { deterministicReadModelSnapshot } from "@ui/test-utils/readModelFixtures";
+import { resetIntentState } from "@ui/state/intents";
+import { clearTelemetrySnapshots } from "@ui/state/telemetry";
+import { buildStructureCapacityAdvisorPath } from "@ui/lib/navigation";
+import type { ReadModelSnapshot } from "@ui/state/readModels.types";
+
+type DeepMutable<T> = T extends (...args: never[]) => unknown
+  ? T
+  : T extends readonly (infer U)[]
+    ? DeepMutable<U>[]
+    : T extends object
+      ? { -readonly [K in keyof T]: DeepMutable<T[K]> }
+      : T;
 
 const STRUCTURE_ID = "structure-green-harbor";
 const ROOM_ID = "room-veg-a";
@@ -10,16 +34,25 @@ const MIN_EXPECTED_SPARKLINES = 3;
 
 describe("ZoneDetailPage", () => {
   beforeEach(() => {
+    navigateMock.mockReset();
     resetReadModelStore();
+    resetIntentState();
+    clearTelemetrySnapshots();
   });
 
   it("renders zone header, KPIs, pest context, climate, devices, and actions", () => {
     render(<ZoneDetailPage structureId={STRUCTURE_ID} roomId={ROOM_ID} zoneId={ZONE_ID} />);
 
-    expect(screen.getByRole("heading", { name: /Veg A-1/i })).toBeInTheDocument();
+    const zoneHeading = screen.getByRole("heading", { name: /Veg A-1/i });
+    expect(zoneHeading).toBeInTheDocument();
+    const zoneHeader = zoneHeading.closest("header");
+    if (!zoneHeader) {
+      throw new Error("Zone heading is not wrapped in a header element");
+    }
+    const zoneHeaderWithin = within(zoneHeader);
     expect(screen.getByText(/Green Harbor/i)).toBeInTheDocument();
     expect(screen.getByText(/Northern Lights/i)).toBeInTheDocument();
-    expect(screen.getByText(/Vegetative stage/i)).toBeInTheDocument();
+    expect(zoneHeaderWithin.getByText(/Vegetative stage/i)).toBeInTheDocument();
     expect(screen.getByText(/Max 150/i)).toBeInTheDocument();
 
     const cultivationLabel = screen.getByText(/Sea Of Green/i);
@@ -63,6 +96,20 @@ describe("ZoneDetailPage", () => {
     expect(within(achCard).getByText(/Target 6\.00 ACH/i)).toBeInTheDocument();
     expect(within(achCard).getByText(/Check immediately/i)).toBeInTheDocument();
 
+    const lightingControlCard = screen.getByRole("heading", { name: /Lighting controls/i }).closest("section");
+    if (!lightingControlCard) {
+      throw new Error("Lighting control card missing");
+    }
+    const lightingControlWithin = within(lightingControlCard);
+    expect(lightingControlWithin.getByText(/Save schedule/i)).toBeInTheDocument();
+
+    const climateControlCard = screen.getByRole("heading", { name: /Climate controls/i }).closest("section");
+    if (!climateControlCard) {
+      throw new Error("Climate control card missing");
+    }
+    const climateControlWithin = within(climateControlCard);
+    expect(climateControlWithin.getByRole("status", { name: /Deviation/i })).toBeInTheDocument();
+
     const deviceSection = screen.getByRole("heading", { name: /Device coverage/i }).closest("section");
     if (!deviceSection) {
       throw new Error("Device section missing");
@@ -93,6 +140,26 @@ describe("ZoneDetailPage", () => {
       expect(button).toBeDisabled();
       expect(button).toHaveAttribute("title", expect.stringMatching(/Task/i));
     });
+  });
+
+  it("navigates to the capacity advisor when a climate ghost placeholder is activated", () => {
+    const mutatedSnapshot = structuredClone(
+      deterministicReadModelSnapshot
+    ) as DeepMutable<ReadModelSnapshot>;
+    const structure = mutatedSnapshot.structures.find((candidate) => candidate.id === STRUCTURE_ID);
+    if (!structure) {
+      throw new Error("Structure not found in deterministic snapshot");
+    }
+    structure.devices = structure.devices.filter((device) => device.class !== "climate");
+
+    applyReadModelSnapshot(mutatedSnapshot as ReadModelSnapshot);
+
+    render(<ZoneDetailPage structureId={STRUCTURE_ID} roomId={ROOM_ID} zoneId={ZONE_ID} />);
+
+    const placeholder = screen.getByRole("button", { name: /Climate placeholder/i });
+    fireEvent.click(placeholder);
+
+    expect(navigateMock).toHaveBeenCalledWith(buildStructureCapacityAdvisorPath(STRUCTURE_ID));
   });
 });
 

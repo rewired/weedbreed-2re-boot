@@ -1,8 +1,32 @@
-import { render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const navigateMock = vi.fn();
+
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+  return {
+    ...actual,
+    useNavigate: () => navigateMock
+  };
+});
+
+import { render, screen, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { beforeEach, describe, expect, it } from "vitest";
 import { RoomDetailPage } from "@ui/pages/RoomDetailPage";
-import { resetReadModelStore } from "@ui/state/readModels";
+import { applyReadModelSnapshot, resetReadModelStore } from "@ui/state/readModels";
+import { deterministicReadModelSnapshot } from "@ui/test-utils/readModelFixtures";
+import { resetIntentState } from "@ui/state/intents";
+import { clearTelemetrySnapshots } from "@ui/state/telemetry";
+import { buildStructureCapacityAdvisorPath } from "@ui/lib/navigation";
+import type { ReadModelSnapshot } from "@ui/state/readModels.types";
+
+type DeepMutable<T> = T extends (...args: never[]) => unknown
+  ? T
+  : T extends readonly (infer U)[]
+    ? DeepMutable<U>[]
+    : T extends object
+      ? { -readonly [K in keyof T]: DeepMutable<T[K]> }
+      : T;
 
 const STRUCTURE_ID = "structure-green-harbor";
 const ROOM_ID = "room-veg-a";
@@ -11,7 +35,10 @@ const EXPECTED_BREADCRUMB_COUNT = 3;
 
 describe("RoomDetailPage", () => {
   beforeEach(() => {
+    navigateMock.mockReset();
     resetReadModelStore();
+    resetIntentState();
+    clearTelemetrySnapshots();
   });
 
   it("renders header, zones list, climate snapshot, devices, and actions without router context", () => {
@@ -41,12 +68,32 @@ describe("RoomDetailPage", () => {
     expect(within(vegA2Card).getByText(/Active issues: 1/i)).toBeInTheDocument();
     expect(within(vegA2Card).getByText(/Treatments scheduled: 1/i)).toBeInTheDocument();
 
-    const temperatureCard = screen.getByLabelText(/Air temperature/i);
+    const climateSection = screen.getByRole("heading", { name: /Climate & airflow snapshot/i }).closest("section");
+    if (!climateSection) {
+      throw new Error("Climate snapshot section not found");
+    }
+    const climateWithin = within(climateSection);
+
+    const temperatureCard = climateWithin.getByLabelText(/Air temperature/i);
     expect(within(temperatureCard).getByText(/Within range/i)).toBeInTheDocument();
 
-    const achCard = screen.getByLabelText(/Air changes per hour$/i);
+    const achCard = climateWithin.getByLabelText(/Air changes per hour/i);
     expect(within(achCard).getByText(/Needs attention/i)).toBeInTheDocument();
     expect(within(achCard).getByText(/5\.2 ACH/i)).toBeInTheDocument();
+
+    const lightingControlCard = screen.getByRole("heading", { name: /Lighting controls/i }).closest("section");
+    if (!lightingControlCard) {
+      throw new Error("Lighting control card missing");
+    }
+    const lightingControlWithin = within(lightingControlCard);
+    expect(lightingControlWithin.getByText(/Save schedule/i)).toBeInTheDocument();
+
+    const climateControlCard = screen.getByRole("heading", { name: /Climate controls/i }).closest("section");
+    if (!climateControlCard) {
+      throw new Error("Climate control card missing");
+    }
+    const climateControlWithin = within(climateControlCard);
+    expect(climateControlWithin.getByText(/Air changes per hour/i)).toBeInTheDocument();
 
     const deviceSection = screen
       .getByRole("heading", { level: SECTION_HEADING_LEVEL, name: /Device allocations/i })
@@ -95,6 +142,31 @@ describe("RoomDetailPage", () => {
 
     const zoneLink = screen.getByRole("link", { name: /Veg A-1/i });
     expect(zoneLink).toHaveAttribute("href", "/structures/structure-green-harbor/zones/zone-veg-a-1");
+  });
+
+  it("navigates to the capacity advisor when lighting ghosts are activated", () => {
+    const mutatedSnapshot = structuredClone(
+      deterministicReadModelSnapshot
+    ) as DeepMutable<ReadModelSnapshot>;
+    const structure = mutatedSnapshot.structures.find((candidate) => candidate.id === STRUCTURE_ID);
+    if (!structure) {
+      throw new Error("Structure not found in deterministic snapshot");
+    }
+    const room = structure.rooms.find((candidate) => candidate.id === ROOM_ID);
+    if (!room) {
+      throw new Error("Room not found in deterministic snapshot");
+    }
+
+    room.devices = room.devices.filter((device) => device.class !== "lighting");
+
+    applyReadModelSnapshot(mutatedSnapshot as ReadModelSnapshot);
+
+    render(<RoomDetailPage structureId={STRUCTURE_ID} roomId={ROOM_ID} />);
+
+    const placeholder = screen.getByRole("button", { name: /Lighting coverage placeholder/i });
+    fireEvent.click(placeholder);
+
+    expect(navigateMock).toHaveBeenCalledWith(buildStructureCapacityAdvisorPath(STRUCTURE_ID));
   });
 });
 

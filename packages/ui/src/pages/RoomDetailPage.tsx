@@ -1,11 +1,13 @@
-import type { ReactElement } from "react";
-import { Link, useInRouterContext } from "react-router-dom";
+import { useCallback, type ReactElement } from "react";
+import { Link, useInRouterContext, useNavigate, type NavigateFunction } from "react-router-dom";
+import { LightingControlCard, ClimateControlCard } from "@ui/components/controls";
+import type { ControlCardGhostActionPayload } from "@ui/components/controls/ControlCard";
 import { RoomClimateSnapshot } from "@ui/components/rooms/RoomClimateSnapshot";
 import { RoomDevicesPanel } from "@ui/components/rooms/RoomDevicesPanel";
 import { RoomHeader } from "@ui/components/rooms/RoomHeader";
 import { RoomTimelinePanel } from "@ui/components/rooms/RoomTimelinePanel";
 import { RoomZonesList } from "@ui/components/rooms/RoomZonesList";
-import { buildRoomBreadcrumbs } from "@ui/lib/navigation";
+import { buildRoomBreadcrumbs, buildStructureCapacityAdvisorPath } from "@ui/lib/navigation";
 import { useRoomDetailView } from "@ui/pages/roomDetailHooks";
 
 export interface RoomDetailPageProps {
@@ -22,6 +24,17 @@ export function RoomDetailPage({ structureId, roomId }: RoomDetailPageProps): Re
     snapshot.header.roomName
   );
   const hasRouterContext = useInRouterContext();
+  const navigate: NavigateFunction = useNavigate();
+  const handleGhostAction = useCallback(
+    (payload: ControlCardGhostActionPayload) => {
+      console.info("[stub] open capacity advisor", {
+        structureId,
+        origin: payload
+      });
+      navigate(buildStructureCapacityAdvisorPath(structureId));
+    },
+    [navigate, structureId]
+  );
 
   return (
     <section aria-label={`Room detail for ${snapshot.header.roomName}`} className="flex flex-1 flex-col gap-6">
@@ -54,6 +67,36 @@ export function RoomDetailPage({ structureId, roomId }: RoomDetailPageProps): Re
       />
 
       <RoomZonesList zones={snapshot.zones} />
+
+      <LightingControlCard
+        title={snapshot.controls.lighting.title}
+        description={snapshot.controls.lighting.description ?? undefined}
+        measuredPpfd={snapshot.controls.lighting.measuredPpfd}
+        targetPpfd={snapshot.controls.lighting.targetPpfd}
+        deviation={snapshot.controls.lighting.deviation}
+        schedule={snapshot.controls.lighting.schedule}
+        onTargetPpfdChange={snapshot.controls.lighting.onTargetChange}
+        onScheduleSubmit={snapshot.controls.lighting.onScheduleSubmit}
+        isScheduleSubmitting={snapshot.controls.lighting.isScheduleSubmitting}
+        deviceTiles={snapshot.controls.lighting.deviceTiles}
+        ghostPlaceholders={snapshot.controls.lighting.ghostPlaceholders}
+        deviceSectionEmptyLabel={snapshot.controls.lighting.deviceSectionEmptyLabel}
+        scheduleSubmitLabel={snapshot.controls.lighting.scheduleSubmitLabel}
+        onGhostAction={handleGhostAction}
+      />
+
+      <ClimateControlCard
+        title={snapshot.controls.climate.title}
+        description={snapshot.controls.climate.description ?? undefined}
+        temperature={snapshot.controls.climate.temperature}
+        humidity={snapshot.controls.climate.humidity}
+        co2={snapshot.controls.climate.co2}
+        ach={snapshot.controls.climate.ach}
+        deviceClasses={snapshot.controls.climate.deviceClasses}
+        ghostPlaceholders={snapshot.controls.climate.ghostPlaceholders}
+        deviceSectionEmptyLabel={snapshot.controls.climate.deviceSectionEmptyLabel}
+        onGhostAction={handleGhostAction}
+      />
 
       <RoomClimateSnapshot climate={snapshot.climate} />
 

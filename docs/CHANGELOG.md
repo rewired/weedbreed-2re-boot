@@ -37,6 +37,11 @@
   affordances, filtered ghost placeholders for missing classes, and added
   deterministic Vitest coverage alongside shared percentage formatting
   utilities under `packages/ui/src/lib`.
+- Task 5400: Wired lighting and climate control cards into the zone and room
+  detail pages with stage-derived targets, ghost placeholders, and shared
+  "Open Capacity Advisor" routing, expanded the read-model hooks to surface
+  control snapshots, and added Vitest coverage for hook data assembly, page
+  rendering, and CTA navigation.
 - Task 0000: Introduced the global workspace shell with a responsive left rail
   (Company → Structures → HR → Strains), a sticky simulation control bar with
   play/pause/step and deterministic speed chips, locale-aware balance and tick
