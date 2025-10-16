@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { createTelemetryBinder, createReadModelClient } from "@ui/transport";
+import { IntentClientProvider, createIntentClient, createTelemetryBinder, createReadModelClient } from "@ui/transport";
 import { workspaceRoutes } from "@ui/routes/workspaceRoutes";
 import { configureReadModelClient, refreshReadModels } from "@ui/state/readModels";
 
@@ -26,6 +26,8 @@ const readModelClient = runtimeBaseUrl
   ? createReadModelClient({ baseUrl: runtimeBaseUrl })
   : null;
 
+const intentClient = runtimeBaseUrl ? createIntentClient({ baseUrl: runtimeBaseUrl }) : null;
+
 if (telemetryBinder) {
   telemetryBinder.connect();
 } else {
@@ -45,7 +47,11 @@ if (readModelClient) {
 const router = createBrowserRouter(workspaceRoutes);
 
 function App(): ReactElement {
-  return <RouterProvider router={router} />;
+  return (
+    <IntentClientProvider client={intentClient}>
+      <RouterProvider router={router} />
+    </IntentClientProvider>
+  );
 }
 
 export default App;

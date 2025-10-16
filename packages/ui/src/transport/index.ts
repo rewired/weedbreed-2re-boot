@@ -11,6 +11,7 @@ export {
   type SuccessfulIntentAck,
   type FailedIntentAck
 } from "./intentClient";
+export { IntentClientProvider, useIntentClient } from "./IntentClientContext";
 export {
   createReadModelClient,
   type ReadModelClientOptions,

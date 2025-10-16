@@ -55,6 +55,15 @@
   "Open Capacity Advisor" routing, expanded the read-model hooks to surface
   control snapshots, and added Vitest coverage for hook data assembly, page
   rendering, and CTA navigation.
+- Task 8000: Introduced an intent-aware inline rename field reused across
+  structure, room, and zone headers, wrapped the app router in a shared intent
+  client provider, and added a zone movement dialog that enforces growroom-only
+  placement within the same structure with deterministic eligibility tests
+  (`packages/ui/src/components/common/InlineRenameField.tsx`,
+  `packages/ui/src/components/flows/ZoneMoveDialog.tsx`,
+  `packages/ui/src/pages/{StructurePage,RoomDetailPage,ZoneDetailPage}.tsx`,
+  `packages/ui/src/App.tsx`, and
+  `packages/ui/src/components/flows/__tests__/ZoneMoveDialog.test.tsx`).
 - Task 0000: Introduced the global workspace shell with a responsive left rail
   (Company → Structures → HR → Strains), a sticky simulation control bar with
   play/pause/step and deterministic speed chips, locale-aware balance and tick

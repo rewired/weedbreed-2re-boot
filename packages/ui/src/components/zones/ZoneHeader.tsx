@@ -1,19 +1,28 @@
 import type { ReactElement } from "react";
 import { Leaf } from "lucide-react";
 import type { ZoneBadge, ZoneHeaderSnapshot } from "@ui/pages/zoneDetailHooks";
+import { InlineRenameField } from "@ui/components/common/InlineRenameField";
 
 export interface ZoneHeaderProps {
   readonly header: ZoneHeaderSnapshot;
+  readonly onRename: (nextName: string) => Promise<void>;
+  readonly renameDisabledReason?: string;
 }
 
-export function ZoneHeader({ header }: ZoneHeaderProps): ReactElement {
+export function ZoneHeader({ header, onRename, renameDisabledReason }: ZoneHeaderProps): ReactElement {
   return (
     <header className="space-y-4" aria-label={`Zone header for ${header.zoneName}`}>
       <div className="space-y-2">
         <p className="text-sm uppercase tracking-[0.25em] text-accent-muted">{header.structureName}</p>
         <div className="flex items-center gap-3">
           <Leaf aria-hidden="true" className="size-6 text-accent-primary" />
-          <h2 className="text-3xl font-semibold text-text-primary">{header.zoneName}</h2>
+          <InlineRenameField
+            name={header.zoneName}
+            label="Zone name"
+            renameLabel="Rename"
+            disabledReason={renameDisabledReason}
+            onSubmit={onRename}
+          />
         </div>
         <p className="text-sm text-text-muted">
           {header.cultivarLabel} · {header.stageLabel} stage

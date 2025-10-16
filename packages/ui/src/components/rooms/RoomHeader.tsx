@@ -1,33 +1,15 @@
-import { useEffect, useState, type FormEvent, type ReactElement } from "react";
-import { DoorOpen, Pencil, X } from "lucide-react";
+import type { ReactElement } from "react";
+import { DoorOpen } from "lucide-react";
 import type { RoomDetailHeader } from "@ui/pages/roomDetailHooks";
+import { InlineRenameField } from "@ui/components/common/InlineRenameField";
 
 export interface RoomHeaderProps {
   readonly header: RoomDetailHeader;
-  readonly onRename: (nextName: string) => void;
+  readonly onRename: (nextName: string) => Promise<void>;
   readonly renameDisabledReason?: string;
 }
 
 export function RoomHeader({ header, onRename, renameDisabledReason }: RoomHeaderProps): ReactElement {
-  const [isEditing, setIsEditing] = useState(false);
-  const [draftName, setDraftName] = useState(header.roomName);
-
-  useEffect(() => {
-    setDraftName(header.roomName);
-    setIsEditing(false);
-  }, [header.roomName]);
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-    const trimmed = draftName.trim();
-    if (!trimmed) {
-      return;
-    }
-
-    onRename(trimmed);
-    setIsEditing(false);
-  }
-
   const achTarget = header.achTarget;
   const achCurrent = header.achCurrent;
   const achPercent = achTarget > 0 ? Math.min(100, Math.round((achCurrent / achTarget) * 100)) : 0;
@@ -39,54 +21,13 @@ export function RoomHeader({ header, onRename, renameDisabledReason }: RoomHeade
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-3">
           <DoorOpen aria-hidden="true" className="size-6 text-accent-primary" />
-          <form onSubmit={handleSubmit} className="flex items-center gap-2" aria-label="Rename room">
-            <label htmlFor="room-name-input" className="sr-only">
-              Room name
-            </label>
-            <input
-              id="room-name-input"
-              className="rounded-lg border border-border-base bg-canvas-base px-3 py-1 text-3xl font-semibold text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised"
-              value={draftName}
-              onChange={(event) => {
-                setDraftName(event.target.value);
-              }}
-              readOnly={!isEditing}
-              aria-disabled={!isEditing}
-            />
-            {isEditing ? (
-              <div className="flex items-center gap-2">
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-2 rounded-lg border border-accent-primary/60 bg-accent-primary/10 px-3 py-1 text-sm font-medium text-text-primary transition hover:border-accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-lg border border-border-base bg-canvas-base px-3 py-1 text-sm text-text-muted transition hover:border-border-strong hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setDraftName(header.roomName);
-                  }}
-                >
-                  <X aria-hidden="true" className="size-4" />
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-lg border border-border-base bg-canvas-base px-3 py-1 text-sm font-medium text-text-primary transition hover:border-accent-primary/40 hover:bg-canvas-subtle/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised"
-                onClick={() => {
-                  setIsEditing(true);
-                }}
-                title={renameDisabledReason}
-              >
-                <Pencil aria-hidden="true" className="size-4" />
-                Rename
-              </button>
-            )}
-          </form>
+          <InlineRenameField
+            name={header.roomName}
+            label="Room name"
+            renameLabel="Rename"
+            disabledReason={renameDisabledReason}
+            onSubmit={onRename}
+          />
         </div>
       </div>
 
