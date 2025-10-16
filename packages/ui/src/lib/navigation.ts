@@ -33,8 +33,10 @@ export const workspaceStructures: WorkspaceStructureNavItem[] = [
 ];
 
 export const workspaceTopLevelRoutes = {
-  dashboard: { label: "Dashboard", path: "/dashboard" },
-  workforce: { label: "Workforce KPIs", path: "/workforce" }
+  company: { label: "Company overview", path: "/dashboard" },
+  structures: { label: "Structures overview", path: "/structures" },
+  hr: { label: "Workforce KPIs", path: "/workforce" },
+  strains: { label: "Strain library", path: "/strains" }
 } as const;
 
 export function buildZonePath(structureId: string, zoneId: string): string {
