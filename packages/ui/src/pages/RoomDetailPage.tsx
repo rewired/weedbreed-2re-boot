@@ -9,6 +9,8 @@ import { RoomTimelinePanel } from "@ui/components/rooms/RoomTimelinePanel";
 import { RoomZonesList } from "@ui/components/rooms/RoomZonesList";
 import { buildRoomBreadcrumbs, buildStructureCapacityAdvisorPath } from "@ui/lib/navigation";
 import { useRoomDetailView } from "@ui/pages/roomDetailHooks";
+import { useIntentClient } from "@ui/transport";
+import { submitIntentOrThrow } from "@ui/lib/intentSubmission";
 
 export interface RoomDetailPageProps {
   readonly structureId: string;
@@ -25,6 +27,8 @@ export function RoomDetailPage({ structureId, roomId }: RoomDetailPageProps): Re
   );
   const hasRouterContext = useInRouterContext();
   const navigate: NavigateFunction = useNavigate();
+  const intentClient = useIntentClient();
+  const renameDisabledReason = intentClient ? undefined : "Intent transport unavailable.";
   const handleGhostAction = useCallback(
     (payload: ControlCardGhostActionPayload) => {
       console.info("[stub] open capacity advisor", {
@@ -60,10 +64,19 @@ export function RoomDetailPage({ structureId, roomId }: RoomDetailPageProps): Re
 
       <RoomHeader
         header={snapshot.header}
-        onRename={(nextName) => {
-          console.info("[stub] rename room", { structureId, roomId, nextName });
+        onRename={async (nextName) => {
+          if (!intentClient) {
+            throw new Error("Intent transport unavailable.");
+          }
+
+          await submitIntentOrThrow(intentClient, {
+            type: "intent.room.rename.v1",
+            structureId,
+            roomId,
+            name: nextName
+          });
         }}
-        renameDisabledReason="Rename flows land with Task 7010."
+        renameDisabledReason={renameDisabledReason}
       />
 
       <RoomZonesList zones={snapshot.zones} />

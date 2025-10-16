@@ -1,10 +1,13 @@
 import type { ReactElement } from "react";
-import { Building2, Pencil, ShieldAlert } from "lucide-react";
+import { Building2, ShieldAlert } from "lucide-react";
 import { StructureCapacityGrid } from "@ui/components/structures/StructureCapacityGrid";
 import { StructureRoomsGrid } from "@ui/components/structures/StructureRoomsGrid";
 import { StructureWorkforceSnapshot } from "@ui/components/structures/StructureWorkforceSnapshot";
 import "@ui/styles/structures.css";
 import { useStructureOverview } from "@ui/pages/structureHooks";
+import { InlineRenameField } from "@ui/components/common/InlineRenameField";
+import { submitIntentOrThrow } from "@ui/lib/intentSubmission";
+import { useIntentClient } from "@ui/transport";
 
 export interface StructurePageProps {
   readonly structureId: string;
@@ -13,6 +16,11 @@ export interface StructurePageProps {
 export function StructurePage({ structureId }: StructurePageProps): ReactElement {
   const overview = useStructureOverview(structureId);
   const { header, capacityTiles, rooms, workforce, coverageWarnings } = overview;
+  const intentClient = useIntentClient();
+
+  const renameDisabledReason = intentClient
+    ? undefined
+    : "Intent transport unavailable.";
 
   return (
     <section aria-label={`Structure overview for ${header.name}`} className="flex flex-1 flex-col gap-6">
@@ -21,19 +29,24 @@ export function StructurePage({ structureId }: StructurePageProps): ReactElement
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-3">
             <Building2 aria-hidden="true" className="size-6 text-accent-primary" />
-            <h2 className="text-3xl font-semibold text-text-primary">{header.name}</h2>
+            <InlineRenameField
+              name={header.name}
+              label="Structure name"
+              renameLabel="Rename"
+              disabledReason={renameDisabledReason}
+              onSubmit={async (nextName) => {
+                if (!intentClient) {
+                  throw new Error("Intent transport unavailable.");
+                }
+
+                await submitIntentOrThrow(intentClient, {
+                  type: "intent.structure.rename.v1",
+                  structureId: header.id,
+                  name: nextName
+                });
+              }}
+            />
           </div>
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-lg border border-border-base bg-canvas-base px-4 py-2 text-sm font-medium text-text-primary transition hover:border-accent-primary/40 hover:bg-canvas-subtle/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised"
-            onClick={() => {
-              console.info("[stub] rename structure", { structureId: header.id });
-            }}
-            title="Rename flows land with Task 7010"
-          >
-            <Pencil aria-hidden="true" className="size-4" />
-            <span>Rename</span>
-          </button>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-xl border border-border-base bg-canvas-subtle/60 p-4">
