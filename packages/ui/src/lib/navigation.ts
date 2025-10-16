@@ -13,12 +13,12 @@ export interface WorkspaceStructureNavItem {
 
 export const workspaceStructures: WorkspaceStructureNavItem[] = [
   {
-    id: "structure-evergreen-gardens",
-    name: "Evergreen Gardens",
-    location: "Green District",
+    id: "structure-green-harbor",
+    name: "Green Harbor",
+    location: "Hamburg",
     zones: [
-      { id: "zone-veg-a", name: "Vegetative A", cultivationMethod: "sea-of-green" },
-      { id: "zone-flower-1", name: "Flower Room 1", cultivationMethod: "screen-of-green" }
+      { id: "zone-veg-a-1", name: "Veg A-1", cultivationMethod: "cm-sea-of-green" },
+      { id: "zone-veg-a-2", name: "Veg A-2", cultivationMethod: "cm-screen-of-green" }
     ]
   },
   {
