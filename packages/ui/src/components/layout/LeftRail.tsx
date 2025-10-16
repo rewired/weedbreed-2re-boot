@@ -61,9 +61,14 @@ export function LeftRail(): ReactElement {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
   useEffect(() => {
-    const activeStructure = workspaceStructures.find((structure) =>
-      structure.zones.some((zone) => buildZonePath(structure.id, zone.id) === location.pathname)
-    );
+    const activeStructure = workspaceStructures.find((structure) => {
+      const structureBasePath = `/structures/${structure.id}`;
+      if (location.pathname === structureBasePath || location.pathname.startsWith(`${structureBasePath}/`)) {
+        return true;
+      }
+
+      return structure.zones.some((zone) => buildZonePath(structure.id, zone.id) === location.pathname);
+    });
 
     if (!activeStructure) {
       return;

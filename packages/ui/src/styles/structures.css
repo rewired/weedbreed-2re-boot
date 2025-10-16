@@ -1,0 +1,72 @@
+@tailwind components;
+
+@layer components {
+  .structure-capacity-grid {
+    @apply grid gap-4 md:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .structure-capacity-card {
+    @apply relative flex flex-col gap-3 rounded-xl border border-border-base bg-canvas-subtle/60 p-6 shadow-sm backdrop-blur;
+  }
+
+  .structure-capacity-card[data-status="warn"] {
+    @apply border-accent-critical/60 bg-accent-critical/5;
+  }
+
+  .structure-capacity-card__status {
+    @apply inline-flex items-center gap-2 rounded-full border border-border-base/60 bg-canvas-raised/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em];
+  }
+
+  .structure-capacity-card__status[data-status="warn"] {
+    @apply border-accent-critical/60 text-accent-critical;
+  }
+
+  .structure-capacity-card__metric {
+    @apply text-2xl font-semibold text-text-primary;
+  }
+
+  .structure-capacity-card__meta {
+    @apply text-sm text-text-muted;
+  }
+
+  .structure-rooms-grid {
+    @apply grid gap-4 lg:grid-cols-2;
+  }
+
+  .structure-room-card {
+    @apply flex h-full flex-col justify-between gap-4 rounded-xl border border-border-base bg-canvas-subtle/60 p-6 shadow-sm backdrop-blur;
+  }
+
+  .structure-room-card__header {
+    @apply flex flex-col gap-1;
+  }
+
+  .structure-room-card__meta {
+    @apply text-sm text-text-muted;
+  }
+
+  .structure-room-card__warnings {
+    @apply space-y-2;
+  }
+
+  .structure-room-card__actions {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .structure-workforce-card {
+    @apply rounded-xl border border-border-base bg-canvas-subtle/60 p-6 shadow-sm backdrop-blur;
+  }
+
+  .structure-workforce-card__list {
+    @apply mt-4 space-y-3;
+  }
+
+  .structure-workforce-card__assignment {
+    @apply flex items-start justify-between gap-3 rounded-lg border border-border-base/60 bg-canvas-raised/60 px-4 py-3;
+  }
+
+  .structure-workforce-card__assignment-meta {
+    @apply text-xs text-text-muted;
+  }
+}
+
