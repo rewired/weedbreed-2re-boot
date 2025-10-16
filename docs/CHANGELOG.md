@@ -18,6 +18,11 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- Task 5100: Established the shared control card scaffold with reusable header
+  metrics, deviation badge, and device grid sections under
+  `packages/ui/src/components/controls`, added ghost device-class placeholders
+  that emit structured `onGhostAction` payloads, and shipped Vitest coverage
+  for header rendering, deviation states, and ghost activation callbacks.
 - Task 0000: Introduced the global workspace shell with a responsive left rail
   (Company → Structures → HR → Strains), a sticky simulation control bar with
   play/pause/step and deterministic speed chips, locale-aware balance and tick
