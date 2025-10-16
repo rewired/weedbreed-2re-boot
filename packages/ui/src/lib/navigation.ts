@@ -93,6 +93,7 @@ export function buildRoomPath(structureId: string, roomId: string): string {
 export interface ResolvedZoneNavItem {
   structure: WorkspaceStructureNavItem;
   zone: WorkspaceZoneNavItem;
+  room: WorkspaceRoomNavItem | null;
 }
 
 export function resolveZoneByParams(
@@ -115,7 +116,12 @@ export function resolveZoneByParams(
     return undefined;
   }
 
-  return { structure, zone };
+  const room =
+    structure.rooms.find((candidate) =>
+      candidate.zones.some((roomZone) => roomZone.id === zoneId)
+    ) ?? null;
+
+  return { structure, zone, room };
 }
 
 export interface ResolvedRoomNavItem {

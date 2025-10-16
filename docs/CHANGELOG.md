@@ -69,6 +69,17 @@
   breadcrumbs/zone links with fallback copy when no router context is present,
   and Vitest coverage validating rendering plus action entry points and link
   behaviours (`packages/ui/src/pages/__tests__/RoomDetailPage.test.tsx`).
+- Task 4000: Upgraded the zone detail module with read-model backed header,
+  cultivation/irrigation badges, aggregated health/quality/stress KPIs with
+  deterministic sparklines, pest context and inspection/treatment timelines,
+  climate snapshot cards, device coverage groups with category-level controls,
+  harvest/cull/sow gating tied to plant counts, and Vitest coverage verifying
+  KPI rendering, badge labelling, context metrics, and action gating
+  (`packages/ui/src/pages/__tests__/ZoneDetailPage.test.tsx`).
+  Added a dedicated hook spec to lock sparkline determinism/min-max clamping and
+  tightened the climate snapshot expectation around ACH critical status so
+  regression coverage exercises the new status mapping logic
+  (`packages/ui/src/pages/__tests__/zoneDetailHooks.test.tsx`).
 - Task 0023: Added façade read-model schema validators with versioned metadata, unit coverage for happy/negative paths, and documentation for the three schema identifiers to lock UI contracts to Proposal §6.
 - Task 0024: Introduced Fastify-backed façade HTTP endpoints for company tree, structure tariffs, and workforce view read-models with schema validation guards, integration coverage for success/error responses, and a dev server script for local pairing with the transport adapter.
 - Task 0025: Delivered façade read-model client SDK fetch helpers with typed error handling, unit coverage for network/schema failures, and REST client documentation for manual endpoint verification.
