@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LeftRail } from "@ui/components/layout/LeftRail";
-import { buildZonePath, workspaceStructures, workspaceTopLevelRoutes } from "@ui/lib/navigation";
+import { buildRoomPath, buildZonePath, workspaceStructures, workspaceTopLevelRoutes } from "@ui/lib/navigation";
 import { workspaceCopy } from "@ui/design/tokens";
 
 describe("LeftRail navigation", () => {
@@ -88,6 +88,16 @@ describe("LeftRail navigation", () => {
 
     const zoneLink = screen.getByRole("link", { name: new RegExp(targetZone.name, "i") });
     expect(zoneLink).toHaveAttribute("aria-current", "page");
+  });
+
+  it("expands the active structure when visiting a room detail route", () => {
+    const targetStructure = workspaceStructures[0];
+    const targetRoom = targetStructure.rooms[0];
+
+    renderWithRouter(buildRoomPath(targetStructure.id, targetRoom.id));
+
+    const structureToggle = screen.getByRole("button", { name: new RegExp(`^${targetStructure.name}`, "i") });
+    expect(structureToggle).toHaveAttribute("aria-expanded", "true");
   });
 
   it("collapses into a condensed mini-rail on narrow viewports and expands when toggled", async () => {

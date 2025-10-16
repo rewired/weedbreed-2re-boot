@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { Link, useInRouterContext } from "react-router-dom";
 import { AlertTriangle, Copy, MoveRight, Sparkles } from "lucide-react";
 
 export interface StructureRoomAction {
@@ -17,6 +18,7 @@ export interface StructureRoomWarning {
 export interface StructureRoomSummary {
   readonly id: string;
   readonly name: string;
+  readonly detailPath: string;
   readonly purposeLabel: string;
   readonly areaUsedLabel: string;
   readonly areaFreeLabel: string;
@@ -58,6 +60,8 @@ function resolveActionIcon(action: StructureRoomAction): ReactElement {
 }
 
 export function StructureRoomsGrid({ rooms }: StructureRoomsGridProps): ReactElement {
+  const hasRouterContext = useInRouterContext();
+
   return (
     <section aria-labelledby="structure-rooms-heading" className="space-y-4">
       <div className="flex items-center gap-2">
@@ -71,13 +75,22 @@ export function StructureRoomsGrid({ rooms }: StructureRoomsGridProps): ReactEle
         stubbed pending Task 7000/8000 flows but retain deterministic identifiers for wiring.
       </p>
       <div className="structure-rooms-grid">
-        {rooms.map((room) => (
-          <article key={room.id} className="structure-room-card" aria-label={`${room.name} room summary`}>
-            <div className="structure-room-card__header">
-              <h4 className="text-lg font-semibold text-text-primary">{room.name}</h4>
-              <p className="structure-room-card__meta">
-                {room.purposeLabel} · Zones: {room.zoneCount}
-              </p>
+          {rooms.map((room) => (
+            <article key={room.id} className="structure-room-card" aria-label={`${room.name} room summary`}>
+              <div className="structure-room-card__header">
+                {hasRouterContext ? (
+                  <Link
+                    to={room.detailPath}
+                    className="text-lg font-semibold text-text-primary transition hover:text-accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised"
+                  >
+                    {room.name}
+                  </Link>
+                ) : (
+                  <span className="text-lg font-semibold text-text-primary">{room.name}</span>
+                )}
+                <p className="structure-room-card__meta">
+                  {room.purposeLabel} · Zones: {room.zoneCount}
+                </p>
               <p className="text-sm text-text-primary">
                 {room.areaUsedLabel} used · {room.areaFreeLabel} free
               </p>
