@@ -4,6 +4,7 @@ import { HOURS_PER_DAY } from "@engine/constants/simConstants.ts";
 import type { StructureRoomSummary } from "@ui/components/structures/StructureRoomsGrid";
 import type { StructureWorkforceAssignmentSummary } from "@ui/components/structures/StructureWorkforceSnapshot";
 import { useStructureReadModel } from "@ui/lib/readModelHooks";
+import { buildRoomPath } from "@ui/lib/navigation";
 import type {
   StructureReadModel,
   StructureWarning,
@@ -98,6 +99,7 @@ function toRoomSummary(structureId: string, room: StructureReadModel["rooms"][nu
   return {
     id: room.id,
     name: room.name,
+    detailPath: buildRoomPath(structureId, room.id),
     purposeLabel: room.purpose,
     areaUsedLabel: formatArea(room.capacity.areaUsed_m2),
     areaFreeLabel: formatArea(room.capacity.areaFree_m2),

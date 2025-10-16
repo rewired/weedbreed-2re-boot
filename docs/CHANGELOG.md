@@ -60,6 +60,15 @@
   capacity/coverage tiles, rooms grid actions, and a workforce snapshot, plus
   deterministic fixtures and Vitest coverage under
   `packages/ui/src/pages/__tests__/StructurePage.test.tsx`.
+- Task 3000: Delivered the room detail module with a dedicated
+  `structures/:structureId/rooms/:roomId` route, breadcrumb-aware navigation
+  helpers, read-model backed header metrics (purpose, capacity, ACH baselines)
+  with inline rename stub, zone health/pest summary cards, climate & airflow
+  target comparisons, device group panels with move/remove/replace stubs, a
+  timeline + actions rail for create/duplicate/move flows, router-aware
+  breadcrumbs/zone links with fallback copy when no router context is present,
+  and Vitest coverage validating rendering plus action entry points and link
+  behaviours (`packages/ui/src/pages/__tests__/RoomDetailPage.test.tsx`).
 - Task 0023: Added façade read-model schema validators with versioned metadata, unit coverage for happy/negative paths, and documentation for the three schema identifiers to lock UI contracts to Proposal §6.
 - Task 0024: Introduced Fastify-backed façade HTTP endpoints for company tree, structure tariffs, and workforce view read-models with schema validation guards, integration coverage for success/error responses, and a dev server script for local pairing with the transport adapter.
 - Task 0025: Delivered façade read-model client SDK fetch helpers with typed error handling, unit coverage for network/schema failures, and REST client documentation for manual endpoint verification.

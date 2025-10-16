@@ -9,6 +9,7 @@ import { ZoneDetailRoute } from "@ui/routes/ZoneDetailRoute";
 import { StrainsRoute } from "@ui/routes/StrainsRoute";
 import { StructuresRoute } from "@ui/routes/StructuresRoute";
 import { StructureRoute } from "@ui/routes/StructureRoute";
+import { RoomDetailRoute } from "@ui/routes/RoomDetailRoute";
 
 export const workspaceRoutes = createRoutesFromElements(
   <Route
@@ -30,6 +31,7 @@ export const workspaceRoutes = createRoutesFromElements(
     <Route path={workspaceTopLevelRoutes.company.path} element={<DashboardRoute />} />
     <Route path={workspaceTopLevelRoutes.structures.path} element={<StructuresRoute />} />
     <Route path="structures/:structureId" element={<StructureRoute />} />
+    <Route path="structures/:structureId/rooms/:roomId" element={<RoomDetailRoute />} />
     <Route path="structures/:structureId/zones/:zoneId" element={<ZoneDetailRoute />} />
     <Route path={workspaceTopLevelRoutes.hr.path} element={<WorkforceRoute />} />
     <Route path={workspaceTopLevelRoutes.strains.path} element={<StrainsRoute />} />
