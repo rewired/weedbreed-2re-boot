@@ -56,6 +56,12 @@ export function InlineRenameField({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (disabledReason) {
+      setError(disabledReason);
+      return;
+    }
+
     const validationError = validateName(draft, maxLength);
     if (validationError) {
       setError(validationError);
@@ -95,7 +101,7 @@ export function InlineRenameField({
             setDraft(name);
             setError(null);
           }}
-          disabled={Boolean(disabledReason)}
+          aria-disabled={Boolean(disabledReason)}
           title={disabledReason}
         >
           <Pencil aria-hidden="true" className="size-4" />
@@ -106,11 +112,7 @@ export function InlineRenameField({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex items-center gap-2"
-      aria-label={`Rename ${label.toLowerCase()}`}
-    >
+    <form onSubmit={handleSubmit} className="flex items-center gap-2">
       <label htmlFor={inputId} className="sr-only">
         {label}
       </label>
@@ -130,7 +132,7 @@ export function InlineRenameField({
         <button
           type="submit"
           className="inline-flex items-center gap-2 rounded-lg border border-accent-primary/60 bg-accent-primary/10 px-3 py-1 text-sm font-medium text-text-primary transition hover:border-accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised disabled:opacity-60"
-          disabled={isSubmitting}
+          disabled={isSubmitting || Boolean(disabledReason)}
         >
           {submitLabel}
         </button>
@@ -152,6 +154,9 @@ export function InlineRenameField({
         <p id={`${inputId}-error`} className="text-sm text-accent-critical">
           {error}
         </p>
+      ) : null}
+      {disabledReason && !error ? (
+        <p className="text-xs text-text-muted">{disabledReason}</p>
       ) : null}
     </form>
   );
