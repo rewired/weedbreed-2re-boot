@@ -34,5 +34,9 @@ Adjust behaviour via the following environment variables:
   health endpoint (defaults to `http://localhost:5173`).
 
 The server currently exposes the `/telemetry` (read-only) and `/intents`
-namespaces. Intents are accepted but not processed until downstream tracks wire
-an intent handler. Shutdown is triggered via `SIGINT`/`SIGTERM`.
+namespaces. Intents are normalised against the façade's workforce command
+pipeline: valid submissions queue engine intents, advance the simulation by one
+deterministic tick, and acknowledge with `{ ok: true }`. Payload validation
+failures or unsupported intent types reject with
+`WB_INTENT_HANDLER_ERROR` acknowledgements, mirroring the Socket.IO contract
+described in SEC/TDD. Shutdown is triggered via `SIGINT`/`SIGTERM`.

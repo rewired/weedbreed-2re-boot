@@ -1,6 +1,10 @@
 import process from 'node:process';
 /* eslint-disable wb-sim/no-ts-import-js-extension */
 
+import { type EngineRunContext } from '@/backend/src/engine/Engine.ts';
+import { createDemoWorld } from '@/backend/src/engine/testHarness.ts';
+
+import { createEngineCommandPipeline } from './engineCommandPipeline.js';
 import { createTransportServer, type TransportServer } from './server.js';
 
 const host = process.env.FACADE_TRANSPORT_HOST ?? '127.0.0.1';
@@ -16,12 +20,24 @@ async function main(): Promise<void> {
     throw new Error('FACADE_TRANSPORT_PORT must be a positive integer.');
   }
 
+  let world = createDemoWorld();
+  const context: EngineRunContext = {};
+  const pipeline = createEngineCommandPipeline({
+    world: {
+      get: () => world,
+      set(nextWorld) {
+        world = nextWorld;
+      },
+    },
+    context,
+  });
+
   const server: TransportServer = await createTransportServer({
     host,
     port,
     cors: { origin: corsOrigin },
     onIntent(intent) {
-      console.warn('Intent received without a registered handler:', intent);
+      return pipeline.handle(intent);
     },
   });
 
