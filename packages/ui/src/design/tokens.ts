@@ -7,14 +7,25 @@ export const foundationTheme = {
     },
     accent: {
       primary: "#16a34a",
-      muted: "#bbf7d0"
+      muted: "#bbf7d0",
+      warning: "#f59e0b",
+      critical: "#ef4444"
     },
     border: {
-      base: "#1f2937"
+      base: "#1f2937",
+      subtle: "#243046",
+      strong: "#334155",
+      success: "#16a34a"
     },
     text: {
       primary: "#f9fafb",
-      muted: "#9ca3af"
+      muted: "#9ca3af",
+      critical: "#fca5a5",
+      success: "#bbf7d0"
+    },
+    surface: {
+      critical: "#ef4444",
+      success: "#16a34a"
     }
   },
   fontFamily: {
