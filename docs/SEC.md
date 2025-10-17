@@ -285,11 +285,13 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 - **Backend tariff (SHALL):** The **electricity price is fixed and configured in backend settings** as `price_electricity` (neutral cost per kWh) sourced from `/data/prices/utilityPrices.json`.
 - **Difficulty modifiers (SHALL):** Difficulty may **either**
   - apply a **multiplicative factor** `difficulty.energyPriceFactor` to the backend tariff, **or**
-  - **override** it via `difficulty.energyPriceOverride`.  
+  - **override** it via `difficulty.energyPriceOverride`.
      If both are set, **override takes precedence**.
 - **Determinism (SHALL):** The effective tariff **MUST** be fully determined by the loaded configuration at simulation start (including difficulty). Changing difficulty mid-run **SHALL** be disallowed or treated as an explicit administrative migration.
 - **Computation (SHALL):** Device energy use integrates **power (kW) × time (h) → kWh**, then multiplies by the **effective `price_electricity`** to accrue cost.
 - **Reporting (SHOULD):** Read-models expose both **consumption (kWh)** and **cost** per period.
+
+> **Pending live data — Structure/Room/Zone read models (Tasks 1110, 1120, 4100):** The UI wiring requires the `companyTree` provider to emit enriched structure nodes with `{ id, name, location, floorArea_m2, usableArea_m2, roomCount, zoneCount }` plus `structureTariffs` joins for effective `price_electricity`/`price_water`. Room entries must surface `roomPurpose`, geometry, and the latest climate aggregates (temperature_c, relativeHumidity, co2_ppm) needed for dashboards. Zone entries need deterministic cultivation context — `cultivationMethodId`, `cultivationMethodSlug`, active strain reference, `lightSchedule { onHours, offHours, startHour }`, `irrigationMethodId`, coverage diagnostics (`deviceCoverage.{lighting, climate, airflow}`), climate telemetry (`ppfd_umol_m2s`, `dli_mol_m2d_inc`, `temperature_c`, `relativeHumidity`, `co2_ppm`, `ach`), and pending task codes/warnings so Phase 4 UI tasks can hydrate selectors without fixtures.
 
 ---
 
@@ -579,6 +581,8 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
 
 - Structures classify into **A–F** classes with deterministic **variance `v ∈ [−0.5, 1.75]`** applied to baseline lease rates to produce site-specific lease expectations. Upfront lease payment rules are scenario-defined and deterministic.
 
+> **Pending live data — Workforce & economy read models (Tasks 1130, 3120, 4130):** The façade’s `workforceView` must surface roster rows with `{ employeeId, displayName, structureId, roleSlug, morale01, fatigue01, currentTaskId?, nextShiftStartTick }`, deterministic schedule descriptors (`baseHoursPerDay`, `daysPerWeek`, `shiftStartHour`), and assignment summaries so workforce UI bindings can compute utilization without fixtures. KPI payloads need `headcount`, `overtimeMinutes`, `utilizationPercent`, and warning envelopes `{ code, severity, message, structureId?, employeeId? }` aligned with SEC §10 telemetry. Economy hydration also has to expose `balance_per_h`, `dailyDelta_per_h`, and per-structure tariff references alongside `price_electricity`/`price_water` joins for dashboard cards.
+
 ---
 
 ## 11. System Facade & Integration (Backend ↔ Facade ↔ UI)
@@ -613,6 +617,8 @@ Validation occurs at load time; on failure, the engine must not start. Validatio
   `WB_INTENT_CHANNEL_INVALID`, and handler failures respond with `WB_INTENT_HANDLER_ERROR` while preserving determinism.
 - All acknowledgements follow `{ ok: boolean, error?: { code, message } }` so façade consumers can assert
   SEC §11.3 compliance in contract tests.
+
+> **Pending live data — Sim-control intents & status (Tasks 0130, 3100, 3110, 3130, 4140):** Phase 0 surfaced that the façade still lacks documented payloads for playback and environment adjustments. The UI requires a consolidated sim-control status snapshot carrying `{ simTime, tick, isPaused, speedMultiplier, pendingIntentCount }` plus last-applied `intentId`. Intent contracts must name the control commands (`engine.intent.sim.play.v1`, `.pause.v1`, `.step.v1`, `.set-speed.v1`, `.set-light-schedule.v1`, `.set-environment-setpoint.v1`) and return acknowledgements with `{ intentId, correlationId, queuedTick, appliedTick, stateAfter }` so the Sim Control Bar can reconcile acknowledgements with telemetry ticks.
 
 ### 11.4 Versioning & Observability
 

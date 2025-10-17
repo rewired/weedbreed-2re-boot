@@ -64,6 +64,8 @@ src/
 Blueprint directory rule: All blueprints are auto-discovered under /data/blueprints/<domain>/<file>.json with a maximum depth of two segments (domain + file). Devices are /data/blueprints/device/<category>.json or /data/blueprints/device/<category>/<file>.json limited to two levels; no deeper subfolders are allowed.
 - **Save/load fixtures:** Legacy/current save snapshots live under `packages/engine/tests/fixtures/save/v*/`. Unit specs in `tests/unit/save/` exercise schema guards and crash-safe writes; integration specs in `tests/integration/saveLoad/` load fixtures, apply migrations, and assert canonical hashes stay stable across versions.
 
+> **Pending live data — Read-model contract coverage (Tasks 1110, 1120, 1130, 4100):** Add façade test suites asserting `companyTree` exposes enriched structure nodes `{ id, name, location, floorArea_m2, usableArea_m2, roomCount, zoneCount }`, room snapshots with `roomPurpose` and climate aggregates, and zone snapshots with `cultivationMethodId`, `cultivationMethodSlug`, `lightSchedule { onHours, offHours, startHour }`, `irrigationMethodId`, coverage totals, telemetry (`ppfd_umol_m2s`, `dli_mol_m2d_inc`, `temperature_c`, `relativeHumidity`, `co2_ppm`, `ach`), and pending task codes. Workforce/economy specs must pin `workforceView` roster rows `{ employeeId, displayName, roleSlug, structureId, morale01, fatigue01, currentTaskId?, nextShiftStartTick }`, KPI utilization, warning envelopes, and economy joins (`balance_per_h`, `dailyDelta_per_h`, effective tariffs) so Phase 4 UI wiring replaces fixtures with deterministic assertions.
+
 ---
 
 ## 3) Data Validation & Fixtures
@@ -188,6 +190,8 @@ it('rejects zone device in non-grow room', () => {
   expect(canInstallDevice(ctx).ok).toBe(false);
 });
 ```
+
+> **Pending live data — Sim-control acknowledgements (Tasks 0130, 3100, 3110, 3130, 4140):** Add façade command specs covering `engine.intent.sim.play|pause|step|set-speed.v1` plus zone climate intents (`engine.intent.zone.set-light-schedule.v1`, `.set-environment-setpoint.v1`). Tests should assert acknowledgement payloads `{ intentId, correlationId, queuedTick, appliedTick, stateAfter }`, sim-control snapshot read models `{ simTime, tick, isPaused, speedMultiplier, pendingIntentCount }`, and telemetry coupling so the Sim Control Bar can reconcile acknowledgements with tick events.
 
 ---
 

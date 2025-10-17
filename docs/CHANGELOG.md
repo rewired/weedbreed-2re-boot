@@ -34,6 +34,11 @@
   background helpers (`packages/ui/src/design/tokens.ts`,
   `packages/ui/tailwind.config.ts`).
 
+- Task 0100: Annotated SEC, DD, and TDD with "Pending live data" notes enumerating
+  the required companyTree, workforceView, and sim-control acknowledgement fields
+  needed by follow-up tasks (1110, 1120, 1130, 0130, 3100–3130, 4100, 4140) so UI
+  hydration replaces fixtures with deterministic contracts.
+
 - HOTFIX-061: Replaced the stubbed economy snapshot hook with a selector backed
   by the read-model Zustand store so dashboard components render real balances
   once `configureReadModelClient` and `refreshReadModels` complete, while keeping
