@@ -52,6 +52,19 @@
   `packages/facade/src/server/readModelProviders.ts`,
   `packages/facade/tests/unit/server/readModelProviders.test.ts`, `README.md`).
 
+- Task 0084: Wired the façade transport dev server to the engine workforce
+  command pipeline by replacing the console stub with an intent normaliser that
+  validates hiring and workforce raise/termination payloads, queues them via
+  the engine run context, and advances the simulation deterministically on every
+  submission. Added unit and integration tests proving intents are forwarded and
+  failures propagate through the Socket.IO acknowledgement contract, and updated
+  the dev stack documentation to reflect the new behaviour
+  (`packages/facade/src/transport/engineCommandPipeline.ts`,
+  `packages/facade/src/transport/devServer.ts`,
+  `packages/facade/tests/unit/transport/engineCommandPipeline.test.ts`,
+  `packages/facade/tests/integration/transport/intentForwarding.integration.test.ts`,
+  `docs/tools/dev-stack.md`).
+
 - Task 6000: Replaced the workforce KPI shell with the HR directory, activity
   timeline, task queues, capacity snapshot, and action panel. Introduced
   workforce filter state via Zustand, wired the HR route to the new intent
