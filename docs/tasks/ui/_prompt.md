@@ -3,8 +3,8 @@
 You are Codex. Follow this exactly.
 
 # 0) Fixed inputs
-- TASK_ID: "0034"
-- TASK_DIR: "/docs/tasks/frontend"
+- TASK_ID: "0100"
+- TASK_DIR: "/docs/tasks/ui"
 - TASK_GLOB: `${TASK_DIR}/${TASK_ID}-*.md`
 
 # 1) Locate TASK_FILE (deterministic)
@@ -65,4 +65,3 @@ pnpm -r lint && pnpm -r build
   * `TASK_FILE_AMBIGUOUS`
   * `TESTS_FAILING`, `LINT_FAILING`, or `BUILD_FAILING`
     → STOP and report the exact error with the command that failed.
-
