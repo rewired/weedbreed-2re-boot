@@ -4,7 +4,11 @@ import { io as createClient, type Socket } from 'socket.io-client';
 /* eslint-disable wb-sim/no-ts-import-js-extension */
 
 import { createDemoWorld } from '@/backend/src/engine/testHarness.ts';
-import { TELEMETRY_HARVEST_CREATED_V1 } from '@/backend/src/telemetry/topics.ts';
+import {
+  TELEMETRY_HARVEST_CREATED_V1,
+  TELEMETRY_TICK_COMPLETED_V1,
+  TELEMETRY_ZONE_SNAPSHOT_V1,
+} from '@/backend/src/telemetry/topics.ts';
 import type { Plant, Room, Zone } from '@/backend/src/domain/world.ts';
 
 import {
@@ -103,6 +107,8 @@ describe('facade transport dev server telemetry bridge', () => {
       telemetryClient = await createClientForNamespace(devServer.server.url, '/telemetry');
       intentsClient = await createClientForNamespace(devServer.server.url, '/intents');
 
+      const receivedEvents: TelemetryEvent[] = [];
+
       const telemetryEventPromise = new Promise<TelemetryEvent>((resolve, reject) => {
         const timeout = setTimeout(() => {
           telemetryClient?.off(TELEMETRY_EVENT, handleTelemetryEvent);
@@ -110,6 +116,8 @@ describe('facade transport dev server telemetry bridge', () => {
         }, 5000);
 
         function handleTelemetryEvent(event: TelemetryEvent) {
+          receivedEvents.push(event);
+
           if (event.topic !== TELEMETRY_HARVEST_CREATED_V1) {
             return;
           }
@@ -157,6 +165,20 @@ describe('facade transport dev server telemetry bridge', () => {
       });
 
       expect(typeof payload.lotId).toBe('string');
+
+      const tickEvent = receivedEvents.find((event) => event.topic === TELEMETRY_TICK_COMPLETED_V1);
+      expect(tickEvent).toBeDefined();
+      const tickPayload = (tickEvent?.payload ?? {}) as Record<string, unknown>;
+      expect(tickPayload.simTimeHours).toBeCloseTo(1, 6);
+      expect(tickPayload.targetTicksPerHour).toBeCloseTo(1, 6);
+      expect(tickPayload.actualTicksPerHour).toBeCloseTo(1, 6);
+
+      const zoneSnapshot = receivedEvents.find((event) => event.topic === TELEMETRY_ZONE_SNAPSHOT_V1);
+      expect(zoneSnapshot).toBeDefined();
+      const zonePayload = (zoneSnapshot?.payload ?? {}) as Record<string, unknown>;
+      expect(zonePayload.zoneId).toBe(zone.id);
+      expect(zonePayload.simTime).toBeCloseTo(world.simTimeHours, 6);
+      expect(Array.isArray(zonePayload.warnings)).toBe(true);
     } finally {
       if (intentsClient) {
         await disconnectClient(intentsClient);

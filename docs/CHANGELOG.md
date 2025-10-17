@@ -80,6 +80,15 @@
   (`packages/facade/src/transport/server.ts`,
   `packages/facade/src/transport/devServer.ts`,
   `packages/facade/tests/integration/transport/devServerTelemetry.integration.test.ts`).
+- Task 0097: Published typed constants for `telemetry.tick.completed.v1` and
+  `telemetry.zone.snapshot.v1`, emitted tick rollups and per-zone snapshots from the
+  engine pipeline, and extended façade transport coverage so connected clients receive
+  the enriched envelopes alongside deterministic unit and integration tests
+  (`packages/engine/src/backend/src/telemetry/topics.ts`,
+  `packages/engine/src/backend/src/engine/pipeline/commitAndTelemetry.ts`,
+  `packages/engine/src/backend/src/engine/pipeline/updateEnvironment.ts`,
+  `packages/engine/tests/unit/engine/pipeline`,
+  `packages/facade/tests/integration/transport/devServerTelemetry.integration.test.ts`).
 
 - Task 6000: Replaced the workforce KPI shell with the HR directory, activity
   timeline, task queues, capacity snapshot, and action panel. Introduced
