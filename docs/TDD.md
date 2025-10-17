@@ -191,7 +191,22 @@ it('rejects zone device in non-grow room', () => {
 });
 ```
 
-> **Pending live data — Sim-control acknowledgements (Tasks 0130, 3100, 3110, 3130, 4140):** Add façade command specs covering `engine.intent.sim.play|pause|step|set-speed.v1` plus zone climate intents (`engine.intent.zone.set-light-schedule.v1`, `.set-environment-setpoint.v1`). Tests should assert acknowledgement payloads `{ intentId, correlationId, queuedTick, appliedTick, stateAfter }`, sim-control snapshot read models `{ simTime, tick, isPaused, speedMultiplier, pendingIntentCount }`, and telemetry coupling so the Sim Control Bar can reconcile acknowledgements with tick events.
+> **Checklist — Sim-control acknowledgements (Tasks 0130, 3100, 3110, 3130, 4140):** See §6a for the contract guardrails that façade command specs and UI wiring must satisfy when covering `engine.intent.sim.play|pause|step|set-speed.v1` plus zone climate intents (`engine.intent.zone.set-light-schedule.v1`, `.set-environment-setpoint.v1`).
+
+### 6a) Simulation Control Contract Checklist (Tasks 0130, 3100–3130, 4140)
+
+| Control | Intent topic & payload fields | Acknowledgement timing & shape | Telemetry coupling requirements | Follow-up tasks |
+| --- | --- | --- | --- | --- |
+| **Play** (resume ticks) | `engine.intent.sim.play.v1` with `{ intentId, correlationId, requestedTick }`. `requestedTick` **MUST** equal the current committed tick when resuming (Task 3100). | Façade acknowledgement **MUST** emit immediately on queue with `{ intentId, correlationId, queuedTick }`, then update `appliedTick` and `stateAfter.isPaused=false` in the same ack envelope once the tick commits (Task 3110). | Every subsequent `telemetry.tick.completed.v1` **MUST** include `{ simTime, tick, isPaused=false, speedMultiplier }` so the Sim Control Bar can reconcile playback state; `telemetry.sim.state.v1` snapshot (Task 3130) mirrors the latest ack for reconnecting clients. | 3100, 3110, 3130 |
+| **Pause** (halt ticks) | `engine.intent.sim.pause.v1` with `{ intentId, correlationId, requestedTick }`. Payload tick guards prevent pausing stale worlds (Task 3100). | Queue acknowledgement mirrors Play. On commit, `stateAfter.isPaused=true` and `appliedTick` **MUST** equal the tick when pause took effect (Task 3110). | The tick that honours the pause **MUST** emit a final `telemetry.tick.completed.v1` reflecting `isPaused=true`. `telemetry.sim.state.v1` **MUST** broadcast the paused snapshot before further intents are accepted (Task 3130). | 3100, 3110, 3130 |
+| **Step** (advance one tick while paused) | `engine.intent.sim.step.v1` with `{ intentId, correlationId, stepCount=1 }`. When `isPaused=false`, façade **MUST** reject with deterministic `WB_SIM_STEP_WHILE_RUNNING` (Task 3100). | Ack occurs after the queued tick executes: `{ intentId, correlationId, queuedTick, appliedTick = queuedTick + 1, stateAfter.pendingIntentCount }`. `stateAfter.isPaused` **MUST** remain `true` so the UI knows playback is still halted (Task 3110). | UI expects exactly one `telemetry.tick.completed.v1` with monotonic tick and unchanged `speedMultiplier`. `telemetry.sim.state.v1` snapshot **MUST** include `pendingIntentCount` so the step button can disable until the ack arrives (Task 3130). | 3100, 3110, 3130 |
+| **Set speed** (adjust multiplier) | `engine.intent.sim.set-speed.v1` with `{ intentId, correlationId, speedMultiplier }`. Multiplier **MUST** be validated against SEC §11 bounds and persisted in sim state (Task 3100). | Queue acknowledgement returns `{ intentId, correlationId, queuedTick }`; commit appends `appliedTick` and `stateAfter.speedMultiplier`. The façade **MUST** guarantee monotonic multiplier history for audit (Task 3120). | The tick that applies the change **MUST** emit `telemetry.tick.completed.v1` carrying the new `speedMultiplier`. `telemetry.sim.state.v1` snapshot and read-model `simControl` view **MUST** match the ack so the speed selector stays in sync (Tasks 3120, 3130). | 3100, 3120, 3130 |
+
+**Verification hooks:**
+
+- Contract tests **MUST** correlate intent acknowledgements with the `telemetry.tick.completed.v1` events emitted for the same `appliedTick`, ensuring deterministic reconciliation in the Sim Control Bar (Task 3110).
+- Read-model tests **MUST** expose a `simControl` snapshot `{ simTime, tick, isPaused, speedMultiplier, pendingIntentCount, lastIntentId }` mirroring the latest ack/telemetry pair so UI wiring can diff state without relying on transport order (Task 3130).
+- UI integration tests for the Sim Control Bar (Task 4140) **MUST** assert that intent buttons debounce while `pendingIntentCount > 0`, resume rendering on ack, and reconcile the displayed tick with `telemetry.tick.completed.v1` sequences provided by the façade test harness.
 
 ---
 

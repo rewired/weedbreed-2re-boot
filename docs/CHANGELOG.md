@@ -25,6 +25,8 @@
     on live data wiring.
   - Recorded this milestone in the changelog to keep SEC/DD/TDD traceability aligned for UI documentation updates.
 
+- Task 0130: Added a simulation control contract checklist to TDD §6a and linked SEC §11 to the new guardrails so playback intents, acknowledgements, and telemetry expectations stay aligned with follow-up tasks 3100–3130 and 4140 (docs/TDD.md, docs/SEC.md).
+
 - Task 0110: Added the SEC gap register (entry 0110-RM) summarising the pending
   read-model live data handshake, linked DD/TDD cross-references to the register,
   and captured ownership plus follow-up tasks for traceability (docs/SEC.md,
