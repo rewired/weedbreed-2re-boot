@@ -14,7 +14,8 @@ const config: Config = {
         canvas: foundationTheme.colors.canvas,
         accent: foundationTheme.colors.accent,
         border: foundationTheme.colors.border,
-        text: foundationTheme.colors.text
+        text: foundationTheme.colors.text,
+        surface: foundationTheme.colors.surface
       },
       fontFamily,
       borderRadius: foundationTheme.borderRadius,

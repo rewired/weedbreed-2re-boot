@@ -27,6 +27,12 @@
   satisfy React's act() guard (`packages/ui/src/components/common/InlineRenameField.tsx`,
   `packages/ui/src/pages/__tests__/WorkforcePage.test.tsx`,
   `packages/ui/src/components/flows/__tests__/ZoneMoveDialog.test.tsx`).
+- HOTFIX-052: Completed the foundation color tokens with warning/critical/success
+  variants across accent, border, text, and surface palettes so Tailwind can
+  materialise the `accent-critical` utilities referenced by structure capacity
+  styling. Updated the Tailwind config to surface the new palette branch for
+  background helpers (`packages/ui/src/design/tokens.ts`,
+  `packages/ui/tailwind.config.ts`).
 
 - Task 6000: Replaced the workforce KPI shell with the HR directory, activity
   timeline, task queues, capacity snapshot, and action panel. Introduced
