@@ -37,11 +37,15 @@ export interface EngineCommandPipeline {
   /** Engine execution context reused across intent submissions. */
   readonly context: EngineRunContext;
   /**
-   * Normalises and queues the provided transport intent before advancing the engine pipeline.
+   * Normalises and queues the provided transport intent before the next simulation tick.
    *
    * @throws {Error} When the intent type is unsupported or fails validation.
    */
   handle(intent: TransportIntentEnvelope): Promise<void>;
+  /**
+   * Advances the simulation by one deterministic tick, applying all queued intents.
+   */
+  advanceTick(): void;
 }
 
 const hiringMarketScanSchema = z.object({
@@ -176,14 +180,23 @@ export function createEngineCommandPipeline(
   options: EngineCommandPipelineOptions,
 ): EngineCommandPipeline {
   const context: EngineRunContext = options.context ?? {};
+  let pendingWorkforceIntents: WorkforceIntent[] = [];
 
   return {
     context,
     async handle(envelope: TransportIntentEnvelope): Promise<void> {
-      const world = options.world.get();
       const intent = normaliseIntent(envelope);
+      pendingWorkforceIntents = [...pendingWorkforceIntents, intent];
+    },
+    advanceTick(): void {
+      const world = options.world.get();
+      const intentsToApply = pendingWorkforceIntents;
+      pendingWorkforceIntents = [];
 
-      queueWorkforceIntents(context, [intent]);
+      if (intentsToApply.length > 0) {
+        queueWorkforceIntents(context, intentsToApply);
+      }
+
       const { world: nextWorld } = runTick(world, context);
       options.world.set(nextWorld);
     },

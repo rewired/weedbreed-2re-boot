@@ -109,31 +109,48 @@ describe('facade transport dev server telemetry bridge', () => {
 
       const receivedEvents: TelemetryEvent[] = [];
 
-      const telemetryEventPromise = new Promise<TelemetryEvent>((resolve, reject) => {
-        const timeout = setTimeout(() => {
+      const telemetryEventPromise = new Promise<{
+        harvestEvent: TelemetryEvent;
+        tickEvent: TelemetryEvent;
+      }>((resolve, reject) => {
+        let harvestEvent: TelemetryEvent | null = null;
+        let tickEvent: TelemetryEvent | null = null;
+
+        const cleanup = () => {
           telemetryClient?.off(TELEMETRY_EVENT, handleTelemetryEvent);
+          telemetryClient?.off('connect_error', handleConnectError);
+          clearTimeout(timeout);
+        };
+
+        const timeout = setTimeout(() => {
+          cleanup();
           reject(new Error('Timed out waiting for telemetry:event payload.'));
         }, 5000);
 
         function handleTelemetryEvent(event: TelemetryEvent) {
           receivedEvents.push(event);
 
-          if (event.topic !== TELEMETRY_HARVEST_CREATED_V1) {
-            return;
+          if (event.topic === TELEMETRY_HARVEST_CREATED_V1) {
+            harvestEvent = event;
           }
 
-          telemetryClient?.off(TELEMETRY_EVENT, handleTelemetryEvent);
-          clearTimeout(timeout);
-          resolve(event);
+          if (event.topic === TELEMETRY_TICK_COMPLETED_V1) {
+            tickEvent = event;
+          }
+
+          if (harvestEvent && tickEvent) {
+            cleanup();
+            resolve({ harvestEvent, tickEvent });
+          }
+        }
+
+        function handleConnectError(error: unknown) {
+          cleanup();
+          reject(error instanceof Error ? error : new Error(String(error)));
         }
 
         telemetryClient?.on(TELEMETRY_EVENT, handleTelemetryEvent);
-
-        telemetryClient?.once('connect_error', (error) => {
-          telemetryClient?.off(TELEMETRY_EVENT, handleTelemetryEvent);
-          clearTimeout(timeout);
-          reject(error instanceof Error ? error : new Error(String(error)));
-        });
+        telemetryClient?.once('connect_error', handleConnectError);
       });
 
       const ackPromise = new Promise<TransportAck>((resolve) => {
@@ -146,12 +163,12 @@ describe('facade transport dev server telemetry bridge', () => {
         );
       });
 
-      const [telemetryEvent, ack] = await Promise.all([telemetryEventPromise, ackPromise]);
+      const [{ harvestEvent, tickEvent }, ack] = await Promise.all([telemetryEventPromise, ackPromise]);
 
       expect(ack).toEqual({ ok: true });
-      expect(telemetryEvent.topic).toBe(TELEMETRY_HARVEST_CREATED_V1);
+      expect(harvestEvent.topic).toBe(TELEMETRY_HARVEST_CREATED_V1);
 
-      const payload = telemetryEvent.payload as Record<string, unknown>;
+      const payload = harvestEvent.payload as Record<string, unknown>;
 
       expect(payload).toMatchObject({
         structureId: structure.id,
@@ -166,9 +183,7 @@ describe('facade transport dev server telemetry bridge', () => {
 
       expect(typeof payload.lotId).toBe('string');
 
-      const tickEvent = receivedEvents.find((event) => event.topic === TELEMETRY_TICK_COMPLETED_V1);
-      expect(tickEvent).toBeDefined();
-      const tickPayload = (tickEvent?.payload ?? {}) as Record<string, unknown>;
+      const tickPayload = tickEvent.payload as Record<string, unknown>;
       expect(tickPayload.simTimeHours).toBeCloseTo(1, 6);
       expect(tickPayload.targetTicksPerHour).toBeCloseTo(1, 6);
       expect(tickPayload.actualTicksPerHour).toBeCloseTo(1, 6);

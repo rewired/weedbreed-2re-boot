@@ -37,7 +37,10 @@ describe('transport intent forwarding', () => {
       throw new Error('Demo world missing structure id for hiring market scan intent.');
     }
 
-    const harness = await createTransportHarness((intent) => pipeline.handle(intent));
+    const harness = await createTransportHarness(async (intent) => {
+      await pipeline.handle(intent);
+      pipeline.advanceTick();
+    });
     let client: Awaited<ReturnType<typeof createNamespaceClient>> | null = null;
 
     try {
@@ -80,7 +83,10 @@ describe('transport intent forwarding', () => {
       context,
     });
 
-    const harness = await createTransportHarness((intent) => pipeline.handle(intent));
+    const harness = await createTransportHarness(async (intent) => {
+      await pipeline.handle(intent);
+      pipeline.advanceTick();
+    });
     let client: Awaited<ReturnType<typeof createNamespaceClient>> | null = null;
 
     try {

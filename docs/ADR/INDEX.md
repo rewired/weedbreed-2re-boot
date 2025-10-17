@@ -2,6 +2,7 @@
 
 | ADR-ID   | Title                                                                   | Status     | Supersedes | Affects                      | Binding? | Link                                                               |
 | -------- | ----------------------------------------------------------------------- | ---------- | ---------- | ---------------------------- | -------- | ------------------------------------------------------------------ |
+| ADR-0026 | Simulation playback controls over transport                            | Accepted   | —          | SEC, DD, TDD, AGENTS         | Yes      | [ADR-0026](./ADR-0026-simulation-playback-controls.md)             |
 | ADR-0025 | CI Gates & Developer Command Contracts                                 | Accepted   | —          | SEC, DD, TDD, AGENTS         | Yes      | [ADR-0025](./ADR-0025-ci-gates-and-dev-commands.md)               |
 | ADR-0024 | Conformance Golden Scenario Modularization                             | Accepted   | —          | SEC, DD, TDD, AGENTS         | Yes      | [ADR-0024](./ADR-0024-golden-scenario-modularization.md)           |
 | ADR-0023 | Workforce Pipeline Modularization & Telemetry Isolation                 | Accepted   | —          | SEC, DD, TDD, VISION, AGENTS | Yes      | [ADR-0023](./ADR-0023-workforce-pipeline-modularization.md)         |

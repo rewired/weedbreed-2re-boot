@@ -28,6 +28,7 @@ describe('createEngineCommandPipeline', () => {
     }
 
     await pipeline.handle({ type: 'hiring.market.scan', structureId });
+    pipeline.advanceTick();
 
     const charges = consumeWorkforceMarketCharges(pipeline.context);
     expect(charges).toBeDefined();
