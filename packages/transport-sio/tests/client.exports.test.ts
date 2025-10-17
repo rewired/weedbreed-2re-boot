@@ -20,6 +20,8 @@ describe('client entry point', () => {
   });
 
   it('provides the transport acknowledgement guard', () => {
-    expect(() => assertTransportAck({ ok: true })).not.toThrow();
+    expect(() => {
+      assertTransportAck({ ok: true });
+    }).not.toThrow();
   });
 });

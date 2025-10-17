@@ -24,7 +24,7 @@ export interface TelemetryZoneSnapshotPayload {
   readonly ppfd: number;
   readonly dli_incremental: number;
   readonly temp_c: number;
-  readonly rh: number;
+  readonly relativeHumidity01: number;
   readonly co2_ppm: number;
   readonly ach: number;
   readonly warnings: readonly TelemetryZoneSnapshotWarning[];

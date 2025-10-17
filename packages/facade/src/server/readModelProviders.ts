@@ -19,6 +19,7 @@ import { parseContainerBlueprint } from '@/backend/src/domain/blueprints/contain
 import { parseSubstrateBlueprint } from '@/backend/src/domain/blueprints/substrateBlueprint.ts';
 import { parseIrrigationBlueprint } from '@/backend/src/domain/blueprints/irrigationBlueprint.ts';
 import { estimateIrrigationCharge } from '@/backend/src/domain/irrigation/waterUsage.ts';
+import { computeVpd_kPa } from '@/backend/src/physiology/vpd.ts';
 import seaOfGreenJson from '../../../../data/blueprints/cultivation-method/sea-of-green.json' with { type: 'json' };
 import screenOfGreenJson from '../../../../data/blueprints/cultivation-method/screen-of-green.json' with { type: 'json' };
 import pot11Json from '../../../../data/blueprints/container/pot-11l.json' with { type: 'json' };
@@ -28,6 +29,9 @@ import soilMultiJson from '../../../../data/blueprints/substrate/soil-multi-cycl
 import soilSingleJson from '../../../../data/blueprints/substrate/soil-single-cycle.json' with { type: 'json' };
 import dripJson from '../../../../data/blueprints/irrigation/drip-inline-fertigation-basic.json' with { type: 'json' };
 import manualIrrigationJson from '../../../../data/blueprints/irrigation/manual-watering-can.json' with { type: 'json' };
+import devicePricesJson from '../../../../data/prices/devicePrices.json' with { type: 'json' };
+import consumablePricesJson from '../../../../data/prices/consumablePrices.json' with { type: 'json' };
+import strainPricesJson from '../../../../data/prices/strainPrices.json' with { type: 'json' };
 import {
   COMPANY_TREE_SCHEMA_VERSION,
   STRUCTURE_TARIFFS_SCHEMA_VERSION,
@@ -51,6 +55,7 @@ import {
   type StructureWarning
 } from '../readModels/snapshot.js';
 import { structureTariffs as createStructureTariffsReadModel } from '@/backend/src/readmodels/economy/structureTariffs.ts';
+import { parseDevicePriceMap } from '@/backend/src/domain/pricing/devicePriceMap.ts';
 
 interface EngineContext {
   readonly world: SimulationWorld;
@@ -87,6 +92,12 @@ const IRRIGATION_BY_ID = new Map(IRRIGATION_BLUEPRINTS.map((blueprint) => [bluep
 const STRUCTURE_LIGHTING_TARGET = 1;
 const STRUCTURE_HVAC_TARGET = 1;
 const STRUCTURE_AIRFLOW_TARGET = 6;
+const ZONE_ACH_TARGET = STRUCTURE_AIRFLOW_TARGET;
+
+const DEVICE_PRICE_ENTRIES = parseDevicePriceMap(devicePricesJson).devicePrices;
+const CONSUMABLE_CONTAINER_PRICES = consumablePricesJson?.containers ?? {};
+const CONSUMABLE_SUBSTRATE_PRICES = consumablePricesJson?.substrates ?? {};
+const STRAIN_PRICE_MAP = strainPricesJson?.strainPrices ?? {};
 
 function clampFraction(value: number | undefined): number {
   if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
@@ -121,6 +132,103 @@ interface StructureMetrics {
   readonly labourHoursPerDay: number;
   readonly maintenanceCostPerHour: number;
   readonly coverageWarnings: readonly StructureWarning[];
+}
+
+type ZoneTaskEntry = ZoneReadModel['tasks'][number];
+type ZoneDeviceWarning = ZoneReadModel['coverageWarnings'][number];
+type WorkforceTaskInstance = WorkforceState['taskQueue'][number];
+
+const ZONE_TASK_TYPE_MAP: Record<string, ZoneTaskEntry['type']> = {
+  repair_device: 'maintenance',
+  maintain_device: 'maintenance',
+  refill_supplies_water: 'maintenance',
+  refill_supplies_nutrients: 'maintenance',
+  clean_zone: 'maintenance',
+  overhaul_zone_substrate: 'maintenance',
+  reset_light_cycle: 'maintenance',
+  adjust_light_cycle: 'maintenance',
+  execute_planting_plan: 'training',
+  harvest_plants: 'harvest',
+  apply_treatment: 'treatment'
+};
+
+const WORKFORCE_STATUS_MAP: Record<WorkforceTaskInstance['status'], ZoneTaskEntry['status']> = {
+  queued: 'queued',
+  'in-progress': 'in-progress',
+  completed: 'done',
+  cancelled: 'done'
+};
+
+function resolveZoneTaskType(taskCode: string): ZoneTaskEntry['type'] {
+  return ZONE_TASK_TYPE_MAP[taskCode] ?? 'maintenance';
+}
+
+function resolveZoneTaskStatus(status: WorkforceTaskInstance['status']): ZoneTaskEntry['status'] {
+  return WORKFORCE_STATUS_MAP[status] ?? 'queued';
+}
+
+function extractTaskZoneId(task: WorkforceTaskInstance): string | null {
+  const context = task.context;
+
+  if (!context || typeof context !== 'object') {
+    return null;
+  }
+
+  const directZoneId =
+    (context as { zoneId?: unknown }).zoneId ??
+    (context as { targetZoneId?: unknown }).targetZoneId ??
+    (context as { zone?: { id?: unknown } }).zone?.id;
+
+  if (typeof directZoneId === 'string') {
+    return directZoneId;
+  }
+
+  if ((context as { targetScope?: unknown }).targetScope === 'zone') {
+    const targetId = (context as { targetId?: unknown }).targetId;
+    if (typeof targetId === 'string') {
+      return targetId;
+    }
+  }
+
+  return null;
+}
+
+function mapZoneTasks(zone: Zone, workforce: WorkforceState): ZoneTaskEntry[] {
+  const queue = Array.isArray(workforce.taskQueue) ? (workforce.taskQueue as WorkforceTaskInstance[]) : [];
+
+  const entries: ZoneTaskEntry[] = [];
+
+  for (const task of queue) {
+    const zoneId = extractTaskZoneId(task);
+    if (zoneId !== zone.id) {
+      continue;
+    }
+
+    const scheduledTick = Number.isFinite(task.dueTick) ? (task.dueTick as number) : task.createdAtTick;
+
+    entries.push({
+      id: task.id,
+      type: resolveZoneTaskType(task.taskCode),
+      status: resolveZoneTaskStatus(task.status),
+      assigneeId: task.assignedEmployeeId ?? null,
+      scheduledTick,
+      targetZoneId: zone.id
+    });
+  }
+
+  return entries.sort((left, right) => left.scheduledTick - right.scheduledTick);
+}
+
+function createZoneAirflowWarning(zone: Zone, ach: number): ZoneDeviceWarning | null {
+  if (!(ach < ZONE_ACH_TARGET)) {
+    return null;
+  }
+
+  return {
+    id: `${zone.id}:airflow`,
+    message: `Air changes at ${ach.toFixed(2)} ACH (target ${ZONE_ACH_TARGET}).`,
+    severity: 'warning'
+  } satisfies ZoneDeviceWarning;
 }
 
 interface DeviceContribution {
@@ -346,6 +454,25 @@ function toVolume(area_m2: number, height_m: number): number {
   return area_m2 * height_m;
 }
 
+function computeZoneAirflowAch(zone: Zone): number {
+  const volume = toVolume(zone.floorArea_m2, zone.height_m);
+
+  if (!(volume > 0)) {
+    return 0;
+  }
+
+  const airflowTotal = zone.devices.reduce((total, device) => {
+    const airflow = Number.isFinite(device.airflow_m3_per_h) ? (device.airflow_m3_per_h as number) : 0;
+    return total + Math.max(airflow, 0);
+  }, 0);
+
+  if (!(airflowTotal > 0)) {
+    return 0;
+  }
+
+  return airflowTotal / volume;
+}
+
 function mapZoneDevice(device: DeviceInstance): DeviceSummary {
   const classSlug = device.slug.includes('.') ? device.slug.split('.')[0] : 'device';
 
@@ -372,16 +499,25 @@ function average(values: readonly number[]): number {
   return total / values.length;
 }
 
-function mapZone(zone: Zone): ZoneReadModel {
+function mapZone(zone: Zone, workforce: WorkforceState): ZoneReadModel {
   const plants = zone.plants;
   const plantCount = plants.length;
+  const maxPlants = computePlantCount(zone);
   const healthAvg = average(plants.map((plant) => plant.health01)) * 100;
   const qualityAvg = average(plants.map((plant) => plant.quality01 ?? 0)) * 100;
   const stressPercent = 0;
   const biomassKg = plants.reduce((total, plant) => total + plant.biomass_g, 0) / 1000;
 
   const primaryPlant = plants[0];
-  const strainId = primaryPlant?.strainId ?? 'unassigned-strain';
+  const strainId = primaryPlant?.strainId ?? '';
+
+  const temperatureC = zone.environment.airTemperatureC;
+  const humidityFraction = zone.environment.relativeHumidity01;
+  const vpd = computeVpd_kPa(temperatureC, humidityFraction);
+  const achMeasured = computeZoneAirflowAch(zone);
+  const airflowWarning = createZoneAirflowWarning(zone, achMeasured);
+  const coverageWarnings: ZoneDeviceWarning[] = airflowWarning ? [airflowWarning] : [];
+  const climateStatus = coverageWarnings.length > 0 ? 'warn' : 'ok';
 
   return {
     id: zone.id,
@@ -391,7 +527,7 @@ function mapZone(zone: Zone): ZoneReadModel {
     cultivationMethodId: zone.cultivationMethodId,
     irrigationMethodId: zone.irrigationMethodId,
     strainId,
-    maxPlants: plantCount,
+    maxPlants,
     currentPlantCount: plantCount,
     kpis: {
       healthPercent: Math.round(healthAvg),
@@ -408,23 +544,23 @@ function mapZone(zone: Zone): ZoneReadModel {
       lastInspectionTick: 0
     },
     devices: zone.devices.map(mapZoneDevice),
-    coverageWarnings: [],
+    coverageWarnings,
     climateSnapshot: {
-      temperature_C: zone.environment.airTemperatureC,
-      relativeHumidity_percent: Math.round(zone.environment.relativeHumidity01 * 100),
+      temperature_C: roundTo(temperatureC, 2),
+      relativeHumidity_percent: Math.round(humidityFraction * 100),
       co2_ppm: zone.environment.co2_ppm,
-      vpd_kPa: 0,
-      ach_measured: 0,
-      ach_target: 0,
-      status: 'ok'
+      vpd_kPa: roundTo(vpd, 6),
+      ach_measured: roundTo(achMeasured, 6),
+      ach_target: ZONE_ACH_TARGET,
+      status: climateStatus
     },
     timeline: [],
-    tasks: []
+    tasks: mapZoneTasks(zone, workforce)
   } satisfies ZoneReadModel;
 }
 
-function mapRoom(structureId: Structure['id'], room: Room): RoomReadModel {
-  const zones = room.zones.map(mapZone);
+function mapRoom(structureId: Structure['id'], room: Room, workforce: WorkforceState): RoomReadModel {
+  const zones = room.zones.map((zone) => mapZone(zone, workforce));
   const zoneAreaTotal = zones.reduce((total, zone) => total + zone.area_m2, 0);
   const zoneVolumeTotal = zones.reduce((total, zone) => total + zone.volume_m3, 0);
   const areaFree = Math.max(room.floorArea_m2 - zoneAreaTotal, 0);
@@ -435,6 +571,24 @@ function mapRoom(structureId: Structure['id'], room: Room): RoomReadModel {
   const temperature = average(zoneClimates.map((climate) => climate.temperature_C));
   const humidity = average(zoneClimates.map((climate) => climate.relativeHumidity_percent));
   const co2 = average(zoneClimates.map((climate) => climate.co2_ppm));
+  const achValues = zoneClimates.map((climate) => climate.ach_measured);
+  const achAverage = average(achValues);
+
+  const climateWarningMap = new Map<string, StructureWarning>();
+
+  for (const zone of zones) {
+    for (const warning of zone.coverageWarnings) {
+      climateWarningMap.set(warning.id, {
+        id: warning.id,
+        message: warning.message,
+        severity: warning.severity
+      });
+    }
+  }
+
+  const climateWarnings = Array.from(climateWarningMap.values()).sort((left, right) =>
+    left.id.localeCompare(right.id)
+  );
 
   return {
     id: room.id,
@@ -450,16 +604,16 @@ function mapRoom(structureId: Structure['id'], room: Room): RoomReadModel {
       volumeFree_m3: Number.parseFloat(volumeFree.toFixed(2))
     },
     coverage: {
-      achCurrent: 0,
-      achTarget: 0,
-      climateWarnings: []
+      achCurrent: roundTo(achAverage, 6),
+      achTarget: ZONE_ACH_TARGET,
+      climateWarnings
     },
     climateSnapshot: {
       temperature_C: Number.isFinite(temperature) ? Number.parseFloat(temperature.toFixed(2)) : 0,
       relativeHumidity_percent: Number.isFinite(humidity) ? Math.round(humidity) : 0,
       co2_ppm: Number.isFinite(co2) ? Math.round(co2) : 0,
-      ach: 0,
-      notes: 'Telemetry snapshot unavailable'
+      ach: roundTo(achAverage, 6),
+      notes: 'Aggregated from zone climate snapshots.'
     },
     devices: room.devices.map(mapZoneDevice),
     zones,
@@ -478,7 +632,7 @@ function mapStructure(
   workforce: WorkforceState,
   metrics: StructureMetrics
 ): StructureReadModel {
-  const rooms = structure.rooms.map((room) => mapRoom(structure.id, room));
+  const rooms = structure.rooms.map((room) => mapRoom(structure.id, room, workforce));
   const structureZoneArea = rooms.reduce(
     (total, room) => total + room.capacity.areaUsed_m2,
     0
@@ -711,20 +865,207 @@ function mapHrReadModel(workforce: WorkforceState): HrReadModel {
   } satisfies HrReadModel;
 }
 
-function mapPriceBook(): PriceBookCatalog {
+function mapPriceBook(world: SimulationWorld): PriceBookCatalog {
+  const containerIds = new Set<string>();
+  const substrateIds = new Set<string>();
+  const irrigationIds = new Set<string>();
+  const deviceBlueprints = new Map<
+    string,
+    { slug: string; coverage_m2: number; airflow_m3_per_h: number }
+  >();
+
+  function registerDevice(device: DeviceInstance) {
+    if (typeof device.blueprintId !== 'string') {
+      return;
+    }
+
+    if (!deviceBlueprints.has(device.blueprintId)) {
+      deviceBlueprints.set(device.blueprintId, {
+        slug: device.slug,
+        coverage_m2: Number.isFinite(device.coverage_m2) ? (device.coverage_m2 as number) : 0,
+        airflow_m3_per_h: Number.isFinite(device.airflow_m3_per_h)
+          ? (device.airflow_m3_per_h as number)
+          : 0
+      });
+    }
+  }
+
+  for (const structure of world.company.structures) {
+    for (const device of structure.devices) {
+      registerDevice(device);
+    }
+
+    for (const room of structure.rooms) {
+      for (const device of room.devices) {
+        registerDevice(device);
+      }
+
+      for (const zone of room.zones) {
+        containerIds.add(zone.containerId);
+        substrateIds.add(zone.substrateId);
+        irrigationIds.add(zone.irrigationMethodId);
+
+        for (const device of zone.devices) {
+          registerDevice(device);
+        }
+      }
+    }
+  }
+
+  const seedlings = Object.entries(STRAIN_PRICE_MAP).map(([strainId, entry]) => ({
+    id: `seedling-price-${strainId}`,
+    strainId,
+    pricePerUnit: roundTo(entry?.seedPrice ?? 0, 2)
+  }));
+
+  const containers = Array.from(containerIds).flatMap((id) => {
+    const blueprint = resolveContainer(id);
+    if (!blueprint) {
+      return [];
+    }
+
+    const priceEntry = CONSUMABLE_CONTAINER_PRICES[blueprint.slug] as
+      | { costPerUnit?: number }
+      | undefined;
+    const price = priceEntry?.costPerUnit ?? 0;
+
+    return [
+      {
+        id: `container-price-${blueprint.id}`,
+        containerId: blueprint.id,
+        capacityLiters: blueprint.volumeInLiters,
+        pricePerUnit: roundTo(price, 2),
+        serviceLifeCycles: blueprint.reusableCycles ?? 1
+      }
+    ];
+  });
+
+  const substrates = Array.from(substrateIds).flatMap((id) => {
+    const blueprint = resolveSubstrate(id);
+    if (!blueprint) {
+      return [];
+    }
+
+    const price =
+      blueprint.unitPrice_per_L ??
+      (CONSUMABLE_SUBSTRATE_PRICES[blueprint.slug]?.costPerLiter ?? 0);
+
+    return [
+      {
+        id: `substrate-price-${blueprint.id}`,
+        substrateId: blueprint.id,
+        unitPrice_per_L: roundTo(price, 4),
+        densityFactor_L_per_kg: blueprint.densityFactor_L_per_kg,
+        reuseCycles: blueprint.maxCycles
+      }
+    ];
+  });
+
+  const irrigationLines = Array.from(irrigationIds).flatMap((id) => {
+    const blueprint = resolveIrrigation(id);
+    if (!blueprint) {
+      return [];
+    }
+
+    return [
+      {
+        id: `irrigation-price-${blueprint.id}`,
+        irrigationMethodId: blueprint.id,
+        pricePerSquareMeter: 0
+      }
+    ];
+  });
+
+  const devices = Array.from(deviceBlueprints.entries()).map(([blueprintId, data]) => {
+    const priceEntry = DEVICE_PRICE_ENTRIES[blueprintId];
+    return {
+      id: `device-price-${blueprintId}`,
+      deviceSlug: data.slug,
+      coverageArea_m2: roundTo(data.coverage_m2, 4),
+      throughput_m3_per_hour: roundTo(data.airflow_m3_per_h, 4),
+      capitalExpenditure: roundTo(priceEntry?.capitalExpenditure ?? 0, 2)
+    } satisfies PriceBookCatalog['devices'][number];
+  });
+
   return {
-    seedlings: [],
-    containers: [],
-    substrates: [],
-    irrigationLines: [],
-    devices: []
+    seedlings,
+    containers,
+    substrates,
+    irrigationLines,
+    devices
   } satisfies PriceBookCatalog;
 }
 
+type CultivationBlueprint = (typeof CULTIVATION_BLUEPRINTS)[number];
+type IrrigationBlueprint = (typeof IRRIGATION_BLUEPRINTS)[number];
+
+function deriveIrrigationStatus(
+  cultivation: CultivationBlueprint,
+  irrigation: IrrigationBlueprint
+): 'ok' | 'warn' | 'block' {
+  const compatibilityMethods = Array.isArray(irrigation.compatibility?.methods)
+    ? irrigation.compatibility.methods
+    : [];
+  const aliasKeys = new Set<string>([cultivation.slug]);
+
+  if (typeof cultivation.technique === 'string' && cultivation.technique.length > 0) {
+    aliasKeys.add(cultivation.technique);
+  }
+
+  let supported = false;
+
+  for (const method of compatibilityMethods) {
+    if (aliasKeys.has(method)) {
+      supported = true;
+      break;
+    }
+  }
+
+  if (!supported) {
+    return 'block';
+  }
+
+  const labour = (irrigation as { labor?: { basis?: string } }).labor;
+
+  if (labour?.basis === 'perPlant') {
+    return 'warn';
+  }
+
+  return 'ok';
+}
+
 function mapCompatibility(): CompatibilityMaps {
+  const cultivationEntries = CULTIVATION_BLUEPRINTS.map((cultivation) => {
+    const irrigationStatuses = Object.fromEntries(
+      IRRIGATION_BLUEPRINTS.map((irrigation) => [
+        irrigation.id,
+        deriveIrrigationStatus(cultivation, irrigation)
+      ])
+    );
+
+    return [cultivation.id, irrigationStatuses] as const;
+  });
+
+  const strainEntries = Object.keys(STRAIN_PRICE_MAP).map((strainId) => {
+    const cultivationStatuses = Object.fromEntries(
+      CULTIVATION_BLUEPRINTS.map((cultivation) => [cultivation.id, 'ok' as const])
+    );
+    const irrigationStatuses = Object.fromEntries(
+      IRRIGATION_BLUEPRINTS.map((irrigation) => [irrigation.id, 'ok' as const])
+    );
+
+    return [
+      strainId,
+      {
+        cultivation: cultivationStatuses,
+        irrigation: irrigationStatuses
+      }
+    ] as const;
+  });
+
   return {
-    cultivationToIrrigation: {},
-    strainToCultivation: {}
+    cultivationToIrrigation: Object.fromEntries(cultivationEntries),
+    strainToCultivation: Object.fromEntries(strainEntries)
   } satisfies CompatibilityMaps;
 }
 
@@ -773,7 +1114,7 @@ export function createReadModelProviders(context: EngineContext) {
       );
       const economy = mapEconomyReadModel(structureMetrics, context.world.workforce, context.config.tariffs);
       const hr = mapHrReadModel(context.world.workforce);
-      const priceBook = mapPriceBook();
+      const priceBook = mapPriceBook(context.world);
       const compatibility = mapCompatibility();
 
       const snapshot = composeReadModelSnapshot({
