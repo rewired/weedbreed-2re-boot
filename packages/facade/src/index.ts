@@ -48,6 +48,19 @@ export {
   ReadModelClientError,
 } from './readModels/client.js';
 export {
+  composeReadModelSnapshot,
+  validateReadModelSnapshot,
+  type CompatibilityMaps,
+  type EconomyReadModel,
+  type HrReadModel,
+  type PriceBookCatalog,
+  type ReadModelSnapshot,
+  type SimulationReadModel,
+  type StructureReadModel,
+  type TimelineEntry,
+  type ZoneReadModel,
+} from './readModels/snapshot.js';
+export {
   createHiringMarketHireIntent,
   createHiringMarketScanIntent,
 } from './intents/hiring.js';

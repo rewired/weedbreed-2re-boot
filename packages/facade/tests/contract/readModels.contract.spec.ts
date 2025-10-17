@@ -11,7 +11,9 @@ import {
   type StructureTariffsReadModel,
   type WorkforceViewReadModel,
 } from '../../src/readModels/api/schemas.ts';
+import { validateReadModelSnapshot } from '../../src/readModels/snapshot.ts';
 import { createContractServerHarness } from './utils/server.ts';
+import { TEST_READ_MODEL_SNAPSHOT } from '../fixtures/readModelSnapshot.ts';
 
 const COMPANY_TREE_FIXTURE: CompanyTreeReadModel = {
   schemaVersion: COMPANY_TREE_SCHEMA_VERSION,
@@ -71,6 +73,7 @@ describe('contract — read-model HTTP endpoints', () => {
         companyTree: () => COMPANY_TREE_FIXTURE,
         structureTariffs: () => STRUCTURE_TARIFFS_FIXTURE,
         workforceView: () => WORKFORCE_VIEW_FIXTURE,
+        readModels: () => TEST_READ_MODEL_SNAPSHOT,
       },
     });
 
@@ -91,6 +94,11 @@ describe('contract — read-model HTTP endpoints', () => {
       expect(workforceViewResponse.status).toBe(200);
       const workforceViewBody = workforceViewSchema.parse(await workforceViewResponse.json());
       expect(workforceViewBody).toEqual(WORKFORCE_VIEW_FIXTURE);
+
+      const snapshotResponse = await fetch(`${harness.http.url}/api/read-models`);
+      expect(snapshotResponse.status).toBe(200);
+      const snapshotBody = validateReadModelSnapshot(await snapshotResponse.json());
+      expect(snapshotBody).toEqual(TEST_READ_MODEL_SNAPSHOT);
     } finally {
       await harness.close();
     }

@@ -11,6 +11,7 @@ import {
   type WorkforceViewReadModel,
 } from '../../../src/readModels/api/schemas.ts';
 import { createReadModelHttpServer } from '../../../src/server/http.ts';
+import { TEST_READ_MODEL_SNAPSHOT } from '../../fixtures/readModelSnapshot.ts';
 
 type Providers = Parameters<typeof createReadModelHttpServer>[0]['providers'];
 
@@ -80,6 +81,7 @@ describe('createReadModelHttpServer', () => {
       companyTree: () => STUB_COMPANY_TREE,
       structureTariffs: () => STUB_STRUCTURE_TARIFFS,
       workforceView: () => STUB_WORKFORCE_VIEW,
+      readModels: () => TEST_READ_MODEL_SNAPSHOT,
     };
 
     server = createReadModelHttpServer({ providers });
