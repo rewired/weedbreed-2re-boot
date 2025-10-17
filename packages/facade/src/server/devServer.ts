@@ -5,17 +5,17 @@ import process from 'node:process';
 import { initializeFacade } from '../index.js';
 import { createReadModelHttpServer } from './http.js';
 import { createReadModelProviders } from './readModelProviders.js';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.ts';
+import { createDeterministicWorld } from '../backend/deterministicWorldLoader.js';
 
 const DEFAULT_HTTP_PORT = 3333;
 const DECIMAL_RADIX = 10;
 
 async function bootstrap() {
-  const world = createDemoWorld();
-  const { engineConfig, companyWorld } = initializeFacade({
+  const { world, companyWorld } = createDeterministicWorld();
+  const { engineConfig } = initializeFacade({
     scenarioId: 'demo',
     verbose: true,
-    world: world.company
+    world: companyWorld
   });
 
   const providers = createReadModelProviders({

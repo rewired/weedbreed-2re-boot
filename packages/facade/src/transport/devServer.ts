@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 
 import { type EngineRunContext } from '@/backend/src/engine/Engine.ts';
-import { createDemoWorld } from '@/backend/src/engine/testHarness.ts';
+import { createDeterministicWorld } from '../backend/deterministicWorldLoader.js';
 
 import {
   createEngineCommandPipeline,
@@ -33,7 +33,7 @@ export interface StartFacadeDevServerOptions {
   readonly port?: number;
   readonly cors?: TransportCorsOptions;
   readonly corsOrigin?: string;
-  readonly world?: ReturnType<typeof createDemoWorld>;
+  readonly world?: ReturnType<typeof createDeterministicWorld>['world'];
   readonly context?: EngineRunContext;
 }
 
@@ -48,7 +48,8 @@ export interface FacadeDevServerInstance {
 export async function startFacadeDevServer(
   options: StartFacadeDevServerOptions = {}
 ): Promise<FacadeDevServerInstance> {
-  let world = options.world ?? createDemoWorld();
+  const seeded = createDeterministicWorld();
+  let world = options.world ?? seeded.world;
   const baseContext: EngineRunContext = options.context ?? {};
   const upstreamTelemetry = baseContext.telemetry;
   const pendingTelemetry: TelemetryEnvelope[] = [];
