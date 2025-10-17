@@ -87,6 +87,12 @@ pnpm -r format
 pnpm run dev:stack
 ```
 
+The façade dev server now boots the deterministic engine harness via
+`initializeFacade`, composes read-model providers directly from the
+simulation world, and exposes live company tree, tariff, workforce, and
+aggregated snapshots through the Fastify HTTP endpoints. Restart the stack
+after modifying engine bootstrap data to refresh the published payloads.
+
 > Ensure `packages/ui/.env.local` (or your shell env) sets
 > `VITE_TRANSPORT_BASE_URL` to the façade transport URL, e.g.
 > `http://localhost:7101`, before starting the stack.

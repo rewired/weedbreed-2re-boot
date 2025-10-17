@@ -44,6 +44,13 @@
   `packages/facade/tests/**/*`,
   `packages/facade/src/server/devServer.ts`,
   `docs/tools/rest-client.md`).
+- Task 0072: Replaced the façade dev server's static payloads with engine-backed
+  providers that bootstrap via `initializeFacade`, emit company tree, tariff,
+  workforce, and aggregated read-model snapshots derived from the simulation
+  world, added provider unit coverage, and documented the startup flow
+  (`packages/facade/src/server/devServer.ts`,
+  `packages/facade/src/server/readModelProviders.ts`,
+  `packages/facade/tests/unit/server/readModelProviders.test.ts`, `README.md`).
 
 - Task 6000: Replaced the workforce KPI shell with the HR directory, activity
   timeline, task queues, capacity snapshot, and action panel. Introduced
