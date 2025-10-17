@@ -32,6 +32,13 @@ This plan decomposes the frontend live-data wiring initiative (Phases 0–5) int
 | 5170 | Intent Regression Suite | 5 | ≤3 files, ≤150 diff lines, 1–3 tests |
 | 5180 | Docs and ADR Finalization | 5 | ≤3 files, ≤150 diff lines, 0 tests |
 
+## Status Notes (2025-02-14)
+- [Task 0120](../0120-tracker-and-adr-alignment.md) finalises Phase 0 documentation alignment so future PRs can reference a
+  single source of truth for the fixture-to-live migration.
+- Execution ownership shifts to Phase 1 delivery tasks starting with
+  [Task 1100](../1100-deterministic-world-loader.md) and cascades through Phases 2–5 for telemetry, intent, UI binding, and
+  validation closure.
+
 ## How to Run
 ```
 Program: Execute Task

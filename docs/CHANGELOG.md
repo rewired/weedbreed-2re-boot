@@ -18,6 +18,13 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- 2025-02-14 — Task 0120 Tracker and ADR Alignment:
+  - Documented Phase 0 ownership in the live-data plan index so SEC Preface and DD §0 documentation precedence can reference a
+    single tracker for fixture-to-live execution (docs/tasks/ui/_plan/0000-plan-index.md).
+  - Added ADR status notes pointing future engineering work to Phases 1–5 delivery tasks while clearly marking the dependency
+    on live data wiring.
+  - Recorded this milestone in the changelog to keep SEC/DD/TDD traceability aligned for UI documentation updates.
+
 - Task 0110: Added the SEC gap register (entry 0110-RM) summarising the pending
   read-model live data handshake, linked DD/TDD cross-references to the register,
   and captured ownership plus follow-up tasks for traceability (docs/SEC.md,

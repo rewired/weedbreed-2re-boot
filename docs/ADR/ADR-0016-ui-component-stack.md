@@ -40,3 +40,7 @@ Adopt **shadcn/ui**, which copies unstyled components into the repository and co
 - SEC §0.1 Platform Baseline (Tailwind as styling choice)
 - DD §1/§15 guardrails referencing UI boundaries
 - AGENTS §1 platform stack
+- **Status Note (2025-02-14):** Pending execution via [Task 1100 Deterministic World Loader](../tasks/ui/1100-deterministic-world-loader.md)
+  and successors documented in the [Frontend Live Data Wiring Plan Index](../tasks/ui/_plan/0000-plan-index.md). Phase 0
+  documentation alignment (Task 0120) keeps this ADR as the authoritative reference for UI stack assumptions while the
+  fixture-to-live migration lands.
