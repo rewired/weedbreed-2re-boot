@@ -27,6 +27,8 @@
 
 - Task 0130: Added a simulation control contract checklist to TDD §6a and linked SEC §11 to the new guardrails so playback intents, acknowledgements, and telemetry expectations stay aligned with follow-up tasks 3100–3130 and 4140 (docs/TDD.md, docs/SEC.md).
 
+- Task 1100: Introduced a deterministic world loader that assembles company, structure, zone, device, and workforce fixtures from blueprint and price catalogs, updated the façade dev servers to seed from it, and shipped unit coverage ensuring stable seeds and blueprint integration (`packages/facade/src/backend/deterministicWorldLoader.ts`, `packages/facade/src/transport/devServer.ts`, `packages/facade/src/server/devServer.ts`, `packages/facade/tests/unit/backend/deterministicWorldLoader.test.ts`).
+
 - Task 0110: Added the SEC gap register (entry 0110-RM) summarising the pending
   read-model live data handshake, linked DD/TDD cross-references to the register,
   and captured ownership plus follow-up tasks for traceability (docs/SEC.md,

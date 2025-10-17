@@ -20,8 +20,12 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@wb/engine', replacement: resolve(currentDir, '../engine/src/index.ts') },
+      { find: '@engine/constants/', replacement: `${resolve(currentDir, '../engine/src/backend/src/constants')}/` },
+      { find: '@engine/constants', replacement: resolve(currentDir, '../engine/src/backend/src/constants') },
       { find: '@wb/transport-sio/', replacement: resolve(currentDir, '../transport-sio/src/') },
       { find: '@wb/transport-sio', replacement: resolve(currentDir, '../transport-sio/src/index.ts') },
+      { find: '@wb/facade/', replacement: `${resolve(currentDir, 'src')}/` },
+      { find: '@wb/facade', replacement: resolve(currentDir, 'src/index.ts') },
       { find: '@/backend', replacement: resolve(currentDir, '../engine/src/backend') },
       { find: '@', replacement: resolve(currentDir, 'src') }
     ]
