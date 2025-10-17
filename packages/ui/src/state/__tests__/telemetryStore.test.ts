@@ -20,7 +20,7 @@ const SAMPLE_ZONE_SIM_TIME = 42;
 const SAMPLE_PPFD = 520;
 const SAMPLE_DLI = 32;
 const SAMPLE_TEMPERATURE = 24.5;
-const SAMPLE_RELATIVE_HUMIDITY = 58;
+const SAMPLE_RELATIVE_HUMIDITY = 0.58;
 const SAMPLE_CO2 = 810;
 const SAMPLE_ACH = 5.6;
 const SAMPLE_TASKS_COMPLETED = 18;
@@ -55,7 +55,7 @@ function createSampleZoneSnapshot() {
     ppfd: SAMPLE_PPFD,
     dli_incremental: SAMPLE_DLI,
     temp_c: SAMPLE_TEMPERATURE,
-    rh: SAMPLE_RELATIVE_HUMIDITY,
+    relativeHumidity01: SAMPLE_RELATIVE_HUMIDITY,
     co2_ppm: SAMPLE_CO2,
     ach: SAMPLE_ACH,
     warnings: [

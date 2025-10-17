@@ -29,6 +29,8 @@
 
 - Task 1100: Introduced a deterministic world loader that assembles company, structure, zone, device, and workforce fixtures from blueprint and price catalogs, updated the façade dev servers to seed from it, and shipped unit coverage ensuring stable seeds and blueprint integration (`packages/facade/src/backend/deterministicWorldLoader.ts`, `packages/facade/src/transport/devServer.ts`, `packages/facade/src/server/devServer.ts`, `packages/facade/tests/unit/backend/deterministicWorldLoader.test.ts`).
 - Task 1110: Hydrated structure read-model coverage, KPI, and economy aggregates using the deterministic world loader, deep-froze façade snapshots before transport, and added unit coverage asserting seeded metrics and freeze behaviour (`packages/facade/src/server/readModelProviders.ts`, `packages/facade/tests/unit/server/readModelProviders.test.ts`).
+- Task 1120: Hydrated room and zone snapshots with deterministic climate metrics, compatibility joins, and price-book catalogs derived from the façade deterministic world, and added unit coverage for climate aggregation, compatibility wiring, and zone task mapping (`packages/facade/src/server/readModelProviders.ts`, `packages/facade/tests/unit/server/readModelProviders.test.ts`).
+  - Normalised zone telemetry humidity to the canonical [0,1] scale and updated façade/UI consumers to convert to presentation units where needed (`packages/engine/src/backend/src/engine/pipeline/updateEnvironment.ts`, `packages/engine/src/backend/src/telemetry/topics.ts`, `packages/ui/src/pages/zoneDetailHooks.ts`, `packages/ui/src/state/telemetry.ts`).
 
 - Task 0110: Added the SEC gap register (entry 0110-RM) summarising the pending
   read-model live data handshake, linked DD/TDD cross-references to the register,

@@ -5,17 +5,18 @@ import { ensureDeviceEffectsRuntime } from '@/backend/src/engine/pipeline/applyD
 import { createDemoWorld } from '@/backend/src/engine/testHarness';
 import type { EngineRunContext } from '@/backend/src/engine/Engine';
 import { TELEMETRY_ZONE_SNAPSHOT_V1 } from '@/backend/src/telemetry/topics';
+import type { TelemetryZoneSnapshotPayload } from '@/backend/src/telemetry/topics';
 
 interface TelemetryEvent {
   readonly topic: string;
-  readonly payload: Record<string, unknown>;
+  readonly payload: TelemetryZoneSnapshotPayload;
 }
 
 function createTelemetryRecorder() {
   const events: TelemetryEvent[] = [];
   return {
     events,
-    emit(topic: string, payload: Record<string, unknown>) {
+    emit(topic: string, payload: TelemetryZoneSnapshotPayload) {
       events.push({ topic, payload });
     },
   };
@@ -59,19 +60,18 @@ describe('updateEnvironment telemetry (unit)', () => {
     const [event] = telemetry.events;
     expect(event.topic).toBe(TELEMETRY_ZONE_SNAPSHOT_V1);
 
-    const payload = event.payload as Record<string, unknown>;
+    const payload = event.payload;
     expect(payload.zoneId).toBe(zone.id);
     expect(payload.simTime).toBe(world.simTimeHours);
     expect(payload.ppfd).toBeCloseTo(320, 6);
     expect(payload.dli_incremental).toBeCloseTo(14, 6);
-    expect(payload.temp_c).toBeCloseTo((zone.environment.airTemperatureC ?? 0) + 1.2, 6);
-    expect(payload.rh).toBeCloseTo((zone.environment.relativeHumidity01 + 0.1) * 100, 6);
-    expect(payload.co2_ppm).toBeCloseTo((zone.environment.co2_ppm ?? 0) + 150, 6);
+    expect(payload.temp_c).toBeCloseTo(zone.environment.airTemperatureC + 1.2, 6);
+    expect(payload.relativeHumidity01).toBeCloseTo(zone.environment.relativeHumidity01 + 0.1, 6);
+    expect(payload.co2_ppm).toBeCloseTo(zone.environment.co2_ppm + 150, 6);
     expect(payload.ach).toBeCloseTo(0.8, 6);
 
-    const warnings = payload.warnings as { code: string; severity: string }[];
-    expect(Array.isArray(warnings)).toBe(true);
-    expect(warnings).toEqual(
+    expect(Array.isArray(payload.warnings)).toBe(true);
+    expect(payload.warnings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ code: 'zone.airflow.low', severity: 'warning' }),
         expect.objectContaining({ code: 'zone.coverage.low', severity: 'warning' }),

@@ -13,14 +13,6 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
 
-function toPercent(value: number): number {
-  if (!isFiniteNumber(value)) {
-    return 0;
-  }
-
-  return value * 100;
-}
-
 function createZoneWarnings(
   zone: Zone,
   ach: number,
@@ -47,6 +39,22 @@ function createZoneWarnings(
   return warnings;
 }
 
+function clampFraction(value: number | undefined): number {
+  if (!isFiniteNumber(value)) {
+    return 0;
+  }
+
+  if (value < 0) {
+    return 0;
+  }
+
+  if (value > 1) {
+    return 1;
+  }
+
+  return value;
+}
+
 function createZoneSnapshot(
   zone: Zone,
   simTime: number,
@@ -62,7 +70,7 @@ function createZoneSnapshot(
     ppfd: isFiniteNumber(zone.ppfd_umol_m2s) ? zone.ppfd_umol_m2s : 0,
     dli_incremental: isFiniteNumber(zone.dli_mol_m2d_inc) ? zone.dli_mol_m2d_inc : 0,
     temp_c: isFiniteNumber(environment.airTemperatureC) ? environment.airTemperatureC : 0,
-    rh: toPercent(environment.relativeHumidity01),
+    relativeHumidity01: clampFraction(environment.relativeHumidity01),
     co2_ppm: isFiniteNumber(environment.co2_ppm) ? environment.co2_ppm : 0,
     ach: isFiniteNumber(ach) ? ach : 0,
     warnings,

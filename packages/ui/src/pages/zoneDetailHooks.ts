@@ -761,7 +761,9 @@ function buildZoneClimateControl(
 ): ZoneClimateControlSnapshot {
   const baseline = selectStageBaseline(zone, room);
   const measuredTemperature = telemetry?.temp_c ?? zone.climateSnapshot.temperature_C;
-  const measuredHumidity = telemetry?.rh ?? zone.climateSnapshot.relativeHumidity_percent;
+  const measuredHumidity = telemetry
+    ? telemetry.relativeHumidity01 * 100
+    : zone.climateSnapshot.relativeHumidity_percent;
   const measuredCo2 = telemetry?.co2_ppm ?? zone.climateSnapshot.co2_ppm;
   const measuredAch = telemetry?.ach ?? zone.climateSnapshot.ach_measured;
 
