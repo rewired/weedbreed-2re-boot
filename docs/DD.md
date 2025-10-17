@@ -70,6 +70,8 @@ and room-level guardrails remain focused while still enforcing SEC contracts
 (room purposes, cultivation methods, photoperiod schedule, device placement,
 geometry bounds) before the tick pipeline consumes a scenario payload.
 
+> **Pending live data — Structure/Room/Zone read models (Tasks 1110, 1120, 4100):** `companyTree` must hydrate structures with `{ id, name, location, floorArea_m2, usableArea_m2 }`, room nodes with `{ roomPurpose, area_m2, volume_m3, latestClimate }`, and zone nodes with deterministic cultivation context (`cultivationMethodId`, `cultivationMethodSlug`, active strain id, compatibility lists), current `lightSchedule` (`onHours`, `offHours`, `startHour`), irrigation selection, device coverage totals, and outstanding task codes + warnings so UI selectors and dashboards can replace fixture data.
+
 ---
 
 ## 4) Data Layout & Schemas (SEC §3, §7.5)
@@ -227,6 +229,8 @@ costing and scheduling remain aligned with SEC §7.5 and §10.
   - Live queue entries resolving task metadata (priority, ETA, wait/due times, structure bindings, assigned employees).
   - Employee detail records (schedule, RNG seed, development plans) and decorated warnings for dashboards.
   - Payroll snapshot mirroring the engine state so dashboards can surface the latest labour totals per day/structure.
+> **Pending live data — Workforce read model (Tasks 1130, 3120, 4130):** Documented Phase 4 bindings need `workforceView` roster rows `{ employeeId, displayName, roleSlug, structureId, morale01, fatigue01, currentTaskId?, nextShiftStartTick }`, schedule descriptors, utilization numerics, and warning envelopes `{ code, severity, message, structureId?, employeeId? }`. Dashboard cards also require economy joins (`balance_per_h`, `dailyDelta_per_h`, effective `price_electricity`/`price_water`) so UI no longer relies on fixtures.
+
 - Workforce traits are centralised in `traits.ts` and persisted on employees as `{ traitId, strength01 }` pairs alongside the
   hiring market skill triad (`skillTriad`). Metadata captures conflict sets, strength ranges, and effect hooks so the scheduler
   and façade can reason about task duration, error deltas, fatigue/morale shifts, device wear, XP gain, and salary hints without
@@ -339,6 +343,8 @@ costing and scheduling remain aligned with SEC §7.5 and §10.
 - **Façade:** validates intents, resolves tariffs, computes read‑models, orchestrates tick, exposes telemetry (read‑only) over adapter.
   - Read-model HTTP surface (`packages/facade/src/server/http.ts`) wraps Fastify routes for `/api/companyTree`, `/api/structureTariffs`, and `/api/workforceView`, validating every payload with the shared Zod schemas before replying and logging schema mismatches as 500s.
 - **Transport Adapter:** Socket.IO default; SSE supported; **never accept inbound writes on telemetry**.
+
+> **Pending live data — Sim-control intents & status (Tasks 0130, 3100, 3110, 3130, 4140):** Façade documentation still needs to spell out playback command payloads and acknowledgements. Phase 4 UI relies on a sim-control snapshot `{ simTime, tick, isPaused, speedMultiplier, pendingIntentCount }` and intents `engine.intent.sim.play|pause|step|set-speed.v1` plus environment adjustors (`engine.intent.zone.set-light-schedule.v1`, `engine.intent.zone.set-environment-setpoint.v1`) returning `{ intentId, correlationId, queuedTick, appliedTick, stateAfter }`. Aligning these payloads lets the Sim Control Bar reconcile acknowledgements with telemetry ticks without fixtures.
 
 ---
 
