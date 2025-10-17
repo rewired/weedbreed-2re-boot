@@ -1,3 +1,36 @@
+export const TELEMETRY_TICK_COMPLETED_V1 = 'telemetry.tick.completed.v1' as const;
+export interface TelemetryTickCompletedPayload {
+  readonly simTimeHours: number;
+  readonly targetTicksPerHour?: number;
+  readonly actualTicksPerHour?: number;
+  readonly operatingCostPerHour?: number;
+  readonly labourCostPerHour?: number;
+  readonly utilitiesCostPerHour?: number;
+  readonly energyKwhPerDay?: number;
+  readonly energyCostPerHour?: number;
+  readonly waterCubicMetersPerDay?: number;
+  readonly waterCostPerHour?: number;
+}
+
+export interface TelemetryZoneSnapshotWarning {
+  readonly code: string;
+  readonly message: string;
+  readonly severity: 'info' | 'warning' | 'critical';
+}
+
+export interface TelemetryZoneSnapshotPayload {
+  readonly zoneId: string;
+  readonly simTime: number;
+  readonly ppfd: number;
+  readonly dli_incremental: number;
+  readonly temp_c: number;
+  readonly rh: number;
+  readonly co2_ppm: number;
+  readonly ach: number;
+  readonly warnings: readonly TelemetryZoneSnapshotWarning[];
+}
+
+export const TELEMETRY_ZONE_SNAPSHOT_V1 = 'telemetry.zone.snapshot.v1' as const;
 export const TELEMETRY_HARVEST_CREATED_V1 = 'telemetry.harvest.created.v1' as const;
 export const TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1 =
   'telemetry.storage.missing_or_ambiguous.v1' as const;
