@@ -34,6 +34,17 @@
   background helpers (`packages/ui/src/design/tokens.ts`,
   `packages/ui/tailwind.config.ts`).
 
+- Task 0071: Added a façade helper that composes the UI `ReadModelSnapshot`
+  contract, exposed a `GET /api/read-models` endpoint validated by the shared
+  guard, updated the dev server to publish the aggregated snapshot for local
+  UI pairing, and extended integration/contract coverage alongside REST docs
+  so clients can rely on the composite payload during development
+  (`packages/facade/src/readModels/snapshot.ts`,
+  `packages/facade/src/server/http.ts`,
+  `packages/facade/tests/**/*`,
+  `packages/facade/src/server/devServer.ts`,
+  `docs/tools/rest-client.md`).
+
 - Task 6000: Replaced the workforce KPI shell with the HR directory, activity
   timeline, task queues, capacity snapshot, and action panel. Introduced
   workforce filter state via Zustand, wired the HR route to the new intent

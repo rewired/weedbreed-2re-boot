@@ -11,7 +11,9 @@ import {
   type StructureTariffsReadModel,
   type WorkforceViewReadModel
 } from '../../../src/readModels/api/schemas.ts';
+import { validateReadModelSnapshot } from '../../../src/readModels/snapshot.ts';
 import { createReadModelHttpServer, type ReadModelHttpServer } from '../../../src/server/http.ts';
+import { TEST_READ_MODEL_SNAPSHOT } from '../../fixtures/readModelSnapshot.ts';
 
 const COMPANY_TREE_PAYLOAD: CompanyTreeReadModel = {
   schemaVersion: COMPANY_TREE_SCHEMA_VERSION,
@@ -83,7 +85,8 @@ describe('read-model HTTP endpoints', () => {
       providers: {
         companyTree: () => COMPANY_TREE_PAYLOAD,
         structureTariffs: () => STRUCTURE_TARIFFS_PAYLOAD,
-        workforceView: () => WORKFORCE_VIEW_PAYLOAD
+        workforceView: () => WORKFORCE_VIEW_PAYLOAD,
+        readModels: () => TEST_READ_MODEL_SNAPSHOT
       }
     });
     activeServers.push(server);
@@ -102,6 +105,11 @@ describe('read-model HTTP endpoints', () => {
     expect(workforceViewResponse.statusCode).toBe(200);
     const workforceViewBody = workforceViewSchema.parse(workforceViewResponse.json());
     expect(workforceViewBody).toEqual(WORKFORCE_VIEW_PAYLOAD);
+
+    const snapshotResponse = await server.inject({ method: 'GET', url: '/api/read-models' });
+    expect(snapshotResponse.statusCode).toBe(200);
+    const snapshotBody = validateReadModelSnapshot(snapshotResponse.json());
+    expect(snapshotBody).toEqual(TEST_READ_MODEL_SNAPSHOT);
   });
 
   it('returns 500 and logs an error when a payload fails validation', async () => {
@@ -118,7 +126,8 @@ describe('read-model HTTP endpoints', () => {
       providers: {
         companyTree: () => invalidPayload,
         structureTariffs: () => STRUCTURE_TARIFFS_PAYLOAD,
-        workforceView: () => WORKFORCE_VIEW_PAYLOAD
+        workforceView: () => WORKFORCE_VIEW_PAYLOAD,
+        readModels: () => TEST_READ_MODEL_SNAPSHOT
       }
     });
     activeServers.push(server);
@@ -133,5 +142,32 @@ describe('read-model HTTP endpoints', () => {
     expect(message).toBe('Failed to compose companyTree read-model');
     const errorDetail = details.error;
     expect(typeof errorDetail).toBe('string');
+  });
+
+  it('logs and responds with 500 when the read-model snapshot provider throws', async () => {
+    const logger = {
+      error: vi.fn<[string, Record<string, unknown>?], undefined>()
+    };
+
+    const error = new Error('snapshot unavailable');
+    const server = createReadModelHttpServer({
+      logger,
+      providers: {
+        companyTree: () => COMPANY_TREE_PAYLOAD,
+        structureTariffs: () => STRUCTURE_TARIFFS_PAYLOAD,
+        workforceView: () => WORKFORCE_VIEW_PAYLOAD,
+        readModels: () => {
+          throw error;
+        }
+      }
+    });
+    activeServers.push(server);
+
+    const response = await server.inject({ method: 'GET', url: '/api/read-models' });
+    expect(response.statusCode).toBe(500);
+    expect(response.json()).toEqual({ error: 'Failed to compose read-model.' });
+    expect(logger.error).toHaveBeenCalledWith('Failed to compose readModels read-model', {
+      error: error.message
+    });
   });
 });

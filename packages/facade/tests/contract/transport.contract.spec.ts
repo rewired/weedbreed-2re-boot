@@ -16,6 +16,7 @@ import {
 } from '../../src/readModels/api/schemas.ts';
 import type { ReadModelProviders } from '../../src/server/http.ts';
 import { createContractServerHarness, type ContractServerHarness } from './utils/server.ts';
+import { TEST_READ_MODEL_SNAPSHOT } from '../fixtures/readModelSnapshot.ts';
 
 const READ_MODEL_PROVIDERS: ReadModelProviders = {
   companyTree: () => ({
@@ -65,6 +66,7 @@ const READ_MODEL_PROVIDERS: ReadModelProviders = {
       warnings: [],
     },
   }),
+  readModels: () => TEST_READ_MODEL_SNAPSHOT,
 };
 
 const activeSockets = new Set<Socket>();

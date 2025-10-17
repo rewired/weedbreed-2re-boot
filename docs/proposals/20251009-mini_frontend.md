@@ -52,7 +52,7 @@ Establish a minimal-yet-solid UI foundation, backed by a very thin transport sli
 ## 5) Thin Transport Slice (MVP Wiring)
 
 * Namespaces initialized; CORS/local dev allowed; auth stubbed or token passthrough.
-* 1 healthcheck (e.g., `GET /healthz`) + 3 read-model endpoints + both sockets online.
+* 1 healthcheck (e.g., `GET /healthz`) + 4 read-model endpoints (including the aggregated `/api/read-models`) + both sockets online.
 * Contract tests that:
 
   * ensure `telemetry` rejects inbound client emits (read-only guarantee),

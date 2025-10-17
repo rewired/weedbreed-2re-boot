@@ -9,6 +9,7 @@ import {
   type StructureTariffsReadModel,
   type WorkforceViewReadModel
 } from '../readModels/api/schemas.js';
+import { validateReadModelSnapshot, type ReadModelSnapshot } from '../readModels/snapshot.js';
 
 /**
  * Minimal logger contract consumed by the read-model HTTP server.
@@ -36,6 +37,10 @@ export interface ReadModelProviders {
    * Supplies the workforce view read-model payload.
    */
   readonly workforceView: () => MaybePromise<WorkforceViewReadModel>;
+  /**
+   * Supplies the aggregated read-model snapshot consumed by the UI.
+   */
+  readonly readModels: () => MaybePromise<ReadModelSnapshot>;
 }
 
 /**
@@ -117,6 +122,12 @@ export function createReadModelHttpServer(options: ReadModelHttpServerOptions): 
   app.get('/api/workforceView', (_request, reply) =>
     handleReadModel(reply, 'workforceView', options.providers.workforceView, (payload) =>
       workforceViewSchema.parse(payload)
+    )
+  );
+
+  app.get('/api/read-models', (_request, reply) =>
+    handleReadModel(reply, 'readModels', options.providers.readModels, (payload) =>
+      validateReadModelSnapshot(payload)
     )
   );
 

@@ -85,13 +85,59 @@ Accept: application/json
 }
 ```
 
+## Aggregated Read-model Snapshot
+
+```http
+### readModels.http
+GET {{baseUrl}}/api/read-models
+Accept: application/json
+```
+
+```json
+{
+  "simulation": {
+    "simTimeHours": 12,
+    "day": 0,
+    "hour": 12,
+    "tick": 12,
+    "speedMultiplier": 1,
+    "pendingIncidents": []
+  },
+  "economy": {
+    "balance": 98500,
+    "deltaPerHour": 320,
+    "operatingCostPerHour": 210,
+    "labourCostPerHour": 90,
+    "utilitiesCostPerHour": 45
+  },
+  "structures": [],
+  "hr": {
+    "directory": [],
+    "activityTimeline": [],
+    "taskQueues": [],
+    "capacitySnapshot": []
+  },
+  "priceBook": {
+    "seedlings": [],
+    "containers": [],
+    "substrates": [],
+    "irrigationLines": [],
+    "devices": []
+  },
+  "compatibility": {
+    "cultivationToIrrigation": {},
+    "strainToCultivation": {}
+  }
+}
+```
+
 ### cURL Example
 
 Replace `<BASE_URL>` with your façade server origin.
 
 ```bash
-curl --fail --silent --show-error "<BASE_URL>/api/companyTree" \
+curl --fail --silent --show-error "<BASE_URL>/api/read-models" \
   --header 'Accept: application/json'
 ```
 
-Use the same command against `/api/structureTariffs` or `/api/workforceView` for the other read models.
+Use the same command against `/api/companyTree`, `/api/structureTariffs`, or `/api/workforceView` for the individual read models.
