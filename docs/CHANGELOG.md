@@ -34,6 +34,14 @@
   background helpers (`packages/ui/src/design/tokens.ts`,
   `packages/ui/tailwind.config.ts`).
 
+- HOTFIX-061: Replaced the stubbed economy snapshot hook with a selector backed
+  by the read-model Zustand store so dashboard components render real balances
+  once `configureReadModelClient` and `refreshReadModels` complete, while keeping
+  override support for storybook/dev tooling. Added focused coverage ensuring the
+  hook reflects store updates and override merges
+  (`packages/ui/src/state/economy.ts`,
+  `packages/ui/src/state/__tests__/economySnapshot.test.tsx`).
+
 - Task 0071: Added a façade helper that composes the UI `ReadModelSnapshot`
   contract, exposed a `GET /api/read-models` endpoint validated by the shared
   guard, updated the dev server to publish the aggregated snapshot for local
