@@ -2,6 +2,8 @@ import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 /* eslint-disable wb-sim/no-ts-import-js-extension */
 
+import { z } from 'zod';
+
 import { type EngineRunContext } from '@/backend/src/engine/Engine.ts';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.ts';
 
@@ -10,10 +12,15 @@ import {
   type EngineCommandPipeline,
 } from './engineCommandPipeline.js';
 import {
+  createPlaybackController,
+  type PlaybackController,
+} from './playbackController.js';
+import {
   createTransportServer,
   type TransportCorsOptions,
   type TransportServer,
 } from './server.js';
+import type { TransportIntentEnvelope } from './adapter.js';
 
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 7101;
@@ -34,6 +41,7 @@ export interface FacadeDevServerInstance {
   readonly server: TransportServer;
   readonly pipeline: EngineCommandPipeline;
   readonly context: EngineRunContext;
+  readonly playback: PlaybackController;
   stop(): Promise<void>;
 }
 
@@ -75,6 +83,38 @@ export async function startFacadeDevServer(
     context,
   });
 
+  const playback = createPlaybackController({
+    pipeline,
+  });
+
+  const speedIntentSchema = z.object({
+    multiplier: z.number().finite().positive(),
+  });
+
+  const handleSimulationControlIntent = (intent: TransportIntentEnvelope): boolean => {
+    switch (intent.type) {
+      case 'simulation.control.play': {
+        playback.play();
+        return true;
+      }
+      case 'simulation.control.pause': {
+        playback.pause();
+        return true;
+      }
+      case 'simulation.control.step': {
+        playback.step();
+        return true;
+      }
+      case 'simulation.control.speed': {
+        const { multiplier } = speedIntentSchema.parse(intent);
+        playback.setSpeed(multiplier);
+        return true;
+      }
+      default:
+        return false;
+    }
+  };
+
   const cors: TransportCorsOptions | undefined = options.cors ?? {
     origin: options.corsOrigin ?? DEFAULT_CORS_ORIGIN,
   };
@@ -84,6 +124,10 @@ export async function startFacadeDevServer(
     port: options.port ?? DEFAULT_PORT,
     cors,
     onIntent(intent) {
+      if (handleSimulationControlIntent(intent)) {
+        return;
+      }
+
       return pipeline.handle(intent);
     },
   });
@@ -102,7 +146,9 @@ export async function startFacadeDevServer(
     server,
     pipeline,
     context,
+    playback,
     async stop() {
+      playback.dispose();
       await server.close();
     },
   } satisfies FacadeDevServerInstance;

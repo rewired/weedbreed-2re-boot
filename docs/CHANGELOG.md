@@ -1237,6 +1237,20 @@ migrate:classes`, `npm run migrate:blueprints`), and documented the taxonomy upd
 
 All notable changes to this repository will be documented in this file.
 
+### #07 Simulation playback controls over transport
+
+- Added a façade playback controller that schedules deterministic engine ticks while
+  exposing play, pause, step, and speed hooks so simulation time advances without
+  requiring intent traffic (`packages/facade/src/transport/playbackController.ts`).
+- Wired the dev transport server to accept `simulation.control.*` intents, updating
+  tick scheduling and speed through the playback controller while keeping workforce
+  intents queued for the next tick (`packages/facade/src/transport/devServer.ts`).
+- Updated the UI simulation controls to dispatch the new transport intents and
+  asserted the behaviour with playback integration tests and refreshed control bar
+  coverage (`packages/ui/src/state/simulationControls.ts`,
+  `packages/ui/src/components/layout/__tests__/SimControlBar.test.tsx`,
+  `packages/facade/src/transport/__tests__/playbackController.test.ts`).
+
 ### #06 Currency-neutral terminology enforcement
 
 - Clarified across SEC, DD, TDD, and Vision Scope that monetary identifiers and UI copy must remain currency-neutral, forbidding baked-in codes/symbols (EUR, USD, GBP, etc.).
