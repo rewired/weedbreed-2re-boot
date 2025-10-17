@@ -117,7 +117,13 @@ describe("SetLightScheduleForm", () => {
       expect(submit).toBeDisabled();
     });
 
-    expect(screen.getByText(copy.validation.sum)).toBeInTheDocument();
+    const statusEntries = await screen.findAllByText(copy.validation.sum);
+    expect(statusEntries.length).toBeGreaterThan(0);
+    const statusItem = statusEntries.find((element) => element.getAttribute("data-status"));
+    if (!statusItem) {
+      throw new Error("Expected validation status entry to be present");
+    }
+    expect(statusItem).toHaveAttribute("data-status", "block");
 
     fireEvent.change(screen.getByLabelText(copy.fields.offHours.label), { target: { value: "6" } });
 

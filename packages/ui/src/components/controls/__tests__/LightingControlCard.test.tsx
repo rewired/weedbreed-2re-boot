@@ -80,9 +80,12 @@ describe("LightingControlCard", () => {
     await waitFor(() => {
       expect(handleScheduleSubmit).not.toHaveBeenCalled();
     });
-    expect(
-      await screen.findByText(/Light cycle hours must total 24 per SEC §4.2./i)
-    ).toBeInTheDocument();
+    const statusEntries = await screen.findAllByText(/Light cycle hours must total 24 per SEC §4.2./i);
+    const statusItem = statusEntries.find((element) => element.getAttribute("data-status"));
+    if (!statusItem) {
+      throw new Error("Expected validation status entry to be present");
+    }
+    expect(statusItem).toHaveAttribute("data-status", "block");
   });
 
   it("normalizes to the 15-minute grid when submitting a schedule", () => {
