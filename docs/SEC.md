@@ -73,6 +73,26 @@ UI component layer: shadcn/ui (on Radix primitives) with Tailwind for styling; i
 
 ---
 
+## 0.3 SEC Gap Register (Open Issues)
+
+The gap register captures outstanding clarifications that block downstream
+implementation. Owners are accountable for closing the loop via the linked
+execution tasks; DD and TDD cross-references inherit their status from this
+table.
+
+1. **Gap 0110-RM — Read-model live data handshake**  
+   **Contract area:** §2 World Model (company → structure → room → zone read-model
+   surfaces).  
+   **Owner:** Façade & UI integration working group.  
+   **Execution tasks:** 1110 (structure read-model coverage), 1120 (room/zone
+   snapshots), 4100 (read-model store live fetch).  
+   **Summary:** The façade must expose deterministic `companyTree` and
+   `readModelSnapshot` payloads with cultivation context, telemetry, and task
+   metadata so UI surfaces replace fixtures. Until these tasks land, SEC §2 and
+   DD/TDD read-model assertions defer to this entry.
+
+---
+
 ## 1. Core Invariants (Guardrails)
 
 These rules **always hold**. Violations are bugs.
