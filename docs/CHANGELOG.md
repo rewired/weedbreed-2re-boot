@@ -18,6 +18,10 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- Task 0110: Added the SEC gap register (entry 0110-RM) summarising the pending
+  read-model live data handshake, linked DD/TDD cross-references to the register,
+  and captured ownership plus follow-up tasks for traceability (docs/SEC.md,
+  docs/DD.md, docs/TDD.md).
 - HOTFIX-046: Hardened UI rename and workforce flows after regression triage.
   Inline rename now permits editing while the intent transport is offline and
   surfaces the outage as a muted hint instead of blocking accessibility.
