@@ -72,6 +72,14 @@
   `packages/facade/tests/unit/transport/engineCommandPipeline.test.ts`,
   `packages/facade/tests/integration/transport/intentForwarding.integration.test.ts`,
   `docs/tools/dev-stack.md`).
+- Transport dev server: Exposed a `publishTelemetry` helper on the façade Socket.IO
+  server and bridged it through the dev command pipeline context so engine telemetry
+  envelopes forward to `/telemetry` subscribers. Added an integration test that boots
+  the dev server, drives a harvest tick via the intent namespace, and asserts the
+  emitted `telemetry:event` payload matches the deterministic harvest topic contract
+  (`packages/facade/src/transport/server.ts`,
+  `packages/facade/src/transport/devServer.ts`,
+  `packages/facade/tests/integration/transport/devServerTelemetry.integration.test.ts`).
 
 - Task 6000: Replaced the workforce KPI shell with the HR directory, activity
   timeline, task queues, capacity snapshot, and action panel. Introduced
