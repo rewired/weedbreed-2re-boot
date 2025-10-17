@@ -38,6 +38,14 @@
   PPFD/DLI rendering, schedule submission guards, grid snapping, and device
   toggle behaviour via Vitest suites in `packages/ui/src/components/controls`
   and `packages/ui/src/lib`.
+- Task 9000: Centralised UI validation helpers under `packages/ui/src/lib/validation`
+  to expose deterministic capacity, compatibility, light schedule, and rounding
+  checks with ok/warn/block status details, refactored facility dialogs and
+  intent surfaces to surface the new statuses, unified light-schedule validation
+  across the control card and zone intent form, and added Vitest coverage for
+  validation utilities plus status rendering in forms and controls. Tightened
+  the UI test harness expectations to account for duplicate status badges and
+  inline rename accessibility updates driven by the shared validators.
 - Task 7000: Introduced facility expansion flows covering room creation,
   zone creation, sowing, duplication, and area updates. Added deterministic
   validation utilities with Vitest coverage for capacity checks, compatibility

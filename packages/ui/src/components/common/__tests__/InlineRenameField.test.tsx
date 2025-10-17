@@ -13,7 +13,7 @@ describe("InlineRenameField", () => {
     const button = screen.getByRole("button", { name: /rename/i });
     fireEvent.click(button);
 
-    const input = screen.getByRole("textbox", { name: /rename structure/i });
+    const input = screen.getByRole("textbox", { name: /structure/i });
     expect(input).toHaveValue("Green Harbor");
   });
 
@@ -25,7 +25,7 @@ describe("InlineRenameField", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /rename/i }));
 
-    const input = screen.getByRole("textbox", { name: /rename structure/i });
+    const input = screen.getByRole("textbox", { name: /structure/i });
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
 
@@ -45,7 +45,7 @@ describe("InlineRenameField", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: /rename/i }));
-    const input = screen.getByRole("textbox", { name: /rename structure/i });
+    const input = screen.getByRole("textbox", { name: /structure/i });
     fireEvent.change(input, { target: { value: "  Harbor West  " } });
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
 
@@ -60,7 +60,7 @@ describe("InlineRenameField", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: /rename/i }));
-    fireEvent.change(screen.getByRole("textbox", { name: /rename structure/i }), {
+    fireEvent.change(screen.getByRole("textbox", { name: /structure/i }), {
       target: { value: "Harbor East" }
     });
     fireEvent.click(screen.getByRole("button", { name: /save/i }));

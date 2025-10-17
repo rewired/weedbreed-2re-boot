@@ -50,7 +50,7 @@ describe("lightScheduleValidation", () => {
     expect(result.startHour).toBeLessThan(HOURS_PER_DAY);
   });
 
-  it("rejects schedules missing required values", () => {
+  it("rejects schedules missing required values and marks checks as blocked", () => {
     const result = validateLightScheduleInput(
       { onHours: null, offHours: 6, startHour: 0 },
       messages
@@ -59,6 +59,9 @@ describe("lightScheduleValidation", () => {
     expect(result.isValid).toBe(false);
     expect(result.schedule).toBeNull();
     expect(result.errors).toContain(messages.sum);
+    expect(result.status.sum.status).toBe("block");
+    expect(result.status.grid.status).toBe("ok");
+    expect(result.status.start.status).toBe("ok");
   });
 
   it("surfaces grid and range errors when values drift off the contract", () => {
@@ -69,6 +72,8 @@ describe("lightScheduleValidation", () => {
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toEqual(expect.arrayContaining([messages.grid, messages.start]));
+    expect(result.status.grid.status).toBe("block");
+    expect(result.status.start.status).toBe("block");
   });
 
   it("returns a normalized schedule when the inputs satisfy validation", () => {
@@ -80,6 +85,9 @@ describe("lightScheduleValidation", () => {
     expect(result.isValid).toBe(true);
     expect(result.schedule).toEqual({ onHours: 18, offHours: 6, startHour: validStartHour });
     expect(result.errors).toHaveLength(0);
+    expect(result.status.sum.status).toBe("ok");
+    expect(result.status.grid.status).toBe("ok");
+    expect(result.status.start.status).toBe("ok");
   });
 });
 

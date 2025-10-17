@@ -8,10 +8,12 @@ import {
   normalizeLightSchedule,
   type LightScheduleInput,
   type LightScheduleValidationMessages,
+  type LightScheduleValidationStatusMap,
   validateLightScheduleInput
 } from "@ui/lib/lightScheduleValidation";
 import en from "@ui/intl/en.json" assert { type: "json" };
 import { cn } from "@ui/lib/cn";
+import type { ValidationStatusDetail } from "@ui/lib/validation";
 import { MICROMOLES_PER_MOLE } from "@engine/constants/lighting.ts";
 import { HOURS_PER_DAY, LIGHT_SCHEDULE_GRID_HOURS, SECONDS_PER_HOUR } from "@engine/constants/simConstants.ts";
 
@@ -225,6 +227,12 @@ export function LightingControlCard({
   };
 
   const scheduleErrors = validationResult.errors;
+  const activeScheduleStatuses = useMemo(() => {
+    const entries = Object.entries(validationResult.status) as Array<
+      [keyof LightScheduleValidationStatusMap, ValidationStatusDetail]
+    >;
+    return entries.filter(([, detail]) => detail.status !== "ok");
+  }, [validationResult.status]);
 
   return (
     <ControlCard
@@ -336,6 +344,16 @@ export function LightingControlCard({
                 ))}
               </ul>
             </div>
+          ) : null}
+
+          {activeScheduleStatuses.length > 0 ? (
+            <ul className="space-y-1" aria-live="polite">
+              {activeScheduleStatuses.map(([key, detail]) => (
+                <li key={key} className="text-xs text-text-muted" data-status={detail.status}>
+                  {detail.message}
+                </li>
+              ))}
+            </ul>
           ) : null}
 
           <div className="flex items-center justify-end gap-3">

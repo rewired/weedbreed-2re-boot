@@ -9,21 +9,21 @@ import {
 } from "@ui/state/intents";
 import { SOCKET_ERROR_CODES, type TransportAckErrorCode } from "@wb/transport-sio";
 import { HOURS_PER_DAY, LIGHT_SCHEDULE_GRID_HOURS } from "@engine/constants/simConstants.ts";
+import {
+  normalizeLightSchedule,
+  validateLightScheduleInput,
+  type LightScheduleValidationMessages,
+  type LightScheduleValidationStatusMap
+} from "@ui/lib/lightScheduleValidation";
+import type { ValidationStatusDetail } from "@ui/lib/validation";
 
 const copy = en.intents.setLightSchedule;
 const START_HOUR_MAX = HOURS_PER_DAY - LIGHT_SCHEDULE_GRID_HOURS;
-const EPSILON = 1e-6;
 
 interface FormValues {
   readonly onHours: string;
   readonly offHours: string;
   readonly startHour: string;
-}
-
-interface ValidationResult {
-  readonly isValid: boolean;
-  readonly messages: readonly string[];
-  readonly schedule: ZoneLightSchedule | null;
 }
 
 export interface SetLightScheduleFormProps {
@@ -43,74 +43,6 @@ function parseHours(value: string): number | null {
   }
 
   return parsed;
-}
-
-function isWithinRange(value: number, min: number, max: number): boolean {
-  return value >= min - EPSILON && value <= max + EPSILON;
-}
-
-const LIGHT_SCHEDULE_PRECISION = 1 / LIGHT_SCHEDULE_GRID_HOURS;
-
-function isQuarterIncrement(value: number): boolean {
-  return Math.abs(value * LIGHT_SCHEDULE_PRECISION - Math.round(value * LIGHT_SCHEDULE_PRECISION)) < EPSILON;
-}
-
-function normaliseQuarter(value: number): number {
-  return Math.round(value * LIGHT_SCHEDULE_PRECISION) / LIGHT_SCHEDULE_PRECISION;
-}
-
-function validate(values: FormValues): ValidationResult {
-  const messages: string[] = [];
-  const parsedOn = parseHours(values.onHours);
-  const parsedOff = parseHours(values.offHours);
-  const parsedStart = parseHours(values.startHour);
-
-  const pushMessage = (message: string) => {
-    if (!messages.includes(message)) {
-      messages.push(message);
-    }
-  };
-
-  if (parsedOn === null || parsedOff === null) {
-    pushMessage(copy.validation.sum);
-  } else {
-    const onHours = parsedOn;
-    const offHours = parsedOff;
-
-    if (!isWithinRange(onHours, 0, HOURS_PER_DAY) || !isWithinRange(offHours, 0, HOURS_PER_DAY)) {
-      pushMessage(copy.validation.sum);
-    } else if (Math.abs(onHours + offHours - HOURS_PER_DAY) > EPSILON) {
-      pushMessage(copy.validation.sum);
-    }
-  }
-
-  if (parsedOn !== null && !isQuarterIncrement(parsedOn)) {
-    pushMessage(copy.validation.quarter);
-  }
-
-  if (parsedOff !== null && !isQuarterIncrement(parsedOff)) {
-    pushMessage(copy.validation.quarter);
-  }
-
-  if (parsedStart === null) {
-    pushMessage(copy.validation.start);
-  } else if (!isWithinRange(parsedStart, 0, START_HOUR_MAX)) {
-    pushMessage(copy.validation.start);
-  } else if (!isQuarterIncrement(parsedStart)) {
-    pushMessage(copy.validation.quarter);
-  }
-
-  if (messages.length > 0 || parsedOn === null || parsedOff === null || parsedStart === null) {
-    return { isValid: false, messages, schedule: null };
-  }
-
-  const schedule: ZoneLightSchedule = {
-    onHours: normaliseQuarter(parsedOn),
-    offHours: normaliseQuarter(parsedOff),
-    startHour: normaliseQuarter(parsedStart)
-  };
-
-  return { isValid: true, messages, schedule };
 }
 
 interface ToastMessage {
@@ -143,32 +75,54 @@ function formatHours(value: number): string {
   return value.toFixed(2).replace(/\.00$/, "");
 }
 
+const validationMessages: LightScheduleValidationMessages = {
+  sum: copy.validation.sum,
+  grid: copy.validation.quarter,
+  start: copy.validation.start
+};
+
 export function SetLightScheduleForm({ zoneId, intentClient, className }: SetLightScheduleFormProps): ReactElement {
   const schedule = useZoneLightSchedule(zoneId);
-  const [values, setValues] = useState<FormValues>(() => ({
-    onHours: formatHours(schedule.onHours),
-    offHours: formatHours(schedule.offHours),
-    startHour: formatHours(schedule.startHour)
-  }));
-  const [validationResult, setValidationResult] = useState<ValidationResult>(() => validate(values));
+  const [values, setValues] = useState<FormValues>(() => {
+    const normalized = normalizeLightSchedule(schedule);
+    return {
+      onHours: formatHours(normalized.onHours),
+      offHours: formatHours(normalized.offHours),
+      startHour: formatHours(normalized.startHour)
+    };
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ackError, setAckError] = useState<IntentErrorDictionaryEntry | null>(null);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const [successAck, setSuccessAck] = useState<SuccessfulIntentAck | null>(null);
 
   useEffect(() => {
+    const normalized = normalizeLightSchedule(schedule);
     setValues({
-      onHours: formatHours(schedule.onHours),
-      offHours: formatHours(schedule.offHours),
-      startHour: formatHours(schedule.startHour)
+      onHours: formatHours(normalized.onHours),
+      offHours: formatHours(normalized.offHours),
+      startHour: formatHours(normalized.startHour)
     });
   }, [schedule.onHours, schedule.offHours, schedule.startHour]);
 
-  useEffect(() => {
-    setValidationResult(validate(values));
-  }, [values]);
+  const validationResult = useMemo(() => {
+    return validateLightScheduleInput(
+      {
+        onHours: parseHours(values.onHours),
+        offHours: parseHours(values.offHours),
+        startHour: parseHours(values.startHour)
+      },
+      validationMessages
+    );
+  }, [values.offHours, values.onHours, values.startHour]);
 
-  const validationMessages = useMemo(() => validationResult.messages, [validationResult.messages]);
+  const validationErrors = validationResult.errors;
+  const activeStatuses = useMemo(() => {
+    const entries = Object.entries(validationResult.status) as Array<
+      [keyof LightScheduleValidationStatusMap, ValidationStatusDetail]
+    >;
+    return entries.filter(([, detail]) => detail.status !== "ok");
+  }, [validationResult.status]);
 
   const handleChange = (field: keyof FormValues) => (event: ChangeEvent<HTMLInputElement>) => {
     setValues((previous) => ({
@@ -179,8 +133,15 @@ export function SetLightScheduleForm({ zoneId, intentClient, className }: SetLig
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const result = validate(values);
-    setValidationResult(result);
+
+    const result = validateLightScheduleInput(
+      {
+        onHours: parseHours(values.onHours),
+        offHours: parseHours(values.offHours),
+        startHour: parseHours(values.startHour)
+      },
+      validationMessages
+    );
 
     if (!result.isValid || result.schedule === null) {
       return;
@@ -204,7 +165,18 @@ export function SetLightScheduleForm({ zoneId, intentClient, className }: SetLig
     try {
       const resultAck = await intentClient.submit(payload, handlers);
       if (resultAck.ok) {
-        recordZoneLightSchedule(zoneId, result.schedule);
+        const normalized = normalizeLightSchedule(result.schedule);
+        const normalizedSchedule: ZoneLightSchedule = {
+          onHours: normalized.onHours,
+          offHours: normalized.offHours,
+          startHour: normalized.startHour
+        };
+        recordZoneLightSchedule(zoneId, normalizedSchedule);
+        setValues({
+          onHours: formatHours(normalizedSchedule.onHours),
+          offHours: formatHours(normalizedSchedule.offHours),
+          startHour: formatHours(normalizedSchedule.startHour)
+        });
         setSuccessAck(resultAck.ack);
         setAckError(null);
         setToast(null);
@@ -221,16 +193,16 @@ export function SetLightScheduleForm({ zoneId, intentClient, className }: SetLig
         });
       }
     } catch (error) {
-      const reason = error instanceof Error ? error.message : "Unknown transport error.";
-      const errorEntry: IntentErrorDictionaryEntry = deriveErrorEntry(
-        null,
-        SOCKET_ERROR_CODES.INTENT_HANDLER_ERROR,
-        reason
+      setAckError(
+        deriveErrorEntry(
+          null,
+          SOCKET_ERROR_CODES.TRANSPORT_DISCONNECTED as TransportAckErrorCode,
+          error instanceof Error ? error.message : "transport error"
+        )
       );
-      setAckError(errorEntry);
       setToast({
         title: copy.status.toastErrorTitle,
-        description: errorEntry.title
+        description: copy.status.toastErrorDescription
       });
     } finally {
       setIsSubmitting(false);
@@ -277,6 +249,7 @@ export function SetLightScheduleForm({ zoneId, intentClient, className }: SetLig
             step={LIGHT_SCHEDULE_GRID_HOURS}
             type="number"
             value={values.onHours}
+            aria-invalid={!validationResult.isValid}
           />
           <span className="text-xs text-text-muted">{copy.fields.onHours.help}</span>
         </label>
@@ -294,6 +267,7 @@ export function SetLightScheduleForm({ zoneId, intentClient, className }: SetLig
             step={LIGHT_SCHEDULE_GRID_HOURS}
             type="number"
             value={values.offHours}
+            aria-invalid={!validationResult.isValid}
           />
           <span className="text-xs text-text-muted">{copy.fields.offHours.help}</span>
         </label>
@@ -311,19 +285,30 @@ export function SetLightScheduleForm({ zoneId, intentClient, className }: SetLig
             step={LIGHT_SCHEDULE_GRID_HOURS}
             type="number"
             value={values.startHour}
+            aria-invalid={!validationResult.isValid}
           />
           <span className="text-xs text-text-muted">{copy.fields.startHour.help}</span>
         </label>
       </div>
 
-      {validationMessages.length > 0 && (
+      {validationErrors.length > 0 && (
         <div className="rounded-lg border border-border-strong bg-surface-critical/10 p-4" role="alert">
           <ul className="list-disc space-y-1 pl-5 text-sm text-text-critical">
-            {validationMessages.map((message) => (
+            {validationErrors.map((message) => (
               <li key={message}>{message}</li>
             ))}
           </ul>
         </div>
+      )}
+
+      {activeStatuses.length > 0 && (
+        <ul className="space-y-1 text-xs text-text-muted" aria-live="polite">
+          {activeStatuses.map(([key, detail]) => (
+            <li key={key} data-status={detail.status}>
+              {detail.message}
+            </li>
+          ))}
+        </ul>
       )}
 
       {ackError && (

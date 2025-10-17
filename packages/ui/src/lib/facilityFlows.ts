@@ -14,6 +14,12 @@ import type {
   SubstratePriceEntry,
   ZoneReadModel
 } from "@ui/state/readModels.types";
+import type { ValidationStatusDetail } from "@ui/lib/validation";
+import {
+  assessCapacity,
+  assessCultivationIrrigation,
+  assessStrainCompatibility
+} from "@ui/lib/validation";
 
 const EPSILON = 1e-6;
 
@@ -38,6 +44,13 @@ export interface ValidationResult<TPayload> {
   readonly isValid: boolean;
   readonly errors: readonly string[];
   readonly payload: TPayload | null;
+}
+
+export interface RoomCreateValidationResult extends ValidationResult<RoomCreateIntentPayload> {
+  readonly capacity: {
+    readonly area: ValidationStatusDetail;
+    readonly volume: ValidationStatusDetail;
+  };
 }
 
 export interface ZoneWizardInputs {
@@ -68,6 +81,9 @@ export interface ZoneWizardResult extends ValidationResult<ZoneCreateIntentPaylo
   readonly irrigationStatus: CompatibilityStatus;
   readonly maxPlants: number;
   readonly acquisitionCost: number;
+  readonly capacity: ValidationStatusDetail;
+  readonly cultivation: ValidationStatusDetail;
+  readonly irrigation: ValidationStatusDetail;
 }
 
 export interface SowingInputs {
@@ -89,6 +105,10 @@ export interface SowingResult extends ValidationResult<SowingIntentPayload> {
   readonly cultivationStatus: CompatibilityStatus;
   readonly irrigationStatus: CompatibilityStatus;
   readonly totalCost: number;
+  readonly compatibility: {
+    readonly cultivation: ValidationStatusDetail;
+    readonly irrigation: ValidationStatusDetail;
+  };
 }
 
 export interface DuplicateRoomInputs {
@@ -109,6 +129,10 @@ export interface RoomDuplicateResult extends ValidationResult<RoomDuplicateInten
   readonly clonedPlantCount: number;
   readonly deviceCapitalExpenditure: number;
   readonly neutralOperatingCostPerHour: number;
+  readonly capacity: {
+    readonly area: ValidationStatusDetail;
+    readonly volume: ValidationStatusDetail;
+  };
 }
 
 export interface DuplicateZoneInputs {
@@ -132,6 +156,9 @@ export interface ZoneDuplicateResult extends ValidationResult<ZoneDuplicateInten
   readonly clonedPlantCount: number;
   readonly deviceCapitalExpenditure: number;
   readonly neutralOperatingCostPerHour: number;
+  readonly capacity: ValidationStatusDetail;
+  readonly cultivation: ValidationStatusDetail;
+  readonly irrigation: ValidationStatusDetail;
 }
 
 export interface RoomAreaUpdateInputs {
@@ -149,6 +176,10 @@ export type RoomSetAreaIntentPayload = Readonly<{
 
 export interface RoomAreaUpdateResult extends ValidationResult<RoomSetAreaIntentPayload> {
   readonly nextVolume_m3: number;
+  readonly capacity: {
+    readonly area: ValidationStatusDetail;
+    readonly volume: ValidationStatusDetail;
+  };
 }
 
 export interface ZoneAreaUpdateInputs {
@@ -169,6 +200,7 @@ export type ZoneSetAreaIntentPayload = Readonly<{
 
 export interface ZoneAreaUpdateResult extends ValidationResult<ZoneSetAreaIntentPayload> {
   readonly maxPlants: number;
+  readonly capacity: ValidationStatusDetail;
 }
 
 function ensurePositive(value: number): boolean {
@@ -199,7 +231,7 @@ function appendError(errors: string[], message: string): void {
   }
 }
 
-export function validateRoomCreate(input: RoomCreateInput): ValidationResult<RoomCreateIntentPayload> {
+export function validateRoomCreate(input: RoomCreateInput): RoomCreateValidationResult {
   const errors: string[] = [];
 
   if (!ensurePositive(input.area_m2)) {
@@ -215,12 +247,31 @@ export function validateRoomCreate(input: RoomCreateInput): ValidationResult<Roo
   const freeArea = structure.capacity.areaFree_m2;
   const freeVolume = structure.capacity.volumeFree_m3;
 
-  if (input.area_m2 - freeArea > EPSILON) {
-    appendError(errors, "Structure does not have enough free area for the new room.");
+  const areaCapacity = assessCapacity({
+    available: freeArea,
+    required: input.area_m2,
+    subject: "Room",
+    container: "Structure",
+    unit: "m²"
+  });
+
+  const volumeCapacity = assessCapacity({
+    available: freeVolume,
+    required: volume_m3,
+    subject: "Room",
+    container: "Structure",
+    unit: "m³"
+  });
+
+  if (areaCapacity.status === "block") {
+    appendError(errors, areaCapacity.message ?? "Structure does not have enough free area for the new room.");
   }
 
-  if (volume_m3 - freeVolume > EPSILON) {
-    appendError(errors, "Structure does not have enough free volume for the new room.");
+  if (volumeCapacity.status === "block") {
+    appendError(
+      errors,
+      volumeCapacity.message ?? "Structure does not have enough free volume for the new room."
+    );
   }
 
   if (input.name.trim().length === 0) {
@@ -232,7 +283,7 @@ export function validateRoomCreate(input: RoomCreateInput): ValidationResult<Roo
   }
 
   if (errors.length > 0) {
-    return { isValid: false, errors, payload: null };
+    return { isValid: false, errors, payload: null, capacity: { area: areaCapacity, volume: volumeCapacity } };
   }
 
   const payload: RoomCreateIntentPayload = {
@@ -244,18 +295,7 @@ export function validateRoomCreate(input: RoomCreateInput): ValidationResult<Roo
     height_m
   };
 
-  return { isValid: true, errors, payload };
-}
-
-function getCompatibilityStatus(
-  record: Readonly<Record<string, CompatibilityStatus>> | undefined,
-  key: string
-): CompatibilityStatus {
-  if (!record) {
-    return "block";
-  }
-
-  return record[key] ?? "block";
+  return { isValid: true, errors, payload, capacity: { area: areaCapacity, volume: volumeCapacity } };
 }
 
 function calculateMaxPlants(area_m2: number, areaPerPlant_m2: number): number {
@@ -307,34 +347,31 @@ export function deriveZoneWizardResult(inputs: ZoneWizardInputs): ZoneWizardResu
     appendError(errors, `Zone area must align to ${String(AREA_QUANTUM_M2)} m² increments.`);
   }
 
-  const availableRoomArea = room.capacity.areaFree_m2;
-  if (area_m2 - availableRoomArea > EPSILON) {
-    appendError(errors, "Room does not have enough free area for the zone.");
+  const capacityStatus = assessCapacity({
+    available: room.capacity.areaFree_m2,
+    required: area_m2,
+    subject: "Zone",
+    container: "Room",
+    unit: "m²"
+  });
+  if (capacityStatus.status === "block") {
+    appendError(errors, capacityStatus.message ?? "Room does not have enough free area for the zone.");
   }
 
-  const irrigationMap = Object.hasOwn(compatibility.cultivationToIrrigation, cultivationMethodId)
-    ? compatibility.cultivationToIrrigation[cultivationMethodId]
-    : undefined;
-  const cultivationStatus = (() => {
-    if (!irrigationMap) {
-      return "block" as const;
-    }
-
-    const statuses = Object.values(irrigationMap);
-    if (statuses.includes("ok")) {
-      return "ok" as const;
-    }
-
-    if (statuses.includes("warn")) {
-      return "warn" as const;
-    }
-
-    return "block" as const;
-  })();
-  const irrigationStatus = getCompatibilityStatus(irrigationMap, irrigationMethodId);
+  const compatibilityAssessment = assessCultivationIrrigation({
+    compatibility,
+    cultivationMethodId,
+    irrigationMethodId
+  });
+  const cultivationStatus = compatibilityAssessment.cultivation.status;
+  const irrigationStatus = compatibilityAssessment.irrigation.status;
 
   if (irrigationStatus === "block") {
-    appendError(errors, "Irrigation method is incompatible with the selected cultivation method.");
+    appendError(
+      errors,
+      compatibilityAssessment.irrigation.message ??
+        "Irrigation method is incompatible with the selected cultivation method."
+    );
   }
 
   const maxPlants = calculateMaxPlants(area_m2, areaPerPlant_m2);
@@ -359,7 +396,10 @@ export function deriveZoneWizardResult(inputs: ZoneWizardInputs): ZoneWizardResu
       cultivationStatus,
       irrigationStatus,
       maxPlants,
-      acquisitionCost
+      acquisitionCost,
+      capacity: capacityStatus,
+      cultivation: compatibilityAssessment.cultivation,
+      irrigation: compatibilityAssessment.irrigation
     };
   }
 
@@ -380,7 +420,10 @@ export function deriveZoneWizardResult(inputs: ZoneWizardInputs): ZoneWizardResu
     cultivationStatus,
     irrigationStatus,
     maxPlants,
-    acquisitionCost
+    acquisitionCost,
+    capacity: capacityStatus,
+    cultivation: compatibilityAssessment.cultivation,
+    irrigation: compatibilityAssessment.irrigation
   };
 }
 
@@ -407,18 +450,27 @@ export function validateSowing(inputs: SowingInputs): SowingResult {
     appendError(errors, "Plant count exceeds zone capacity.");
   }
 
-  const strainEntry = Object.hasOwn(compatibility.strainToCultivation, strainId)
-    ? compatibility.strainToCultivation[strainId]
-    : undefined;
-  const cultivationStatus = getCompatibilityStatus(strainEntry?.cultivation, zone.cultivationMethodId);
-  const irrigationStatus = getCompatibilityStatus(strainEntry?.irrigation, zone.irrigationMethodId);
+  const strainAssessment = assessStrainCompatibility({
+    compatibility,
+    strainId,
+    cultivationMethodId: zone.cultivationMethodId,
+    irrigationMethodId: zone.irrigationMethodId
+  });
+  const cultivationStatus = strainAssessment.cultivation.status;
+  const irrigationStatus = strainAssessment.irrigation.status;
 
   if (cultivationStatus === "block") {
-    appendError(errors, "Selected strain is incompatible with the zone's cultivation method.");
+    appendError(
+      errors,
+      strainAssessment.cultivation.message ?? "Selected strain is incompatible with the zone's cultivation method."
+    );
   }
 
   if (irrigationStatus === "block") {
-    appendError(errors, "Selected strain is incompatible with the zone's irrigation method.");
+    appendError(
+      errors,
+      strainAssessment.irrigation.message ?? "Selected strain is incompatible with the zone's irrigation method."
+    );
   }
 
   const totalCost = seedlingPrice ? seedlingPrice.pricePerUnit * count : 0;
@@ -430,7 +482,8 @@ export function validateSowing(inputs: SowingInputs): SowingResult {
       payload: null,
       cultivationStatus,
       irrigationStatus,
-      totalCost
+      totalCost,
+      compatibility: strainAssessment
     };
   }
 
@@ -447,7 +500,8 @@ export function validateSowing(inputs: SowingInputs): SowingResult {
     payload,
     cultivationStatus,
     irrigationStatus,
-    totalCost
+    totalCost,
+    compatibility: strainAssessment
   };
 }
 
@@ -470,16 +524,32 @@ export function previewRoomDuplicate(inputs: DuplicateRoomInputs): RoomDuplicate
     appendError(errors, "Copies must be a positive integer.");
   }
 
-  const availableArea = structure.capacity.areaFree_m2;
-  const requiredArea = room.area_m2 * copies;
-  if (requiredArea - availableArea > EPSILON) {
-    appendError(errors, "Structure does not have enough free area for the duplicates.");
+  const areaCapacity = assessCapacity({
+    available: structure.capacity.areaFree_m2,
+    required: room.area_m2 * copies,
+    subject: "Room duplicate",
+    container: "Structure",
+    unit: "m²"
+  });
+  if (areaCapacity.status === "block") {
+    appendError(
+      errors,
+      areaCapacity.message ?? "Structure does not have enough free area for the duplicates."
+    );
   }
 
-  const availableVolume = structure.capacity.volumeFree_m3;
-  const requiredVolume = room.volume_m3 * copies;
-  if (requiredVolume - availableVolume > EPSILON) {
-    appendError(errors, "Structure does not have enough free volume for the duplicates.");
+  const volumeCapacity = assessCapacity({
+    available: structure.capacity.volumeFree_m3,
+    required: room.volume_m3 * copies,
+    subject: "Room duplicate",
+    container: "Structure",
+    unit: "m³"
+  });
+  if (volumeCapacity.status === "block") {
+    appendError(
+      errors,
+      volumeCapacity.message ?? "Structure does not have enough free volume for the duplicates."
+    );
   }
 
   const clonedPlantCount = 0;
@@ -500,7 +570,8 @@ export function previewRoomDuplicate(inputs: DuplicateRoomInputs): RoomDuplicate
       payload: null,
       clonedPlantCount,
       deviceCapitalExpenditure,
-      neutralOperatingCostPerHour: 0
+      neutralOperatingCostPerHour: 0,
+      capacity: { area: areaCapacity, volume: volumeCapacity }
     };
   }
 
@@ -517,7 +588,8 @@ export function previewRoomDuplicate(inputs: DuplicateRoomInputs): RoomDuplicate
     payload,
     clonedPlantCount,
     deviceCapitalExpenditure,
-    neutralOperatingCostPerHour: 0
+    neutralOperatingCostPerHour: 0,
+    capacity: { area: areaCapacity, volume: volumeCapacity }
   };
 }
 
@@ -529,30 +601,39 @@ export function previewZoneDuplicate(inputs: DuplicateZoneInputs): ZoneDuplicate
     appendError(errors, "Copies must be a positive integer.");
   }
 
-  const availableArea = room.capacity.areaFree_m2;
-  const requiredArea = zone.area_m2 * copies;
-  if (requiredArea - availableArea > EPSILON) {
-    appendError(errors, "Room does not have enough free area for the duplicates.");
+  const roomCapacity = assessCapacity({
+    available: room.capacity.areaFree_m2,
+    required: zone.area_m2 * copies,
+    subject: "Zone duplicate",
+    container: "Room",
+    unit: "m²"
+  });
+  if (roomCapacity.status === "block") {
+    appendError(errors, roomCapacity.message ?? "Room does not have enough free area for the duplicates.");
   }
 
-  const strainCompatibility = Object.hasOwn(compatibility.strainToCultivation, zone.strainId)
-    ? compatibility.strainToCultivation[zone.strainId]
-    : undefined;
-  const cultivationStatus = getCompatibilityStatus(
-    strainCompatibility?.cultivation,
-    zone.cultivationMethodId
-  );
-  const zoneIrrigationMap = Object.hasOwn(compatibility.cultivationToIrrigation, zone.cultivationMethodId)
-    ? compatibility.cultivationToIrrigation[zone.cultivationMethodId]
-    : undefined;
-  const irrigationStatus = getCompatibilityStatus(zoneIrrigationMap, zone.irrigationMethodId);
+  const duplicationCompatibility = assessCultivationIrrigation({
+    compatibility,
+    cultivationMethodId: zone.cultivationMethodId,
+    irrigationMethodId: zone.irrigationMethodId
+  });
+  const cultivationStatus = duplicationCompatibility.cultivation.status;
+  const irrigationStatus = duplicationCompatibility.irrigation.status;
 
   if (cultivationStatus === "block") {
-    appendError(errors, "Zone cultivation method is no longer eligible for duplication.");
+    appendError(
+      errors,
+      duplicationCompatibility.cultivation.message ??
+        "Zone cultivation method is no longer eligible for duplication."
+    );
   }
 
   if (irrigationStatus === "block") {
-    appendError(errors, "Zone irrigation method is no longer eligible for duplication.");
+    appendError(
+      errors,
+      duplicationCompatibility.irrigation.message ??
+        "Zone irrigation method is no longer eligible for duplication."
+    );
   }
 
   const clonedPlantCount = 0;
@@ -565,7 +646,10 @@ export function previewZoneDuplicate(inputs: DuplicateZoneInputs): ZoneDuplicate
       payload: null,
       clonedPlantCount,
       deviceCapitalExpenditure,
-      neutralOperatingCostPerHour: 0
+      neutralOperatingCostPerHour: 0,
+      capacity: roomCapacity,
+      cultivation: duplicationCompatibility.cultivation,
+      irrigation: duplicationCompatibility.irrigation
     };
   }
 
@@ -583,7 +667,10 @@ export function previewZoneDuplicate(inputs: DuplicateZoneInputs): ZoneDuplicate
     payload,
     clonedPlantCount,
     deviceCapitalExpenditure,
-    neutralOperatingCostPerHour: 0
+    neutralOperatingCostPerHour: 0,
+    capacity: roomCapacity,
+    cultivation: duplicationCompatibility.cultivation,
+    irrigation: duplicationCompatibility.irrigation
   };
 }
 
@@ -597,20 +684,38 @@ export function validateRoomAreaUpdate(inputs: RoomAreaUpdateInputs): RoomAreaUp
     appendError(errors, `Room area must align to ${String(AREA_QUANTUM_M2)} m² increments.`);
   }
 
-  const availableArea = structure.capacity.areaFree_m2 + room.area_m2;
-  if (nextArea_m2 - availableArea > EPSILON) {
-    appendError(errors, "Structure does not have enough free area for the updated room size.");
+  const areaCapacity = assessCapacity({
+    available: structure.capacity.areaFree_m2 + room.area_m2,
+    required: nextArea_m2,
+    subject: "Room",
+    container: "Structure",
+    unit: "m²"
+  });
+  if (areaCapacity.status === "block") {
+    appendError(
+      errors,
+      areaCapacity.message ?? "Structure does not have enough free area for the updated room size."
+    );
   }
 
   const currentHeight = room.area_m2 > 0 ? room.volume_m3 / room.area_m2 : ROOM_DEFAULT_HEIGHT_M;
   const nextVolume_m3 = computeVolume(nextArea_m2, currentHeight);
-  const availableVolume = structure.capacity.volumeFree_m3 + room.volume_m3;
-  if (nextVolume_m3 - availableVolume > EPSILON) {
-    appendError(errors, "Structure does not have enough free volume for the updated room size.");
+  const volumeCapacity = assessCapacity({
+    available: structure.capacity.volumeFree_m3 + room.volume_m3,
+    required: nextVolume_m3,
+    subject: "Room",
+    container: "Structure",
+    unit: "m³"
+  });
+  if (volumeCapacity.status === "block") {
+    appendError(
+      errors,
+      volumeCapacity.message ?? "Structure does not have enough free volume for the updated room size."
+    );
   }
 
   if (errors.length > 0) {
-    return { isValid: false, errors, payload: null, nextVolume_m3 };
+    return { isValid: false, errors, payload: null, nextVolume_m3, capacity: { area: areaCapacity, volume: volumeCapacity } };
   }
 
   const payload: RoomSetAreaIntentPayload = {
@@ -620,7 +725,7 @@ export function validateRoomAreaUpdate(inputs: RoomAreaUpdateInputs): RoomAreaUp
     area_m2: nextArea_m2
   };
 
-  return { isValid: true, errors, payload, nextVolume_m3 };
+  return { isValid: true, errors, payload, nextVolume_m3, capacity: { area: areaCapacity, volume: volumeCapacity } };
 }
 
 export function validateZoneAreaUpdate(inputs: ZoneAreaUpdateInputs): ZoneAreaUpdateResult {
@@ -633,9 +738,15 @@ export function validateZoneAreaUpdate(inputs: ZoneAreaUpdateInputs): ZoneAreaUp
     appendError(errors, `Zone area must align to ${String(AREA_QUANTUM_M2)} m² increments.`);
   }
 
-  const availableArea = room.capacity.areaFree_m2 + zone.area_m2;
-  if (nextArea_m2 - availableArea > EPSILON) {
-    appendError(errors, "Room does not have enough free area for the updated zone size.");
+  const capacity = assessCapacity({
+    available: room.capacity.areaFree_m2 + zone.area_m2,
+    required: nextArea_m2,
+    subject: "Zone",
+    container: "Room",
+    unit: "m²"
+  });
+  if (capacity.status === "block") {
+    appendError(errors, capacity.message ?? "Room does not have enough free area for the updated zone size.");
   }
 
   const maxPlants = calculateMaxPlants(nextArea_m2, areaPerPlant_m2);
@@ -644,7 +755,7 @@ export function validateZoneAreaUpdate(inputs: ZoneAreaUpdateInputs): ZoneAreaUp
   }
 
   if (errors.length > 0) {
-    return { isValid: false, errors, payload: null, maxPlants };
+    return { isValid: false, errors, payload: null, maxPlants, capacity };
   }
 
   const payload: ZoneSetAreaIntentPayload = {
@@ -656,7 +767,7 @@ export function validateZoneAreaUpdate(inputs: ZoneAreaUpdateInputs): ZoneAreaUp
     maxPlants
   };
 
-  return { isValid: true, errors, payload, maxPlants };
+  return { isValid: true, errors, payload, maxPlants, capacity };
 }
 
 export function findSeedlingPriceForStrain(

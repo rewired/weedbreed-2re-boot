@@ -44,9 +44,12 @@ describe("RoomDetailPage", () => {
   it("renders header, zones list, climate snapshot, devices, and actions without router context", () => {
     render(<RoomDetailPage structureId={STRUCTURE_ID} roomId={ROOM_ID} />);
 
+    const renameButton = screen.getByRole("button", { name: /rename/i });
+    expect(renameButton).toBeInTheDocument();
+    fireEvent.click(renameButton);
     const renameInput = screen.getByLabelText(/room name/i);
     expect(renameInput).toHaveValue("Vegetative Bay A");
-    expect(screen.getByRole("button", { name: /rename/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
     expect(screen.getByText(/Purpose/i)).toBeInTheDocument();
     expect(screen.getByText(/Baseline ACH/i)).toBeInTheDocument();
     const baselineTargets = screen.getAllByText(/Target 6\.0 ACH/i);

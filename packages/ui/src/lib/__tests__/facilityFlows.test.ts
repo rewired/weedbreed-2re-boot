@@ -60,6 +60,8 @@ describe("validateRoomCreate", () => {
       area_m2: area,
       height_m: ROOM_DEFAULT_HEIGHT_M
     });
+    expect(result.capacity.area.status).toBe("ok");
+    expect(result.capacity.volume.status).toBe("ok");
   });
 
   it("rejects areas exceeding structure free capacity", () => {
@@ -73,7 +75,11 @@ describe("validateRoomCreate", () => {
     });
 
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain("Structure does not have enough free area for the new room.");
+    expect(result.capacity.area.status).toBe("block");
+    expect(result.capacity.area.message).toBeDefined();
+    if (result.capacity.area.message) {
+      expect(result.errors).toContain(result.capacity.area.message);
+    }
   });
 });
 
@@ -110,6 +116,9 @@ describe("deriveZoneWizardResult", () => {
       irrigationMethodId: "ir-drip-inline",
       maxPlants: result.maxPlants
     });
+    expect(result.capacity.status).toBe("ok");
+    expect(result.cultivation.status).toBe("ok");
+    expect(result.irrigation.status).toBe("ok");
   });
 
   it("blocks incompatible irrigation selections", () => {
@@ -132,6 +141,7 @@ describe("deriveZoneWizardResult", () => {
       "Irrigation method is incompatible with the selected cultivation method."
     );
     expect(result.payload).toBeNull();
+    expect(result.irrigation.status).toBe("block");
   });
 });
 
@@ -157,6 +167,8 @@ describe("validateSowing", () => {
     expect(result.totalCost).toBe(
       seedlingPrice?.pricePerUnit ? seedlingPrice.pricePerUnit * SOW_COUNT : 0
     );
+    expect(result.compatibility.cultivation.status).toBeDefined();
+    expect(result.compatibility.irrigation.status).toBeDefined();
   });
 
   it("blocks sowing when zone contains plants", () => {
@@ -171,6 +183,7 @@ describe("validateSowing", () => {
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toContain("Zone must be empty before sowing new plants.");
+    expect(result.compatibility.cultivation.status).toBeDefined();
   });
 });
 
@@ -202,6 +215,8 @@ describe("previewRoomDuplicate", () => {
       structureId: structure.id,
       copies: 1
     });
+    expect(result.capacity.area.status).toBe("ok");
+    expect(result.capacity.volume.status).toBe("ok");
   });
 
   it("requires sufficient free structure capacity", () => {
@@ -215,9 +230,11 @@ describe("previewRoomDuplicate", () => {
     });
 
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain(
-      "Structure does not have enough free area for the duplicates."
-    );
+    expect(result.capacity.area.status).toBe("block");
+    expect(result.capacity.area.message).toBeDefined();
+    if (result.capacity.area.message) {
+      expect(result.errors).toContain(result.capacity.area.message);
+    }
   });
 });
 
@@ -251,6 +268,9 @@ describe("previewZoneDuplicate", () => {
       structureId: structure.id,
       copies: 1
     });
+    expect(result.capacity.status).toBe("ok");
+    expect(result.cultivation.status).toBeTypeOf("string");
+    expect(result.irrigation.status).toBeTypeOf("string");
   });
 
   it("fails when room lacks free area", () => {
@@ -267,7 +287,11 @@ describe("previewZoneDuplicate", () => {
     });
 
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain("Room does not have enough free area for the duplicates.");
+    expect(result.capacity.status).toBe("block");
+    expect(result.capacity.message).toBeDefined();
+    if (result.capacity.message) {
+      expect(result.errors).toContain(result.capacity.message);
+    }
   });
 });
 
@@ -286,6 +310,8 @@ describe("validateRoomAreaUpdate", () => {
       area_m2: nextArea
     });
     expect(result.nextVolume_m3).toBeGreaterThan(0);
+    expect(result.capacity.area.status).toBe("ok");
+    expect(result.capacity.volume.status).toBe("ok");
   });
 
   it("blocks updates that exceed available volume", () => {
@@ -295,6 +321,7 @@ describe("validateRoomAreaUpdate", () => {
     const result = validateRoomAreaUpdate({ structure, room, nextArea_m2: excessiveArea });
 
     expect(result.isValid).toBe(false);
+    expect(result.capacity.area.status).toBe("block");
   });
 });
 
@@ -320,6 +347,7 @@ describe("validateZoneAreaUpdate", () => {
       area_m2: nextArea,
       maxPlants: result.maxPlants
     });
+    expect(result.capacity.status).toBe("ok");
   });
 
   it("blocks updates that reduce max plants below current count", () => {
@@ -335,5 +363,6 @@ describe("validateZoneAreaUpdate", () => {
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toContain("Updated zone would not accommodate existing plants.");
+    expect(result.capacity.status).toBe("ok");
   });
 });

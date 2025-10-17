@@ -244,6 +244,30 @@ export function ZoneCreateWizard({
     void submitIntent(validation.payload, intentClient, setSubmission, onSubmitted);
   };
 
+  const statusEntries = useMemo(
+    () => [
+      {
+        key: "capacity",
+        label: "Capacity",
+        detail: validation.capacity,
+        fallback: "Room capacity available for zone creation."
+      },
+      {
+        key: "cultivation",
+        label: "Cultivation",
+        detail: validation.cultivation,
+        fallback: "Cultivation method supported."
+      },
+      {
+        key: "irrigation",
+        label: "Irrigation",
+        detail: validation.irrigation,
+        fallback: "Irrigation method supported."
+      }
+    ],
+    [validation.capacity, validation.cultivation, validation.irrigation]
+  );
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid gap-3">
@@ -355,12 +379,19 @@ export function ZoneCreateWizard({
         </label>
       </div>
 
-      <div className="text-sm">
-        <p>Cultivation status: {validation.cultivationStatus}</p>
-        <p>Irrigation status: {validation.irrigationStatus}</p>
-        <p>Max plants: {validation.maxPlants}</p>
-        <p>Acquisition cost preview: {validation.acquisitionCost.toFixed(2)}</p>
-      </div>
+      <ul className="space-y-1 text-sm text-text-muted" aria-live="polite">
+        {statusEntries.map(({ key, label, detail, fallback }) => (
+          <li key={key} data-status={detail.status}>
+            <span className="font-semibold text-text-primary">{label}:</span> {detail.message ?? fallback}
+          </li>
+        ))}
+        <li>
+          <span className="font-semibold text-text-primary">Max plants:</span> {validation.maxPlants}
+        </li>
+        <li>
+          <span className="font-semibold text-text-primary">Acquisition cost preview:</span> {validation.acquisitionCost.toFixed(2)}
+        </li>
+      </ul>
 
       {validation.errors.length > 0 && (
         <ul className="text-sm text-red-600 list-disc list-inside">
@@ -424,6 +455,24 @@ export function ZoneSowingDialog({
     void submitIntent(validation.payload, intentClient, setSubmission, onSubmitted);
   };
 
+  const statusEntries = useMemo(
+    () => [
+      {
+        key: "cultivation",
+        label: "Cultivation",
+        detail: validation.compatibility.cultivation,
+        fallback: "Strain compatible with cultivation method."
+      },
+      {
+        key: "irrigation",
+        label: "Irrigation",
+        detail: validation.compatibility.irrigation,
+        fallback: "Strain compatible with irrigation method."
+      }
+    ],
+    [validation.compatibility.cultivation, validation.compatibility.irrigation]
+  );
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <label className="flex flex-col">
@@ -453,11 +502,16 @@ export function ZoneSowingDialog({
         />
       </label>
 
-      <div className="text-sm">
-        <p>Cultivation status: {validation.cultivationStatus}</p>
-        <p>Irrigation status: {validation.irrigationStatus}</p>
-        <p>Cost preview: {validation.totalCost.toFixed(2)}</p>
-      </div>
+      <ul className="space-y-1 text-sm text-text-muted" aria-live="polite">
+        {statusEntries.map(({ key, label, detail, fallback }) => (
+          <li key={key} data-status={detail.status}>
+            <span className="font-semibold text-text-primary">{label}:</span> {detail.message ?? fallback}
+          </li>
+        ))}
+        <li>
+          <span className="font-semibold text-text-primary">Cost preview:</span> {validation.totalCost.toFixed(2)}
+        </li>
+      </ul>
 
       {validation.errors.length > 0 && (
         <ul className="text-sm text-red-600 list-disc list-inside">
@@ -515,6 +569,24 @@ export function RoomDuplicateDialog({
     void submitIntent(validation.payload, intentClient, setSubmission, onSubmitted);
   };
 
+  const capacityEntries = useMemo(
+    () => [
+      {
+        key: "area",
+        label: "Structure area",
+        detail: validation.capacity.area,
+        fallback: "Structure area available."
+      },
+      {
+        key: "volume",
+        label: "Structure volume",
+        detail: validation.capacity.volume,
+        fallback: "Structure volume available."
+      }
+    ],
+    [validation.capacity.area, validation.capacity.volume]
+  );
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <label className="flex flex-col">
@@ -528,10 +600,19 @@ export function RoomDuplicateDialog({
         />
       </label>
 
-      <div className="text-sm">
-        <p>Device capex preview: {validation.deviceCapitalExpenditure.toFixed(2)}</p>
-        <p>Cloned plants: {validation.clonedPlantCount}</p>
-      </div>
+      <ul className="space-y-1 text-sm text-text-muted" aria-live="polite">
+        {capacityEntries.map(({ key, label, detail, fallback }) => (
+          <li key={key} data-status={detail.status}>
+            <span className="font-semibold text-text-primary">{label}:</span> {detail.message ?? fallback}
+          </li>
+        ))}
+        <li>
+          <span className="font-semibold text-text-primary">Device capex preview:</span> {validation.deviceCapitalExpenditure.toFixed(2)}
+        </li>
+        <li>
+          <span className="font-semibold text-text-primary">Cloned plants:</span> {validation.clonedPlantCount}
+        </li>
+      </ul>
 
       {validation.errors.length > 0 && (
         <ul className="text-sm text-red-600 list-disc list-inside">
@@ -595,6 +676,30 @@ export function ZoneDuplicateDialog({
     void submitIntent(validation.payload, intentClient, setSubmission, onSubmitted);
   };
 
+  const statusEntries = useMemo(
+    () => [
+      {
+        key: "capacity",
+        label: "Room capacity",
+        detail: validation.capacity,
+        fallback: "Room capacity available."
+      },
+      {
+        key: "cultivation",
+        label: "Cultivation",
+        detail: validation.cultivation,
+        fallback: "Cultivation method available."
+      },
+      {
+        key: "irrigation",
+        label: "Irrigation",
+        detail: validation.irrigation,
+        fallback: "Irrigation method available."
+      }
+    ],
+    [validation.capacity, validation.cultivation, validation.irrigation]
+  );
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <label className="flex flex-col">
@@ -608,10 +713,19 @@ export function ZoneDuplicateDialog({
         />
       </label>
 
-      <div className="text-sm">
-        <p>Device capex preview: {validation.deviceCapitalExpenditure.toFixed(2)}</p>
-        <p>Cloned plants: {validation.clonedPlantCount}</p>
-      </div>
+      <ul className="space-y-1 text-sm text-text-muted" aria-live="polite">
+        {statusEntries.map(({ key, label, detail, fallback }) => (
+          <li key={key} data-status={detail.status}>
+            <span className="font-semibold text-text-primary">{label}:</span> {detail.message ?? fallback}
+          </li>
+        ))}
+        <li>
+          <span className="font-semibold text-text-primary">Device capex preview:</span> {validation.deviceCapitalExpenditure.toFixed(2)}
+        </li>
+        <li>
+          <span className="font-semibold text-text-primary">Cloned plants:</span> {validation.clonedPlantCount}
+        </li>
+      </ul>
 
       {validation.errors.length > 0 && (
         <ul className="text-sm text-red-600 list-disc list-inside">
@@ -652,6 +766,24 @@ export function RoomAreaUpdateDialog({
     [structure, room, areaValue]
   );
 
+  const capacityEntries = useMemo(
+    () => [
+      {
+        key: "area",
+        label: "Structure area",
+        detail: validation.capacity.area,
+        fallback: "Structure area available."
+      },
+      {
+        key: "volume",
+        label: "Structure volume",
+        detail: validation.capacity.volume,
+        fallback: "Structure volume available."
+      }
+    ],
+    [validation.capacity.area, validation.capacity.volume]
+  );
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validation.payload) {
@@ -676,9 +808,16 @@ export function RoomAreaUpdateDialog({
         />
       </label>
 
-      <div className="text-sm">
-        <p>Projected volume: {validation.nextVolume_m3.toFixed(2)}</p>
-      </div>
+      <ul className="space-y-1 text-sm text-text-muted" aria-live="polite">
+        {capacityEntries.map(({ key, label, detail, fallback }) => (
+          <li key={key} data-status={detail.status}>
+            <span className="font-semibold text-text-primary">{label}:</span> {detail.message ?? fallback}
+          </li>
+        ))}
+        <li>
+          <span className="font-semibold text-text-primary">Projected volume:</span> {validation.nextVolume_m3.toFixed(2)}
+        </li>
+      </ul>
 
       {validation.errors.length > 0 && (
         <ul className="text-sm text-red-600 list-disc list-inside">
@@ -745,9 +884,14 @@ export function ZoneAreaUpdateDialog({
         />
       </label>
 
-      <div className="text-sm">
-        <p>Max plants: {validation.maxPlants}</p>
-      </div>
+      <ul className="space-y-1 text-sm text-text-muted" aria-live="polite">
+        <li data-status={validation.capacity.status}>
+          <span className="font-semibold text-text-primary">Room capacity:</span> {validation.capacity.message ?? "Room capacity available."}
+        </li>
+        <li>
+          <span className="font-semibold text-text-primary">Max plants:</span> {validation.maxPlants}
+        </li>
+      </ul>
 
       {validation.errors.length > 0 && (
         <ul className="text-sm text-red-600 list-disc list-inside">
