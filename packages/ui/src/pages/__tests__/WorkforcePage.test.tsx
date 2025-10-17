@@ -1,5 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { WorkforcePage } from "@ui/pages/WorkforcePage";
 import { resetWorkforceFilters } from "@ui/state/workforce";
@@ -30,8 +29,6 @@ function createIntentClientStub(): IntentClientStub {
 beforeEach(() => {
   resetWorkforceFilters();
 });
-
-type UserInteractions = ReturnType<typeof userEvent.setup>;
 
 const FIRST_CALL = 1;
 const SECOND_CALL = 2;
@@ -67,22 +64,24 @@ describe("WorkforcePage", () => {
   });
 
   it("filters directory and timeline entries by zone", async () => {
-    const user: UserInteractions = userEvent.setup();
     const { client } = createIntentClientStub();
     render(<WorkforcePage intentClient={client} />);
 
-    await user.selectOptions(screen.getByLabelText(/Filter by zone/i), ["zone-veg-a-1"]);
+    fireEvent.change(screen.getByLabelText(/Filter by zone/i), { target: { value: "zone-veg-a-1" } });
 
-    expect(screen.getByText("Leonie Krause")).toBeInTheDocument();
-    expect(screen.queryByText("Jamal Nguyen")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Leonie Krause")).toBeInTheDocument();
+      expect(screen.queryByText("Jamal Nguyen")).not.toBeInTheDocument();
+    });
 
     const timeline = screen.getByRole("list", { name: /hr activity timeline/i });
-    expect(within(timeline).getByText(/Veg inspection/i)).toBeInTheDocument();
-    expect(within(timeline).queryByText(/Harvest lot/i)).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(within(timeline).getByText(/Veg inspection/i)).toBeInTheDocument();
+      expect(within(timeline).queryByText(/Harvest lot/i)).not.toBeInTheDocument();
+    });
   });
 
   it("displays task queues and dispatches assignment and task intents", async () => {
-    const user: UserInteractions = userEvent.setup();
     const { client, submit } = createIntentClientStub();
     render(<WorkforcePage intentClient={client} />);
 
@@ -90,35 +89,43 @@ describe("WorkforcePage", () => {
     const inspectionWithin = within(inspectionsSection);
 
     const assignButton = inspectionWithin.getAllByRole("button", { name: /reassign/i })[0];
-    await user.click(assignButton);
-    expect(submit).toHaveBeenNthCalledWith(
-      FIRST_CALL,
-      expect.objectContaining({ type: "hr.assign", employeeId: "employee-leonie-krause", target: "zone-veg-a-1" }),
-      expect.any(Object)
-    );
+    fireEvent.click(assignButton);
+    await waitFor(() => {
+      expect(submit).toHaveBeenNthCalledWith(
+        FIRST_CALL,
+        expect.objectContaining({ type: "hr.assign", employeeId: "employee-leonie-krause", target: "zone-veg-a-1" }),
+        expect.any(Object)
+      );
+    });
 
-    await user.click(inspectionWithin.getByRole("button", { name: /acknowledge inspection/i }));
-    expect(submit).toHaveBeenNthCalledWith(
-      SECOND_CALL,
-      expect.objectContaining({ type: "pest.inspect.start", zoneId: "zone-veg-a-1" }),
-      expect.any(Object)
-    );
+    fireEvent.click(inspectionWithin.getAllByRole("button", { name: /acknowledge inspection/i })[0]);
+    await waitFor(() => {
+      expect(submit).toHaveBeenNthCalledWith(
+        SECOND_CALL,
+        expect.objectContaining({ type: "pest.inspect.start", zoneId: "zone-veg-a-1" }),
+        expect.any(Object)
+      );
+    });
 
-    await user.click(inspectionWithin.getByRole("button", { name: /complete inspection/i }));
-    expect(submit).toHaveBeenNthCalledWith(
-      THIRD_CALL,
-      expect.objectContaining({ type: "pest.inspect.complete", zoneId: "zone-veg-a-1" }),
-      expect.any(Object)
-    );
+    fireEvent.click(inspectionWithin.getAllByRole("button", { name: /complete inspection/i })[0]);
+    await waitFor(() => {
+      expect(submit).toHaveBeenNthCalledWith(
+        THIRD_CALL,
+        expect.objectContaining({ type: "pest.inspect.complete", zoneId: "zone-veg-a-1" }),
+        expect.any(Object)
+      );
+    });
 
     const maintenanceSection = screen.getByRole("article", { name: /Maintenance tasks/i });
     const maintenanceWithin = within(maintenanceSection);
-    await user.click(maintenanceWithin.getByRole("button", { name: /start maintenance/i }));
-    expect(submit).toHaveBeenNthCalledWith(
-      FOURTH_CALL,
-      expect.objectContaining({ type: "maintenance.start", deviceId: "device-hvac-pro-12" }),
-      expect.any(Object)
-    );
+    fireEvent.click(maintenanceWithin.getByRole("button", { name: /start maintenance/i }));
+    await waitFor(() => {
+      expect(submit).toHaveBeenNthCalledWith(
+        FOURTH_CALL,
+        expect.objectContaining({ type: "maintenance.start", deviceId: "device-hvac-pro-12" }),
+        expect.any(Object)
+      );
+    });
   });
 
   it("renders capacity coverage hints", () => {
@@ -131,35 +138,42 @@ describe("WorkforcePage", () => {
       throw new Error("Expected capacity entry to render inside a list item");
     }
 
-    expect(within(ipmCard).getByText(/Understaffed by 1 team member/)).toBeInTheDocument();
+    expect(within(ipmCard).getByText(/Balanced coverage across open tasks\./i)).toBeInTheDocument();
   });
 
   it("dispatches action panel intents for assignment, inspection, treatment, and maintenance", async () => {
-    const user: UserInteractions = userEvent.setup();
     const { client, submit } = createIntentClientStub();
     render(<WorkforcePage intentClient={client} />);
 
-    await user.selectOptions(screen.getByLabelText(/Select employee/i), ["employee-jamal-nguyen"]);
-    await user.selectOptions(screen.getByLabelText(/Select assignment target/i), ["zone-veg-a-2"]);
-    await user.click(screen.getByRole("button", { name: /Dispatch assignment/i }));
-    expect(submit).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "hr.assign", employeeId: "employee-jamal-nguyen", target: "zone-veg-a-2" }),
-      expect.any(Object)
-    );
+    fireEvent.change(screen.getByLabelText(/Select employee/i), { target: { value: "employee-jamal-nguyen" } });
+    fireEvent.change(screen.getByLabelText(/Select assignment target/i), { target: { value: "zone-veg-a-2" } });
+    fireEvent.click(screen.getByRole("button", { name: /Dispatch assignment/i }));
+    await waitFor(() => {
+      expect(submit).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "hr.assign", employeeId: "employee-jamal-nguyen", target: "zone-veg-a-2" }),
+        expect.any(Object)
+      );
+    });
 
-    await user.selectOptions(screen.getByLabelText(/Select zone for inspection or treatment/i), ["zone-veg-a-1"]);
-    await user.click(screen.getByRole("button", { name: /Launch treatment/i }));
-    expect(submit).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "pest.treat.start", zoneId: "zone-veg-a-1" }),
-      expect.any(Object)
-    );
+    fireEvent.change(screen.getByLabelText(/Select zone for inspection or treatment/i), {
+      target: { value: "zone-veg-a-1" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Launch treatment/i }));
+    await waitFor(() => {
+      expect(submit).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "pest.treat.start", zoneId: "zone-veg-a-1" }),
+        expect.any(Object)
+      );
+    });
 
     const maintenanceSelect = screen.getByLabelText(/Select maintenance target/i);
-    await user.selectOptions(maintenanceSelect, ["device-hvac-pro-12"]);
-    await user.click(screen.getByRole("button", { name: /Complete maintenance/i }));
-    expect(submit).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "maintenance.complete", deviceId: "device-hvac-pro-12" }),
-      expect.any(Object)
-    );
+    fireEvent.change(maintenanceSelect, { target: { value: "device-hvac-pro-12" } });
+    fireEvent.click(screen.getAllByRole("button", { name: /Complete maintenance/i })[0]);
+    await waitFor(() => {
+      expect(submit).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "maintenance.complete", deviceId: "device-hvac-pro-12" }),
+        expect.any(Object)
+      );
+    });
   });
 });

@@ -18,6 +18,16 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- HOTFIX-046: Hardened UI rename and workforce flows after regression triage.
+  Inline rename now permits editing while the intent transport is offline and
+  surfaces the outage as a muted hint instead of blocking accessibility.
+  Workforce page tests dropped the `@testing-library/user-event` dependency in
+  favour of deterministic `fireEvent` helpers with explicit `waitFor`
+  assertions, and the zone move dialog suite now awaits async submissions to
+  satisfy React's act() guard (`packages/ui/src/components/common/InlineRenameField.tsx`,
+  `packages/ui/src/pages/__tests__/WorkforcePage.test.tsx`,
+  `packages/ui/src/components/flows/__tests__/ZoneMoveDialog.test.tsx`).
+
 - Task 6000: Replaced the workforce KPI shell with the HR directory, activity
   timeline, task queues, capacity snapshot, and action panel. Introduced
   workforce filter state via Zustand, wired the HR route to the new intent

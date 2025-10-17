@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ZoneMoveDialog } from "@ui/components/flows/ZoneMoveDialog";
 import { deterministicReadModelSnapshot } from "@ui/test-utils/readModelFixtures";
@@ -77,15 +77,17 @@ describe("ZoneMoveDialog", () => {
     fireEvent.click(screen.getByRole("radio", { name: /expansion bay/i }));
     fireEvent.click(screen.getByRole("button", { name: /move zone/i }));
 
-    expect(stub.submit).toHaveBeenCalledWith(
-      {
-        type: "intent.zone.move.v1",
-        structureId: structure.id,
-        zoneId: "zone-veg-a-1",
-        targetRoomId: "room-target"
-      },
-      expect.any(Object)
-    );
-    expect(onClose).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(stub.submit).toHaveBeenCalledWith(
+        {
+          type: "intent.zone.move.v1",
+          structureId: structure.id,
+          zoneId: "zone-veg-a-1",
+          targetRoomId: "room-target"
+        },
+        expect.any(Object)
+      );
+      expect(onClose).toHaveBeenCalled();
+    });
   });
 });
