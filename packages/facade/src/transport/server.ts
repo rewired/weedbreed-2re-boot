@@ -9,6 +9,7 @@ import {
   createSocketTransportAdapter,
   type SocketTransportAdapter,
   type SocketTransportAdapterOptions,
+  type TelemetryEvent,
   type TransportIntentEnvelope,
 } from './adapter.js';
 
@@ -53,6 +54,8 @@ export interface TransportServer {
   readonly url: string;
   /** Bound Socket.IO namespaces. */
   readonly namespaces: SocketTransportAdapter['namespaces'];
+  /** Broadcasts telemetry envelopes to subscribed clients. */
+  publishTelemetry(event: TelemetryEvent): void;
   /** Closes the Socket.IO adapter and HTTP listener. */
   close(): Promise<void>;
 }
@@ -288,6 +291,9 @@ export async function createTransportServer(options: TransportServerOptions): Pr
     port: resolvedPort,
     url,
     namespaces: adapter.namespaces,
+    publishTelemetry(event) {
+      adapter.publishTelemetry(event);
+    },
     async close() {
       await adapter.close();
       await closeHttpServer(httpServer);
