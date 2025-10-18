@@ -20,9 +20,21 @@ export const TEST_READ_MODEL_SNAPSHOT: ReadModelSnapshot = {
   economy: {
     balance: 98_500,
     deltaPerHour: 320,
+    deltaPerDay: 7680,
     operatingCostPerHour: 210,
     labourCostPerHour: 90,
-    utilitiesCostPerHour: 45
+    utilitiesCostPerHour: 45,
+    tariffs: {
+      price_electricity: 0.12,
+      price_water: 0.04,
+      structures: [
+        {
+          structureId: 'structure-0001',
+          price_electricity: 0.12,
+          price_water: 0.04
+        }
+      ]
+    }
   },
   structures: [
     {

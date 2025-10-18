@@ -112,6 +112,51 @@ const workforceWarningSchema = z
   })
   .strict();
 
+const workforceAssignmentSchema = z
+  .object({
+    scope: z.enum(['structure', 'room', 'zone'], {
+      invalid_type_error: 'Assignment scope must be a string.',
+      required_error: 'Assignment scope is required.'
+    }),
+    targetId: uuidSchema
+  })
+  .strict();
+
+const workforceRosterEntrySchema = z
+  .object({
+    employeeId: uuidSchema,
+    displayName: nonEmptyString('Roster displayName'),
+    structureId: uuidSchema,
+    roleSlug: nonEmptyString('Roster roleSlug'),
+    morale01: nonNegativeNumber('Roster morale01').max(
+      1,
+      'Roster morale01 must be less than or equal to one.'
+    ),
+    fatigue01: nonNegativeNumber('Roster fatigue01').max(
+      1,
+      'Roster fatigue01 must be less than or equal to one.'
+    ),
+    currentTaskId: uuidSchema.nullable(),
+    nextShiftStartTick: nonNegativeNumber('Roster nextShiftStartTick').nullable(),
+    baseHoursPerDay: nonNegativeNumber('Roster baseHoursPerDay').max(
+      24,
+      'Roster baseHoursPerDay must be less than or equal to twenty-four.'
+    ),
+    overtimeHoursPerDay: nonNegativeNumber('Roster overtimeHoursPerDay').max(
+      24,
+      'Roster overtimeHoursPerDay must be less than or equal to twenty-four.'
+    ),
+    daysPerWeek: nonNegativeNumber('Roster daysPerWeek').max(
+      7,
+      'Roster daysPerWeek must be less than or equal to seven.'
+    ),
+    shiftStartHour: nonNegativeNumber('Roster shiftStartHour')
+      .max(23, 'Roster shiftStartHour must be less than twenty-four.')
+      .nullable(),
+    assignment: workforceAssignmentSchema
+  })
+  .strict();
+
 /**
  * Zod validator describing the façade `workforceView` read model payload.
  */
@@ -127,12 +172,14 @@ export const workforceViewSchema = z
         janitor: nonNegativeInteger('roles.janitor')
       })
       .strict(),
+    roster: z.array(workforceRosterEntrySchema).readonly(),
     kpis: z
       .object({
-        utilization: nonNegativeNumber('kpis.utilization').max(
-          1,
-          'kpis.utilization must be less than or equal to one.'
+        utilizationPercent: nonNegativeNumber('kpis.utilizationPercent').max(
+          100,
+          'kpis.utilizationPercent must be less than or equal to one hundred.'
         ),
+        overtimeMinutes: nonNegativeInteger('kpis.overtimeMinutes'),
         warnings: z.array(workforceWarningSchema).readonly()
       })
       .strict()

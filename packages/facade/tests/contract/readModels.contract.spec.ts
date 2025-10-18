@@ -60,8 +60,29 @@ const WORKFORCE_VIEW_FIXTURE: WorkforceViewReadModel = {
     technician: 1,
     janitor: 1,
   },
+  roster: [
+    {
+      employeeId: '00000000-0000-0000-0000-000000000701',
+      displayName: 'Avery Quinn',
+      structureId: COMPANY_TREE_FIXTURE.structures[0]!.id,
+      roleSlug: 'gardener',
+      morale01: 0.82,
+      fatigue01: 0.18,
+      currentTaskId: null,
+      nextShiftStartTick: 16,
+      baseHoursPerDay: 8,
+      overtimeHoursPerDay: 2,
+      daysPerWeek: 5,
+      shiftStartHour: 6,
+      assignment: {
+        scope: 'structure',
+        targetId: COMPANY_TREE_FIXTURE.structures[0]!.id,
+      },
+    },
+  ],
   kpis: {
-    utilization: 0.72,
+    utilizationPercent: 72,
+    overtimeMinutes: 35,
     warnings: [],
   },
 };
