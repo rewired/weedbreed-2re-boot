@@ -14,13 +14,14 @@ import {
 import {
   createPlaybackController,
   type PlaybackController,
+  type PlaybackControllerState,
 } from './playbackController.js';
 import {
   createTransportServer,
   type TransportCorsOptions,
   type TransportServer,
 } from './server.js';
-import type { TransportIntentEnvelope } from './adapter.js';
+import type { TransportAck, TransportIntentEnvelope } from './adapter.js';
 
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 7101;
@@ -43,6 +44,63 @@ export interface FacadeDevServerInstance {
   readonly context: EngineRunContext;
   readonly playback: PlaybackController;
   stop(): Promise<void>;
+}
+
+interface SimulationControlStateSnapshot {
+  readonly running: boolean;
+  readonly paused: boolean;
+  readonly speedMultiplier: number;
+}
+
+type SimulationControlAck = TransportAck & {
+  readonly stateAfter: SimulationControlStateSnapshot;
+};
+
+export interface SimulationControlIntentHandlerOptions {
+  readonly playback: PlaybackController;
+  readonly parseSpeedMultiplier: (intent: TransportIntentEnvelope) => number;
+}
+
+function toSimulationControlAck(state: PlaybackControllerState): SimulationControlAck {
+  return {
+    ok: true,
+    status: 'applied',
+    stateAfter: {
+      running: state.isPlaying,
+      paused: !state.isPlaying,
+      speedMultiplier: state.speedMultiplier,
+    },
+  } satisfies SimulationControlAck;
+}
+
+export function createSimulationControlIntentHandler(
+  options: SimulationControlIntentHandlerOptions
+): (intent: TransportIntentEnvelope) => TransportAck | undefined {
+  const { playback, parseSpeedMultiplier } = options;
+
+  return (intent: TransportIntentEnvelope): TransportAck | undefined => {
+    switch (intent.type) {
+      case 'simulation.control.play': {
+        playback.play();
+        return toSimulationControlAck(playback.getState());
+      }
+      case 'simulation.control.pause': {
+        playback.pause();
+        return toSimulationControlAck(playback.getState());
+      }
+      case 'simulation.control.step': {
+        playback.step();
+        return toSimulationControlAck(playback.getState());
+      }
+      case 'simulation.control.speed': {
+        const multiplier = parseSpeedMultiplier(intent);
+        playback.setSpeed(multiplier);
+        return toSimulationControlAck(playback.getState());
+      }
+      default:
+        return undefined;
+    }
+  };
 }
 
 export async function startFacadeDevServer(
@@ -130,29 +188,13 @@ export async function startFacadeDevServer(
     multiplier: z.number().finite().positive(),
   });
 
-  const handleSimulationControlIntent = (intent: TransportIntentEnvelope): boolean => {
-    switch (intent.type) {
-      case 'simulation.control.play': {
-        playback.play();
-        return true;
-      }
-      case 'simulation.control.pause': {
-        playback.pause();
-        return true;
-      }
-      case 'simulation.control.step': {
-        playback.step();
-        return true;
-      }
-      case 'simulation.control.speed': {
-        const { multiplier } = speedIntentSchema.parse(intent);
-        playback.setSpeed(multiplier);
-        return true;
-      }
-      default:
-        return false;
-    }
-  };
+  const handleSimulationControlIntent = createSimulationControlIntentHandler({
+    playback,
+    parseSpeedMultiplier(intent) {
+      const { multiplier } = speedIntentSchema.parse(intent);
+      return multiplier;
+    },
+  });
 
   const cors: TransportCorsOptions | undefined = options.cors ?? {
     origin: options.corsOrigin ?? DEFAULT_CORS_ORIGIN,
@@ -163,8 +205,10 @@ export async function startFacadeDevServer(
     port: options.port ?? DEFAULT_PORT,
     cors,
     onIntent(intent) {
-      if (handleSimulationControlIntent(intent)) {
-        return;
+      const acknowledgement = handleSimulationControlIntent(intent);
+
+      if (acknowledgement) {
+        return acknowledgement;
       }
 
       return pipeline.handle(intent);
