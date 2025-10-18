@@ -1,24 +1,27 @@
-import { describe, beforeEach, expect, it } from "vitest";
+import { describe, beforeEach, expect, it, vi } from "vitest";
 import {
   configureReadModelClient,
+  configureReadModelRetry,
   getReadModelSnapshot,
   getReadModelStatus,
   refreshReadModels,
-  resetReadModelStore,
-  useReadModelStore
+  resetReadModelStore
 } from "@ui/state/readModels";
+import { createReadModelClient } from "@ui/transport/readModelClient";
 import {
   deterministicReadModelSnapshot,
   createAlteredReadModelSnapshot
 } from "@ui/test-utils/readModelFixtures";
-import type { ReadModelSnapshot } from "@ui/state/readModels.types";
 
-class StubReadModelClient {
-  constructor(private readonly snapshot: ReadModelSnapshot) {}
+const HTTP_STATUS_OK = 200;
+const HTTP_STATUS_SERVICE_UNAVAILABLE = 503;
 
-  loadReadModels(): Promise<ReadModelSnapshot> {
-    return Promise.resolve(this.snapshot);
-  }
+function createFetchResponse(payload: unknown, ok = true, status = HTTP_STATUS_OK): Response {
+  return {
+    ok,
+    status,
+    json: () => Promise.resolve(payload)
+  } as Response;
 }
 
 describe("readModels store", () => {
@@ -26,79 +29,90 @@ describe("readModels store", () => {
     resetReadModelStore();
   });
 
-  it("returns deterministic stub snapshot by default", () => {
+  it("falls back to deterministic fixtures when no transport is configured", async () => {
     expect(getReadModelSnapshot()).toEqual(deterministicReadModelSnapshot);
-    expect(getReadModelStatus()).toEqual({
-      status: "idle",
-      error: null,
-      lastUpdatedSimTimeHours: deterministicReadModelSnapshot.simulation.simTimeHours,
-      isRefreshing: false
-    });
-  });
-
-  it("marks store as ready when refresh runs without a configured client", async () => {
-    await refreshReadModels();
     expect(getReadModelStatus()).toEqual({
       status: "ready",
-      error: null,
+      lastError: null,
       lastUpdatedSimTimeHours: deterministicReadModelSnapshot.simulation.simTimeHours,
       isRefreshing: false
     });
+
+    await refreshReadModels();
+
     expect(getReadModelSnapshot()).toEqual(deterministicReadModelSnapshot);
+    expect(getReadModelStatus()).toEqual({
+      status: "ready",
+      lastError: null,
+      lastUpdatedSimTimeHours: deterministicReadModelSnapshot.simulation.simTimeHours,
+      isRefreshing: false
+    });
   });
 
-  it("updates snapshot when the client resolves", async () => {
+  it("fetches live read models when the transport succeeds", async () => {
     const updatedSnapshot = createAlteredReadModelSnapshot();
-    configureReadModelClient(new StubReadModelClient(updatedSnapshot));
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(createFetchResponse(updatedSnapshot, true, HTTP_STATUS_OK));
+    const client = createReadModelClient({
+      baseUrl: "http://localhost",
+      fetchImpl: fetchMock
+    });
+
+    configureReadModelClient(client, { immediateRefresh: false });
 
     await refreshReadModels();
 
-    expect(getReadModelSnapshot()).toEqual(updatedSnapshot);
+    expect(fetchMock).toHaveBeenCalledWith("http://localhost/api/read-models", {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      signal: undefined
+    });
     expect(getReadModelStatus()).toEqual({
       status: "ready",
-      error: null,
+      lastError: null,
       lastUpdatedSimTimeHours: updatedSnapshot.simulation.simTimeHours,
       isRefreshing: false
     });
+    expect(getReadModelSnapshot().simulation.simTimeHours).toBe(
+      updatedSnapshot.simulation.simTimeHours
+    );
   });
 
-  it("retains the previous snapshot when the client fails", async () => {
-    const errorClient = {
-      loadReadModels(): Promise<ReadModelSnapshot> {
-        return Promise.reject(new Error("network error"));
+  it("records errors and schedules deterministic retries when the transport fails", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      createFetchResponse({}, false, HTTP_STATUS_SERVICE_UNAVAILABLE)
+    );
+    const client = createReadModelClient({
+      baseUrl: "http://localhost",
+      fetchImpl: fetchMock
+    });
+
+    const scheduled: { delay: number; attempt: number; task: () => void }[] = [];
+    configureReadModelRetry({
+      delaysMs: [250, 500],
+      scheduler: (delayMs, attempt, task) => {
+        scheduled.push({ delay: delayMs, attempt, task });
+        // Do not execute the task automatically during tests.
+        return () => {
+          // no-op in tests
+        };
       }
-    };
-    configureReadModelClient(errorClient);
+    });
+
+    configureReadModelClient(client, { immediateRefresh: false });
 
     await refreshReadModels();
 
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(getReadModelSnapshot()).toEqual(deterministicReadModelSnapshot);
     expect(getReadModelStatus()).toEqual({
       status: "error",
-      error: "network error",
+      lastError: `Read-model request failed with status ${String(HTTP_STATUS_SERVICE_UNAVAILABLE)}`,
       lastUpdatedSimTimeHours: deterministicReadModelSnapshot.simulation.simTimeHours,
       isRefreshing: false
     });
-  });
-
-  it("preserves ready status when a subsequent refresh fails", async () => {
-    const updatedSnapshot = createAlteredReadModelSnapshot();
-    configureReadModelClient(new StubReadModelClient(updatedSnapshot));
-    await refreshReadModels();
-
-    const failingClient = {
-      loadReadModels(): Promise<ReadModelSnapshot> {
-        return Promise.reject(new Error("timeout"));
-      }
-    };
-    configureReadModelClient(failingClient);
-
-    await refreshReadModels();
-
-    expect(getReadModelSnapshot()).toEqual(updatedSnapshot);
-    const state = useReadModelStore.getState();
-    expect(state.status).toBe("ready");
-    expect(state.error).toBe("timeout");
-    expect(state.lastUpdatedSimTimeHours).toBe(updatedSnapshot.simulation.simTimeHours);
+    expect(scheduled).toHaveLength(1);
+    expect(scheduled[0]).toMatchObject({ delay: 250, attempt: 1 });
   });
 });

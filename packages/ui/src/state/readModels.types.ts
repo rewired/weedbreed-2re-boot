@@ -340,11 +340,11 @@ export interface ReadModelSnapshot {
 
 export type FrozenReadModelSnapshot = ReadModelSnapshot;
 
-export type ReadModelStatus = "idle" | "loading" | "ready" | "error";
+export type ReadModelStatus = "loading" | "ready" | "error";
 
 export interface ReadModelStoreStatus {
   readonly status: ReadModelStatus;
-  readonly error: string | null;
+  readonly lastError: string | null;
   readonly lastUpdatedSimTimeHours: number | null;
   readonly isRefreshing: boolean;
 }

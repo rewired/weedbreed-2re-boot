@@ -104,7 +104,9 @@ describe("readModel hooks", () => {
 
   it("updates status and data after a successful refresh", async () => {
     const refreshedSnapshot = createAlteredReadModelSnapshot();
-    configureReadModelClient(new StaticReadModelClient(refreshedSnapshot));
+    configureReadModelClient(new StaticReadModelClient(refreshedSnapshot), {
+      immediateRefresh: false
+    });
 
     await act(async () => {
       await refreshReadModels();
@@ -113,7 +115,7 @@ describe("readModel hooks", () => {
     const { result: statusResult } = renderHook(() => useReadModelStatus());
     expect(statusResult.current).toEqual({
       status: "ready",
-      error: null,
+      lastError: null,
       lastUpdatedSimTimeHours: refreshedSnapshot.simulation.simTimeHours,
       isRefreshing: false
     });
