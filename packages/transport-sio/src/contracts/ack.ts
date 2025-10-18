@@ -38,11 +38,29 @@ export interface TransportAckError {
 /**
  * Shape returned to clients when acknowledging intent submissions.
  */
+const ACK_STATUS_VALUES = ['queued', 'applied', 'rejected'] as const;
+
+export type TransportAckStatus = (typeof ACK_STATUS_VALUES)[number];
+
 export interface TransportAck {
   /** Indicates whether the submission succeeded. */
   readonly ok: boolean;
   /** Optional error details when {@link TransportAck.ok} is false. */
   readonly error?: TransportAckError;
+  /** Optional deterministic identifier referencing the submitted intent. */
+  readonly intentId?: string | null;
+  /** Optional correlation identifier provided by the client. */
+  readonly correlationId?: string | null;
+  /** Deterministic status describing the acknowledgement lifecycle. */
+  readonly status?: TransportAckStatus;
+}
+
+function isAckStatus(value: unknown): value is TransportAckStatus {
+  return typeof value === 'string' && ACK_STATUS_VALUES.includes(value as TransportAckStatus);
+}
+
+function isOptionalString(value: unknown): value is string | null | undefined {
+  return value === undefined || value === null || typeof value === 'string';
 }
 
 function isTransportAckError(value: unknown): value is TransportAckError {
@@ -78,6 +96,21 @@ export function assertTransportAck(payload: unknown): asserts payload is Transpo
   }
 
   const error = record.error;
+  const intentId = record.intentId;
+  const correlationId = record.correlationId;
+  const status = record.status;
+
+  if (!isOptionalString(intentId)) {
+    throw new TypeError('Transport acknowledgement intentId must be a string or null when provided.');
+  }
+
+  if (!isOptionalString(correlationId)) {
+    throw new TypeError('Transport acknowledgement correlationId must be a string or null when provided.');
+  }
+
+  if (status !== undefined && !isAckStatus(status)) {
+    throw new TypeError('Transport acknowledgement status must be queued, applied, or rejected when provided.');
+  }
 
   if (ok) {
     if (error !== undefined) {

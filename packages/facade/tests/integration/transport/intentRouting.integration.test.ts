@@ -31,7 +31,9 @@ describe('transport adapter — intent namespace', () => {
         );
       });
 
-      expect(ack).toEqual({ ok: true });
+      expect(ack).toMatchObject({ ok: true, status: 'queued' });
+      expect(ack.intentId ?? null).toBeNull();
+      expect(ack.correlationId ?? null).toBeNull();
       expect(received).toHaveLength(1);
       expect(received[0]).toMatchObject({ type: 'hiring.market.scan' });
     } finally {
@@ -58,6 +60,8 @@ describe('transport adapter — intent namespace', () => {
       });
 
       expect(ack.ok).toBe(false);
+      expect(ack.status).toBe('rejected');
+      expect(ack.intentId ?? null).toBeNull();
       expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.INTENT_INVALID);
     } finally {
       if (client) {
@@ -91,8 +95,10 @@ describe('transport adapter — intent namespace', () => {
       const emitted = await errorEvent;
 
       expect(ack.ok).toBe(false);
+      expect(ack.status).toBe('rejected');
       expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.INTENT_CHANNEL_INVALID);
       expect(emitted.ok).toBe(false);
+      expect(emitted.status).toBe('rejected');
       expect(emitted.error?.code).toBe(SOCKET_ERROR_CODES.INTENT_CHANNEL_INVALID);
     } finally {
       if (client) {
@@ -122,6 +128,7 @@ describe('transport adapter — intent namespace', () => {
       });
 
       expect(ack.ok).toBe(false);
+      expect(ack.status).toBe('rejected');
       expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.INTENT_HANDLER_ERROR);
       expect(ack.error?.message).toContain('handler exploded');
     } finally {

@@ -1,4 +1,4 @@
-/* eslint-disable wb-sim/no-economy-per-tick, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call */
+/* eslint-disable wb-sim/no-economy-per-tick */
 import { parse as tsParse, parseForESLint as tsParseForESLint } from '@typescript-eslint/parser';
 import { Linter } from 'eslint';
 import { describe, expect, it } from 'vitest';

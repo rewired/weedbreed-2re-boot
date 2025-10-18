@@ -216,6 +216,7 @@ describe('createSocketTransportAdapter — telemetry read-only contract', () => 
       const [ack, errorPayload] = await Promise.all([ackPromise, errorEventPromise]);
 
       expect(ack.ok).toBe(false);
+      expect(ack.status).toBe('rejected');
       expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED);
       expect(errorPayload).toEqual(ack);
       expect(onIntent).not.toHaveBeenCalled();
@@ -273,7 +274,9 @@ describe('createSocketTransportAdapter — intent submissions', () => {
         });
       });
 
-      expect(ack).toEqual({ ok: true });
+      expect(ack).toMatchObject({ ok: true, status: 'queued' });
+      expect(ack.intentId ?? null).toBeNull();
+      expect(ack.correlationId ?? null).toBeNull();
       expect(onIntent).toHaveBeenCalledTimes(1);
       expect(onIntent).toHaveBeenCalledWith({ type: 'facility.startup' });
     } finally {
@@ -299,6 +302,7 @@ describe('createSocketTransportAdapter — intent submissions', () => {
       });
 
       expect(ack.ok).toBe(false);
+      expect(ack.status).toBe('rejected');
       expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.INTENT_INVALID);
       expect(onIntent).not.toHaveBeenCalled();
     } finally {

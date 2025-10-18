@@ -118,9 +118,10 @@ export function SetLightScheduleForm({ zoneId, intentClient, className }: SetLig
 
   const validationErrors = validationResult.errors;
   const activeStatuses = useMemo(() => {
-    const entries = Object.entries(validationResult.status) as Array<
-      [keyof LightScheduleValidationStatusMap, ValidationStatusDetail]
-    >;
+    const entries = Object.entries(validationResult.status) as [
+      keyof LightScheduleValidationStatusMap,
+      ValidationStatusDetail
+    ][];
     return entries.filter(([, detail]) => detail.status !== "ok");
   }, [validationResult.status]);
 

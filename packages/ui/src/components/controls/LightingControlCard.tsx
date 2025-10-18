@@ -228,9 +228,10 @@ export function LightingControlCard({
 
   const scheduleErrors = validationResult.errors;
   const activeScheduleStatuses = useMemo(() => {
-    const entries = Object.entries(validationResult.status) as Array<
-      [keyof LightScheduleValidationStatusMap, ValidationStatusDetail]
-    >;
+    const entries = Object.entries(validationResult.status) as [
+      keyof LightScheduleValidationStatusMap,
+      ValidationStatusDetail
+    ][];
     return entries.filter(([, detail]) => detail.status !== "ok");
   }, [validationResult.status]);
 

@@ -56,7 +56,9 @@ describe('transport intent forwarding', () => {
         );
       });
 
-      expect(ack).toEqual({ ok: true });
+      expect(ack).toMatchObject({ ok: true, status: 'queued' });
+      expect(ack.intentId ?? null).toBeNull();
+      expect(ack.correlationId ?? null).toBeNull();
 
       const charges = consumeWorkforceMarketCharges(context);
       expect(charges).toBeDefined();
@@ -99,6 +101,7 @@ describe('transport intent forwarding', () => {
       });
 
       expect(ack.ok).toBe(false);
+      expect(ack.status).toBe('rejected');
       expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.INTENT_HANDLER_ERROR);
       expect(ack.error?.message).toMatch(/validation/i);
     } finally {

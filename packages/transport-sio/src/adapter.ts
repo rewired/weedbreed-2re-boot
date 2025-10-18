@@ -27,6 +27,43 @@ export {
 /**
  * Options required to initialise the Socket.IO transport adapter.
  */
+interface AckMetadata {
+  readonly intentId: string | null;
+  readonly correlationId: string | null;
+}
+
+const NULL_METADATA: AckMetadata = { intentId: null, correlationId: null };
+
+function extractAckMetadata(payload: unknown): AckMetadata {
+  if (typeof payload !== 'object' || payload === null) {
+    return NULL_METADATA;
+  }
+
+  const record = payload as Record<string, unknown>;
+  const intentId = typeof record.intentId === 'string' && record.intentId.length > 0 ? record.intentId : null;
+  const correlationId =
+    typeof record.correlationId === 'string' && record.correlationId.length > 0 ? record.correlationId : null;
+
+  return { intentId, correlationId } satisfies AckMetadata;
+}
+
+function createIntentSuccessAck(metadata: AckMetadata): TransportAck {
+  return {
+    ok: true,
+    intentId: metadata.intentId,
+    correlationId: metadata.correlationId,
+    status: 'queued'
+  } satisfies TransportAck;
+}
+
+function withMetadata(ack: TransportAck, metadata: AckMetadata): TransportAck {
+  return {
+    ...ack,
+    intentId: metadata.intentId,
+    correlationId: metadata.correlationId
+  } satisfies TransportAck;
+}
+
 export interface SocketTransportAdapterOptions {
   /**
    * HTTP server instance used to bind the Socket.IO server.
@@ -87,7 +124,9 @@ function createTelemetryRejection(): TransportAck {
     error: {
       code: SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED,
       message: 'Telemetry channel is read-only per SEC §1 invariant.'
-    }
+    },
+    ...NULL_METADATA,
+    status: 'rejected'
   };
 }
 
@@ -97,7 +136,9 @@ function createIntentChannelRejection(): TransportAck {
     error: {
       code: SOCKET_ERROR_CODES.INTENT_CHANNEL_INVALID,
       message: 'Intents namespace only accepts intent submissions via intent:submit.'
-    }
+    },
+    ...NULL_METADATA,
+    status: 'rejected'
   };
 }
 
@@ -107,17 +148,21 @@ function createIntentValidationError(): TransportAck {
     error: {
       code: SOCKET_ERROR_CODES.INTENT_INVALID,
       message: 'Intent payload must be an object with a string type.'
-    }
+    },
+    ...NULL_METADATA,
+    status: 'rejected'
   };
 }
 
-function createIntentHandlerError(message: string): TransportAck {
+function createIntentHandlerError(message: string, metadata: AckMetadata): TransportAck {
   return {
     ok: false,
     error: {
       code: SOCKET_ERROR_CODES.INTENT_HANDLER_ERROR,
       message
-    }
+    },
+    ...metadata,
+    status: 'rejected'
   };
 }
 
@@ -161,17 +206,19 @@ export function createSocketTransportAdapter(
         throw new TypeError('Intent submissions must include an acknowledgement callback.');
       }
 
+      const metadata = extractAckMetadata(payload);
+
       if (typeof payload !== 'object' || payload === null || typeof (payload as Record<string, unknown>).type !== 'string') {
-        ack(createIntentValidationError());
+        ack(withMetadata(createIntentValidationError(), metadata));
         return;
       }
 
       try {
         await options.onIntent(payload as TransportIntentEnvelope);
-        ack({ ok: true });
+        ack(createIntentSuccessAck(metadata));
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Intent handler rejected the submission.';
-        ack(createIntentHandlerError(message));
+        ack(createIntentHandlerError(message, metadata));
       }
     });
 
