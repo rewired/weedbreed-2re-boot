@@ -61,8 +61,29 @@ const BASE_WORKFORCE_VIEW: WorkforceViewReadModel = {
     technician: 2,
     janitor: 1
   },
+  roster: [
+    {
+      employeeId: '00000000-0000-0000-0000-000000000401',
+      displayName: 'Jamie Rivera',
+      structureId: STRUCTURE_ID,
+      roleSlug: 'gardener',
+      morale01: 0.8,
+      fatigue01: 0.2,
+      currentTaskId: null,
+      nextShiftStartTick: 24,
+      baseHoursPerDay: 8,
+      overtimeHoursPerDay: 2,
+      daysPerWeek: 5,
+      shiftStartHour: 6,
+      assignment: {
+        scope: 'structure',
+        targetId: STRUCTURE_ID
+      }
+    }
+  ],
   kpis: {
-    utilization: 0.72,
+    utilizationPercent: 72,
+    overtimeMinutes: 30,
     warnings: [
       {
         code: 'WB_WORKFORCE_OVERTIME',

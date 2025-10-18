@@ -117,7 +117,10 @@ describe('createReadModelProviders', () => {
     const workforceView = await providers.workforceView();
     expect(workforceView.headcount).toBe(1);
     expect(workforceView.roles.gardener).toBe(1);
-    expect(workforceView.kpis.utilization).toBe(0.5);
+    expect(workforceView.kpis.utilizationPercent).toBeCloseTo(50, 6);
+    expect(workforceView.kpis.overtimeMinutes).toBe(SAMPLE_KPI.overtimeMinutes);
+    expect(workforceView.roster).toHaveLength(1);
+    expect(workforceView.roster[0]?.employeeId).toBe(employeeId);
 
     const snapshot = await providers.readModels();
     expect(snapshot.structures).toHaveLength(world.company.structures.length);
@@ -325,10 +328,17 @@ describe('createReadModelProviders', () => {
     expect(Object.isFrozen(snapshot)).toBe(true);
     expect(Object.isFrozen(snapshot.structures)).toBe(true);
 
+    expect(snapshot.economy.balance).toBe(0);
     expect(snapshot.economy.labourCostPerHour).toBeCloseTo(64.6, 6);
     expect(snapshot.economy.utilitiesCostPerHour).toBeCloseTo(1.122271, 6);
     expect(snapshot.economy.operatingCostPerHour).toBeCloseTo(65.734771, 6);
     expect(snapshot.economy.deltaPerHour).toBeCloseTo(-65.734771, 6);
+    expect(snapshot.economy.deltaPerDay).toBeCloseTo(-1_577.634504, 6);
+    expect(snapshot.economy.tariffs.structures.length).toBeGreaterThan(0);
+    expect(snapshot.economy.tariffs.price_electricity).toBeCloseTo(
+      engineConfig.tariffs.price_electricity ?? 0,
+      6
+    );
 
     expect(() => {
       const first = snapshot.structures[0] as unknown as { coverage: { lightingCoverage01: number } };

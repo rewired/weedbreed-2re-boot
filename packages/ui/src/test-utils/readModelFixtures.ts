@@ -59,9 +59,21 @@ const rawSnapshotJson = `
   "economy": {
     "balance": 1250000.5,
     "deltaPerHour": 1425.75,
+    "deltaPerDay": 34218,
     "operatingCostPerHour": 987.4,
     "labourCostPerHour": 420.25,
-    "utilitiesCostPerHour": 185.6
+    "utilitiesCostPerHour": 185.6,
+    "tariffs": {
+      "price_electricity": 0.11,
+      "price_water": 0.03,
+      "structures": [
+        {
+          "structureId": "structure-green-harbor",
+          "price_electricity": 0.11,
+          "price_water": 0.03
+        }
+      ]
+    }
   },
   "structures": [
     {

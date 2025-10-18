@@ -55,8 +55,29 @@ const WORKFORCE_VIEW_PAYLOAD: WorkforceViewReadModel = {
     technician: 2,
     janitor: 1
   },
+  roster: [
+    {
+      employeeId: '00000000-0000-0000-0000-000000000601',
+      displayName: 'Morgan Lee',
+      structureId: COMPANY_TREE_PAYLOAD.structures[0]!.id,
+      roleSlug: 'gardener',
+      morale01: 0.75,
+      fatigue01: 0.25,
+      currentTaskId: null,
+      nextShiftStartTick: 12,
+      baseHoursPerDay: 8,
+      overtimeHoursPerDay: 1,
+      daysPerWeek: 5,
+      shiftStartHour: 6,
+      assignment: {
+        scope: 'structure',
+        targetId: COMPANY_TREE_PAYLOAD.structures[0]!.id
+      }
+    }
+  ],
   kpis: {
-    utilization: 0.78,
+    utilizationPercent: 78,
+    overtimeMinutes: 60,
     warnings: []
   }
 };

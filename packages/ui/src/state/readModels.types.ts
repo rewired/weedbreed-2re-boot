@@ -17,12 +17,26 @@ export interface SimulationIncidentSummary {
   readonly raisedAtTick: number;
 }
 
+export interface EconomyTariffReference {
+  readonly structureId: string;
+  readonly price_electricity: number;
+  readonly price_water: number;
+}
+
+export interface EconomyTariffsSnapshot {
+  readonly price_electricity: number;
+  readonly price_water: number;
+  readonly structures: readonly EconomyTariffReference[];
+}
+
 export interface EconomyReadModel {
   readonly balance: number;
   readonly deltaPerHour: number;
+  readonly deltaPerDay: number;
   readonly operatingCostPerHour: number;
   readonly labourCostPerHour: number;
   readonly utilitiesCostPerHour: number;
+  readonly tariffs: EconomyTariffsSnapshot;
 }
 
 export interface DeviceSummary {

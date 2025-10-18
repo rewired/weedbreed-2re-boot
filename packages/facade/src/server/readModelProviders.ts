@@ -123,6 +123,10 @@ function roundTo(value: number, digits = 6): number {
   return Number.parseFloat(value.toFixed(digits));
 }
 
+function sanitizeZero(value: number): number {
+  return Object.is(value, -0) ? 0 : value;
+}
+
 interface StructureMetrics {
   readonly lightingCoverage01: number;
   readonly hvacCapacity01: number;
@@ -137,6 +141,7 @@ interface StructureMetrics {
 type ZoneTaskEntry = ZoneReadModel['tasks'][number];
 type ZoneDeviceWarning = ZoneReadModel['coverageWarnings'][number];
 type WorkforceTaskInstance = WorkforceState['taskQueue'][number];
+type WorkforceEmployee = WorkforceState['employees'][number];
 
 const ZONE_TASK_TYPE_MAP: Record<string, ZoneTaskEntry['type']> = {
   repair_device: 'maintenance',
@@ -701,6 +706,40 @@ function mapWorkforceWarning(warning: WorkforceWarning) {
   };
 }
 
+function selectEmployeeTaskId(queue: readonly WorkforceTaskInstance[], employeeId: WorkforceEmployee['id']) {
+  const active = queue.find(
+    (task) => task.assignedEmployeeId === employeeId && task.status === 'in-progress'
+  );
+
+  if (active) {
+    return active.id;
+  }
+
+  const queued = queue.find(
+    (task) => task.assignedEmployeeId === employeeId && task.status === 'queued'
+  );
+
+  return queued?.id ?? null;
+}
+
+function computeNextShiftStartTick(simTimeHours: number, employee: WorkforceEmployee): number | null {
+  const shiftStart = employee.schedule.shiftStartHour;
+
+  if (typeof shiftStart !== 'number' || !Number.isFinite(shiftStart)) {
+    return null;
+  }
+
+  const currentDayStart = Math.floor(simTimeHours / HOURS_PER_DAY) * HOURS_PER_DAY;
+  const normalizedStart = Math.min(Math.max(0, shiftStart), HOURS_PER_DAY - 1);
+  const sameDayStart = currentDayStart + normalizedStart;
+
+  if (sameDayStart > simTimeHours) {
+    return sameDayStart;
+  }
+
+  return sameDayStart + HOURS_PER_DAY;
+}
+
 function mapWorkforceView(world: SimulationWorld): WorkforceViewReadModel {
   const workforce = world.workforce;
   const roleById = new Map(workforce.roles.map((role) => [role.id, role]));
@@ -733,6 +772,35 @@ function mapWorkforceView(world: SimulationWorld): WorkforceViewReadModel {
   }
 
   const latestKpi = workforce.kpis.at(-1);
+  const roster = workforce.employees
+    .map((employee) => {
+      const role = roleById.get(employee.roleId);
+      const currentTaskId = selectEmployeeTaskId(workforce.taskQueue, employee.id);
+      const nextShiftStartTick = computeNextShiftStartTick(world.simTimeHours, employee);
+
+      return {
+        employeeId: employee.id,
+        displayName: employee.name,
+        structureId: employee.assignedStructureId,
+        roleSlug: role?.slug ?? 'unassigned',
+        morale01: clampFraction(employee.morale01),
+        fatigue01: clampFraction(employee.fatigue01),
+        currentTaskId,
+        nextShiftStartTick,
+        baseHoursPerDay: roundTo(employee.schedule.hoursPerDay ?? 0, 3),
+        overtimeHoursPerDay: roundTo(employee.schedule.overtimeHoursPerDay ?? 0, 3),
+        daysPerWeek: employee.schedule.daysPerWeek ?? 0,
+        shiftStartHour:
+          typeof employee.schedule.shiftStartHour === 'number'
+            ? roundTo(Math.max(0, Math.min(23, employee.schedule.shiftStartHour)), 3)
+            : null,
+        assignment: {
+          scope: 'structure' as const,
+          targetId: employee.assignedStructureId
+        }
+      };
+    })
+    .sort((left, right) => left.displayName.localeCompare(right.displayName));
 
   return {
     schemaVersion: WORKFORCE_VIEW_SCHEMA_VERSION,
@@ -744,9 +812,11 @@ function mapWorkforceView(world: SimulationWorld): WorkforceViewReadModel {
       janitor: mutableCounts.janitor
     },
     kpis: {
-      utilization: latestKpi?.utilization01 ?? 0,
+      utilizationPercent: roundTo((latestKpi?.utilization01 ?? 0) * 100, 2),
+      overtimeMinutes: Math.round(latestKpi?.overtimeMinutes ?? 0),
       warnings: workforce.warnings.map(mapWorkforceWarning)
-    }
+    },
+    roster
   } satisfies WorkforceViewReadModel;
 }
 
@@ -813,6 +883,7 @@ function sumLabourCostPerHour(workforce: WorkforceState): number {
 }
 
 function mapEconomyReadModel(
+  world: SimulationWorld,
   structures: readonly StructureMetrics[],
   workforce: WorkforceState,
   tariffs: EngineBootstrapConfig['tariffs']
@@ -830,13 +901,31 @@ function mapEconomyReadModel(
     0
   );
   const operatingCostPerHour = labourCostPerHour + maintenanceCostPerHour + utilitiesCostPerHour;
+  const payrollTotals = workforce.payroll?.totals;
+  const balanceRaw = payrollTotals ? -roundTo(payrollTotals.totalLaborCost ?? 0, 2) : 0;
+  const deltaPerHour = roundTo(-operatingCostPerHour);
+  const deltaPerDay = roundTo(deltaPerHour * HOURS_PER_DAY);
+  const resolvedTariffs = createStructureTariffsReadModel(world, tariffs);
+  const tariffStructures = resolvedTariffs.structures
+    .map((entry) => ({
+      structureId: entry.structureId,
+      price_electricity: entry.effective.price_electricity,
+      price_water: entry.effective.price_water
+    }))
+    .sort((left, right) => left.structureId.localeCompare(right.structureId));
 
   return {
-    balance: 0,
-    deltaPerHour: roundTo(-operatingCostPerHour),
+    balance: sanitizeZero(balanceRaw),
+    deltaPerHour: sanitizeZero(deltaPerHour),
+    deltaPerDay: sanitizeZero(deltaPerDay),
     operatingCostPerHour: roundTo(operatingCostPerHour),
     labourCostPerHour: roundTo(labourCostPerHour),
-    utilitiesCostPerHour: roundTo(utilitiesCostPerHour)
+    utilitiesCostPerHour: roundTo(utilitiesCostPerHour),
+    tariffs: {
+      price_electricity: resolvedTariffs.rollup.price_electricity,
+      price_water: resolvedTariffs.rollup.price_water,
+      structures: tariffStructures
+    }
   } satisfies EconomyReadModel;
 }
 
@@ -1112,7 +1201,12 @@ export function createReadModelProviders(context: EngineContext) {
       const structures = rawStructures.map((structure, index) =>
         mapStructure(structure, context.companyWorld, context.world.workforce, structureMetrics[index])
       );
-      const economy = mapEconomyReadModel(structureMetrics, context.world.workforce, context.config.tariffs);
+      const economy = mapEconomyReadModel(
+        context.world,
+        structureMetrics,
+        context.world.workforce,
+        context.config.tariffs
+      );
       const hr = mapHrReadModel(context.world.workforce);
       const priceBook = mapPriceBook(context.world);
       const compatibility = mapCompatibility();
