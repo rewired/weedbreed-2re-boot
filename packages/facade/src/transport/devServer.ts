@@ -52,11 +52,31 @@ export async function startFacadeDevServer(
   let world = options.world ?? seeded.world;
   const baseContext: EngineRunContext = options.context ?? {};
   const upstreamTelemetry = baseContext.telemetry;
+  const debugTelemetryBuffer = process.env.WB_FACADE_DEBUG_TELEMETRY === 'true';
   const pendingTelemetry: TelemetryEnvelope[] = [];
   let publisher: TransportServer['publishTelemetry'] | null = null;
+  let telemetryNamespace: TransportServer['namespaces']['telemetry'] | null = null;
+
+  const logTelemetryBuffer = (message: string): void => {
+    if (!debugTelemetryBuffer) {
+      return;
+    }
+
+    const size = pendingTelemetry.length;
+    console.debug('[facade][telemetry-buffer]', `${message} (size=${size})`);
+  };
+
+  const hasTelemetrySubscribers = (): boolean =>
+    (telemetryNamespace?.sockets.size ?? 0) > 0;
 
   const flushPendingTelemetry = () => {
     if (!publisher) {
+      logTelemetryBuffer('skip flush: publisher unavailable');
+      return;
+    }
+
+    if (!hasTelemetrySubscribers()) {
+      logTelemetryBuffer('skip flush: no telemetry subscribers');
       return;
     }
 
@@ -67,16 +87,19 @@ export async function startFacadeDevServer(
         publisher(event);
       }
     }
+
+    logTelemetryBuffer('flushed pending telemetry');
   };
 
   const telemetryBridge: EngineRunContext['telemetry'] = {
     emit(topic, payload) {
       const envelope: TelemetryEnvelope = { topic, payload };
 
-      if (publisher) {
+      if (publisher && hasTelemetrySubscribers()) {
         publisher(envelope);
       } else {
         pendingTelemetry.push(envelope);
+        logTelemetryBuffer('queued telemetry envelope');
       }
 
       upstreamTelemetry?.emit(topic, payload);
@@ -149,6 +172,14 @@ export async function startFacadeDevServer(
   });
 
   publisher = server.publishTelemetry;
+  telemetryNamespace = server.namespaces.telemetry;
+
+  const handleTelemetryConnection = () => {
+    logTelemetryBuffer('telemetry namespace connected');
+    flushPendingTelemetry();
+  };
+
+  telemetryNamespace.on('connection', handleTelemetryConnection);
   flushPendingTelemetry();
 
   return {
@@ -157,6 +188,7 @@ export async function startFacadeDevServer(
     context,
     playback,
     async stop() {
+      telemetryNamespace?.off('connection', handleTelemetryConnection);
       playback.dispose();
       await server.close();
     },
