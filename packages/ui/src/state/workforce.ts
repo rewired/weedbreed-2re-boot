@@ -1,25 +1,15 @@
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 import { create } from "zustand";
+
+import type {
+  HrReadModel,
+  HrTaskQueue,
+  HrTaskQueueEntry
+} from "@ui/state/readModels.types";
+import { useReadModelStore } from "@ui/state/readModels";
 import { useWorkforceKpiTelemetry } from "@ui/state/telemetry";
 
-const WORKFORCE_STUB_TOTAL_TEAM_MEMBERS = 28;
-const WORKFORCE_STUB_ACTIVE_TEAM_MEMBERS = 24;
-const WORKFORCE_STUB_UNAVAILABLE_TEAM_MEMBERS = 3;
-const WORKFORCE_STUB_OPEN_ROLES = 2;
-
-const WORKFORCE_ROLE_MIX_CULTIVATION_HEADCOUNT = 12;
-const WORKFORCE_ROLE_MIX_CULTIVATION_PERCENT = 43;
-const WORKFORCE_ROLE_MIX_HARVEST_HEADCOUNT = 6;
-const WORKFORCE_ROLE_MIX_HARVEST_PERCENT = 21;
-const WORKFORCE_ROLE_MIX_POST_PROCESSING_HEADCOUNT = 5;
-const WORKFORCE_ROLE_MIX_POST_PROCESSING_PERCENT = 18;
-const WORKFORCE_ROLE_MIX_FACILITIES_HEADCOUNT = 3;
-const WORKFORCE_ROLE_MIX_FACILITIES_PERCENT = 11;
-const WORKFORCE_ROLE_MIX_OPERATIONS_HEADCOUNT = 2;
-const WORKFORCE_ROLE_MIX_OPERATIONS_PERCENT = 7;
-
-const WORKFORCE_UTILISATION_AVERAGE_PERCENT = 82;
-const WORKFORCE_UTILISATION_TARGET_PERCENT = 85;
+const WORKFORCE_TARGET_UTILISATION_PERCENT = 85;
 
 export interface WorkforceHeadcountSummary {
   readonly totalTeamMembers: number;
@@ -54,11 +44,6 @@ export interface WorkforceSnapshot {
   readonly roleMix: readonly WorkforceRoleMixEntry[];
   readonly utilization: WorkforceUtilizationSummary;
   readonly warnings: readonly WorkforceWarning[];
-}
-
-export interface WorkforceStore {
-  getSnapshot(): WorkforceSnapshot;
-  subscribe(listener: () => void): () => void;
 }
 
 export interface WorkforceFilterSelection {
@@ -128,79 +113,6 @@ const useWorkforceFilterStore = create<WorkforceFilterStore>((set) => ({
   }
 }));
 
-const workforceStubSnapshot: WorkforceSnapshot = Object.freeze({
-  headcount: Object.freeze({
-    totalTeamMembers: WORKFORCE_STUB_TOTAL_TEAM_MEMBERS,
-    activeTeamMembers: WORKFORCE_STUB_ACTIVE_TEAM_MEMBERS,
-    unavailableTeamMembers: WORKFORCE_STUB_UNAVAILABLE_TEAM_MEMBERS,
-    openRoles: WORKFORCE_STUB_OPEN_ROLES
-  }),
-  roleMix: Object.freeze([
-    Object.freeze({
-      id: "role-cultivation-technician",
-      roleName: "Cultivation technicians",
-      headcount: WORKFORCE_ROLE_MIX_CULTIVATION_HEADCOUNT,
-      percentOfTeam: WORKFORCE_ROLE_MIX_CULTIVATION_PERCENT
-    }),
-    Object.freeze({
-      id: "role-harvest-specialist",
-      roleName: "Harvest specialists",
-      headcount: WORKFORCE_ROLE_MIX_HARVEST_HEADCOUNT,
-      percentOfTeam: WORKFORCE_ROLE_MIX_HARVEST_PERCENT
-    }),
-    Object.freeze({
-      id: "role-post-processing",
-      roleName: "Post-processing",
-      headcount: WORKFORCE_ROLE_MIX_POST_PROCESSING_HEADCOUNT,
-      percentOfTeam: WORKFORCE_ROLE_MIX_POST_PROCESSING_PERCENT
-    }),
-    Object.freeze({
-      id: "role-facilities",
-      roleName: "Facilities & compliance",
-      headcount: WORKFORCE_ROLE_MIX_FACILITIES_HEADCOUNT,
-      percentOfTeam: WORKFORCE_ROLE_MIX_FACILITIES_PERCENT
-    }),
-    Object.freeze({
-      id: "role-operations",
-      roleName: "Operations support",
-      headcount: WORKFORCE_ROLE_MIX_OPERATIONS_HEADCOUNT,
-      percentOfTeam: WORKFORCE_ROLE_MIX_OPERATIONS_PERCENT
-    })
-  ]),
-  utilization: Object.freeze({
-    averageUtilizationPercent: WORKFORCE_UTILISATION_AVERAGE_PERCENT,
-    targetUtilizationPercent: WORKFORCE_UTILISATION_TARGET_PERCENT,
-    focusAreas: Object.freeze([
-      "Vegetative care shifts nearing overtime thresholds",
-      "Post-harvest sanitation backlog requires relief coverage"
-    ]),
-    notes:
-      "Placeholder utilisation rollup summarising SEC §4.2 task pipeline hours across cultivation, harvest, and facilities teams."
-  }),
-  warnings: Object.freeze([
-    Object.freeze({
-      id: "warning-labour-gap-veg",
-      severity: "warning",
-      message: "Vegetative care staffing running at 92% of required coverage.",
-      suggestedAction: "Schedule float cultivators or approve overtime for the current cycle."
-    }),
-    Object.freeze({
-      id: "warning-maintenance-window",
-      severity: "info",
-      message: "Preventive maintenance window overlaps with planned harvest prep.",
-      suggestedAction: "Coordinate facilities lead to reschedule window after harvest completion."
-    })
-  ])
-});
-
-const workforceStore: WorkforceStore = {
-  getSnapshot: () => workforceStubSnapshot,
-  subscribe: (listener: () => void) => {
-    void listener;
-    return () => undefined;
-  }
-};
-
 export type WorkforceSnapshotOverrides = Partial<{
   readonly headcount: Partial<WorkforceHeadcountSummary>;
   readonly roleMix: WorkforceSnapshot["roleMix"];
@@ -209,12 +121,8 @@ export type WorkforceSnapshotOverrides = Partial<{
 }>;
 
 export function useWorkforceSnapshot(overrides?: WorkforceSnapshotOverrides): WorkforceSnapshot {
-  const snapshot = useSyncExternalStore(
-    (listener) => workforceStore.subscribe(listener),
-    () => workforceStore.getSnapshot(),
-    () => workforceStore.getSnapshot()
-  );
-
+  const hr = useReadModelStore((state) => state.snapshot.hr);
+  const snapshot = useMemo(() => createWorkforceSnapshot(hr), [hr]);
   const kpiSnapshot = useWorkforceKpiTelemetry();
 
   const telemetrySnapshot = useMemo(() => {
@@ -251,4 +159,114 @@ export function useWorkforceFilters(): WorkforceFilterStore {
 
 export function resetWorkforceFilters(): void {
   useWorkforceFilterStore.getState().reset();
+}
+
+function createWorkforceSnapshot(hr: HrReadModel): WorkforceSnapshot {
+  const headcount = deriveHeadcountSummary(hr);
+  const roleMix = deriveRoleMixEntries(hr, headcount.totalTeamMembers);
+  const focusAreas = deriveFocusAreas(hr);
+  const warnings = deriveWarnings(hr);
+  const queuedTasks = countQueuedTasks(hr.taskQueues);
+
+  const utilization: WorkforceUtilizationSummary = {
+    averageUtilizationPercent:
+      headcount.totalTeamMembers === 0
+        ? 0
+        : Math.round((headcount.activeTeamMembers / headcount.totalTeamMembers) * 100),
+    targetUtilizationPercent: WORKFORCE_TARGET_UTILISATION_PERCENT,
+    focusAreas: focusAreas.length > 0 ? focusAreas : ["No active focus areas detected."],
+    notes:
+      queuedTasks > 0
+        ? `${queuedTasks.toString()} task(s) awaiting assignment across workforce queues.`
+        : "No queued workforce tasks at this time."
+  };
+
+  return { headcount, roleMix, utilization, warnings } satisfies WorkforceSnapshot;
+}
+
+function deriveHeadcountSummary(hr: HrReadModel): WorkforceHeadcountSummary {
+  const totalTeamMembers = hr.directory.length;
+  const unavailableTeamMembers = hr.directory.filter((entry) => entry.fatiguePercent >= 80).length;
+  const activeTeamMembers = Math.max(totalTeamMembers - unavailableTeamMembers, 0);
+  const openRoles = hr.capacitySnapshot.reduce((sum, entry) => {
+    const deficit = entry.queuedTasks - entry.headcount;
+    return deficit > 0 ? sum + deficit : sum;
+  }, 0);
+
+  return {
+    totalTeamMembers,
+    activeTeamMembers,
+    unavailableTeamMembers,
+    openRoles
+  } satisfies WorkforceHeadcountSummary;
+}
+
+function deriveRoleMixEntries(
+  hr: HrReadModel,
+  totalTeamMembers: number
+): WorkforceRoleMixEntry[] {
+  if (totalTeamMembers === 0) {
+    return [];
+  }
+
+  const roleCounts = new Map<string, number>();
+  for (const entry of hr.directory) {
+    roleCounts.set(entry.role, (roleCounts.get(entry.role) ?? 0) + 1);
+  }
+
+  return Array.from(roleCounts.entries())
+    .map(([roleName, headcount]) => ({
+      id: `role-${roleName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      roleName,
+      headcount,
+      percentOfTeam: Math.round((headcount / totalTeamMembers) * 100)
+    }))
+    .sort((left, right) => left.roleName.localeCompare(right.roleName));
+}
+
+function deriveFocusAreas(hr: HrReadModel): readonly string[] {
+  const focusAreas: string[] = [];
+
+  for (const queue of hr.taskQueues) {
+    const queued = queue.entries.filter((entry) => entry.status === "queued").length;
+    if (queued > 0) {
+      focusAreas.push(`${queue.title} queue has ${queued.toString()} task(s) awaiting staffing.`);
+    }
+  }
+
+  return focusAreas;
+}
+
+function deriveWarnings(hr: HrReadModel): WorkforceWarning[] {
+  const warnings: WorkforceWarning[] = [];
+
+  for (const entry of hr.capacitySnapshot) {
+    if (entry.coverageStatus === "ok") {
+      continue;
+    }
+
+    const severity = entry.coverageStatus === "critical" ? "critical" : "warning";
+    const message = `${entry.role} coverage marked ${severity.toUpperCase()}.`;
+    const suggestedAction =
+      severity === "critical"
+        ? `Reassign staff or schedule overtime for ${entry.role}.`
+        : `Monitor staffing for ${entry.role} and adjust assignments.`;
+
+    warnings.push({
+      id: `warning-${entry.role.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      severity,
+      message,
+      suggestedAction
+    });
+  }
+
+  return warnings;
+}
+
+function countQueuedTasks(queues: readonly HrTaskQueue[]): number {
+  return queues.reduce((sum, queue) => sum + countQueuedEntries(queue.entries), 0);
+}
+
+function countQueuedEntries(entries: readonly HrTaskQueueEntry[]): number {
+  return entries.reduce((sum, entry) => (entry.status === "queued" ? sum + 1 : sum), 0);
 }

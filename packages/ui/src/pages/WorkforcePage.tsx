@@ -1,4 +1,5 @@
 import { useMemo, type ReactElement } from "react";
+import { AlertTriangle, Users2 } from "lucide-react";
 import { HOURS_PER_DAY } from "@engine/constants/simConstants.ts";
 import {
   WorkforceDirectory,
@@ -24,9 +25,14 @@ import {
   WorkforceActionPanel,
   type WorkforceActionTargetOption
 } from "@ui/components/workforce/ActionPanel";
+import { WorkforceKpiCard } from "@ui/components/workforce/KpiCard";
 import { useHRReadModel, useStructureReadModels } from "@ui/lib/readModelHooks";
 import { formatCurrency, useShellLocale } from "@ui/lib/locale";
-import { useWorkforceFilters } from "@ui/state/workforce";
+import {
+  useWorkforceFilters,
+  useWorkforceSnapshot,
+  type WorkforceWarning
+} from "@ui/state/workforce";
 import type {
   HrActivityEntry,
   HrDirectoryEntry,
@@ -79,6 +85,12 @@ const MAINTENANCE_COMPLETE_INTENT = "maintenance.complete" as const;
 export interface WorkforcePageProps {
   readonly intentClient?: IntentClient | null;
 }
+
+const WARNING_BADGE_STYLES: Record<WorkforceWarning["severity"], string> = {
+  info: "border-accent-muted text-accent-muted",
+  warning: "border-accent-warning text-accent-warning",
+  critical: "border-destructive text-destructive"
+};
 
 function createLocationIndex(structures: readonly StructureReadModel[]): LocationIndex {
   const structureMap = new Map<string, StructureLocation>();
@@ -402,6 +414,7 @@ export function WorkforcePage({ intentClient = null }: WorkforcePageProps = {}):
   const hr = useHRReadModel();
   const structures = useStructureReadModels();
   const locale = useShellLocale();
+  const workforceSnapshot = useWorkforceSnapshot();
   const { selection, setStructure, setRoom, setZone, setRole } = useWorkforceFilters();
   const locationIndex = useMemo(() => createLocationIndex(structures), [structures]);
   const latestActivityByEmployee = useMemo(
@@ -581,6 +594,31 @@ export function WorkforcePage({ intentClient = null }: WorkforcePageProps = {}):
   const acknowledgementHandlers: IntentSubmissionHandlers = useMemo(
     () => ({ onResult: () => undefined }),
     []
+  );
+
+  const headcountBadges = useMemo(
+    () => [
+      { id: "total", label: "Total team", value: workforceSnapshot.headcount.totalTeamMembers },
+      { id: "active", label: "Active", value: workforceSnapshot.headcount.activeTeamMembers },
+      { id: "unavailable", label: "Unavailable", value: workforceSnapshot.headcount.unavailableTeamMembers },
+      { id: "open-roles", label: "Open roles", value: workforceSnapshot.headcount.openRoles }
+    ],
+    [
+      workforceSnapshot.headcount.totalTeamMembers,
+      workforceSnapshot.headcount.activeTeamMembers,
+      workforceSnapshot.headcount.unavailableTeamMembers,
+      workforceSnapshot.headcount.openRoles
+    ]
+  );
+
+  const roleMixSummaries = useMemo(
+    () =>
+      workforceSnapshot.roleMix.map((entry) => ({
+        id: entry.id,
+        label: entry.roleName,
+        value: `${entry.headcount.toString()} · ${entry.percentOfTeam.toString()}%`
+      })),
+    [workforceSnapshot.roleMix]
   );
 
   const queueViews = useMemo<WorkforceTaskQueueView[]>(() => {
@@ -779,6 +817,86 @@ export function WorkforcePage({ intentClient = null }: WorkforcePageProps = {}):
 
   return (
     <section aria-label="HR surface" className="flex flex-1 flex-col gap-8">
+      <div className="grid gap-6 xl:grid-cols-2">
+        <WorkforceKpiCard
+          icon={Users2}
+          title="Roster utilization"
+          description="Live headcount, role mix, and focus areas derived from the workforce read model."
+        >
+          <div className="flex flex-wrap gap-2" aria-label="Headcount summary">
+            {headcountBadges.map((badge) => (
+              <span
+                key={badge.id}
+                className="rounded-full border border-border-base bg-canvas-base/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-text-primary"
+              >
+                {`${badge.label}: ${badge.value.toString()}`}
+              </span>
+            ))}
+          </div>
+          <p className="text-sm text-text-primary">
+            Average utilization {workforceSnapshot.utilization.averageUtilizationPercent}% (target{" "}
+            {workforceSnapshot.utilization.targetUtilizationPercent}%).
+          </p>
+          <p className="text-xs text-text-muted">{workforceSnapshot.utilization.notes}</p>
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-text-primary">Role mix</h4>
+            <ul className="grid gap-2" aria-label="Workforce role mix">
+              {roleMixSummaries.map((entry) => (
+                <li
+                  key={entry.id}
+                  className="flex items-center justify-between rounded-lg border border-border-subtle bg-canvas-base/60 px-3 py-2 text-sm text-text-primary"
+                >
+                  <span>{entry.label}</span>
+                  <span className="text-text-muted">{entry.value}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-text-primary">Focus areas</h4>
+            <ul className="grid gap-2" aria-label="Workforce focus areas">
+              {workforceSnapshot.utilization.focusAreas.map((area, index) => (
+                <li
+                  key={`${area}-${index.toString()}`}
+                  className="rounded-lg border border-border-subtle bg-canvas-base/70 p-3 text-sm text-text-primary"
+                >
+                  {area}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </WorkforceKpiCard>
+
+        <WorkforceKpiCard
+          icon={AlertTriangle}
+          title="Warnings & coverage"
+          description="Current workforce warnings and coverage pressure surfaced from the read model."
+        >
+          {workforceSnapshot.warnings.length === 0 ? (
+            <p className="text-sm text-text-muted">No active workforce warnings.</p>
+          ) : (
+            <ul className="grid gap-3" aria-label="Workforce warnings">
+              {workforceSnapshot.warnings.map((warning) => (
+                <li
+                  key={warning.id}
+                  className="rounded-lg border border-border-subtle bg-canvas-base/70 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-sm font-semibold text-text-primary">{warning.message}</p>
+                    <span
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${WARNING_BADGE_STYLES[warning.severity]}`}
+                    >
+                      {warning.severity.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs text-text-muted">{warning.suggestedAction}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </WorkforceKpiCard>
+      </div>
+
       <WorkforceDirectory filters={directoryFilters} entries={directoryEntries} />
       <WorkforceActivityTimeline entries={activityEntries} />
       <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
