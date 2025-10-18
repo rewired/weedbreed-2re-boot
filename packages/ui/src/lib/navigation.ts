@@ -1,3 +1,6 @@
+import { useReadModelStore } from "@ui/state/readModels";
+import type { StructureReadModel } from "@ui/state/readModels.types";
+
 export interface WorkspaceZoneNavItem {
   id: string;
   name: string;
@@ -82,6 +85,55 @@ export const workspaceTopLevelRoutes = {
   strains: { label: "Strain library", path: "/strains" }
 } as const;
 
+function mapStructure(structure: StructureReadModel): WorkspaceStructureNavItem {
+  const rooms = structure.rooms.map((room) => ({
+    id: room.id,
+    name: room.name,
+    purpose: room.purpose,
+    zones: room.zones.map((zone) => ({
+      id: zone.id,
+      name: zone.name,
+      cultivationMethod: zone.cultivationMethodId
+    }))
+  }));
+  const zones: WorkspaceZoneNavItem[] = [];
+  const seen = new Set<string>();
+  for (const room of rooms) {
+    for (const zone of room.zones) {
+      if (seen.has(zone.id)) {
+        continue;
+      }
+      seen.add(zone.id);
+      zones.push(zone);
+    }
+  }
+  return { id: structure.id, name: structure.name, location: structure.location, rooms, zones };
+}
+
+function selectWorkspaceNavigation(
+  structures: readonly StructureReadModel[],
+  status: string,
+  client: unknown
+): WorkspaceStructureNavItem[] {
+  if (status === "error" && client === null) {
+    return workspaceStructures;
+  }
+
+  return structures.map(mapStructure);
+}
+
+function getWorkspaceNavigationSnapshot(): WorkspaceStructureNavItem[] {
+  const state = useReadModelStore.getState();
+  return selectWorkspaceNavigation(state.snapshot.structures, state.status, state.client);
+}
+
+export function useWorkspaceNavigation(): readonly WorkspaceStructureNavItem[] {
+  const structures = useReadModelStore((state) => state.snapshot.structures);
+  const status = useReadModelStore((state) => state.status);
+  const client = useReadModelStore((state) => state.client);
+  return selectWorkspaceNavigation(structures, status, client);
+}
+
 export function buildZonePath(structureId: string, zoneId: string): string {
   return `/structures/${structureId}/zones/${zoneId}`;
 }
@@ -104,11 +156,13 @@ export function resolveZoneByParams(
   structureId: string | undefined,
   zoneId: string | undefined
 ): ResolvedZoneNavItem | undefined {
+  const structures = getWorkspaceNavigationSnapshot();
+
   if (!structureId || !zoneId) {
     return undefined;
   }
 
-  const structure = workspaceStructures.find((item) => item.id === structureId);
+  const structure = structures.find((item) => item.id === structureId);
 
   if (!structure) {
     return undefined;
@@ -137,11 +191,13 @@ export function resolveRoomByParams(
   structureId: string | undefined,
   roomId: string | undefined
 ): ResolvedRoomNavItem | undefined {
+  const structures = getWorkspaceNavigationSnapshot();
+
   if (!structureId || !roomId) {
     return undefined;
   }
 
-  const structure = workspaceStructures.find((item) => item.id === structureId);
+  const structure = structures.find((item) => item.id === structureId);
 
   if (!structure) {
     return undefined;

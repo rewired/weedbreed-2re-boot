@@ -14,7 +14,7 @@ import { workspaceCopy } from "@ui/design/tokens";
 import { cn } from "@ui/lib/cn";
 import {
   buildZonePath,
-  workspaceStructures,
+  useWorkspaceNavigation,
   workspaceTopLevelRoutes
 } from "@ui/lib/navigation";
 
@@ -55,10 +55,26 @@ const topLevelNavigation = [
 
 export function LeftRail(): ReactElement {
   const location = useLocation();
+  const workspaceStructures = useWorkspaceNavigation();
   const [state, setState] = useState<StructureAccordionState>(() => ({
     expandedId: workspaceStructures[0]?.id ?? null
   }));
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (workspaceStructures.length === 0) {
+      setState({ expandedId: null });
+      return;
+    }
+
+    setState((current) => {
+      if (current.expandedId && workspaceStructures.some((item) => item.id === current.expandedId)) {
+        return current;
+      }
+
+      return { expandedId: workspaceStructures[0]?.id ?? null };
+    });
+  }, [workspaceStructures]);
 
   useEffect(() => {
     const activeStructure = workspaceStructures.find((structure) => {
@@ -81,7 +97,7 @@ export function LeftRail(): ReactElement {
 
       return { expandedId: activeStructure.id };
     });
-  }, [location.pathname]);
+  }, [location.pathname, workspaceStructures]);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") {

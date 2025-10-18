@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LeftRail } from "@ui/components/layout/LeftRail";
 import { buildRoomPath, buildZonePath, workspaceStructures, workspaceTopLevelRoutes } from "@ui/lib/navigation";
+import { resetReadModelStore } from "@ui/state/readModels";
 import { workspaceCopy } from "@ui/design/tokens";
 
 describe("LeftRail navigation", () => {
@@ -25,6 +26,7 @@ describe("LeftRail navigation", () => {
 
   beforeEach(() => {
     mockMatchMedia(true);
+    resetReadModelStore();
   });
 
   afterEach(() => {
@@ -78,8 +80,12 @@ describe("LeftRail navigation", () => {
   });
 
   it("expands the active structure and marks the selected zone", () => {
-    const targetStructure = workspaceStructures[1];
-    const targetZone = targetStructure.zones[1];
+    const targetStructure = workspaceStructures.find((structure) => structure.zones.length > 0);
+    if (!targetStructure) {
+      throw new Error("Expected at least one structure with zones for navigation test coverage");
+    }
+
+    const targetZone = targetStructure.zones[0];
 
     renderWithRouter(buildZonePath(targetStructure.id, targetZone.id));
 
