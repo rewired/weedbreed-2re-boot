@@ -75,8 +75,13 @@ export interface SocketTransportAdapterOptions {
   readonly serverOptions?: Partial<ServerOptions>;
   /**
    * Intent handler invoked when clients submit commands on the intent namespace.
+   *
+   * Handlers may optionally return a transport acknowledgement overlay that augments the
+   * default success acknowledgement (e.g. to surface deterministic result payloads).
    */
-  readonly onIntent: (intent: TransportIntentEnvelope) => void | Promise<void>;
+  readonly onIntent: (
+    intent: TransportIntentEnvelope
+  ) => void | TransportAck | Promise<void | TransportAck>;
 }
 
 /**
@@ -214,8 +219,15 @@ export function createSocketTransportAdapter(
       }
 
       try {
-        await options.onIntent(payload as TransportIntentEnvelope);
-        ack(createIntentSuccessAck(metadata));
+        const response = await options.onIntent(
+          payload as TransportIntentEnvelope
+        );
+        const baseAck = createIntentSuccessAck(metadata);
+        const enrichedAck =
+          typeof response === 'object' && response !== null
+            ? ({ ...baseAck, ...response } as TransportAck)
+            : baseAck;
+        ack(enrichedAck);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Intent handler rejected the submission.';
         ack(createIntentHandlerError(message, metadata));

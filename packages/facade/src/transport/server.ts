@@ -10,6 +10,7 @@ import {
   type SocketTransportAdapter,
   type SocketTransportAdapterOptions,
   type TelemetryEvent,
+  type TransportAck,
   type TransportIntentEnvelope,
 } from './adapter.js';
 import { createTelemetryPublisher } from './telemetryPublisher.js';
@@ -40,7 +41,9 @@ export interface TransportServerOptions {
   /** Optional CORS configuration forwarded to the Socket.IO adapter. */
   readonly cors?: TransportCorsOptions;
   /** Intent handler invoked whenever the intents namespace receives a submission. */
-  readonly onIntent: (intent: TransportIntentEnvelope) => void | Promise<void>;
+  readonly onIntent: (
+    intent: TransportIntentEnvelope
+  ) => void | TransportAck | Promise<void | TransportAck>;
 }
 
 /**

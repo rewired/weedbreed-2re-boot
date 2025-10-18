@@ -1,3 +1,7 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { z } from 'zod';
 
 /* eslint-disable wb-sim/no-ts-import-js-extension */
@@ -10,12 +14,17 @@ import {
   type Uuid,
   type WorkforceIntent,
   type Zone,
+  type ZoneDeviceInstance,
+  lightScheduleSchema,
   uuidSchema,
 } from '@wb/engine';
+import { FLOAT_TOLERANCE } from '@engine/constants/simConstants.js';
+import { parseCultivationMethodBlueprint } from '@/backend/src/domain/blueprints/cultivationMethodBlueprint.ts';
 import { runTick, type EngineRunContext } from '@/backend/src/engine/Engine.ts';
 import { queueWorkforceIntents } from '@/backend/src/engine/pipeline/applyWorkforce.ts';
+import { clamp01 } from '@/backend/src/util/math.ts';
 
-import type { TransportIntentEnvelope } from './adapter.js';
+import type { TransportAck, TransportIntentEnvelope } from './adapter.js';
 
 /**
  * Runtime contract consumed by {@link createEngineCommandPipeline} to access and mutate the
@@ -50,11 +59,89 @@ export interface EngineCommandPipeline {
    *
    * @throws {Error} When the intent type is unsupported or fails validation.
    */
-  handle(intent: TransportIntentEnvelope): Promise<void>;
+  handle(intent: TransportIntentEnvelope): Promise<TransportAck | void>;
   /**
    * Advances the simulation by one deterministic tick, applying all queued intents.
    */
   advanceTick(): void;
+}
+
+const CURRENT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const CULTIVATION_METHOD_ROOT = path.resolve(
+  CURRENT_DIR,
+  '../../../../data/blueprints/cultivation-method',
+);
+
+interface CultivationMethodGuidance {
+  readonly temperature_C?: readonly [number, number];
+}
+
+let cultivationGuidanceCache: Map<Uuid, CultivationMethodGuidance> | null = null;
+
+function readCultivationMethodBlueprint(filePath: string): unknown {
+  const raw = readFileSync(filePath, 'utf8');
+  return JSON.parse(raw) as unknown;
+}
+
+function listCultivationMethodBlueprints(root: string): string[] {
+  const entries = readdirSync(root, { withFileTypes: true });
+  const files: string[] = [];
+
+  for (const entry of entries) {
+    if (entry.isFile() && entry.name.endsWith('.json')) {
+      files.push(path.join(root, entry.name));
+      continue;
+    }
+
+    if (entry.isDirectory()) {
+      const nestedRoot = path.join(root, entry.name);
+      const nestedEntries = readdirSync(nestedRoot, { withFileTypes: true });
+
+      for (const nestedEntry of nestedEntries) {
+        if (nestedEntry.isFile() && nestedEntry.name.endsWith('.json')) {
+          files.push(path.join(nestedRoot, nestedEntry.name));
+        }
+      }
+    }
+  }
+
+  return files;
+}
+
+function loadCultivationGuidance(): Map<Uuid, CultivationMethodGuidance> {
+  if (cultivationGuidanceCache) {
+    return cultivationGuidanceCache;
+  }
+
+  const guidance = new Map<Uuid, CultivationMethodGuidance>();
+
+  for (const filePath of listCultivationMethodBlueprints(CULTIVATION_METHOD_ROOT)) {
+    const blueprint = parseCultivationMethodBlueprint(readCultivationMethodBlueprint(filePath), {
+      filePath,
+    });
+
+    const ideal = blueprint.idealConditions;
+    const entry: CultivationMethodGuidance = {};
+
+    if (ideal?.idealTemperature && ideal.idealTemperature.length === 2) {
+      const [min, max] = ideal.idealTemperature;
+
+      if (Number.isFinite(min) && Number.isFinite(max)) {
+        entry.temperature_C = [min, max] as readonly [number, number];
+      }
+    }
+
+    if (entry.temperature_C) {
+      guidance.set(blueprint.id as Uuid, entry);
+    }
+  }
+
+  cultivationGuidanceCache = guidance;
+  return guidance;
+}
+
+function getCultivationGuidance(cultivationMethodId: Uuid): CultivationMethodGuidance | undefined {
+  return loadCultivationGuidance().get(cultivationMethodId);
 }
 
 const hiringMarketScanSchema = z.object({
@@ -133,6 +220,22 @@ const deviceMoveSchema = z.object({
   ]),
 });
 
+const zoneLightingAdjustSchema = z.object({
+  type: z.literal('intent.zone.lighting.adjust.v1'),
+  structureId: uuidSchema,
+  zoneId: uuidSchema,
+  lightSchedule: lightScheduleSchema,
+});
+
+const zoneClimateAdjustSchema = z.object({
+  type: z.literal('intent.zone.climate.adjust.v1'),
+  structureId: uuidSchema,
+  zoneId: uuidSchema,
+  target: z.object({
+    temperature_C: z.number().finite(),
+  }),
+});
+
 interface DeviceLocation {
   readonly scope: 'structure' | 'room' | 'zone';
   readonly roomId?: Uuid;
@@ -163,6 +266,20 @@ type LifecycleCommand =
       readonly from: DeviceLocation;
       readonly target: DeviceTarget;
       readonly device: DeviceInstance;
+    }
+  | {
+      readonly type: 'zone.adjustLighting';
+      readonly structureId: Uuid;
+      readonly roomId: Uuid;
+      readonly zoneId: Uuid;
+      readonly lightSchedule: Zone['lightSchedule'];
+    }
+  | {
+      readonly type: 'zone.adjustClimate';
+      readonly structureId: Uuid;
+      readonly roomId: Uuid;
+      readonly zoneId: Uuid;
+      readonly target: { readonly temperature_C: number };
     };
 
 type EngineCommand =
@@ -248,6 +365,116 @@ function isSameDeviceLocation(from: DeviceLocation, target: DeviceTarget): boole
   }
 
   return false;
+}
+
+function computeLightingCoverage(zone: Zone): number {
+  return zone.devices.reduce((total, device) => {
+    const hasLightingEffect =
+      (device.effects?.includes('lighting') ?? false) || device.effectConfigs?.lighting !== undefined;
+
+    if (!hasLightingEffect) {
+      return total;
+    }
+
+    const coverage = Number.isFinite(device.coverage_m2) ? device.coverage_m2 : 0;
+    const duty = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 0);
+
+    if (coverage <= 0 || duty <= 0) {
+      return total;
+    }
+
+    return total + coverage * duty;
+  }, 0);
+}
+
+function ensureZoneLightingCapacity(zone: Zone): void {
+  const coverage = computeLightingCoverage(zone);
+
+  if (coverage <= FLOAT_TOLERANCE) {
+    throw new Error('Zone lighting coverage is insufficient for schedule adjustments per SEC §6.');
+  }
+}
+
+interface ThermalCapacity {
+  readonly heating_W: number;
+  readonly cooling_W: number;
+}
+
+function computeThermalCapacity(devices: readonly ZoneDeviceInstance[]): ThermalCapacity {
+  let heating_W = 0;
+  let cooling_W = 0;
+
+  for (const device of devices) {
+    const duty = clamp01(Number.isFinite(device.dutyCycle01) ? device.dutyCycle01 : 0);
+
+    if (duty <= 0) {
+      continue;
+    }
+
+    const hasThermalEffect =
+      (device.effects?.includes('thermal') ?? false) || device.effectConfigs?.thermal !== undefined;
+
+    if (!hasThermalEffect) {
+      continue;
+    }
+
+    const config = device.effectConfigs?.thermal;
+
+    if (config) {
+      if (typeof config.max_heat_W === 'number') {
+        heating_W += Math.max(0, config.max_heat_W) * duty;
+      } else if (config.mode === 'heat' || config.mode === 'auto') {
+        heating_W += Math.max(0, device.powerDraw_W) * duty * clamp01(device.efficiency01);
+      }
+
+      if (typeof config.max_cool_W === 'number') {
+        cooling_W += Math.max(0, config.max_cool_W) * duty;
+      } else if (config.mode === 'cool' || config.mode === 'auto') {
+        const sensible = Number.isFinite(device.sensibleHeatRemovalCapacity_W)
+          ? device.sensibleHeatRemovalCapacity_W
+          : 0;
+
+        if (sensible > 0) {
+          cooling_W += sensible * duty;
+        }
+      }
+    } else {
+      heating_W += Math.max(0, device.powerDraw_W) * duty * clamp01(device.efficiency01);
+
+      const sensible = Number.isFinite(device.sensibleHeatRemovalCapacity_W)
+        ? device.sensibleHeatRemovalCapacity_W
+        : 0;
+
+      if (sensible > 0) {
+        cooling_W += sensible * duty;
+      }
+    }
+  }
+
+  return { heating_W, cooling_W } satisfies ThermalCapacity;
+}
+
+function validateTemperatureTarget(zone: Zone, targetTemperatureC: number): void {
+  const guidance = getCultivationGuidance(zone.cultivationMethodId);
+
+  if (guidance?.temperature_C) {
+    const [min, max] = guidance.temperature_C;
+
+    if (targetTemperatureC + FLOAT_TOLERANCE < min || targetTemperatureC - FLOAT_TOLERANCE > max) {
+      throw new Error('Requested temperature setpoint violates cultivation method guidance.');
+    }
+  }
+
+  const { heating_W, cooling_W } = computeThermalCapacity(zone.devices);
+  const current = zone.environment.airTemperatureC;
+
+  if (targetTemperatureC > current + FLOAT_TOLERANCE && heating_W <= FLOAT_TOLERANCE) {
+    throw new Error('Zone lacks heating capacity to raise temperature per SEC §6.');
+  }
+
+  if (targetTemperatureC < current - FLOAT_TOLERANCE && cooling_W <= FLOAT_TOLERANCE) {
+    throw new Error('Zone lacks cooling capacity to lower temperature per SEC §6.');
+  }
 }
 
 function createStructureRenameCommand(
@@ -390,6 +617,43 @@ function createDeviceMoveCommand(
     from: location,
     target,
     device: deviceClone,
+  } satisfies LifecycleCommand;
+}
+
+function createZoneLightingAdjustCommand(
+  payload: z.infer<typeof zoneLightingAdjustSchema>,
+  world: SimulationWorld,
+): LifecycleCommand {
+  const structure = requireStructure(world, payload.structureId);
+  const { room, zone } = requireZone(structure, payload.zoneId);
+
+  ensureZoneLightingCapacity(zone);
+
+  return {
+    type: 'zone.adjustLighting',
+    structureId: structure.id,
+    roomId: room.id,
+    zoneId: zone.id,
+    lightSchedule: payload.lightSchedule,
+  } satisfies LifecycleCommand;
+}
+
+function createZoneClimateAdjustCommand(
+  payload: z.infer<typeof zoneClimateAdjustSchema>,
+  world: SimulationWorld,
+): LifecycleCommand {
+  const structure = requireStructure(world, payload.structureId);
+  const { room, zone } = requireZone(structure, payload.zoneId);
+
+  const targetTemperature = payload.target.temperature_C;
+  validateTemperatureTarget(zone, targetTemperature);
+
+  return {
+    type: 'zone.adjustClimate',
+    structureId: structure.id,
+    roomId: room.id,
+    zoneId: zone.id,
+    target: { temperature_C: targetTemperature },
   } satisfies LifecycleCommand;
 }
 
@@ -576,6 +840,92 @@ function applyLifecycleCommand(world: SimulationWorld, command: LifecycleCommand
       } satisfies SimulationWorld;
     }
 
+    case 'zone.adjustLighting': {
+      return {
+        ...world,
+        company: {
+          ...world.company,
+          structures: world.company.structures.map((structure) => {
+            if (structure.id !== command.structureId) {
+              return structure;
+            }
+
+            return {
+              ...structure,
+              rooms: structure.rooms.map((room) => {
+                if (room.id !== command.roomId) {
+                  return room;
+                }
+
+                return {
+                  ...room,
+                  zones: room.zones.map((zone) =>
+                    zone.id === command.zoneId
+                      ? { ...zone, lightSchedule: command.lightSchedule }
+                      : zone,
+                  ),
+                } satisfies Room;
+              }),
+            } satisfies Structure;
+          }),
+        },
+      } satisfies SimulationWorld;
+    }
+
+    case 'zone.adjustClimate': {
+      return {
+        ...world,
+        company: {
+          ...world.company,
+          structures: world.company.structures.map((structure) => {
+            if (structure.id !== command.structureId) {
+              return structure;
+            }
+
+            return {
+              ...structure,
+              rooms: structure.rooms.map((room) => {
+                if (room.id !== command.roomId) {
+                  return room;
+                }
+
+                return {
+                  ...room,
+                  zones: room.zones.map((zone) => {
+                    if (zone.id !== command.zoneId) {
+                      return zone;
+                    }
+
+                    const devices = zone.devices.map((device) => {
+                      if (!device.effectConfigs?.thermal) {
+                        return device;
+                      }
+
+                      return {
+                        ...device,
+                        effectConfigs: {
+                          ...device.effectConfigs,
+                          thermal: {
+                            ...device.effectConfigs.thermal,
+                            setpoint_C: command.target.temperature_C,
+                          },
+                        },
+                      } satisfies ZoneDeviceInstance;
+                    });
+
+                    return {
+                      ...zone,
+                      devices,
+                    } satisfies Zone;
+                  }),
+                } satisfies Room;
+              }),
+            } satisfies Structure;
+          }),
+        },
+      } satisfies SimulationWorld;
+    }
+
     default:
       return world;
   }
@@ -590,6 +940,37 @@ function applyLifecycleCommands(
   }
 
   return commands.reduce<SimulationWorld>(applyLifecycleCommand, world);
+}
+
+function toLifecycleAck(command: LifecycleCommand): TransportAck | undefined {
+  switch (command.type) {
+    case 'zone.adjustLighting':
+      return {
+        ok: true,
+        status: 'queued',
+        result: {
+          command: 'zone.adjustLighting',
+          structureId: command.structureId,
+          zoneId: command.zoneId,
+          lightSchedule: command.lightSchedule,
+        },
+      } as TransportAck;
+
+    case 'zone.adjustClimate':
+      return {
+        ok: true,
+        status: 'queued',
+        result: {
+          command: 'zone.adjustClimate',
+          structureId: command.structureId,
+          zoneId: command.zoneId,
+          targetTemperature_C: command.target.temperature_C,
+        },
+      } as TransportAck;
+
+    default:
+      return undefined;
+  }
 }
 
 function toWorkforceIntent(envelope: TransportIntentEnvelope): WorkforceIntent | null {
@@ -687,6 +1068,14 @@ function normaliseIntent(
         const payload = deviceMoveSchema.parse(envelope);
         return { kind: 'lifecycle', command: createDeviceMoveCommand(payload, world) };
       }
+      case 'intent.zone.lighting.adjust.v1': {
+        const payload = zoneLightingAdjustSchema.parse(envelope);
+        return { kind: 'lifecycle', command: createZoneLightingAdjustCommand(payload, world) };
+      }
+      case 'intent.zone.climate.adjust.v1': {
+        const payload = zoneClimateAdjustSchema.parse(envelope);
+        return { kind: 'lifecycle', command: createZoneClimateAdjustCommand(payload, world) };
+      }
       default: {
         const intent = toWorkforceIntent(envelope);
 
@@ -721,17 +1110,18 @@ export function createEngineCommandPipeline(
 
   return {
     context,
-    async handle(envelope: TransportIntentEnvelope): Promise<void> {
+    async handle(envelope: TransportIntentEnvelope): Promise<TransportAck | void> {
       const baseWorld = stagedWorld ?? options.world.get();
       const command = normaliseIntent(envelope, baseWorld);
 
       if (command.kind === 'workforce') {
         pendingWorkforceIntents = [...pendingWorkforceIntents, command.intent];
-        return;
+        return undefined;
       }
 
       pendingLifecycleCommands = [...pendingLifecycleCommands, command.command];
       stagedWorld = applyLifecycleCommand(baseWorld, command.command);
+      return toLifecycleAck(command.command);
     },
     advanceTick(): void {
       let worldSnapshot = stagedWorld ?? options.world.get();
