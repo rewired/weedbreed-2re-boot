@@ -15,6 +15,7 @@ export interface PlaybackControllerOptions {
   readonly baseIntervalMs?: number;
   readonly initialSpeedMultiplier?: number;
   readonly autoStart?: boolean;
+  readonly onTick?: () => void;
 }
 
 export interface PlaybackController {
@@ -36,6 +37,7 @@ export function createPlaybackController(options: PlaybackControllerOptions): Pl
   const pipeline = options.pipeline;
   const baseIntervalMs = options.baseIntervalMs ?? DEFAULT_BASE_INTERVAL_MS;
   const autoStart = options.autoStart ?? true;
+  const onTick = options.onTick;
 
   assertPositiveFinite(baseIntervalMs, 'baseIntervalMs');
 
@@ -44,6 +46,11 @@ export function createPlaybackController(options: PlaybackControllerOptions): Pl
 
   let isPlaying = Boolean(autoStart);
   let scheduledTick: NodeJS.Timeout | null = null;
+
+  const runTick = () => {
+    pipeline.advanceTick();
+    onTick?.();
+  };
 
   const scheduleNextTick = () => {
     if (!isPlaying) {
@@ -59,7 +66,7 @@ export function createPlaybackController(options: PlaybackControllerOptions): Pl
 
     scheduledTick = setTimeout(() => {
       scheduledTick = null;
-      pipeline.advanceTick();
+      runTick();
       scheduleNextTick();
     }, delayMs);
   };
@@ -98,7 +105,7 @@ export function createPlaybackController(options: PlaybackControllerOptions): Pl
       clearScheduledTick();
     },
     step(): void {
-      pipeline.advanceTick();
+      runTick();
     },
     setSpeed(multiplier: number): void {
       assertPositiveFinite(multiplier, 'speedMultiplier');
