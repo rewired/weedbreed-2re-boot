@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_WORKFORCE_CONFIG } from '@/backend/src/config/workforce.ts';
 import { consumeWorkforceMarketCharges } from '@/backend/src/engine/pipeline/applyWorkforce.ts';
 import { createDemoWorld } from '@/backend/src/engine/testHarness.ts';
+import { createDeterministicWorld } from '@wb/facade/backend/deterministicWorldLoader';
 
 import { createEngineCommandPipeline } from '../../../src/transport/engineCommandPipeline.js';
 
@@ -44,10 +45,10 @@ describe('createEngineCommandPipeline', () => {
   });
 
   it('renames structures after the queued tick commits', async () => {
-    let world = createDemoWorld();
+    let world = createDeterministicWorld().world;
     const structure = world.company.structures[0];
     if (!structure) {
-      throw new Error('Demo world did not include a structure.');
+      throw new Error('Deterministic world did not include a structure.');
     }
 
     const pipeline = createEngineCommandPipeline({
@@ -72,14 +73,14 @@ describe('createEngineCommandPipeline', () => {
   });
 
   it('rejects zone moves into non-growroom targets', async () => {
-    let world = createDemoWorld();
+    let world = createDeterministicWorld().world;
     const structure = world.company.structures[0];
     const growRoom = structure?.rooms.find((room) => room.purpose === 'growroom');
     const storageRoom = structure?.rooms.find((room) => room.purpose === 'storageroom');
     const zone = growRoom?.zones[0];
 
     if (!structure || !growRoom || !storageRoom || !zone) {
-      throw new Error('Demo world lacks expected rooms/zones for the move validation test.');
+      throw new Error('Deterministic world lacks expected rooms/zones for the move validation test.');
     }
 
     const pipeline = createEngineCommandPipeline({
@@ -102,13 +103,13 @@ describe('createEngineCommandPipeline', () => {
   });
 
   it('moves zones into eligible growrooms', async () => {
-    let world = createDemoWorld();
+    let world = createDeterministicWorld().world;
     const structure = world.company.structures[0];
     const sourceRoom = structure?.rooms.find((room) => room.purpose === 'growroom');
     const zone = sourceRoom?.zones[0];
 
     if (!structure || !sourceRoom || !zone) {
-      throw new Error('Demo world lacks expected growroom data for zone move tests.');
+      throw new Error('Deterministic world lacks expected growroom data for zone move tests.');
     }
 
     const targetRoom = {
@@ -176,6 +177,287 @@ describe('createEngineCommandPipeline', () => {
     await expect(
       pipeline.handle({ type: 'hiring.market.scan' }),
     ).rejects.toThrow(/failed validation/i);
+  });
+
+  it('applies lighting and climate adjustments with deterministic acknowledgements', async () => {
+    const seeded = createDeterministicWorld();
+    let world = seeded.world;
+    const structure = world.company.structures[0];
+    const growRoom = structure?.rooms.find((room) => room.purpose === 'growroom');
+    const zoneWithLightingAndThermal = growRoom?.zones.find((candidate) => {
+      const devices = candidate.devices;
+      const hasLighting = devices.some(
+        (device) => (device.effects?.includes('lighting') ?? false) || device.effectConfigs?.lighting !== undefined,
+      );
+      const hasThermal = devices.some(
+        (device) => (device.effects?.includes('thermal') ?? false) || device.effectConfigs?.thermal !== undefined,
+      );
+
+      return hasLighting && hasThermal;
+    });
+
+    if (!structure || !growRoom || !zoneWithLightingAndThermal) {
+      throw new Error('Deterministic world lacks growroom climate context for environment adjustments.');
+    }
+
+    const baselineTemperature = zoneWithLightingAndThermal.environment.airTemperatureC;
+    const zone = zoneWithLightingAndThermal;
+
+    const pipeline = createEngineCommandPipeline({
+      world: {
+        get: () => world,
+        set(next) {
+          world = next;
+        },
+      },
+    });
+
+    const nextSchedule = { onHours: 20, offHours: 4, startHour: 2 } as const;
+    const lightingAck = await pipeline.handle({
+      type: 'intent.zone.lighting.adjust.v1',
+      structureId: structure.id,
+      zoneId: zone.id,
+      lightSchedule: nextSchedule,
+    });
+
+    expect(lightingAck).toMatchObject({
+      ok: true,
+      result: {
+        command: 'zone.adjustLighting',
+        structureId: structure.id,
+        zoneId: zone.id,
+        lightSchedule: nextSchedule,
+      },
+    });
+
+    const climateAck = await pipeline.handle({
+      type: 'intent.zone.climate.adjust.v1',
+      structureId: structure.id,
+      zoneId: zone.id,
+      target: { temperature_C: baselineTemperature + 2 },
+    });
+
+    expect(climateAck).toMatchObject({
+      ok: true,
+      result: {
+        command: 'zone.adjustClimate',
+        structureId: structure.id,
+        zoneId: zone.id,
+        targetTemperature_C: baselineTemperature + 2,
+      },
+    });
+
+    pipeline.advanceTick();
+
+    const updatedZone = world.company.structures[0]?.rooms
+      .find((room) => room.id === growRoom.id)
+      ?.zones.find((candidate) => candidate.id === zone.id);
+
+    expect(updatedZone?.lightSchedule).toEqual(nextSchedule);
+    const thermalDevice = updatedZone?.devices.find((device) => device.effectConfigs?.thermal);
+    expect(thermalDevice?.effectConfigs?.thermal?.setpoint_C).toBeCloseTo(baselineTemperature + 2, 5);
+  });
+
+  it('lowers zone temperature when cooling capacity is available', async () => {
+    const seeded = createDeterministicWorld();
+    let world = seeded.world;
+    const structure = world.company.structures[0];
+    const growRoom = structure?.rooms.find((room) => room.purpose === 'growroom');
+    const zoneWithThermal = growRoom?.zones.find((candidate) =>
+      candidate.devices.some(
+        (device) => (device.effects?.includes('thermal') ?? false) || device.effectConfigs?.thermal !== undefined,
+      ),
+    );
+
+    if (!structure || !growRoom || !zoneWithThermal) {
+      throw new Error('Deterministic world lacks growroom climate context for cooling validation.');
+    }
+
+    const baselineTemperature = zoneWithThermal.environment.airTemperatureC;
+
+    const pipeline = createEngineCommandPipeline({
+      world: {
+        get: () => world,
+        set(next) {
+          world = next;
+        },
+      },
+    });
+
+    const targetTemperature = baselineTemperature - 2;
+    const climateAck = await pipeline.handle({
+      type: 'intent.zone.climate.adjust.v1',
+      structureId: structure.id,
+      zoneId: zoneWithThermal.id,
+      target: { temperature_C: targetTemperature },
+    });
+
+    expect(climateAck).toMatchObject({
+      ok: true,
+      result: {
+        command: 'zone.adjustClimate',
+        structureId: structure.id,
+        zoneId: zoneWithThermal.id,
+        targetTemperature_C: targetTemperature,
+      },
+    });
+
+    pipeline.advanceTick();
+
+    const updatedZone = world.company.structures[0]?.rooms
+      .find((room) => room.id === growRoom.id)
+      ?.zones.find((candidate) => candidate.id === zoneWithThermal.id);
+
+    const thermalDevice = updatedZone?.devices.find((device) => device.effectConfigs?.thermal);
+    expect(thermalDevice?.effectConfigs?.thermal?.setpoint_C).toBeCloseTo(targetTemperature, 5);
+  });
+
+  it('rejects lighting adjustments when a zone lacks lighting coverage', async () => {
+    const seeded = createDeterministicWorld();
+    let world = seeded.world;
+    const structure = world.company.structures[0];
+    const growRoomIndex = structure?.rooms.findIndex((room) => room.purpose === 'growroom') ?? -1;
+    const growRoom = structure?.rooms[growRoomIndex];
+
+    const lightingSourceZone = growRoom.zones.find((candidate) =>
+      candidate.devices.some(
+        (device) => (device.effects?.includes('lighting') ?? false) || device.effectConfigs?.lighting !== undefined,
+      ),
+    );
+
+    if (!structure || !growRoom || !lightingSourceZone || growRoomIndex === -1) {
+      throw new Error('Deterministic world lacks growroom context for lighting validation.');
+    }
+
+    const lightingStrippedZone = {
+      ...lightingSourceZone,
+      devices: lightingSourceZone.devices.filter((device) => {
+        const hasLighting =
+          (device.effects?.includes('lighting') ?? false) || device.effectConfigs?.lighting !== undefined;
+        return !hasLighting;
+      }),
+    } as typeof lightingSourceZone;
+
+    const updatedGrowRoom = {
+      ...growRoom,
+      zones: growRoom.zones.map((candidate) =>
+        candidate.id === lightingStrippedZone.id ? lightingStrippedZone : candidate,
+      ),
+    } as typeof growRoom;
+
+    structure.rooms = structure.rooms.map((room, index) =>
+      index === growRoomIndex ? updatedGrowRoom : room,
+    ) as typeof structure.rooms;
+
+    const pipeline = createEngineCommandPipeline({
+      world: {
+        get: () => world,
+        set(next) {
+          world = next;
+        },
+      },
+    });
+
+    await expect(
+      pipeline.handle({
+        type: 'intent.zone.lighting.adjust.v1',
+        structureId: structure.id,
+        zoneId: lightingStrippedZone.id,
+        lightSchedule: { onHours: 18, offHours: 6, startHour: 0 },
+      }),
+    ).rejects.toThrow(/lighting coverage/i);
+  });
+
+  it('rejects climate adjustments outside cultivation method guidance', async () => {
+    const seeded = createDeterministicWorld();
+    let world = seeded.world;
+    const structure = world.company.structures[0];
+    const growRoom = structure?.rooms.find((room) => room.purpose === 'growroom');
+    const SOG_METHOD_ID = '659ba4d7-a5fc-482e-98d4-b614341883ac';
+    const zone = growRoom?.zones.find((candidate) => candidate.cultivationMethodId === SOG_METHOD_ID);
+
+    if (!structure || !growRoom || !zone) {
+      throw new Error('Deterministic world lacks cultivation guidance context for climate validation.');
+    }
+
+    const pipeline = createEngineCommandPipeline({
+      world: {
+        get: () => world,
+        set(next) {
+          world = next;
+        },
+      },
+    });
+
+    await expect(
+      pipeline.handle({
+        type: 'intent.zone.climate.adjust.v1',
+        structureId: structure.id,
+        zoneId: zone.id,
+        target: { temperature_C: 40 },
+      }),
+    ).rejects.toThrow(/temperature setpoint violates cultivation method guidance/i);
+  });
+
+  it('rejects climate adjustments when a zone lacks cooling devices', async () => {
+    const seeded = createDeterministicWorld();
+    let world = seeded.world;
+    const structure = world.company.structures[0];
+    const growRoom = structure?.rooms.find((room) => room.purpose === 'growroom');
+    const zoneWithoutCooling = growRoom?.zones.find((candidate) => {
+      const hasLighting = candidate.devices.some(
+        (device) => (device.effects?.includes('lighting') ?? false) || device.effectConfigs?.lighting !== undefined,
+      );
+      const hasCooling = candidate.devices.some((device) => {
+        const thermal = device.effectConfigs?.thermal;
+
+        if (thermal) {
+          if (typeof thermal.max_cool_W === 'number' && thermal.max_cool_W > 0) {
+            return true;
+          }
+
+          return thermal.mode === 'cool' || thermal.mode === 'auto';
+        }
+
+        const sensible = Number.isFinite(device.sensibleHeatRemovalCapacity_W)
+          ? device.sensibleHeatRemovalCapacity_W
+          : 0;
+
+        return sensible > 0;
+      });
+
+      return hasLighting && !hasCooling;
+    });
+
+    if (!structure || !growRoom || !zoneWithoutCooling) {
+      throw new Error('Deterministic world lacks lighting-only zone for climate validation.');
+    }
+
+    const pipeline = createEngineCommandPipeline({
+      world: {
+        get: () => world,
+        set(next) {
+          world = next;
+        },
+      },
+    });
+
+    const baselineTemperature = zoneWithoutCooling.environment.airTemperatureC;
+    const MIN_GUIDANCE_TEMPERATURE_C = 21;
+    const targetTemperature = Math.max(MIN_GUIDANCE_TEMPERATURE_C + 0.25, baselineTemperature - 0.5);
+
+    if (targetTemperature >= baselineTemperature) {
+      throw new Error('Deterministic world climate baseline insufficient for cooling validation.');
+    }
+
+    await expect(
+      pipeline.handle({
+        type: 'intent.zone.climate.adjust.v1',
+        structureId: structure.id,
+        zoneId: zoneWithoutCooling.id,
+        target: { temperature_C: targetTemperature },
+      }),
+    ).rejects.toThrow(/lacks cooling capacity/i);
   });
 });
 
