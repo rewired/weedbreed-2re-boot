@@ -4,8 +4,14 @@ import { SimControlBar } from "@ui/components/layout/SimControlBar";
 import { workspaceCopy } from "@ui/design/tokens";
 import * as localeModule from "@ui/lib/locale";
 import { SIM_SPEED_OPTIONS, useSimulationControlsStore } from "@ui/state/simulationControls";
+import { clearTelemetrySnapshots, recordTickCompleted } from "@ui/state/telemetry";
 import { IntentClientProvider } from "@ui/transport";
-import type { IntentClient, IntentSubmissionSuccess } from "@ui/transport/intentClient";
+import type {
+  IntentClient,
+  IntentSubmissionSuccess,
+  SuccessfulIntentAck
+} from "@ui/transport/intentClient";
+import type { TransportIntentEnvelope } from "@wb/transport-sio";
 
 function resetSimulationControlsStore(): void {
   act(() => {
@@ -16,9 +22,24 @@ function resetSimulationControlsStore(): void {
   });
 }
 
-function createMockIntentClient(): { client: IntentClient; submit: IntentClient["submit"]; disconnect: IntentClient["disconnect"]; } {
-  const submit = vi.fn(async (_intent, handlers) => {
-    const result: IntentSubmissionSuccess = { ok: true, ack: { ok: true } };
+type AckFactory = (intent: TransportIntentEnvelope) => SuccessfulIntentAck;
+
+function createAck(overlay?: { readonly isPaused?: boolean; readonly speedMultiplier?: number }): SuccessfulIntentAck {
+  const ack = { ok: true, status: "applied" } as SuccessfulIntentAck;
+
+  if (overlay && (overlay.isPaused !== undefined || overlay.speedMultiplier !== undefined)) {
+    (ack as Record<string, unknown>).stateAfter = overlay;
+  }
+
+  return ack;
+}
+
+function createMockIntentClient(
+  ackFactory?: AckFactory
+): { client: IntentClient; submit: IntentClient["submit"]; disconnect: IntentClient["disconnect"]; } {
+  const submit = vi.fn(async (intent, handlers) => {
+    const acknowledgement = ackFactory ? ackFactory(intent) : createAck();
+    const result: IntentSubmissionSuccess = { ok: true, ack: acknowledgement };
     handlers?.onResult(result);
     return result;
   });
@@ -53,6 +74,7 @@ function renderWithClient(client: IntentClient): void {
 describe("SimControlBar", () => {
   afterEach(() => {
     resetSimulationControlsStore();
+    clearTelemetrySnapshots();
     vi.restoreAllMocks();
   });
 
@@ -71,8 +93,20 @@ describe("SimControlBar", () => {
     expect(controlSection).toHaveAttribute("data-position-desktop", "top");
   });
 
-  it("toggles play and pause state when the primary button is pressed", async () => {
-    const { client, submit } = createMockIntentClient();
+  it("advances the clock when telemetry ticks complete", async () => {
+    renderWithClient(createMockIntentClient().client);
+
+    expect(screen.getByText(/Day 12 · 06:15/)).toBeInTheDocument();
+
+    act(() => {
+      recordTickCompleted({ simTimeHours: 100.25 });
+    });
+
+    expect(await screen.findByText(/Day 5 · 04:15/)).toBeInTheDocument();
+  });
+
+  it("switches to play state when the pause acknowledgement reports a paused simulation", async () => {
+    const { client, submit } = createMockIntentClient(() => createAck({ isPaused: true }));
     renderWithClient(client);
 
     const pauseButton = screen.getByRole("button", { name: workspaceCopy.simControlBar.pause });
