@@ -175,11 +175,13 @@ describe('contract — transport server', () => {
     const ack = await ackPromise;
     assertTransportAck(ack);
     expect(ack.ok).toBe(false);
+    expect(ack.status).toBe('rejected');
     expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED);
 
     const mirroredAck = await errorEvent;
     assertTransportAck(mirroredAck);
     expect(mirroredAck.ok).toBe(false);
+    expect(mirroredAck.status).toBe('rejected');
     expect(mirroredAck.error?.code).toBe(SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED);
   });
 
@@ -204,7 +206,9 @@ describe('contract — transport server', () => {
     });
 
     assertTransportAck(ack);
-    expect(ack).toEqual({ ok: true });
+    expect(ack).toMatchObject({ ok: true, status: 'queued' });
+    expect(ack.intentId ?? null).toBeNull();
+    expect(ack.correlationId ?? null).toBeNull();
     expect(onIntent).toHaveBeenCalledTimes(1);
     expect(onIntent).toHaveBeenCalledWith(intentPayload);
   });
@@ -230,11 +234,13 @@ describe('contract — transport server', () => {
     const ack = await ackPromise;
     assertTransportAck(ack);
     expect(ack.ok).toBe(false);
+    expect(ack.status).toBe('rejected');
     expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.INTENT_CHANNEL_INVALID);
 
     const mirroredAck = await errorEvent;
     assertTransportAck(mirroredAck);
     expect(mirroredAck.ok).toBe(false);
+    expect(mirroredAck.status).toBe('rejected');
     expect(mirroredAck.error?.code).toBe(SOCKET_ERROR_CODES.INTENT_CHANNEL_INVALID);
   });
 });

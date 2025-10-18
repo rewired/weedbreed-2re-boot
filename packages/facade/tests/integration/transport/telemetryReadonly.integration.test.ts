@@ -64,8 +64,10 @@ describe('transport adapter — telemetry namespace', () => {
       const eventAck = await errorEvent;
 
       expect(ack.ok).toBe(false);
+      expect(ack.status).toBe('rejected');
       expect(ack.error?.code).toBe(SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED);
       expect(eventAck.ok).toBe(false);
+      expect(eventAck.status).toBe('rejected');
       expect(eventAck.error?.code).toBe(SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED);
     } finally {
       if (client) {

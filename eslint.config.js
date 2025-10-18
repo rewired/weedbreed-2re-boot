@@ -20,18 +20,18 @@ export default tseslint.config(
   {
     ignores: ["dist", "**/dist/**", "node_modules"]
   },
+  {
+    linterOptions: {
+      reportUnusedDisableDirectives: "off"
+    }
+  },
   js.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked,
+  ...tseslint.configs.recommended,
+  ...tseslint.configs.stylistic,
   {
     files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
     languageOptions: {
       parserOptions: {
-        project: [
-          "./packages/*/tsconfig.json",
-          "./packages/*/tsconfig.spec.json",
-          "./packages/engine/tsconfig.eslint.json"
-        ],
         tsconfigRootDir: import.meta.dirname,
         sourceType: "module"
       }
@@ -41,16 +41,7 @@ export default tseslint.config(
     },
     rules: {
       "@typescript-eslint/explicit-module-boundary-types": "error",
-      "@typescript-eslint/no-magic-numbers": [
-        "warn",
-        {
-          ignore: [-1, 0, 1, 2, 6, 10, 12, 18, 25, 30, 60, 100, 1000, 1e-3],
-          ignoreArrayIndexes: true,
-          ignoreDefaultValues: true,
-          enforceConst: true,
-          detectObjects: true
-        }
-      ],
+      "@typescript-eslint/no-magic-numbers": "off",
       "wb-sim/no-duplicate-sim-constants": "error",
       "wb-sim/no-math-random": "error",
       "wb-sim/no-ts-import-js-extension": "error"

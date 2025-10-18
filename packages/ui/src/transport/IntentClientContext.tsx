@@ -8,7 +8,7 @@ export interface IntentClientProviderProps {
   readonly children: ReactNode;
 }
 
-export function IntentClientProvider({ client, children }: IntentClientProviderProps) {
+export function IntentClientProvider({ client, children }: IntentClientProviderProps): JSX.Element {
   const value = useMemo(() => client, [client]);
   return <IntentClientContext.Provider value={value}>{children}</IntentClientContext.Provider>;
 }

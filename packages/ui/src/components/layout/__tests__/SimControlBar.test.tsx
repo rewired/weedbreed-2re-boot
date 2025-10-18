@@ -23,7 +23,7 @@ function createMockIntentClient(): { client: IntentClient; submit: IntentClient[
     return result;
   });
 
-  const disconnect = vi.fn(async () => {});
+  const disconnect = vi.fn(async () => undefined);
 
   return {
     client: {

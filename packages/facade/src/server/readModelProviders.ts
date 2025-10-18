@@ -12,6 +12,7 @@ import type {
   WorkforceState
 } from '@wb/engine';
 import { HOURS_PER_DAY } from '@engine/constants/time.js';
+import type { ReadModelProviders } from './http.js';
 import {
   parseCultivationMethodBlueprint
 } from '@/backend/src/domain/blueprints/cultivationMethodBlueprint.ts';
@@ -743,12 +744,8 @@ function computeNextShiftStartTick(simTimeHours: number, employee: WorkforceEmpl
 function mapWorkforceView(world: SimulationWorld): WorkforceViewReadModel {
   const workforce = world.workforce;
   const roleById = new Map(workforce.roles.map((role) => [role.id, role]));
-  const roleCounts = {
-    gardener: 0,
-    technician: 0,
-    janitor: 0
-  } as const;
-  const mutableCounts: Record<keyof typeof roleCounts, number> = {
+  type WorkforceRoleKey = 'gardener' | 'technician' | 'janitor';
+  const mutableCounts: Record<WorkforceRoleKey, number> = {
     gardener: 0,
     technician: 0,
     janitor: 0
@@ -1183,7 +1180,7 @@ function deepFreeze<T>(value: T): T {
   return value;
 }
 
-export function createReadModelProviders(context: EngineContext) {
+export function createReadModelProviders(context: EngineContext): ReadModelProviders {
   return {
     async companyTree(): Promise<CompanyTreeReadModel> {
       return mapCompanyTree(context.world);

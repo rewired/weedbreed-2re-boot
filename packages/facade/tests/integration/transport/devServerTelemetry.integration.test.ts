@@ -165,7 +165,9 @@ describe('facade transport dev server telemetry bridge', () => {
 
       const [{ harvestEvent, tickEvent }, ack] = await Promise.all([telemetryEventPromise, ackPromise]);
 
-      expect(ack).toEqual({ ok: true });
+      expect(ack).toMatchObject({ ok: true, status: 'queued' });
+      expect(ack.intentId ?? null).toBeNull();
+      expect(ack.correlationId ?? null).toBeNull();
       expect(harvestEvent.topic).toBe(TELEMETRY_HARVEST_CREATED_V1);
 
       const payload = harvestEvent.payload as Record<string, unknown>;

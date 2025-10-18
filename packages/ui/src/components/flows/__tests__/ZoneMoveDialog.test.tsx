@@ -31,7 +31,7 @@ describe("ZoneMoveDialog", () => {
         currentRoomId="room-veg-a"
         rooms={structure.rooms}
         intentClient={client}
-        onClose={() => {}}
+        onClose={() => undefined}
       />
     );
 
