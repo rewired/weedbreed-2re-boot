@@ -41,6 +41,51 @@ export interface WorkforceTerminationIntent {
   readonly moraleRipple01?: number;
 }
 
+export interface HrAssignIntent {
+  readonly type: 'hr.assign';
+  readonly employeeId: Uuid;
+  /** Identifier of the structure/room/zone that should receive the employee. */
+  readonly targetId: Uuid;
+}
+
+export interface PestInspectStartIntent {
+  readonly type: 'pest.inspect.start';
+  readonly zoneId: Uuid;
+}
+
+export interface PestInspectCompleteIntent {
+  readonly type: 'pest.inspect.complete';
+  readonly zoneId: Uuid;
+}
+
+export interface PestTreatStartIntent {
+  readonly type: 'pest.treat.start';
+  readonly zoneId: Uuid;
+}
+
+export interface PestTreatCompleteIntent {
+  readonly type: 'pest.treat.complete';
+  readonly zoneId: Uuid;
+}
+
+export type PestControlIntent =
+  | PestInspectStartIntent
+  | PestInspectCompleteIntent
+  | PestTreatStartIntent
+  | PestTreatCompleteIntent;
+
+export interface MaintenanceStartIntent {
+  readonly type: 'maintenance.start';
+  readonly deviceId: Uuid;
+}
+
+export interface MaintenanceCompleteIntent {
+  readonly type: 'maintenance.complete';
+  readonly deviceId: Uuid;
+}
+
+export type MaintenanceIntent = MaintenanceStartIntent | MaintenanceCompleteIntent;
+
 export interface HiringMarketScanIntent {
   readonly type: 'hiring.market.scan';
   readonly structureId: Uuid;
@@ -60,4 +105,7 @@ export type WorkforceIntent =
   | HiringMarketScanIntent
   | HiringMarketHireIntent
   | WorkforceRaiseIntent
-  | WorkforceTerminationIntent;
+  | WorkforceTerminationIntent
+  | HrAssignIntent
+  | PestControlIntent
+  | MaintenanceIntent;
