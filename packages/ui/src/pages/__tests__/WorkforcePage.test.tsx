@@ -63,6 +63,29 @@ describe("WorkforcePage", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders utilization summary and workforce warnings from the read model", () => {
+    const { client } = createIntentClientStub();
+    render(<WorkforcePage intentClient={client} />);
+
+    expect(screen.getByRole("heading", { name: /Roster utilization/i })).toBeInTheDocument();
+    expect(
+      screen.getByText(/Average utilization 100% \(target 85%\)\./i)
+    ).toBeInTheDocument();
+
+    const focusAreaList = screen.getByRole("list", { name: /Workforce focus areas/i });
+    expect(
+      within(focusAreaList).getByText(/Inspections queue has 1 task\(s\) awaiting staffing\./i)
+    ).toBeInTheDocument();
+
+    const warningsList = screen.getByRole("list", { name: /Workforce warnings/i });
+    expect(
+      within(warningsList).getByText(/Cultivation Lead coverage marked WARNING\./i)
+    ).toBeInTheDocument();
+    expect(
+      within(warningsList).getByText(/Reassign staff or schedule overtime for IPM Specialist\./i)
+    ).toBeInTheDocument();
+  });
+
   it("filters directory and timeline entries by zone", async () => {
     const { client } = createIntentClientStub();
     render(<WorkforcePage intentClient={client} />);
