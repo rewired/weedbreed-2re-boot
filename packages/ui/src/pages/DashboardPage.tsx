@@ -18,8 +18,7 @@ export function DashboardPage(): ReactElement {
           <h2 className="text-3xl font-semibold text-text-primary">Operations dashboard</h2>
         </div>
         <p className="text-sm text-text-muted">
-          Placeholder overview for tick cadence, simulation calendar, per-hour economy rollups, and utility draw while telemetry
-          wiring lands.
+          Live tick cadence, simulation calendar, economy rollups, and utility usage sourced from telemetry and read models.
         </p>
       </header>
 
@@ -34,11 +33,11 @@ export function DashboardPage(): ReactElement {
           <dl className="mt-4 space-y-3">
             <div>
               <dt className="dashboard-card__meta">Actual</dt>
-              <dd className="dashboard-card__metric">{tickRate.actualTicksPerHour} ticks/hour</dd>
+              <dd className="dashboard-card__metric">{tickRate.actualTicksPerHour}</dd>
             </div>
             <div>
               <dt className="dashboard-card__meta">Target</dt>
-              <dd className="text-sm text-text-muted">{tickRate.targetTicksPerHour} ticks/hour</dd>
+              <dd className="text-sm text-text-muted">{tickRate.targetTicksPerHour}</dd>
             </div>
           </dl>
         </section>
@@ -72,15 +71,15 @@ export function DashboardPage(): ReactElement {
           <dl className="mt-4 space-y-3">
             <div>
               <dt className="dashboard-card__meta">Operating</dt>
-              <dd className="dashboard-card__metric">{costs.operatingCostPerHour} cost/hr</dd>
+              <dd className="dashboard-card__metric">{costs.operatingCostPerHour}</dd>
             </div>
             <div>
               <dt className="dashboard-card__meta">Labour</dt>
-              <dd className="dashboard-card__metric">{costs.labourCostPerHour} cost/hr</dd>
+              <dd className="dashboard-card__metric">{costs.labourCostPerHour}</dd>
             </div>
             <div>
               <dt className="dashboard-card__meta">Utilities</dt>
-              <dd className="dashboard-card__metric">{costs.utilitiesCostPerHour} cost/hr</dd>
+              <dd className="dashboard-card__metric">{costs.utilitiesCostPerHour}</dd>
             </div>
           </dl>
         </section>
@@ -98,16 +97,16 @@ export function DashboardPage(): ReactElement {
                 <Zap aria-hidden="true" className="size-4 text-accent-primary" />
                 <span>Energy</span>
               </dt>
-              <dd className="dashboard-card__metric">{resources.energyKwhPerDay} kWh/day</dd>
-              <dd className="dashboard-card__meta">{resources.energyCostPerHour} cost/hr</dd>
+              <dd className="dashboard-card__metric">{resources.energyKwhPerDay}</dd>
+              <dd className="dashboard-card__meta">{resources.energyCostPerHour}</dd>
             </div>
             <div className="space-y-1">
               <dt className="dashboard-card__meta flex items-center gap-2">
                 <Droplets aria-hidden="true" className="size-4 text-accent-primary" />
                 <span>Water</span>
               </dt>
-              <dd className="dashboard-card__metric">{resources.waterCubicMetersPerDay} m³/day</dd>
-              <dd className="dashboard-card__meta">{resources.waterCostPerHour} cost/hr</dd>
+              <dd className="dashboard-card__metric">{resources.waterCubicMetersPerDay}</dd>
+              <dd className="dashboard-card__meta">{resources.waterCostPerHour}</dd>
             </div>
           </dl>
         </section>
@@ -120,9 +119,7 @@ export function DashboardPage(): ReactElement {
             Event stream
           </h3>
         </div>
-        <p className="dashboard-card__meta mt-3">
-          Placeholder entries representing the deterministic task queue emitted by the simulation.
-        </p>
+        <p className="dashboard-card__meta mt-3">Pending incidents surfaced directly from the simulation timeline.</p>
         <ul className="dashboard-events__list" aria-label="Upcoming events">
           {events.map((event) => (
             <li key={event.id} className="dashboard-events__item">
