@@ -25,6 +25,11 @@
     on live data wiring.
   - Recorded this milestone in the changelog to keep SEC/DD/TDD traceability aligned for UI documentation updates.
 
+- 2025-02-20 — Task 4100 Read-model Store Live Fetch:
+  - Upgraded the UI read-model store to expose `status` (`loading|ready|error`) and `lastError` metadata, orchestrate deterministic retry scheduling, and honour fixture fallbacks when no transport is configured (`packages/ui/src/state/readModels.ts`).
+  - Replaced the manual bootstrap call in `App.tsx` with store-driven initialisation so the first fetch automatically respects `VITE_TRANSPORT_BASE_URL`.
+  - Added fetch-backed unit coverage for success, failure, and transport-less scenarios plus updated hook expectations for the new status contract (`packages/ui/src/state/__tests__/readModelsStore.test.ts`, `packages/ui/src/lib/__tests__/readModelHooks.test.tsx`).
+
 - Task 0130: Added a simulation control contract checklist to TDD §6a and linked SEC §11 to the new guardrails so playback intents, acknowledgements, and telemetry expectations stay aligned with follow-up tasks 3100–3130 and 4140 (docs/TDD.md, docs/SEC.md).
 - Task 3110: Enabled environment adjustment intents for zone lighting/climate by extending the façade command pipeline with cultivation-method temperature validation, lighting coverage guards, and deterministic acknowledgement payloads (`packages/facade/src/transport/engineCommandPipeline.ts`, `packages/facade/tests/unit/transport/engineCommandPipeline.test.ts`). Updated the Socket.IO transport adapter and façade server contract so intent handlers can return success overlays consumed by acknowledgements (`packages/transport-sio/src/adapter.ts`, `packages/facade/src/transport/server.ts`).
 - Task 3120: Implemented workforce HR assignment, pest mitigation, and maintenance intent handlers with capacity guardrails and acknowledgement overlays, extending the engine scheduler plus façade parsing to surface deterministic roster deltas (`packages/engine/src/backend/src/workforce/index.ts`, `packages/engine/src/backend/src/domain/workforce/intents.ts`, `packages/facade/src/transport/engineCommandPipeline.ts`, `packages/engine/tests/unit/workforce/intents.test.ts`).
