@@ -115,6 +115,11 @@
   `packages/engine/src/backend/src/engine/pipeline/updateEnvironment.ts`,
   `packages/engine/tests/unit/engine/pipeline`,
   `packages/facade/tests/integration/transport/devServerTelemetry.integration.test.ts`).
+- Task 2100: Linked the façade playback controller to flush pending telemetry after each
+  tick advancement and added transport integration coverage verifying telemetry dispatch,
+  pause, and step semantics stay deterministic (`packages/facade/src/transport/playbackController.ts`,
+  `packages/facade/src/transport/devServer.ts`,
+  `packages/facade/tests/integration/transport/playbackLoop.integration.test.ts`).
 
 - Task 6000: Replaced the workforce KPI shell with the HR directory, activity
   timeline, task queues, capacity snapshot, and action panel. Introduced

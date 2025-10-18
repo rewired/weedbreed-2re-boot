@@ -55,6 +55,20 @@ export async function startFacadeDevServer(
   const pendingTelemetry: TelemetryEnvelope[] = [];
   let publisher: TransportServer['publishTelemetry'] | null = null;
 
+  const flushPendingTelemetry = () => {
+    if (!publisher) {
+      return;
+    }
+
+    while (pendingTelemetry.length > 0) {
+      const event = pendingTelemetry.shift();
+
+      if (event) {
+        publisher(event);
+      }
+    }
+  };
+
   const telemetryBridge: EngineRunContext['telemetry'] = {
     emit(topic, payload) {
       const envelope: TelemetryEnvelope = { topic, payload };
@@ -86,6 +100,7 @@ export async function startFacadeDevServer(
 
   const playback = createPlaybackController({
     pipeline,
+    onTick: flushPendingTelemetry,
   });
 
   const speedIntentSchema = z.object({
@@ -134,14 +149,7 @@ export async function startFacadeDevServer(
   });
 
   publisher = server.publishTelemetry;
-
-  while (pendingTelemetry.length > 0) {
-    const event = pendingTelemetry.shift();
-
-    if (event) {
-      publisher(event);
-    }
-  }
+  flushPendingTelemetry();
 
   return {
     server,
