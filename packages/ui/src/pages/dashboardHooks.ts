@@ -1,20 +1,67 @@
 import { useMemo } from "react";
-import { useTelemetryTick } from "@ui/state/telemetry";
 import { DEFAULT_SIMULATION_CLOCK, deriveSimulationClock } from "@ui/lib/simTime";
+import { useEconomyReadModel, useSimulationReadModel } from "@ui/lib/readModelHooks";
+import { formatCurrency, useShellLocale } from "@ui/lib/locale";
+import type { SupportedLocale } from "@ui/lib/locale";
+import { formatRoundedNumber } from "@ui/lib/validation/rounding";
+import { useTelemetryTick } from "@ui/state/telemetry";
 
-const DASHBOARD_STUB_TARGET_TICKS_PER_HOUR = 30;
-const DASHBOARD_STUB_ACTUAL_TICKS_PER_HOUR = 28;
-const DASHBOARD_STUB_OPERATING_COST_PER_HOUR = 126.5;
-const DASHBOARD_STUB_LABOUR_COST_PER_HOUR = 48.25;
-const DASHBOARD_STUB_UTILITIES_COST_PER_HOUR = 32.1;
-const DASHBOARD_STUB_ENERGY_KWH_PER_DAY = 480;
-const DASHBOARD_STUB_ENERGY_COST_PER_HOUR = 28.8;
-const DASHBOARD_STUB_WATER_CUBIC_METERS_PER_DAY = 12;
-const DASHBOARD_STUB_WATER_COST_PER_HOUR = 3.4;
+const FALLBACK_TARGET_TICKS_PER_HOUR = 30;
+const FALLBACK_ACTUAL_TICKS_PER_HOUR = 28;
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function formatTickRate(value: number | null | undefined, locale: SupportedLocale): string {
+  if (!isFiniteNumber(value)) {
+    return "—";
+  }
+
+  const formatted = formatRoundedNumber(value, locale, {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 0
+  });
+
+  return `${formatted} ticks/hour`;
+}
+
+function formatCurrencyPerHour(value: number | null | undefined, locale: SupportedLocale): string {
+  if (!isFiniteNumber(value)) {
+    return "—";
+  }
+
+  return `${formatCurrency(value, locale)} /hr`;
+}
+
+function formatDailyUsage(value: number | null | undefined, unit: "kWh" | "m³", locale: SupportedLocale): string {
+  if (!isFiniteNumber(value)) {
+    return "—";
+  }
+
+  const formatted = formatRoundedNumber(value, locale, {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 0
+  });
+
+  return `${formatted} ${unit}/day`;
+}
+
+function formatRelativeTickDelta(currentTick: number, raisedAtTick: number): string {
+  const delta = raisedAtTick - currentTick;
+  const sign = delta >= 0 ? "+" : "-";
+  const absoluteHours = Math.abs(delta);
+  const hours = Math.floor(absoluteHours);
+  const minutes = Math.round((absoluteHours - hours) * 60);
+  const paddedHours = String(hours).padStart(2, "0");
+  const paddedMinutes = String(minutes).padStart(2, "0");
+
+  return `T${sign}${paddedHours}:${paddedMinutes}`;
+}
 
 export interface DashboardTickRate {
-  readonly targetTicksPerHour: number;
-  readonly actualTicksPerHour: number;
+  readonly targetTicksPerHour: string;
+  readonly actualTicksPerHour: string;
 }
 
 export interface DashboardClockSnapshot {
@@ -24,16 +71,16 @@ export interface DashboardClockSnapshot {
 }
 
 export interface DashboardCostRollup {
-  readonly operatingCostPerHour: number;
-  readonly labourCostPerHour: number;
-  readonly utilitiesCostPerHour: number;
+  readonly operatingCostPerHour: string;
+  readonly labourCostPerHour: string;
+  readonly utilitiesCostPerHour: string;
 }
 
 export interface DashboardResourceUsage {
-  readonly energyKwhPerDay: number;
-  readonly energyCostPerHour: number;
-  readonly waterCubicMetersPerDay: number;
-  readonly waterCostPerHour: number;
+  readonly energyKwhPerDay: string;
+  readonly energyCostPerHour: string;
+  readonly waterCubicMetersPerDay: string;
+  readonly waterCostPerHour: string;
 }
 
 export interface DashboardEventSnapshot {
@@ -50,69 +97,71 @@ export interface DashboardSnapshot {
   readonly events: readonly DashboardEventSnapshot[];
 }
 
-const stubSnapshot: DashboardSnapshot = Object.freeze({
-  tickRate: {
-    targetTicksPerHour: DASHBOARD_STUB_TARGET_TICKS_PER_HOUR,
-    actualTicksPerHour: DASHBOARD_STUB_ACTUAL_TICKS_PER_HOUR
-  },
-  clock: {
-    ...DEFAULT_SIMULATION_CLOCK
-  },
-  costs: {
-    operatingCostPerHour: DASHBOARD_STUB_OPERATING_COST_PER_HOUR,
-    labourCostPerHour: DASHBOARD_STUB_LABOUR_COST_PER_HOUR,
-    utilitiesCostPerHour: DASHBOARD_STUB_UTILITIES_COST_PER_HOUR
-  },
-  resources: {
-    energyKwhPerDay: DASHBOARD_STUB_ENERGY_KWH_PER_DAY,
-    energyCostPerHour: DASHBOARD_STUB_ENERGY_COST_PER_HOUR,
-    waterCubicMetersPerDay: DASHBOARD_STUB_WATER_CUBIC_METERS_PER_DAY,
-    waterCostPerHour: DASHBOARD_STUB_WATER_COST_PER_HOUR
-  },
-  events: Object.freeze([
-    { id: "evt-01", label: "Lights schedule change staged", relativeTime: "T+00:15" },
-    { id: "evt-02", label: "Nutrient solution top-off planned", relativeTime: "T+00:40" },
-    { id: "evt-03", label: "Harvest readiness review queued", relativeTime: "T+01:05" }
-  ])
-});
-
 export function useDashboardSnapshot(): DashboardSnapshot {
+  const locale = useShellLocale();
   const tickTelemetry = useTelemetryTick();
+  const simulation = useSimulationReadModel();
+  const economy = useEconomyReadModel();
+  const { operatingCostPerHour, labourCostPerHour, utilitiesCostPerHour } = economy;
+  const {
+    day: simulationDay,
+    hour: simulationHour,
+    simTimeHours: simulationSimTimeHours,
+    tick: simulationTick,
+    pendingIncidents: simulationPendingIncidents
+  } = simulation;
 
   return useMemo(() => {
-    if (!tickTelemetry) {
-      return stubSnapshot;
-    }
+    const clockFallback = {
+      day: simulationDay,
+      hour: simulationHour,
+      minute: 0
+    } satisfies DashboardClockSnapshot;
 
-    const clock = deriveSimulationClock(tickTelemetry.simTimeHours, stubSnapshot.clock);
+    const resolvedSimTimeHours = tickTelemetry?.simTimeHours ?? simulationSimTimeHours;
+    const clock = deriveSimulationClock(resolvedSimTimeHours, clockFallback ?? DEFAULT_SIMULATION_CLOCK);
+    const currentTick = Math.floor(resolvedSimTimeHours ?? simulationTick ?? 0);
+    const pendingIncidents = simulationPendingIncidents ?? [];
 
     return {
       tickRate: {
-        targetTicksPerHour:
-          tickTelemetry.targetTicksPerHour ?? stubSnapshot.tickRate.targetTicksPerHour,
-        actualTicksPerHour:
-          tickTelemetry.actualTicksPerHour ?? stubSnapshot.tickRate.actualTicksPerHour
+        targetTicksPerHour: formatTickRate(
+          tickTelemetry?.targetTicksPerHour ?? FALLBACK_TARGET_TICKS_PER_HOUR,
+          locale
+        ),
+        actualTicksPerHour: formatTickRate(
+          tickTelemetry?.actualTicksPerHour ?? FALLBACK_ACTUAL_TICKS_PER_HOUR,
+          locale
+        )
       },
       clock,
       costs: {
-        operatingCostPerHour:
-          tickTelemetry.operatingCostPerHour ?? stubSnapshot.costs.operatingCostPerHour,
-        labourCostPerHour:
-          tickTelemetry.labourCostPerHour ?? stubSnapshot.costs.labourCostPerHour,
-        utilitiesCostPerHour:
-          tickTelemetry.utilitiesCostPerHour ?? stubSnapshot.costs.utilitiesCostPerHour
+        operatingCostPerHour: formatCurrencyPerHour(operatingCostPerHour, locale),
+        labourCostPerHour: formatCurrencyPerHour(labourCostPerHour, locale),
+        utilitiesCostPerHour: formatCurrencyPerHour(utilitiesCostPerHour, locale)
       },
       resources: {
-        energyKwhPerDay:
-          tickTelemetry.energyKwhPerDay ?? stubSnapshot.resources.energyKwhPerDay,
-        energyCostPerHour:
-          tickTelemetry.energyCostPerHour ?? stubSnapshot.resources.energyCostPerHour,
-        waterCubicMetersPerDay:
-          tickTelemetry.waterCubicMetersPerDay ?? stubSnapshot.resources.waterCubicMetersPerDay,
-        waterCostPerHour:
-          tickTelemetry.waterCostPerHour ?? stubSnapshot.resources.waterCostPerHour
+        energyKwhPerDay: formatDailyUsage(tickTelemetry?.energyKwhPerDay, "kWh", locale),
+        energyCostPerHour: formatCurrencyPerHour(tickTelemetry?.energyCostPerHour, locale),
+        waterCubicMetersPerDay: formatDailyUsage(tickTelemetry?.waterCubicMetersPerDay, "m³", locale),
+        waterCostPerHour: formatCurrencyPerHour(tickTelemetry?.waterCostPerHour, locale)
       },
-      events: stubSnapshot.events
+      events: pendingIncidents.map((incident) => ({
+        id: incident.id,
+        label: incident.message,
+        relativeTime: formatRelativeTickDelta(currentTick, incident.raisedAtTick)
+      }))
     } satisfies DashboardSnapshot;
-  }, [tickTelemetry]);
+  }, [
+    labourCostPerHour,
+    locale,
+    operatingCostPerHour,
+    simulationDay,
+    simulationHour,
+    simulationPendingIncidents,
+    simulationSimTimeHours,
+    simulationTick,
+    tickTelemetry,
+    utilitiesCostPerHour
+  ]);
 }
