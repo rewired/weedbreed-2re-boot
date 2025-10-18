@@ -12,6 +12,7 @@ import {
   type TelemetryEvent,
   type TransportIntentEnvelope,
 } from './adapter.js';
+import { createTelemetryPublisher } from './telemetryPublisher.js';
 
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 7101;
@@ -254,6 +255,11 @@ export async function createTransportServer(options: TransportServerOptions): Pr
     onIntent: options.onIntent,
     serverOptions,
   });
+  const publisher = createTelemetryPublisher({
+    sink: (event) => {
+      adapter.publishTelemetry(event);
+    },
+  });
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -292,7 +298,7 @@ export async function createTransportServer(options: TransportServerOptions): Pr
     url,
     namespaces: adapter.namespaces,
     publishTelemetry(event) {
-      adapter.publishTelemetry(event);
+      publisher.publish(event);
     },
     async close() {
       await adapter.close();
