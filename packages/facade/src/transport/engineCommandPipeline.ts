@@ -173,6 +173,19 @@ const workforceRaiseIgnoreSchema = z.object({
   moralePenalty01: z.number().finite().optional(),
 });
 
+const hrAssignSchema = z.object({
+  employeeId: uuidSchema,
+  target: uuidSchema,
+});
+
+const pestZoneIntentSchema = z.object({
+  zoneId: uuidSchema,
+});
+
+const maintenanceTaskSchema = z.object({
+  deviceId: uuidSchema,
+});
+
 const workforceTerminationSchema = z.object({
   employeeId: uuidSchema,
   reasonSlug: z.string().trim().min(1).optional(),
@@ -973,6 +986,70 @@ function toLifecycleAck(command: LifecycleCommand): TransportAck | undefined {
   }
 }
 
+type AssignmentScope = 'structure' | 'room' | 'zone';
+
+function resolveAssignmentTarget(
+  world: SimulationWorld,
+  targetId: Uuid,
+): { readonly structureId: Uuid; readonly scope: AssignmentScope } | null {
+  for (const structure of world.company.structures) {
+    if (structure.id === targetId) {
+      return { structureId: structure.id, scope: 'structure' };
+    }
+
+    for (const room of structure.rooms) {
+      if (room.id === targetId) {
+        return { structureId: structure.id, scope: 'room' };
+      }
+
+      for (const zone of room.zones) {
+        if (zone.id === targetId) {
+          return { structureId: structure.id, scope: 'zone' };
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+function createWorkforceAckOverlay(
+  world: SimulationWorld,
+  intent: WorkforceIntent,
+): Partial<TransportAck> | undefined {
+  switch (intent.type) {
+    case 'hr.assign': {
+      const employee = world.workforce.employees.find((entry) => entry.id === intent.employeeId);
+
+      if (!employee) {
+        throw new Error(`Employee ${intent.employeeId} not found for hr.assign intent.`);
+      }
+
+      const target = resolveAssignmentTarget(world, intent.targetId);
+
+      if (!target) {
+        throw new Error(`Assignment target ${intent.targetId} not found in company structures.`);
+      }
+
+      return {
+        result: {
+          workforce: {
+            type: intent.type,
+            employeeId: intent.employeeId,
+            previousStructureId: employee.assignedStructureId,
+            nextStructureId: target.structureId,
+            targetScope: target.scope,
+            targetId: intent.targetId,
+          },
+        },
+      } satisfies Partial<TransportAck>;
+    }
+
+    default:
+      return undefined;
+  }
+}
+
 function toWorkforceIntent(envelope: TransportIntentEnvelope): WorkforceIntent | null {
   switch (envelope.type) {
     case 'hiring.market.scan': {
@@ -1019,6 +1096,41 @@ function toWorkforceIntent(envelope: TransportIntentEnvelope): WorkforceIntent |
         employeeId,
         moralePenalty01,
       } satisfies WorkforceIntent;
+    }
+
+    case 'hr.assign': {
+      const { employeeId, target } = hrAssignSchema.parse(envelope);
+      return { type: 'hr.assign', employeeId, targetId: target } satisfies WorkforceIntent;
+    }
+
+    case 'pest.inspect.start': {
+      const { zoneId } = pestZoneIntentSchema.parse(envelope);
+      return { type: 'pest.inspect.start', zoneId } satisfies WorkforceIntent;
+    }
+
+    case 'pest.inspect.complete': {
+      const { zoneId } = pestZoneIntentSchema.parse(envelope);
+      return { type: 'pest.inspect.complete', zoneId } satisfies WorkforceIntent;
+    }
+
+    case 'pest.treat.start': {
+      const { zoneId } = pestZoneIntentSchema.parse(envelope);
+      return { type: 'pest.treat.start', zoneId } satisfies WorkforceIntent;
+    }
+
+    case 'pest.treat.complete': {
+      const { zoneId } = pestZoneIntentSchema.parse(envelope);
+      return { type: 'pest.treat.complete', zoneId } satisfies WorkforceIntent;
+    }
+
+    case 'maintenance.start': {
+      const { deviceId } = maintenanceTaskSchema.parse(envelope);
+      return { type: 'maintenance.start', deviceId } satisfies WorkforceIntent;
+    }
+
+    case 'maintenance.complete': {
+      const { deviceId } = maintenanceTaskSchema.parse(envelope);
+      return { type: 'maintenance.complete', deviceId } satisfies WorkforceIntent;
     }
 
     case 'workforce.employee.terminate': {
@@ -1115,8 +1227,9 @@ export function createEngineCommandPipeline(
       const command = normaliseIntent(envelope, baseWorld);
 
       if (command.kind === 'workforce') {
+        const ackOverlay = createWorkforceAckOverlay(baseWorld, command.intent);
         pendingWorkforceIntents = [...pendingWorkforceIntents, command.intent];
-        return undefined;
+        return ackOverlay;
       }
 
       pendingLifecycleCommands = [...pendingLifecycleCommands, command.command];

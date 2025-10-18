@@ -18,13 +18,20 @@ import type {
   WorkforceRaiseIntent,
   WorkforceTerminationIntent,
   WorkforceStructurePayrollTotals,
+  HrAssignIntent,
+  PestControlIntent,
+  MaintenanceIntent,
 } from '../domain/world.ts';
 import type { LocationIndexTable } from '../domain/payroll/locationIndex.ts';
 import { createEmptyLocationIndexTable, resolveLocationIndex } from '../domain/payroll/locationIndex.ts';
 import { ensureCultivationTaskRuntime, getCultivationMethodCatalog, scheduleCultivationTasksForZone } from '../cultivation/methodRuntime.ts';
 import { consumeDeviceMaintenanceRuntime } from '../device/maintenanceRuntime.ts';
 import { TELEMETRY_DEVICE_MAINTENANCE_SCHEDULED_V1, TELEMETRY_DEVICE_REPLACEMENT_RECOMMENDED_V1 } from '../telemetry/topics.ts';
-import { evaluatePestDiseaseSystem } from '../health/pestDiseaseSystem.ts';
+import {
+  evaluatePestDiseaseSystem,
+  PEST_INSPECTION_TASK_CODE,
+  PEST_TREATMENT_TASK_CODE,
+} from '../health/pestDiseaseSystem.ts';
 import { emitPestDiseaseRiskWarnings, emitPestDiseaseTaskEvents } from '../telemetry/health.ts';
 import type { EngineRunContext } from '../engine/Engine.ts';
 import { clamp01 } from '../util/math.ts';
@@ -452,6 +459,393 @@ function resolveStructureMaps(structures: readonly Structure[]): {
   return { indexLookup, byId };
 }
 
+interface AssignmentResolution {
+  readonly scope: 'structure' | 'room' | 'zone';
+  readonly structureId: Structure['id'];
+}
+
+function resolveAssignmentTarget(
+  world: SimulationWorld,
+  targetId: HrAssignIntent['targetId'],
+): AssignmentResolution | undefined {
+  for (const structure of world.company.structures) {
+    if (structure.id === targetId) {
+      return { scope: 'structure', structureId: structure.id };
+    }
+
+    for (const room of structure.rooms) {
+      if (room.id === targetId) {
+        return { scope: 'room', structureId: structure.id };
+      }
+
+      for (const zone of room.zones) {
+        if (zone.id === targetId) {
+          return { scope: 'zone', structureId: structure.id };
+        }
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function processHrAssignIntents({
+  world,
+  intents,
+  employees,
+  simTimeHours,
+}: {
+  readonly world: SimulationWorld;
+  readonly intents: readonly HrAssignIntent[];
+  readonly employees: readonly Employee[];
+  readonly simTimeHours: number;
+}): { readonly employees: readonly Employee[]; readonly warnings: readonly WorkforceWarning[] } {
+  if (intents.length === 0) {
+    return { employees, warnings: [] };
+  }
+
+  const directory = new Map<Employee['id'], Employee>();
+  employees.forEach((employee) => {
+    directory.set(employee.id, employee);
+  });
+
+  const warnings: WorkforceWarning[] = [];
+
+  for (const intent of intents) {
+    const employee = directory.get(intent.employeeId);
+
+    if (!employee) {
+      warnings.push({
+        simTimeHours,
+        code: 'workforce.hr.employee_missing',
+        message: `Employee ${intent.employeeId} could not be reassigned because the record is missing.`,
+        severity: 'warning',
+        metadata: { employeeId: intent.employeeId, targetId: intent.targetId },
+      });
+      continue;
+    }
+
+    const target = resolveAssignmentTarget(world, intent.targetId);
+
+    if (!target) {
+      warnings.push({
+        simTimeHours,
+        code: 'workforce.hr.assignment_target_missing',
+        message: `Assignment target ${intent.targetId} is not part of the company hierarchy.`,
+        severity: 'warning',
+        metadata: { employeeId: intent.employeeId, targetId: intent.targetId },
+      });
+      continue;
+    }
+
+    if (employee.assignedStructureId === target.structureId) {
+      continue;
+    }
+
+    directory.set(employee.id, {
+      ...employee,
+      assignedStructureId: target.structureId,
+    } satisfies Employee);
+  }
+
+  const nextEmployees = employees.map((employee) => directory.get(employee.id) ?? employee);
+  return { employees: nextEmployees, warnings };
+}
+
+function resolveTaskStructureId(
+  task: WorkforceTaskInstance,
+  lookups: ReturnType<typeof resolveStructureLookups>,
+): Structure['id'] | undefined {
+  const context = task.context ?? {};
+  const structureId = context.structureId;
+
+  if (typeof structureId === 'string') {
+    return structureId as Structure['id'];
+  }
+
+  const roomId = context.roomId;
+
+  if (typeof roomId === 'string') {
+    const resolved = lookups.roomToStructure.get(roomId);
+    if (resolved) {
+      return resolved;
+    }
+  }
+
+  const zoneId = context.zoneId;
+
+  if (typeof zoneId === 'string') {
+    const resolved = lookups.zoneToStructure.get(zoneId);
+    if (resolved) {
+      return resolved;
+    }
+  }
+
+  return undefined;
+}
+
+function processManualTaskIntents({
+  world,
+  taskQueue,
+  pestIntents,
+  maintenanceIntents,
+  employees,
+  simTimeHours,
+  lookups,
+}: {
+  readonly world: SimulationWorld;
+  readonly taskQueue: readonly WorkforceTaskInstance[];
+  readonly pestIntents: readonly PestControlIntent[];
+  readonly maintenanceIntents: readonly MaintenanceIntent[];
+  readonly employees: readonly Employee[];
+  readonly simTimeHours: number;
+  readonly lookups: ReturnType<typeof resolveStructureLookups>;
+}): { readonly taskQueue: WorkforceTaskInstance[]; readonly warnings: readonly WorkforceWarning[] } {
+  if (pestIntents.length === 0 && maintenanceIntents.length === 0) {
+    return { taskQueue: [...taskQueue], warnings: [] };
+  }
+
+  let queue = [...taskQueue];
+  const warnings: WorkforceWarning[] = [];
+  const capacityByStructure = new Map<Structure['id'], number>();
+
+  for (const employee of employees) {
+    const current = capacityByStructure.get(employee.assignedStructureId) ?? 0;
+    capacityByStructure.set(employee.assignedStructureId, current + 1);
+  }
+
+  const activeCounts = new Map<Structure['id'], number>();
+
+  for (const task of queue) {
+    if (task.status !== 'in-progress') {
+      continue;
+    }
+
+    const structureId = resolveTaskStructureId(task, lookups);
+
+    if (structureId) {
+      activeCounts.set(structureId, (activeCounts.get(structureId) ?? 0) + 1);
+    }
+  }
+
+  const ensureCapacity = (
+    structureId: Structure['id'],
+    code: string,
+    message: string,
+    metadata: Record<string, unknown>,
+  ): boolean => {
+    const capacity = capacityByStructure.get(structureId) ?? 0;
+    const active = activeCounts.get(structureId) ?? 0;
+
+    if (capacity <= active) {
+      warnings.push({
+        simTimeHours,
+        code,
+        message,
+        severity: 'warning',
+        structureId,
+        metadata,
+      });
+      return false;
+    }
+
+    activeCounts.set(structureId, active + 1);
+    return true;
+  };
+
+  const releaseCapacity = (structureId: Structure['id'] | undefined) => {
+    if (!structureId) {
+      return;
+    }
+
+    const active = activeCounts.get(structureId);
+
+    if (active === undefined) {
+      return;
+    }
+
+    if (active <= 1) {
+      activeCounts.delete(structureId);
+      return;
+    }
+
+    activeCounts.set(structureId, active - 1);
+  };
+
+  const updateTaskAtIndex = (
+    index: number,
+    updater: (task: WorkforceTaskInstance) => WorkforceTaskInstance,
+  ) => {
+    queue = queue.map((task, taskIndex) => (taskIndex === index ? updater(task) : task));
+  };
+
+  for (const intent of pestIntents) {
+    const taskCode =
+      intent.type === 'pest.inspect.start' || intent.type === 'pest.inspect.complete'
+        ? PEST_INSPECTION_TASK_CODE
+        : PEST_TREATMENT_TASK_CODE;
+    const zoneId = intent.zoneId;
+    const structureId = lookups.zoneToStructure.get(zoneId);
+
+    if (!structureId) {
+      warnings.push({
+        simTimeHours,
+        code: 'workforce.pest.assignment_target_missing',
+        message: `Zone ${zoneId} is not registered in the company structures.`,
+        severity: 'warning',
+        metadata: { zoneId, taskCode },
+      });
+      continue;
+    }
+
+    if (intent.type === 'pest.inspect.start' || intent.type === 'pest.treat.start') {
+      const taskIndex = queue.findIndex(
+        (task) =>
+          task.taskCode === taskCode &&
+          (task.context?.zoneId as Zone['id'] | undefined) === zoneId &&
+          task.status === 'queued',
+      );
+
+      if (taskIndex === -1) {
+        warnings.push({
+          simTimeHours,
+          code: 'workforce.pest.task_missing',
+          message: `No queued ${taskCode} task found for zone ${zoneId}.`,
+          severity: 'warning',
+          structureId,
+          metadata: { zoneId, taskCode },
+        });
+        continue;
+      }
+
+      const ensured = ensureCapacity(
+        structureId,
+        'workforce.pest.capacity_overflow',
+        `Cannot start ${taskCode} in zone ${zoneId} because all assigned employees are busy.`,
+        { zoneId, taskCode },
+      );
+
+      if (!ensured) {
+        continue;
+      }
+
+      updateTaskAtIndex(taskIndex, (task) => ({
+        ...task,
+        status: 'in-progress',
+        context: { ...task.context, acknowledgedAtTick: simTimeHours },
+      } satisfies WorkforceTaskInstance));
+      continue;
+    }
+
+    let taskIndex = queue.findIndex(
+      (task) =>
+        task.taskCode === taskCode &&
+        (task.context?.zoneId as Zone['id'] | undefined) === zoneId &&
+        task.status === 'in-progress',
+    );
+
+    let releaseStructure: Structure['id'] | undefined;
+
+    if (taskIndex === -1) {
+      taskIndex = queue.findIndex(
+        (task) =>
+          task.taskCode === taskCode &&
+          (task.context?.zoneId as Zone['id'] | undefined) === zoneId,
+      );
+    } else {
+      releaseStructure = structureId;
+    }
+
+    if (taskIndex === -1) {
+      warnings.push({
+        simTimeHours,
+        code: 'workforce.pest.task_missing',
+        message: `No active ${taskCode} task found for zone ${zoneId}.`,
+        severity: 'warning',
+        structureId,
+        metadata: { zoneId, taskCode },
+      });
+      continue;
+    }
+
+    updateTaskAtIndex(taskIndex, (task) => ({
+      ...task,
+      status: 'completed',
+      context: { ...task.context, completedAtTick: simTimeHours },
+    } satisfies WorkforceTaskInstance));
+    releaseCapacity(releaseStructure ?? resolveTaskStructureId(queue[taskIndex], lookups));
+  }
+
+  for (const intent of maintenanceIntents) {
+    const deviceId = intent.deviceId;
+    const taskIndex = queue.findIndex(
+      (task) =>
+        isMaintenanceTask(task) &&
+        (task.context?.deviceId as string | undefined) === deviceId &&
+        (intent.type === 'maintenance.start' ? task.status === 'queued' : true),
+    );
+
+    if (taskIndex === -1) {
+      warnings.push({
+        simTimeHours,
+        code: 'workforce.maintenance.task_missing',
+        message: `No maintenance task found for device ${deviceId}.`,
+        severity: 'warning',
+        metadata: { deviceId },
+      });
+      continue;
+    }
+
+    const structureId = resolveTaskStructureId(queue[taskIndex], lookups);
+
+    if (intent.type === 'maintenance.start') {
+      const ensured = ensureCapacity(
+        structureId ?? (world.company.structures[0]?.id ?? ('unknown-structure' as Structure['id'])),
+        'workforce.maintenance.capacity_overflow',
+        `Cannot start maintenance for device ${deviceId} because all assigned employees are busy.`,
+        { deviceId },
+      );
+
+      if (!ensured) {
+        continue;
+      }
+
+      updateTaskAtIndex(taskIndex, (task) => ({
+        ...task,
+        status: 'in-progress',
+        context: { ...task.context, acknowledgedAtTick: simTimeHours },
+      } satisfies WorkforceTaskInstance));
+      continue;
+    }
+
+    const activeTaskIndex = queue.findIndex(
+      (task) =>
+        isMaintenanceTask(task) &&
+        (task.context?.deviceId as string | undefined) === deviceId &&
+        task.status === 'in-progress',
+    );
+
+    if (activeTaskIndex !== -1) {
+      updateTaskAtIndex(activeTaskIndex, (task) => ({
+        ...task,
+        status: 'completed',
+        context: { ...task.context, completedAtTick: simTimeHours },
+      } satisfies WorkforceTaskInstance));
+      releaseCapacity(resolveTaskStructureId(queue[activeTaskIndex], lookups));
+      continue;
+    }
+
+    updateTaskAtIndex(taskIndex, (task) => ({
+      ...task,
+      status: 'completed',
+      context: { ...task.context, completedAtTick: simTimeHours },
+    } satisfies WorkforceTaskInstance));
+    releaseCapacity(resolveTaskStructureId(queue[taskIndex], lookups));
+  }
+
+  return { taskQueue: queue, warnings };
+}
+
 function resolveRoleMap(roles: readonly EmployeeRole[]): Map<EmployeeRole['id'], EmployeeRole> {
   const map = new Map<EmployeeRole['id'], EmployeeRole>();
 
@@ -468,10 +862,16 @@ function partitionIntents(
   readonly market: readonly (HiringMarketScanIntent | HiringMarketHireIntent)[];
   readonly raises: readonly WorkforceRaiseIntent[];
   readonly terminations: readonly WorkforceTerminationIntent[];
+  readonly hr: readonly HrAssignIntent[];
+  readonly pest: readonly PestControlIntent[];
+  readonly maintenance: readonly MaintenanceIntent[];
 } {
   const market: (HiringMarketScanIntent | HiringMarketHireIntent)[] = [];
   const raises: WorkforceRaiseIntent[] = [];
   const terminations: WorkforceTerminationIntent[] = [];
+  const hr: HrAssignIntent[] = [];
+  const pest: PestControlIntent[] = [];
+  const maintenance: MaintenanceIntent[] = [];
 
   for (const intent of intents) {
     switch (intent.type) {
@@ -490,12 +890,28 @@ function partitionIntents(
         terminations.push(intent);
         break;
 
+      case 'hr.assign':
+        hr.push(intent);
+        break;
+
+      case 'pest.inspect.start':
+      case 'pest.inspect.complete':
+      case 'pest.treat.start':
+      case 'pest.treat.complete':
+        pest.push(intent);
+        break;
+
+      case 'maintenance.start':
+      case 'maintenance.complete':
+        maintenance.push(intent);
+        break;
+
       default:
         break;
     }
   }
 
-  return { market, raises, terminations };
+  return { market, raises, terminations, hr, pest, maintenance };
 }
 
 export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
@@ -581,9 +997,16 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
     .map((employee) => terminationResult.employees.get(employee.id))
     .filter((employee): employee is Employee => Boolean(employee));
 
+  const hrResult = processHrAssignIntents({
+    world,
+    intents: partitions.hr,
+    employees: employeesAfterHrEvents,
+    simTimeHours: currentSimHours,
+  });
+
   workforceState = {
     ...workforceState,
-    employees: employeesAfterHrEvents,
+    employees: hrResult.employees,
     market: marketState,
   } satisfies WorkforceState;
 
@@ -612,6 +1035,18 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
 
   taskQueue = maintenanceResult.taskQueue;
   const maintenanceWarnings = maintenanceResult.warnings;
+
+  const manualTaskResult = processManualTaskIntents({
+    world,
+    taskQueue,
+    pestIntents: partitions.pest,
+    maintenanceIntents: partitions.maintenance,
+    employees: workforceState.employees,
+    simTimeHours: currentSimHours,
+    lookups,
+  });
+
+  taskQueue = manualTaskResult.taskQueue;
   const companyLocation = world.company.location;
   const locationIndexTable = resolveLocationIndexTable(ctx);
   const definitions = new Map<WorkforceTaskDefinition['taskCode'], WorkforceTaskDefinition>(
@@ -697,10 +1132,12 @@ export function applyWorkforce(world: SimulationWorld, ctx: EngineRunContext): S
   runtime.assignments.push(...dispatchOutcome.assignments);
   runtime.kpiSnapshot = snapshot;
 
-  const combinedWarnings =
-    maintenanceWarnings.length > 0
-      ? [...workforceState.warnings, ...maintenanceWarnings]
-      : workforceState.warnings;
+  const combinedWarnings = [
+    ...workforceState.warnings,
+    ...maintenanceWarnings,
+    ...hrResult.warnings,
+    ...manualTaskResult.warnings,
+  ];
 
   const nextWorkforce: WorkforceState = {
     ...workforceState,
