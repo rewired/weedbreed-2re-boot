@@ -123,6 +123,12 @@
   `packages/facade/src/transport/devServer.ts`,
   `packages/facade/tests/integration/transport/playbackLoop.integration.test.ts`).
 
+- 2025-02-19 — Task 2130 Telemetry Schema Docs:
+  - Documented the Socket.IO telemetry topics backing UI Tasks 4100–4130 in `docs/tools/telemetry-schemas.md`, added schema guards in `packages/transport-sio/src/contracts/events.ts`, and extended unit coverage in `packages/transport-sio/tests/unit/telemetrySchemas.test.ts` so frontend consumers can validate payloads without backend spelunking.
+  - Quick reference (Tasks 4100–4130): `telemetry.tick.completed.v1` — `simTimeHours` plus per-hour cost rollups (`targetTicksPerHour`, `operatingCostPerHour`, `labourCostPerHour`, `utilitiesCostPerHour`). Sample `{"simTimeHours":72,"targetTicksPerHour":1,"operatingCostPerHour":125.5,"labourCostPerHour":82.25,"utilitiesCostPerHour":43.25}`.
+    `telemetry.zone.snapshot.v1` — zone climate slice with `ppfd`, `dli_incremental`, `temp_c`, `relativeHumidity01`, and warning envelopes. Sample `{"zoneId":"zone-001","simTime":72,"ppfd":650,"dli_incremental":35.2,"temp_c":24.5,"relativeHumidity01":0.6,"co2_ppm":900,"ach":12,"warnings":[{"code":"humidity-high","message":"Relative humidity trending above target.","severity":"warning"}]}`.
+    `telemetry.workforce.kpi.v1` — workforce snapshot spanning queue depth, utilisation, and morale metrics. Sample `{"snapshot":{"simTimeHours":72,"tasksCompleted":18,"queueDepth":2,"laborHoursCommitted":24,"utilization01":0.58,"maintenanceBacklog":3,"averageMorale01":0.74,"averageFatigue01":0.41}}`.
+
 - Task 6000: Replaced the workforce KPI shell with the HR directory, activity
   timeline, task queues, capacity snapshot, and action panel. Introduced
   workforce filter state via Zustand, wired the HR route to the new intent

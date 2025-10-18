@@ -12,6 +12,65 @@ export interface TelemetryEvent {
   readonly payload: unknown;
 }
 
+export const TELEMETRY_TICK_COMPLETED_TOPIC = 'telemetry.tick.completed.v1' as const;
+export const TELEMETRY_ZONE_SNAPSHOT_TOPIC = 'telemetry.zone.snapshot.v1' as const;
+export const TELEMETRY_WORKFORCE_KPI_TOPIC = 'telemetry.workforce.kpi.v1' as const;
+
+export type TelemetryTopic =
+  | typeof TELEMETRY_TICK_COMPLETED_TOPIC
+  | typeof TELEMETRY_ZONE_SNAPSHOT_TOPIC
+  | typeof TELEMETRY_WORKFORCE_KPI_TOPIC;
+
+export interface TelemetryNestedFieldSpec {
+  readonly key: string;
+  readonly kind: 'object' | 'array';
+  readonly required: readonly string[];
+  readonly optional?: readonly string[];
+  readonly bounded01?: readonly string[];
+  readonly enumValues?: Record<string, readonly string[]>;
+}
+
+export interface TelemetryTopicSchema {
+  readonly topic: TelemetryTopic;
+  readonly required: readonly string[];
+  readonly optional?: readonly string[];
+  readonly bounded01?: readonly string[];
+  readonly nested?: readonly TelemetryNestedFieldSpec[];
+}
+
+export const TELEMETRY_TOPIC_SCHEMAS: readonly TelemetryTopicSchema[] = [
+  {
+    topic: TELEMETRY_TICK_COMPLETED_TOPIC,
+    required: ['simTimeHours'],
+    optional: ['targetTicksPerHour', 'actualTicksPerHour', 'operatingCostPerHour', 'labourCostPerHour', 'utilitiesCostPerHour', 'energyKwhPerDay', 'energyCostPerHour', 'waterCubicMetersPerDay', 'waterCostPerHour']
+  },
+  {
+    topic: TELEMETRY_ZONE_SNAPSHOT_TOPIC,
+    required: ['zoneId', 'simTime', 'ppfd', 'dli_incremental', 'temp_c', 'relativeHumidity01', 'co2_ppm', 'ach'],
+    bounded01: ['relativeHumidity01'],
+    nested: [
+      {
+        key: 'warnings',
+        kind: 'array',
+        required: ['code', 'message', 'severity'],
+        enumValues: { severity: ['info', 'warning', 'critical'] }
+      }
+    ]
+  },
+  {
+    topic: TELEMETRY_WORKFORCE_KPI_TOPIC,
+    required: ['snapshot'],
+    nested: [
+      {
+        key: 'snapshot',
+        kind: 'object',
+        required: ['simTimeHours', 'tasksCompleted', 'queueDepth', 'laborHoursCommitted', 'overtimeHoursCommitted', 'overtimeMinutes', 'p95WaitTimeHours', 'maintenanceBacklog', 'utilization01', 'averageMorale01', 'averageFatigue01'],
+        bounded01: ['utilization01', 'averageMorale01', 'averageFatigue01']
+      }
+    ]
+  }
+];
+
 /**
  * Envelope describing an intent emitted by clients.
  */
