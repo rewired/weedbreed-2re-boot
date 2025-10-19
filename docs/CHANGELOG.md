@@ -16,6 +16,15 @@
   `packages/ui/src/state/__tests__`, `packages/ui/src/lib/__tests__`, and
   `packages/ui/src/transport/__tests__`.
 
+- 2025-02-28 — Task 5180 Docs and ADR Finalization:
+  - Captured Phase 5 documentation closure for the frontend live-data wiring
+    initiative, cross-referencing SEC §0.1, DD §0, and TDD §6a compliance in
+    the live-data plan index along with ADR-0016 status notes
+    (`docs/tasks/ui/_plan/0000-plan-index.md`, `docs/ADR/ADR-0016-ui-component-stack.md`).
+  - Logged executed validation commands (`pnpm -r test`, `pnpm -r lint`,
+    `pnpm -r build`) so CHANGELOG consumers can trace the test evidence for the
+    completion PR.
+
 ### Unreleased — Hotfix Batch 03
 
 - 2025-02-14 — Task 0120 Tracker and ADR Alignment:
