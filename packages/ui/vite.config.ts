@@ -14,7 +14,7 @@ export default defineConfig({
       "@/backend": path.resolve(__dirname, "../engine/src/backend"),
       "@wb/engine": path.resolve(__dirname, "../engine/src"),
       "@wb/facade": path.resolve(__dirname, "../facade/src"),
-      "@wb/transport-sio": path.resolve(__dirname, "../transport-sio/src/index.ts")
+      "@wb/transport-sio": path.resolve(__dirname, "../transport-sio/src/client.ts")
     }
   },
   test: {
