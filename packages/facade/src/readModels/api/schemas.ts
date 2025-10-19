@@ -498,6 +498,15 @@ const workforceRosterEntrySchema = z
   })
   .strict();
 
+const workforceAssignmentSummarySchema = z
+  .object({
+    structureId: uuidSchema,
+    structureName: nonEmptyString('Assignment structure name'),
+    headcount: nonNegativeInteger('Assignment headcount'),
+    employeeIds: z.array(uuidSchema).readonly()
+  })
+  .strict();
+
 /**
  * Zod validator describing the façade `workforceView` read model payload.
  */
@@ -513,6 +522,7 @@ export const workforceViewSchema = z
         janitor: nonNegativeInteger('roles.janitor')
       })
       .strict(),
+    assignments: z.array(workforceAssignmentSummarySchema).readonly(),
     roster: z.array(workforceRosterEntrySchema).readonly(),
     kpis: z
       .object({

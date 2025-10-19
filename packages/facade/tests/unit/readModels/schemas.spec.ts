@@ -37,6 +37,17 @@ const BASE_WORKFORCE_VIEW: WorkforceViewReadModel = {
     technician: 2,
     janitor: 1
   },
+  assignments: [
+    {
+      structureId: STRUCTURE_ID,
+      structureName: 'Structure Alpha',
+      headcount: 2,
+      employeeIds: [
+        '00000000-0000-0000-0000-000000000401',
+        '00000000-0000-0000-0000-000000000402'
+      ]
+    }
+  ],
   roster: [
     {
       employeeId: '00000000-0000-0000-0000-000000000401',

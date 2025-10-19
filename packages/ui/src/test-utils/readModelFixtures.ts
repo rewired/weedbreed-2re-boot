@@ -57,12 +57,17 @@ const rawSnapshotJson = `
     ]
   },
   "economy": {
-    "balance": 1250000.5,
-    "deltaPerHour": 1425.75,
-    "deltaPerDay": 34218,
-    "operatingCostPerHour": 987.4,
-    "labourCostPerHour": 420.25,
-    "utilitiesCostPerHour": 185.6,
+    "balance_per_h": 52083.354166,
+    "delta_per_h": 1425.75,
+    "dailyDelta_per_h": 1425.75,
+    "operatingCost_per_h": 987.4,
+    "labourCost_per_h": 420.25,
+    "maintenanceCost_per_h": 381.55,
+    "utilitiesCost_per_h": 185.6,
+    "energy_kwh_per_h": 1367.272727,
+    "water_m3_per_h": 1173.333333,
+    "energyCost_per_h": 150.4,
+    "waterCost_per_h": 35.2,
     "tariffs": {
       "price_electricity": 0.11,
       "price_water": 0.03,
@@ -737,7 +742,7 @@ export function createAlteredReadModelSnapshot(): ReadModelSnapshot {
   const clone = structuredClone(baseReadModelSnapshot) as DeepMutable<ReadModelSnapshot>;
   clone.simulation.simTimeHours = clone.simulation.simTimeHours + 1;
   clone.simulation.tick = clone.simulation.tick + 1;
-  clone.economy.balance = clone.economy.balance - Number.parseFloat("1250");
+  clone.economy.balance_per_h = clone.economy.balance_per_h - Number.parseFloat("12.5");
   clone.structures[0].kpis.energyKwhPerDay = Number.parseFloat("4100");
   clone.structures[0].rooms[0].zones[0].kpis.healthPercent = Number.parseFloat("95");
   clone.hr.directory[0].fatiguePercent = Number.parseFloat("30");

@@ -30,12 +30,17 @@ export interface EconomyTariffsSnapshot {
 }
 
 export interface EconomyReadModel {
-  readonly balance: number;
-  readonly deltaPerHour: number;
-  readonly deltaPerDay: number;
-  readonly operatingCostPerHour: number;
-  readonly labourCostPerHour: number;
-  readonly utilitiesCostPerHour: number;
+  readonly balance_per_h: number;
+  readonly delta_per_h: number;
+  readonly dailyDelta_per_h: number;
+  readonly operatingCost_per_h: number;
+  readonly labourCost_per_h: number;
+  readonly maintenanceCost_per_h: number;
+  readonly utilitiesCost_per_h: number;
+  readonly energy_kwh_per_h: number;
+  readonly water_m3_per_h: number;
+  readonly energyCost_per_h: number;
+  readonly waterCost_per_h: number;
   readonly tariffs: EconomyTariffsSnapshot;
 }
 

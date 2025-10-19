@@ -78,6 +78,11 @@
   - Added deterministic integration coverage comparing structure, room, zone, workforce, and economy read-model hydration against seeded expectations for two loader seeds with `EPS_REL` tolerances (`packages/facade/tests/integration/readModels/hydrationSeeds.integration.test.ts`).
   - Stored compact hydration fixtures under `packages/facade/tests/resources/readModelHydrationExpectations.json` to document the canonical metrics used by the harness.
 
+- 2025-02-27 — Task 4135 Economy & Workforce Contract Refresh:
+  - Renamed the façade economy snapshot to expose `_per_h` balance, delta, cost, and resource fields plus structure-level tariff joins, updated UI types/selectors, and adjusted dashboard/rendering logic to consume the live per-hour data (`packages/facade/src/server/readModelProviders.ts`, `packages/ui/src/state/readModels.types.ts`, `packages/ui/src/pages/dashboardHooks.ts`).
+  - Extended `workforceView` with deterministic schedule descriptors, assignment summaries, and warning envelopes carrying structure/employee identifiers, updating schemas, fixtures, and contract/unit coverage (`packages/facade/src/readModels/api/schemas.ts`, `packages/facade/tests/**`).
+  - Refreshed docs (SEC/DD/TDD) to record the aligned contract and removed the “Pending live data” annotations now that dashboards bind to live economy/workforce payloads.
+
 - 2025-02-27 — Task 5160 Telemetry E2E Suite:
   - Added a Vitest E2E spec that boots the façade dev transport, wires the Socket.IO telemetry binder, and advances deterministic ticks to assert tick, zone, and workforce envelopes reach the UI (`packages/ui/tests/telemetry.e2e.test.tsx`).
   - Verified the Sim Control Bar clock, zone climate cards, and workforce utilization card reflect live telemetry payloads grounded in the SEC topic definitions.

@@ -18,8 +18,8 @@ describe("useEconomySnapshot", () => {
     const { result } = renderHook(() => useEconomySnapshot());
 
     expect(result.current).toEqual({
-      balance: deterministicReadModelSnapshot.economy.balance,
-      deltaPerHour: deterministicReadModelSnapshot.economy.deltaPerHour
+      balance_per_h: deterministicReadModelSnapshot.economy.balance_per_h,
+      delta_per_h: deterministicReadModelSnapshot.economy.delta_per_h
     });
   });
 
@@ -29,24 +29,25 @@ describe("useEconomySnapshot", () => {
     const updatedSnapshot = structuredClone(
       deterministicReadModelSnapshot
     ) as ReadModelSnapshot;
-    updatedSnapshot.economy.balance = updatedSnapshot.economy.balance + 5000;
-    updatedSnapshot.economy.deltaPerHour =
-      updatedSnapshot.economy.deltaPerHour - 275;
+    updatedSnapshot.economy.balance_per_h =
+      updatedSnapshot.economy.balance_per_h + 12.5;
+    updatedSnapshot.economy.delta_per_h =
+      updatedSnapshot.economy.delta_per_h - 0.275;
 
     act(() => {
       applyReadModelSnapshot(updatedSnapshot);
     });
 
     expect(result.current).toEqual({
-      balance: updatedSnapshot.economy.balance,
-      deltaPerHour: updatedSnapshot.economy.deltaPerHour
+      balance_per_h: updatedSnapshot.economy.balance_per_h,
+      delta_per_h: updatedSnapshot.economy.delta_per_h
     });
   });
 
   it("merges overrides with the live snapshot", () => {
     const baseEconomy = deterministicReadModelSnapshot.economy;
     const initialOverrides: EconomySnapshotOverrides = {
-      balance: baseEconomy.balance + 2500
+      balance_per_h: baseEconomy.balance_per_h + 7.5
     };
 
     const { result, rerender } = renderHook(
@@ -56,31 +57,32 @@ describe("useEconomySnapshot", () => {
     );
 
     expect(result.current).toEqual({
-      balance: initialOverrides.balance!,
-      deltaPerHour: baseEconomy.deltaPerHour
+      balance_per_h: initialOverrides.balance_per_h!,
+      delta_per_h: baseEconomy.delta_per_h
     });
 
     const refreshedSnapshot = structuredClone(
       deterministicReadModelSnapshot
     ) as ReadModelSnapshot;
-    refreshedSnapshot.economy.balance = refreshedSnapshot.economy.balance - 1250;
-    refreshedSnapshot.economy.deltaPerHour =
-      refreshedSnapshot.economy.deltaPerHour + 180;
+    refreshedSnapshot.economy.balance_per_h =
+      refreshedSnapshot.economy.balance_per_h - 3.25;
+    refreshedSnapshot.economy.delta_per_h =
+      refreshedSnapshot.economy.delta_per_h + 0.18;
 
     act(() => {
       applyReadModelSnapshot(refreshedSnapshot);
     });
 
     expect(result.current).toEqual({
-      balance: initialOverrides.balance!,
-      deltaPerHour: refreshedSnapshot.economy.deltaPerHour
+      balance_per_h: initialOverrides.balance_per_h!,
+      delta_per_h: refreshedSnapshot.economy.delta_per_h
     });
 
     rerender({ overrides: undefined });
 
     expect(result.current).toEqual({
-      balance: refreshedSnapshot.economy.balance,
-      deltaPerHour: refreshedSnapshot.economy.deltaPerHour
+      balance_per_h: refreshedSnapshot.economy.balance_per_h,
+      delta_per_h: refreshedSnapshot.economy.delta_per_h
     });
   });
 });

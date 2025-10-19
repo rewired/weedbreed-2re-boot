@@ -1122,13 +1122,69 @@ function mapStructure(
   } satisfies StructureReadModel;
 }
 
-function mapWorkforceWarning(warning: WorkforceWarning) {
+function mapWorkforceWarning(
+  warning: WorkforceWarning,
+  employeeStructureIndex: ReadonlyMap<string, string | undefined>,
+  taskIndex: ReadonlyMap<WorkforceTaskInstance['id'], WorkforceTaskInstance>
+) {
+  let employeeId = typeof warning.employeeId === 'string' ? warning.employeeId : undefined;
+
+  if (!employeeId && typeof warning.taskId === 'string') {
+    const task = taskIndex.get(warning.taskId);
+    if (task?.assignedEmployeeId) {
+      employeeId = task.assignedEmployeeId;
+    }
+  }
+
+  let resolvedStructureId =
+    warning.structureId ??
+    (employeeId ? employeeStructureIndex.get(employeeId) ?? undefined : undefined) ??
+    (typeof warning.employeeId === 'string'
+      ? employeeStructureIndex.get(warning.employeeId) ?? undefined
+      : undefined);
+
+  if (!resolvedStructureId) {
+    let uniqueStructure: string | null = null;
+    for (const candidateStructureId of employeeStructureIndex.values()) {
+      if (!candidateStructureId) {
+        continue;
+      }
+      if (uniqueStructure === null) {
+        uniqueStructure = candidateStructureId;
+        continue;
+      }
+      if (uniqueStructure !== candidateStructureId) {
+        uniqueStructure = null;
+        break;
+      }
+    }
+    if (uniqueStructure) {
+      resolvedStructureId = uniqueStructure;
+    }
+  }
+
+  if (!employeeId && resolvedStructureId) {
+    let matchedEmployee: string | null = null;
+    for (const [candidateEmployeeId, candidateStructureId] of employeeStructureIndex.entries()) {
+      if (candidateStructureId === resolvedStructureId) {
+        if (matchedEmployee !== null) {
+          matchedEmployee = null;
+          break;
+        }
+        matchedEmployee = candidateEmployeeId;
+      }
+    }
+    if (matchedEmployee) {
+      employeeId = matchedEmployee;
+    }
+  }
+
   return {
     code: warning.code,
     message: warning.message,
     severity: warning.severity,
-    structureId: warning.structureId,
-    employeeId: warning.employeeId,
+    structureId: resolvedStructureId,
+    employeeId,
     taskId: warning.taskId
   };
 }
@@ -1170,6 +1226,10 @@ function computeNextShiftStartTick(simTimeHours: number, employee: WorkforceEmpl
 function mapWorkforceView(world: SimulationWorld): WorkforceViewReadModel {
   const workforce = world.workforce;
   const roleById = new Map(workforce.roles.map((role) => [role.id, role]));
+  const taskQueue = Array.isArray(workforce.taskQueue)
+    ? (workforce.taskQueue as WorkforceTaskInstance[])
+    : [];
+  const taskIndex = new Map(taskQueue.map((task) => [task.id, task]));
   type WorkforceRoleKey = 'gardener' | 'technician' | 'janitor';
   const mutableCounts: Record<WorkforceRoleKey, number> = {
     gardener: 0,
@@ -1195,35 +1255,72 @@ function mapWorkforceView(world: SimulationWorld): WorkforceViewReadModel {
   }
 
   const latestKpi = workforce.kpis.at(-1);
+  const employeeStructureIndex = new Map(
+    workforce.employees.map((employee) => [employee.id, employee.assignedStructureId])
+  );
+  const assignmentsByStructure = new Map<
+    string,
+    { structureId: string; structureName: string; employeeIds: string[] }
+  >();
+  const structureNameById = new Map(
+    world.company.structures.map((structure) => [structure.id, structure.name])
+  );
+
   const roster = workforce.employees
     .map((employee) => {
       const role = roleById.get(employee.roleId);
-      const currentTaskId = selectEmployeeTaskId(workforce.taskQueue, employee.id);
+      const currentTaskId = selectEmployeeTaskId(taskQueue, employee.id);
       const nextShiftStartTick = computeNextShiftStartTick(world.simTimeHours, employee);
+      const structureId = employee.assignedStructureId;
+      const schedule = employee.schedule;
+      const baseHoursPerDay = roundTo(schedule.hoursPerDay ?? 0, 3);
+      const overtimeHoursPerDay = roundTo(schedule.overtimeHoursPerDay ?? 0, 3);
+      const daysPerWeek = roundTo(schedule.daysPerWeek ?? 0, 3);
+      const shiftStartHour =
+        typeof schedule.shiftStartHour === 'number'
+          ? roundTo(Math.max(0, Math.min(23, schedule.shiftStartHour)), 3)
+          : 0;
+
+      const structureSummary = assignmentsByStructure.get(structureId);
+      if (structureSummary) {
+        structureSummary.employeeIds.push(employee.id);
+      } else {
+        assignmentsByStructure.set(structureId, {
+          structureId,
+          structureName: structureNameById.get(structureId) ?? structureId,
+          employeeIds: [employee.id]
+        });
+      }
 
       return {
         employeeId: employee.id,
         displayName: employee.name,
-        structureId: employee.assignedStructureId,
+        structureId,
         roleSlug: role?.slug ?? 'unassigned',
         morale01: clampFraction(employee.morale01),
         fatigue01: clampFraction(employee.fatigue01),
         currentTaskId,
         nextShiftStartTick,
-        baseHoursPerDay: roundTo(employee.schedule.hoursPerDay ?? 0, 3),
-        overtimeHoursPerDay: roundTo(employee.schedule.overtimeHoursPerDay ?? 0, 3),
-        daysPerWeek: employee.schedule.daysPerWeek ?? 0,
-        shiftStartHour:
-          typeof employee.schedule.shiftStartHour === 'number'
-            ? roundTo(Math.max(0, Math.min(23, employee.schedule.shiftStartHour)), 3)
-            : null,
+        baseHoursPerDay,
+        overtimeHoursPerDay,
+        daysPerWeek,
+        shiftStartHour,
         assignment: {
           scope: 'structure' as const,
-          targetId: employee.assignedStructureId
+          targetId: structureId
         }
       };
     })
     .sort((left, right) => left.displayName.localeCompare(right.displayName));
+
+  const assignmentSummaries = Array.from(assignmentsByStructure.values())
+    .map((entry) => ({
+      structureId: entry.structureId,
+      structureName: entry.structureName,
+      headcount: entry.employeeIds.length,
+      employeeIds: entry.employeeIds.sort((left, right) => left.localeCompare(right))
+    }))
+    .sort((left, right) => left.structureName.localeCompare(right.structureName));
 
   return {
     schemaVersion: WORKFORCE_VIEW_SCHEMA_VERSION,
@@ -1234,10 +1331,13 @@ function mapWorkforceView(world: SimulationWorld): WorkforceViewReadModel {
       technician: mutableCounts.technician,
       janitor: mutableCounts.janitor
     },
+    assignments: assignmentSummaries,
     kpis: {
       utilizationPercent: roundTo((latestKpi?.utilization01 ?? 0) * 100, 2),
       overtimeMinutes: Math.round(latestKpi?.overtimeMinutes ?? 0),
-      warnings: workforce.warnings.map(mapWorkforceWarning)
+      warnings: workforce.warnings.map((warning) =>
+        mapWorkforceWarning(warning, employeeStructureIndex, taskIndex)
+      )
     },
     roster
   } satisfies WorkforceViewReadModel;
@@ -1374,21 +1474,25 @@ function mapEconomyReadModel(
 ): EconomyReadModel {
   const totalEnergyPerDay = structures.reduce((sum, metrics) => sum + metrics.energyKwhPerDay, 0);
   const totalWaterPerDay = structures.reduce((sum, metrics) => sum + metrics.waterM3PerDay, 0);
-  const energyPerHour = totalEnergyPerDay / HOURS_PER_DAY;
-  const waterPerHour = totalWaterPerDay / HOURS_PER_DAY;
-  const energyCostPerHour = energyPerHour * (tariffs.price_electricity ?? 0);
-  const waterCostPerHour = waterPerHour * (tariffs.price_water ?? 0);
-  const utilitiesCostPerHour = energyCostPerHour + waterCostPerHour;
-  const labourCostPerHour = sumLabourCostPerHour(workforce);
-  const maintenanceCostPerHour = structures.reduce(
+  const energy_per_h = totalEnergyPerDay / HOURS_PER_DAY;
+  const water_per_h = totalWaterPerDay / HOURS_PER_DAY;
+  const labourCost_per_h = sumLabourCostPerHour(workforce);
+  const maintenanceCost_per_h = structures.reduce(
     (sum, metrics) => sum + metrics.maintenanceCostPerHour,
     0
   );
-  const operatingCostPerHour = labourCostPerHour + maintenanceCostPerHour + utilitiesCostPerHour;
+  const energyCost_per_h = energy_per_h * (tariffs.price_electricity ?? 0);
+  const waterCost_per_h = water_per_h * (tariffs.price_water ?? 0);
+  const utilitiesCost_per_h = energyCost_per_h + waterCost_per_h;
+  const operatingCost_per_h = labourCost_per_h + maintenanceCost_per_h + utilitiesCost_per_h;
+  const delta_per_h = roundTo(-operatingCost_per_h);
+  const delta_per_day = -operatingCost_per_h * HOURS_PER_DAY;
+  const dailyDelta_per_h = roundTo(delta_per_day / HOURS_PER_DAY);
   const payrollTotals = workforce.payroll?.totals;
-  const balanceRaw = payrollTotals ? -roundTo(payrollTotals.totalLaborCost ?? 0, 2) : 0;
-  const deltaPerHour = roundTo(-operatingCostPerHour);
-  const deltaPerDay = roundTo(deltaPerHour * HOURS_PER_DAY);
+  const balance_per_h = payrollTotals
+    ? -roundTo((payrollTotals.totalLaborCost ?? 0) / HOURS_PER_DAY)
+    : 0;
+
   const resolvedTariffs = createStructureTariffsReadModel(world, tariffs);
   const tariffStructures = resolvedTariffs.structures
     .map((entry) => ({
@@ -1399,12 +1503,17 @@ function mapEconomyReadModel(
     .sort((left, right) => left.structureId.localeCompare(right.structureId));
 
   return {
-    balance: sanitizeZero(balanceRaw),
-    deltaPerHour: sanitizeZero(deltaPerHour),
-    deltaPerDay: sanitizeZero(deltaPerDay),
-    operatingCostPerHour: roundTo(operatingCostPerHour),
-    labourCostPerHour: roundTo(labourCostPerHour),
-    utilitiesCostPerHour: roundTo(utilitiesCostPerHour),
+    balance_per_h: sanitizeZero(balance_per_h),
+    delta_per_h: sanitizeZero(delta_per_h),
+    dailyDelta_per_h: sanitizeZero(dailyDelta_per_h),
+    operatingCost_per_h: roundTo(operatingCost_per_h),
+    labourCost_per_h: roundTo(labourCost_per_h),
+    maintenanceCost_per_h: roundTo(maintenanceCost_per_h),
+    utilitiesCost_per_h: roundTo(utilitiesCost_per_h),
+    energy_kwh_per_h: roundTo(energy_per_h, 6),
+    water_m3_per_h: roundTo(water_per_h, 6),
+    energyCost_per_h: roundTo(energyCost_per_h),
+    waterCost_per_h: roundTo(waterCost_per_h),
     tariffs: {
       price_electricity: resolvedTariffs.rollup.price_electricity,
       price_water: resolvedTariffs.rollup.price_water,

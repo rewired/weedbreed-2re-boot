@@ -104,11 +104,17 @@ Accept: application/json
     "pendingIncidents": []
   },
   "economy": {
-    "balance": 98500,
-    "deltaPerHour": 320,
-    "operatingCostPerHour": 210,
-    "labourCostPerHour": 90,
-    "utilitiesCostPerHour": 45
+    "balance_per_h": 4104.166667,
+    "delta_per_h": 320,
+    "dailyDelta_per_h": 320,
+    "operatingCost_per_h": 210,
+    "labourCost_per_h": 90,
+    "maintenanceCost_per_h": 75,
+    "utilitiesCost_per_h": 45,
+    "energy_kwh_per_h": 375,
+    "water_m3_per_h": 300,
+    "energyCost_per_h": 30,
+    "waterCost_per_h": 15
   },
   "structures": [],
   "hr": {

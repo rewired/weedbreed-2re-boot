@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import { Pause, Play, StepForward } from "lucide-react";
 import { workspaceCopy } from "@ui/design/tokens";
 import { cn } from "@ui/lib/cn";
-import { formatClockLabel, formatCurrency, formatSignedCurrencyPerHour, useShellLocale } from "@ui/lib/locale";
+import { formatClockLabel, formatSignedCurrencyPerHour, useShellLocale } from "@ui/lib/locale";
 import { DEFAULT_SIMULATION_CLOCK, deriveSimulationClock } from "@ui/lib/simTime";
 import { SIM_SPEED_OPTIONS, useSimulationControls } from "@ui/state/simulationControls";
 import { useEconomySnapshot } from "@ui/state/economy";
@@ -17,8 +17,8 @@ export function SimControlBar(): ReactElement {
   const clock = deriveSimulationClock(tickTelemetry?.simTimeHours, DEFAULT_SIMULATION_CLOCK);
   const localeCopy = workspaceCopy.simControlBar.localeLabels[locale];
   const clockLabel = formatClockLabel(clock, locale, { day: localeCopy.day });
-  const balanceFormatted = formatCurrency(economy.balance, locale);
-  const deltaFormatted = formatSignedCurrencyPerHour(economy.deltaPerHour, locale);
+  const balanceFormatted = formatSignedCurrencyPerHour(economy.balance_per_h, locale);
+  const deltaFormatted = formatSignedCurrencyPerHour(economy.delta_per_h, locale);
 
   return (
     <section

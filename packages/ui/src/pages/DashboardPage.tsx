@@ -81,6 +81,10 @@ export function DashboardPage(): ReactElement {
               <dt className="dashboard-card__meta">Utilities</dt>
               <dd className="dashboard-card__metric">{costs.utilitiesCostPerHour}</dd>
             </div>
+            <div>
+              <dt className="dashboard-card__meta">Maintenance</dt>
+              <dd className="dashboard-card__metric">{costs.maintenanceCostPerHour}</dd>
+            </div>
           </dl>
         </section>
 

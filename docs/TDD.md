@@ -69,8 +69,9 @@ Blueprint directory rule: All blueprints are auto-discovered under /data/bluepri
 > expose location/capacity/coverage/tariff rollups, rooms surface purpose and
 > climate telemetry, and zones project cultivation, lighting, irrigation,
 > device coverage, telemetry, and task queues. Workforce and economy suites pin
-> roster rows, KPI utilization, warning envelopes, and tariff joins so Phase 4
-> UI wiring uses deterministic live data. SEC gap 0110-RM is closed.
+> roster rows, KPI utilization, warning envelopes, tariff joins, and the
+> economy `_per_h` balance/cost/resource fields so Phase 4 UI wiring uses
+> deterministic live data. SEC gap 0110-RM is closed.
 
 ---
 

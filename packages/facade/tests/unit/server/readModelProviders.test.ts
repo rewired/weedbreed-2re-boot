@@ -126,6 +126,19 @@ describe('createReadModelProviders', () => {
     expect(workforceView.kpis.overtimeMinutes).toBe(SAMPLE_KPI.overtimeMinutes);
     expect(workforceView.roster).toHaveLength(1);
     expect(workforceView.roster[0]?.employeeId).toBe(employeeId);
+    expect(workforceView.assignments).toEqual([
+      {
+        structureId: structure.id,
+        structureName: structure.name,
+        headcount: 1,
+        employeeIds: [employeeId]
+      }
+    ]);
+    expect(workforceView.kpis.warnings[0]).toMatchObject({
+      structureId: structure.id,
+      employeeId,
+      code: SAMPLE_WARNING.code
+    });
 
     const snapshot = await providers.readModels();
     expect(snapshot.structures).toHaveLength(world.company.structures.length);
@@ -333,12 +346,19 @@ describe('createReadModelProviders', () => {
     expect(Object.isFrozen(snapshot)).toBe(true);
     expect(Object.isFrozen(snapshot.structures)).toBe(true);
 
-    expect(snapshot.economy.balance).toBe(0);
-    expect(snapshot.economy.labourCostPerHour).toBeCloseTo(64.6, 6);
-    expect(snapshot.economy.utilitiesCostPerHour).toBeCloseTo(1.122271, 6);
-    expect(snapshot.economy.operatingCostPerHour).toBeCloseTo(65.734771, 6);
-    expect(snapshot.economy.deltaPerHour).toBeCloseTo(-65.734771, 6);
-    expect(snapshot.economy.deltaPerDay).toBeCloseTo(-1_577.634504, 6);
+    expect(snapshot.economy.balance_per_h).toBe(0);
+    expect(snapshot.economy.labourCost_per_h).toBeCloseTo(64.6, 6);
+    expect(snapshot.economy.maintenanceCost_per_h).toBeCloseTo(0.0125, 6);
+    expect(snapshot.economy.utilitiesCost_per_h).toBeCloseTo(1.122271, 6);
+    expect(snapshot.economy.operatingCost_per_h).toBeCloseTo(65.734771, 6);
+    expect(snapshot.economy.delta_per_h).toBeCloseTo(-65.734771, 6);
+    expect(snapshot.economy.dailyDelta_per_h).toBeCloseTo(-65.734771, 6);
+    expect(snapshot.economy.energy_kwh_per_h).toBeGreaterThan(0);
+    expect(snapshot.economy.water_m3_per_h).toBeGreaterThanOrEqual(0);
+    expect(snapshot.economy.energyCost_per_h + snapshot.economy.waterCost_per_h).toBeCloseTo(
+      snapshot.economy.utilitiesCost_per_h,
+      6
+    );
     expect(snapshot.economy.tariffs.structures.length).toBeGreaterThan(0);
     expect(snapshot.economy.tariffs.price_electricity).toBeCloseTo(
       engineConfig.tariffs.price_electricity ?? 0,

@@ -234,7 +234,7 @@ costing and scheduling remain aligned with SEC §7.5 and §10.
   - Live queue entries resolving task metadata (priority, ETA, wait/due times, structure bindings, assigned employees).
   - Employee detail records (schedule, RNG seed, development plans) and decorated warnings for dashboards.
   - Payroll snapshot mirroring the engine state so dashboards can surface the latest labour totals per day/structure.
-> **Pending live data — Workforce read model (Tasks 1130, 3120, 4130):** Documented Phase 4 bindings need `workforceView` roster rows `{ employeeId, displayName, roleSlug, structureId, morale01, fatigue01, currentTaskId?, nextShiftStartTick }`, schedule descriptors, utilization numerics, and warning envelopes `{ code, severity, message, structureId?, employeeId? }`. Dashboard cards also require economy joins (`balance_per_h`, `dailyDelta_per_h`, effective `price_electricity`/`price_water`) so UI no longer relies on fixtures.
+  - `workforceView` now surfaces roster rows with schedule descriptors, deterministic assignment summaries, and warning envelopes that always reference the affected structure/employee when determinable. Economy joins expose the per-hour balance/delta, cost breakdowns (`labourCost_per_h`, `maintenanceCost_per_h`, `utilitiesCost_per_h`), resource usage (`energy_kwh_per_h`, `water_m3_per_h`), and the resolved tariff map so dashboard cards read live data instead of fixtures.
 
 - Workforce traits are centralised in `traits.ts` and persisted on employees as `{ traitId, strength01 }` pairs alongside the
   hiring market skill triad (`skillTriad`). Metadata captures conflict sets, strength ranges, and effect hooks so the scheduler

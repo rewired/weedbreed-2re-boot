@@ -93,6 +93,7 @@ describe("DashboardPage", () => {
     expect(costWithin.getByText(/€987\.40 \/hr/)).toBeInTheDocument();
     expect(costWithin.getByText(/€420\.25 \/hr/)).toBeInTheDocument();
     expect(costWithin.getByText(/€185\.60 \/hr/)).toBeInTheDocument();
+    expect(costWithin.getByText(/€381\.55 \/hr/)).toBeInTheDocument();
 
     act(() => {
       socket.emit("telemetry:event", {
@@ -121,7 +122,9 @@ describe("DashboardPage", () => {
       throw new Error("Resource card should be rendered as a section element");
     }
     const resourcesWithin = within(resourcesSection);
-    expect(resourcesWithin.getAllByText("—")).toHaveLength(4);
+    expect(resourcesWithin.getAllByText("—")).toHaveLength(2);
+    expect(resourcesWithin.getByText(/€150\.40 \/hr/)).toBeInTheDocument();
+    expect(resourcesWithin.getByText(/€35\.20 \/hr/)).toBeInTheDocument();
 
     act(() => {
       socket.emit("telemetry:event", {
