@@ -35,6 +35,10 @@
   - Subscribed the left-rail layout to the live navigation collection, resyncing expansion state on store changes and ensuring breadcrumb and zone links track active read-model IDs (`packages/ui/src/components/layout/LeftRail.tsx`).
   - Added hook coverage for live/fallback navigation scenarios and updated layout tests to assert the live IDs while retaining deterministic safety rails (`packages/ui/src/lib/__tests__/navigation.test.tsx`, `packages/ui/src/components/layout/__tests__/LeftRail.test.tsx`).
 
+- 2025-02-23 — Task 5170 Intent Regression Suite:
+  - Added a consolidated transport integration spec covering rename/move, environment adjustments, workforce maintenance, and
+    simulation control acknowledgements to prevent regressions in façade intent handling (`packages/facade/tests/integration/transport/intentRegression.integration.test.ts`).
+  - Verified deterministic intent/correlation metadata propagation and SEC-aligned error surfaces for validation and capacity failures, ensuring test coverage spans both success and rejection paths.
 - 2025-02-22 — Task 4120 Dashboard Telemetry Binding:
   - Replaced the dashboard placeholder snapshot with a live hook that merges telemetry tick envelopes and read-model economy/incident data, formats values deterministically, and surfaces simulation incidents as the event stream (`packages/ui/src/pages/dashboardHooks.ts`, `packages/ui/src/pages/DashboardPage.tsx`).
   - Added component coverage that drives telemetry updates via the mocked Socket.IO binder to assert tick rate, resource usage, and timeline updates within a single tick (`packages/ui/src/pages/__tests__/DashboardPage.test.tsx`).
