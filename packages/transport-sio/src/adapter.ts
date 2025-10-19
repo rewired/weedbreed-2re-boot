@@ -52,7 +52,9 @@ function createIntentSuccessAck(metadata: AckMetadata): TransportAck {
     ok: true,
     intentId: metadata.intentId,
     correlationId: metadata.correlationId,
-    status: 'queued'
+    status: 'queued',
+    queuedTick: null,
+    appliedTick: null
   } satisfies TransportAck;
 }
 
@@ -131,7 +133,9 @@ function createTelemetryRejection(): TransportAck {
       message: 'Telemetry channel is read-only per SEC §1 invariant.'
     },
     ...NULL_METADATA,
-    status: 'rejected'
+    status: 'rejected',
+    queuedTick: null,
+    appliedTick: null
   };
 }
 
@@ -143,7 +147,9 @@ function createIntentChannelRejection(): TransportAck {
       message: 'Intents namespace only accepts intent submissions via intent:submit.'
     },
     ...NULL_METADATA,
-    status: 'rejected'
+    status: 'rejected',
+    queuedTick: null,
+    appliedTick: null
   };
 }
 
@@ -155,7 +161,9 @@ function createIntentValidationError(): TransportAck {
       message: 'Intent payload must be an object with a string type.'
     },
     ...NULL_METADATA,
-    status: 'rejected'
+    status: 'rejected',
+    queuedTick: null,
+    appliedTick: null
   };
 }
 
@@ -167,7 +175,9 @@ function createIntentHandlerError(message: string, metadata: AckMetadata): Trans
       message
     },
     ...metadata,
-    status: 'rejected'
+    status: 'rejected',
+    queuedTick: null,
+    appliedTick: null
   };
 }
 
