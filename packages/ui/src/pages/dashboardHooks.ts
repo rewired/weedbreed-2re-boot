@@ -74,6 +74,7 @@ export interface DashboardCostRollup {
   readonly operatingCostPerHour: string;
   readonly labourCostPerHour: string;
   readonly utilitiesCostPerHour: string;
+  readonly maintenanceCostPerHour: string;
 }
 
 export interface DashboardResourceUsage {
@@ -102,7 +103,14 @@ export function useDashboardSnapshot(): DashboardSnapshot {
   const tickTelemetry = useTelemetryTick();
   const simulation = useSimulationReadModel();
   const economy = useEconomyReadModel();
-  const { operatingCostPerHour, labourCostPerHour, utilitiesCostPerHour } = economy;
+  const {
+    operatingCost_per_h,
+    labourCost_per_h,
+    utilitiesCost_per_h,
+    maintenanceCost_per_h,
+    energyCost_per_h,
+    waterCost_per_h
+  } = economy;
   const {
     day: simulationDay,
     hour: simulationHour,
@@ -136,15 +144,22 @@ export function useDashboardSnapshot(): DashboardSnapshot {
       },
       clock,
       costs: {
-        operatingCostPerHour: formatCurrencyPerHour(operatingCostPerHour, locale),
-        labourCostPerHour: formatCurrencyPerHour(labourCostPerHour, locale),
-        utilitiesCostPerHour: formatCurrencyPerHour(utilitiesCostPerHour, locale)
+        operatingCostPerHour: formatCurrencyPerHour(operatingCost_per_h, locale),
+        labourCostPerHour: formatCurrencyPerHour(labourCost_per_h, locale),
+        utilitiesCostPerHour: formatCurrencyPerHour(utilitiesCost_per_h, locale),
+        maintenanceCostPerHour: formatCurrencyPerHour(maintenanceCost_per_h, locale)
       },
       resources: {
         energyKwhPerDay: formatDailyUsage(tickTelemetry?.energyKwhPerDay, "kWh", locale),
-        energyCostPerHour: formatCurrencyPerHour(tickTelemetry?.energyCostPerHour, locale),
+        energyCostPerHour: formatCurrencyPerHour(
+          tickTelemetry?.energyCostPerHour ?? energyCost_per_h,
+          locale
+        ),
         waterCubicMetersPerDay: formatDailyUsage(tickTelemetry?.waterCubicMetersPerDay, "m³", locale),
-        waterCostPerHour: formatCurrencyPerHour(tickTelemetry?.waterCostPerHour, locale)
+        waterCostPerHour: formatCurrencyPerHour(
+          tickTelemetry?.waterCostPerHour ?? waterCost_per_h,
+          locale
+        )
       },
       events: pendingIncidents.map((incident) => ({
         id: incident.id,
@@ -153,15 +168,18 @@ export function useDashboardSnapshot(): DashboardSnapshot {
       }))
     } satisfies DashboardSnapshot;
   }, [
-    labourCostPerHour,
+    energyCost_per_h,
+    labourCost_per_h,
     locale,
-    operatingCostPerHour,
+    maintenanceCost_per_h,
+    operatingCost_per_h,
     simulationDay,
     simulationHour,
     simulationPendingIncidents,
     simulationSimTimeHours,
     simulationTick,
     tickTelemetry,
-    utilitiesCostPerHour
+    utilitiesCost_per_h,
+    waterCost_per_h
   ]);
 }

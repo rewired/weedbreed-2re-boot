@@ -25,6 +25,18 @@ const WORKFORCE_VIEW_PAYLOAD: WorkforceViewReadModel = {
     technician: 2,
     janitor: 1
   },
+  assignments: [
+    {
+      structureId: COMPANY_TREE_PAYLOAD.structures[0]!.id,
+      structureName: COMPANY_TREE_PAYLOAD.structures[0]!.name,
+      headcount: 3,
+      employeeIds: [
+        '00000000-0000-0000-0000-000000000601',
+        '00000000-0000-0000-0000-000000000602',
+        '00000000-0000-0000-0000-000000000603'
+      ]
+    }
+  ],
   roster: [
     {
       employeeId: '00000000-0000-0000-0000-000000000601',

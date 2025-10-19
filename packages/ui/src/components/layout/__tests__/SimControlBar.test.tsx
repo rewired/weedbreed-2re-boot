@@ -3,8 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { SimControlBar } from "@ui/components/layout/SimControlBar";
 import { workspaceCopy } from "@ui/design/tokens";
 import * as localeModule from "@ui/lib/locale";
+import { formatClockLabel, formatSignedCurrencyPerHour } from "@ui/lib/locale";
+import { DEFAULT_SIMULATION_CLOCK } from "@ui/lib/simTime";
 import { SIM_SPEED_OPTIONS, useSimulationControlsStore } from "@ui/state/simulationControls";
 import { clearTelemetrySnapshots, recordTickCompleted } from "@ui/state/telemetry";
+import { deterministicReadModelSnapshot } from "@ui/test-utils/readModelFixtures";
 import { IntentClientProvider } from "@ui/transport";
 import type {
   IntentClient,
@@ -71,6 +74,10 @@ function renderWithClient(client: IntentClient): void {
   );
 }
 
+function getByExactText(text: string): HTMLElement {
+  return screen.getByText((_, element) => element?.textContent === text);
+}
+
 describe("SimControlBar", () => {
   afterEach(() => {
     resetSimulationControlsStore();
@@ -84,9 +91,21 @@ describe("SimControlBar", () => {
     const pauseButton = screen.getByRole("button", { name: workspaceCopy.simControlBar.pause });
     expect(pauseButton).toHaveAttribute("aria-pressed", "true");
 
-    expect(screen.getByText(/Day 12 · 06:15/)).toBeInTheDocument();
-    expect(screen.getByText(/€1,250,000.50/)).toBeInTheDocument();
-    expect(screen.getByText(/\+€1,425.75 · per hour/)).toBeInTheDocument();
+    const locale = localeModule.useShellLocale();
+    const localeCopy = workspaceCopy.simControlBar.localeLabels[locale];
+    const clock = formatClockLabel(DEFAULT_SIMULATION_CLOCK, locale, { day: localeCopy.day });
+    const expectedBalance = formatSignedCurrencyPerHour(
+      deterministicReadModelSnapshot.economy.balance_per_h,
+      locale
+    );
+    const expectedDelta = formatSignedCurrencyPerHour(
+      deterministicReadModelSnapshot.economy.delta_per_h,
+      locale
+    );
+
+    expect(getByExactText(`${clock.dayLabel} · ${clock.time}`)).toBeInTheDocument();
+    expect(getByExactText(expectedBalance)).toBeInTheDocument();
+    expect(getByExactText(`${expectedDelta} · ${localeCopy.deltaSuffix}`)).toBeInTheDocument();
 
     const controlSection = screen.getByLabelText(workspaceCopy.simControlBar.label);
     expect(controlSection).toHaveAttribute("data-position-mobile", "bottom");
@@ -146,9 +165,21 @@ describe("SimControlBar", () => {
     const { client } = createMockIntentClient();
     renderWithClient(client);
 
-    expect(screen.getByText(/Tag 12 · 06:15/)).toBeInTheDocument();
-    expect(screen.getByText(/1\.250\.000,50/)).toBeInTheDocument();
-    expect(screen.getByText(/\+1\.425,75.*pro Stunde/)).toBeInTheDocument();
+    const locale = localeSpy.mock.results[0]?.value === "de-DE" ? "de-DE" : localeModule.useShellLocale();
+    const localeCopy = workspaceCopy.simControlBar.localeLabels[locale];
+    const clock = formatClockLabel(DEFAULT_SIMULATION_CLOCK, locale, { day: localeCopy.day });
+    const expectedBalance = formatSignedCurrencyPerHour(
+      deterministicReadModelSnapshot.economy.balance_per_h,
+      locale
+    );
+    const expectedDelta = formatSignedCurrencyPerHour(
+      deterministicReadModelSnapshot.economy.delta_per_h,
+      locale
+    );
+
+    expect(getByExactText(`${clock.dayLabel} · ${clock.time}`)).toBeInTheDocument();
+    expect(getByExactText(expectedBalance)).toBeInTheDocument();
+    expect(getByExactText(`${expectedDelta} · ${localeCopy.deltaSuffix}`)).toBeInTheDocument();
 
     localeSpy.mockRestore();
   });

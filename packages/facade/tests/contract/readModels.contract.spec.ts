@@ -41,6 +41,17 @@ const WORKFORCE_VIEW_FIXTURE: WorkforceViewReadModel = {
     technician: 1,
     janitor: 1,
   },
+  assignments: [
+    {
+      structureId: COMPANY_TREE_FIXTURE.structures[0]!.id,
+      structureName: COMPANY_TREE_FIXTURE.structures[0]!.name,
+      headcount: 2,
+      employeeIds: [
+        '00000000-0000-0000-0000-000000000701',
+        '00000000-0000-0000-0000-000000000702',
+      ],
+    },
+  ],
   roster: [
     {
       employeeId: '00000000-0000-0000-0000-000000000701',

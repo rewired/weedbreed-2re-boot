@@ -34,6 +34,14 @@ const STUB_WORKFORCE_VIEW: WorkforceViewReadModel = {
     technician: 0,
     janitor: 0,
   },
+  assignments: [
+    {
+      structureId: STUB_COMPANY_TREE.structures[0]!.id,
+      structureName: STUB_COMPANY_TREE.structures[0]!.name,
+      headcount: 1,
+      employeeIds: ['00000000-0000-0000-0000-000000000901'],
+    },
+  ],
   roster: [
     {
       employeeId: '00000000-0000-0000-0000-000000000901',

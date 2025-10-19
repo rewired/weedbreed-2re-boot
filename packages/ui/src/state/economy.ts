@@ -2,13 +2,13 @@ import { useMemo } from "react";
 import { useEconomyReadModel } from "@ui/lib/readModelHooks";
 
 export interface EconomySnapshot {
-  readonly balance: number;
-  readonly deltaPerHour: number;
+  readonly balance_per_h: number;
+  readonly delta_per_h: number;
 }
 
 export interface EconomySnapshotOverrides {
-  readonly balance?: number;
-  readonly deltaPerHour?: number;
+  readonly balance_per_h?: number;
+  readonly delta_per_h?: number;
 }
 
 export function useEconomySnapshot(overrides?: EconomySnapshotOverrides): EconomySnapshot {
@@ -16,8 +16,8 @@ export function useEconomySnapshot(overrides?: EconomySnapshotOverrides): Econom
 
   return useMemo(() => {
     const baseSnapshot: EconomySnapshot = {
-      balance: economy.balance,
-      deltaPerHour: economy.deltaPerHour
+      balance_per_h: economy.balance_per_h,
+      delta_per_h: economy.delta_per_h
     };
 
     if (!overrides) {
@@ -25,13 +25,13 @@ export function useEconomySnapshot(overrides?: EconomySnapshotOverrides): Econom
     }
 
     return {
-      balance: overrides.balance ?? baseSnapshot.balance,
-      deltaPerHour: overrides.deltaPerHour ?? baseSnapshot.deltaPerHour
+      balance_per_h: overrides.balance_per_h ?? baseSnapshot.balance_per_h,
+      delta_per_h: overrides.delta_per_h ?? baseSnapshot.delta_per_h
     } satisfies EconomySnapshot;
   }, [
-    economy.balance,
-    economy.deltaPerHour,
-    overrides?.balance,
-    overrides?.deltaPerHour
+    economy.balance_per_h,
+    economy.delta_per_h,
+    overrides?.balance_per_h,
+    overrides?.delta_per_h
   ]);
 }

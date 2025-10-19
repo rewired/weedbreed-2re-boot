@@ -121,6 +121,8 @@ describe("readModel hooks", () => {
     });
 
     const { result: economyResult } = renderHook(() => useEconomyReadModel());
-    expect(economyResult.current.balance).toBe(refreshedSnapshot.economy.balance);
+    expect(economyResult.current.balance_per_h).toBe(
+      refreshedSnapshot.economy.balance_per_h
+    );
   });
 });

@@ -10,7 +10,21 @@ type ZoneExpectation = readonly [string, number, number, number, number, number,
 interface SeedExpectation {
   readonly structureCoverage: StructureCoverage;
   readonly growRooms: Record<string, { readonly ach: number; readonly zones: readonly ZoneExpectation[] }>;
-  readonly economy: readonly [number, number, number, number, number, number, number];
+  readonly economy: {
+    readonly balance_per_h: number;
+    readonly labourCost_per_h: number;
+    readonly maintenanceCost_per_h: number;
+    readonly utilitiesCost_per_h: number;
+    readonly operatingCost_per_h: number;
+    readonly delta_per_h: number;
+    readonly dailyDelta_per_h: number;
+    readonly energy_kwh_per_h: number;
+    readonly water_m3_per_h: number;
+    readonly energyCost_per_h: number;
+    readonly waterCost_per_h: number;
+    readonly price_electricity: number;
+    readonly price_water: number;
+  };
   readonly workforce: {
     readonly headcount: number;
     readonly roles: readonly [number, number, number];
@@ -110,16 +124,24 @@ describe('read-model hydration determinism — Task 5150', () => {
           }
         }
       }
-      const [labour, utilities, operating, deltaHour, deltaDay, priceElectricity, priceWater] = expected.economy;
-      expectApproximately(snapshot.economy.labourCostPerHour, labour);
-      expectApproximately(snapshot.economy.utilitiesCostPerHour, utilities);
-      expectApproximately(snapshot.economy.operatingCostPerHour, operating);
-      expectApproximately(snapshot.economy.deltaPerHour, deltaHour);
-      expectApproximately(snapshot.economy.deltaPerDay, deltaDay);
-      expectApproximately(snapshot.economy.tariffs.price_electricity, priceElectricity);
-      expectApproximately(snapshot.economy.tariffs.price_water, priceWater);
-      expectApproximately(tariffs.electricity_kwh_price, priceElectricity);
-      expectApproximately(tariffs.water_m3_price, priceWater);
+      expectApproximately(snapshot.economy.balance_per_h, expected.economy.balance_per_h);
+      expectApproximately(snapshot.economy.labourCost_per_h, expected.economy.labourCost_per_h);
+      expectApproximately(
+        snapshot.economy.maintenanceCost_per_h,
+        expected.economy.maintenanceCost_per_h
+      );
+      expectApproximately(snapshot.economy.utilitiesCost_per_h, expected.economy.utilitiesCost_per_h);
+      expectApproximately(snapshot.economy.operatingCost_per_h, expected.economy.operatingCost_per_h);
+      expectApproximately(snapshot.economy.delta_per_h, expected.economy.delta_per_h);
+      expectApproximately(snapshot.economy.dailyDelta_per_h, expected.economy.dailyDelta_per_h);
+      expectApproximately(snapshot.economy.energy_kwh_per_h, expected.economy.energy_kwh_per_h);
+      expectApproximately(snapshot.economy.water_m3_per_h, expected.economy.water_m3_per_h);
+      expectApproximately(snapshot.economy.energyCost_per_h, expected.economy.energyCost_per_h);
+      expectApproximately(snapshot.economy.waterCost_per_h, expected.economy.waterCost_per_h);
+      expectApproximately(snapshot.economy.tariffs.price_electricity, expected.economy.price_electricity);
+      expectApproximately(snapshot.economy.tariffs.price_water, expected.economy.price_water);
+      expectApproximately(tariffs.electricity_kwh_price, expected.economy.price_electricity);
+      expectApproximately(tariffs.water_m3_price, expected.economy.price_water);
 
       expect(workforceView.headcount).toBe(expected.workforce.headcount);
       expect(workforceView.roles.gardener).toBe(expected.workforce.roles[0]);
