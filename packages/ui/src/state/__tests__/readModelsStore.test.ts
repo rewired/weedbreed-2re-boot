@@ -55,7 +55,7 @@ describe("readModels store", () => {
       .fn()
       .mockResolvedValue(createFetchResponse(updatedSnapshot, true, HTTP_STATUS_OK));
     const client = createReadModelClient({
-      baseUrl: "http://localhost",
+      httpBaseUrl: "http://localhost",
       fetchImpl: fetchMock
     });
 
@@ -84,7 +84,7 @@ describe("readModels store", () => {
       createFetchResponse({}, false, HTTP_STATUS_SERVICE_UNAVAILABLE)
     );
     const client = createReadModelClient({
-      baseUrl: "http://localhost",
+      httpBaseUrl: "http://localhost",
       fetchImpl: fetchMock
     });
 

@@ -15,7 +15,7 @@ import type {
 const READ_MODEL_ENDPOINT = "/api/read-models" as const;
 
 export interface ReadModelClientOptions {
-  readonly baseUrl: string;
+  readonly httpBaseUrl: string;
   readonly fetchImpl?: typeof fetch;
 }
 
@@ -234,11 +234,11 @@ async function requestReadModels(
 }
 
 export function createReadModelClient(options: ReadModelClientOptions): ReadModelClient {
-  if (!options.baseUrl) {
-    throw new Error("Read-model client requires a baseUrl");
+  if (!options.httpBaseUrl) {
+    throw new Error("Read-model client requires an httpBaseUrl");
   }
 
-  const trimmedBase = trimTrailingSlash(options.baseUrl);
+  const trimmedBase = trimTrailingSlash(options.httpBaseUrl);
   const fetchImpl = ensureFetch(options.fetchImpl);
   const endpoint = `${trimmedBase}${READ_MODEL_ENDPOINT}`;
 
