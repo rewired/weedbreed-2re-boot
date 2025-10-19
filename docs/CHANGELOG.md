@@ -27,6 +27,16 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- 2025-03-?? — Dev stack façade defaults alignment:
+  - Wrapped the UI dev server in a helper script so `pnpm run dev:stack`
+    automatically injects `http://localhost:3333` (Fastify read models) and
+    `http://localhost:7101` (Socket.IO transport) unless contributors override
+    them (`tools/scripts/run-ui-dev-with-facade-env.mjs`, `package.json`).
+  - Added `packages/ui/.env.example` so developers can persist façade base URL
+    overrides without retyping them between sessions.
+  - Updated the README and dev stack tooling guide to document the twin façade
+    endpoints and the new workflow (`README.md`, `docs/tools/dev-stack.md`).
+
 - 2025-03-?? — Transport Bootstrap Env Split:
   - Separated the façade environment contract so read-model HTTP requests bind to
     `VITE_FACADE_HTTP_BASE_URL` while Socket.IO transport/intent traffic binds to

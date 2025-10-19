@@ -93,10 +93,11 @@ simulation world, and exposes live company tree, tariff, workforce, and
 aggregated snapshots through the Fastify HTTP endpoints. Restart the stack
 after modifying engine bootstrap data to refresh the published payloads.
 
-> Ensure `packages/ui/.env.local` (or your shell env) sets both
-> `VITE_FACADE_HTTP_BASE_URL` (for the Fastify read-model endpoint) and
-> `VITE_FACADE_TRANSPORT_BASE_URL` (for the Socket.IO transport), e.g.
-> `http://localhost:7100` and `http://localhost:7101`, before starting the stack.
+The script injects façade defaults into the Vite dev server when no overrides
+are present: `http://localhost:3333` for the Fastify read-model endpoint and
+`http://localhost:7101` for the Socket.IO transport. Persist custom values by
+copying `packages/ui/.env.example` to `.env.local` (or exporting them in your
+shell) before starting the stack.
 
 ### Quick Local Simulation (example)
 
