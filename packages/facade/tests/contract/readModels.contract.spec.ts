@@ -14,32 +14,13 @@ import {
 import { validateReadModelSnapshot } from '../../src/readModels/snapshot.ts';
 import { createContractServerHarness } from './utils/server.ts';
 import { TEST_READ_MODEL_SNAPSHOT } from '../fixtures/readModelSnapshot.ts';
+import { cloneCompanyTreeFixture } from '../fixtures/companyTree.ts';
 
 const COMPANY_TREE_FIXTURE: CompanyTreeReadModel = {
-  schemaVersion: COMPANY_TREE_SCHEMA_VERSION,
+  ...cloneCompanyTreeFixture(),
   simTime: 8,
   companyId: '00000000-0000-0000-0000-000000000310',
   name: 'Contract Harness Company',
-  structures: [
-    {
-      id: '00000000-0000-0000-0000-000000000311',
-      name: 'Primary Campus',
-      rooms: [
-        {
-          id: '00000000-0000-0000-0000-000000000312',
-          name: 'Propagation Room',
-          zones: [
-            {
-              id: '00000000-0000-0000-0000-000000000313',
-              name: 'Zone Alpha',
-              area_m2: 42,
-              volume_m3: 126,
-            },
-          ],
-        },
-      ],
-    },
-  ],
 };
 
 const STRUCTURE_TARIFFS_FIXTURE: StructureTariffsReadModel = {

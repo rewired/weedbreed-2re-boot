@@ -9,42 +9,14 @@ import {
   assertTransportAck,
   type TransportAck,
 } from '../../src/transport/adapter.ts';
-import {
-  COMPANY_TREE_SCHEMA_VERSION,
-  STRUCTURE_TARIFFS_SCHEMA_VERSION,
-  WORKFORCE_VIEW_SCHEMA_VERSION,
-} from '../../src/readModels/api/schemas.ts';
+import { STRUCTURE_TARIFFS_SCHEMA_VERSION, WORKFORCE_VIEW_SCHEMA_VERSION } from '../../src/readModels/api/schemas.ts';
 import type { ReadModelProviders } from '../../src/server/http.ts';
 import { createContractServerHarness, type ContractServerHarness } from './utils/server.ts';
 import { TEST_READ_MODEL_SNAPSHOT } from '../fixtures/readModelSnapshot.ts';
+import { cloneCompanyTreeFixture } from '../fixtures/companyTree.ts';
 
 const READ_MODEL_PROVIDERS: ReadModelProviders = {
-  companyTree: () => ({
-    schemaVersion: COMPANY_TREE_SCHEMA_VERSION,
-    simTime: 0,
-    companyId: '00000000-0000-0000-0000-000000000321',
-    name: 'Contract Harness Company',
-    structures: [
-      {
-        id: '00000000-0000-0000-0000-000000000322',
-        name: 'Main Campus',
-        rooms: [
-          {
-            id: '00000000-0000-0000-0000-000000000323',
-            name: 'Growroom A',
-            zones: [
-              {
-                id: '00000000-0000-0000-0000-000000000324',
-                name: 'Zone A1',
-                area_m2: 30,
-                volume_m3: 90,
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  }),
+  companyTree: () => cloneCompanyTreeFixture(),
   structureTariffs: () => ({
     schemaVersion: STRUCTURE_TARIFFS_SCHEMA_VERSION,
     simTime: 0,

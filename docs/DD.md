@@ -70,7 +70,12 @@ and room-level guardrails remain focused while still enforcing SEC contracts
 (room purposes, cultivation methods, photoperiod schedule, device placement,
 geometry bounds) before the tick pipeline consumes a scenario payload.
 
-> **Pending live data — Structure/Room/Zone read models (Tasks 1110, 1120, 4100):** `companyTree` must hydrate structures with `{ id, name, location, floorArea_m2, usableArea_m2 }`, room nodes with `{ roomPurpose, area_m2, volume_m3, latestClimate }`, and zone nodes with deterministic cultivation context (`cultivationMethodId`, `cultivationMethodSlug`, active strain id, compatibility lists), current `lightSchedule` (`onHours`, `offHours`, `startHour`), irrigation selection, device coverage totals, and outstanding task codes + warnings so UI selectors and dashboards can replace fixture data. Status is tracked in the SEC gap register (§0.3, entry 0110-RM).
+> ✅ **Live data — Structure/Room/Zone read models (Tasks 1110, 1120, 1130, 4100):**
+> `companyTree` now emits structure nodes with location, capacity, coverage, and
+> tariff joins; room nodes with purpose, climate aggregates, ACH diagnostics, and
+> telemetry samples; and zone nodes with hydrated cultivation/lighting/irrigation
+> blueprints, device coverage warnings, climate telemetry, and outstanding task
+> queues so UI selectors replace fixtures. SEC §0.3 entry 0110-RM is closed.
 
 ---
 

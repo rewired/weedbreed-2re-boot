@@ -74,6 +74,8 @@ describe('read-model hydration determinism — Task 5150', () => {
             .map((zone) => ({
               name: zone.name,
               area_m2: zone.area_m2,
+              cultivationMethodId: zone.cultivationMethodId,
+              irrigationMethodId: zone.irrigationMethodId,
               temperature_C: zone.climateSnapshot.temperature_C,
               relativeHumidity_percent: zone.climateSnapshot.relativeHumidity_percent,
               vpd_kPa: zone.climateSnapshot.vpd_kPa,
@@ -101,6 +103,10 @@ describe('read-model hydration determinism — Task 5150', () => {
             }
             expectApproximately(zoneTree.area_m2, expectedZone[1]!);
             expectApproximately(zoneTree.volume_m3, expectedZone[1]! * ROOM_DEFAULT_HEIGHT_M);
+            expectApproximately(zoneTree.climate.snapshot.temperature_C, expectedZone[2]!);
+            expect(zoneTree.climate.telemetry.length).toBeGreaterThan(0);
+            expect(zoneTree.cultivation.method.id).toBe(actualZone.cultivationMethodId);
+            expect(zoneTree.irrigation.method.id).toBe(actualZone.irrigationMethodId);
           }
         }
       }

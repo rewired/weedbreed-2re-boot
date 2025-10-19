@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  COMPANY_TREE_SCHEMA_VERSION,
   STRUCTURE_TARIFFS_SCHEMA_VERSION,
   WORKFORCE_VIEW_SCHEMA_VERSION,
   companyTreeSchema,
@@ -14,33 +13,9 @@ import {
 import { validateReadModelSnapshot } from '../../../src/readModels/snapshot.ts';
 import { createReadModelHttpServer, type ReadModelHttpServer } from '../../../src/server/http.ts';
 import { TEST_READ_MODEL_SNAPSHOT } from '../../fixtures/readModelSnapshot.ts';
+import { cloneCompanyTreeFixture } from '../../fixtures/companyTree.ts';
 
-const COMPANY_TREE_PAYLOAD: CompanyTreeReadModel = {
-  schemaVersion: COMPANY_TREE_SCHEMA_VERSION,
-  simTime: 12,
-  companyId: '00000000-0000-0000-0000-000000000200',
-  name: 'Integration Company',
-  structures: [
-    {
-      id: '00000000-0000-0000-0000-000000000201',
-      name: 'HQ Facility',
-      rooms: [
-        {
-          id: '00000000-0000-0000-0000-000000000202',
-          name: 'Flower Room',
-          zones: [
-            {
-              id: '00000000-0000-0000-0000-000000000203',
-              name: 'Zone One',
-              area_m2: 36,
-              volume_m3: 108
-            }
-          ]
-        }
-      ]
-    }
-  ]
-};
+const COMPANY_TREE_PAYLOAD: CompanyTreeReadModel = cloneCompanyTreeFixture();
 
 const STRUCTURE_TARIFFS_PAYLOAD: StructureTariffsReadModel = {
   schemaVersion: STRUCTURE_TARIFFS_SCHEMA_VERSION,

@@ -2,45 +2,19 @@ import { afterEach, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 
 import {
-  COMPANY_TREE_SCHEMA_VERSION,
   STRUCTURE_TARIFFS_SCHEMA_VERSION,
   WORKFORCE_VIEW_SCHEMA_VERSION,
-  uuidSchema,
   type CompanyTreeReadModel,
   type StructureTariffsReadModel,
   type WorkforceViewReadModel,
 } from '../../../src/readModels/api/schemas.ts';
 import { createReadModelHttpServer } from '../../../src/server/http.ts';
 import { TEST_READ_MODEL_SNAPSHOT } from '../../fixtures/readModelSnapshot.ts';
+import { cloneCompanyTreeFixture } from '../../fixtures/companyTree.ts';
 
 type Providers = Parameters<typeof createReadModelHttpServer>[0]['providers'];
 
-const STUB_COMPANY_TREE: CompanyTreeReadModel = {
-  schemaVersion: COMPANY_TREE_SCHEMA_VERSION,
-  simTime: 0,
-  companyId: uuidSchema.parse('00000000-0000-0000-0000-000000000000'),
-  name: 'Stub Company',
-  structures: [
-    {
-      id: uuidSchema.parse('00000000-0000-0000-0000-000000000001'),
-      name: 'Stub Structure',
-      rooms: [
-        {
-          id: uuidSchema.parse('00000000-0000-0000-0000-000000000002'),
-          name: 'Stub Room',
-          zones: [
-            {
-              id: uuidSchema.parse('00000000-0000-0000-0000-000000000003'),
-              name: 'Stub Zone',
-              area_m2: 1,
-              volume_m3: 3,
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
+const STUB_COMPANY_TREE: CompanyTreeReadModel = cloneCompanyTreeFixture();
 
 const STUB_STRUCTURE_TARIFFS: StructureTariffsReadModel = {
   schemaVersion: STRUCTURE_TARIFFS_SCHEMA_VERSION,
