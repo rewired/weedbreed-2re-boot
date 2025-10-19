@@ -18,13 +18,13 @@ function createFetchResponse(payload: unknown, ok = true, status = HTTP_STATUS_O
 
 describe("readModelClient", () => {
   it("requires a base URL", () => {
-    expect(() => createReadModelClient({ baseUrl: "" })).toThrow("baseUrl");
+    expect(() => createReadModelClient({ httpBaseUrl: "" })).toThrow("httpBaseUrl");
   });
 
   it("fetches the read-model endpoint and normalises payloads", async () => {
     const payload = createUnsortedReadModelPayload();
     const fetchMock = vi.fn().mockResolvedValue(createFetchResponse(payload));
-    const client = createReadModelClient({ baseUrl: "http://localhost/", fetchImpl: fetchMock });
+    const client = createReadModelClient({ httpBaseUrl: "http://localhost/", fetchImpl: fetchMock });
 
     const snapshot = await client.loadReadModels();
 
@@ -50,7 +50,7 @@ describe("readModelClient", () => {
     const fetchMock = vi.fn().mockResolvedValue(
       createFetchResponse({}, false, HTTP_STATUS_SERVICE_UNAVAILABLE)
     );
-    const client = createReadModelClient({ baseUrl: "http://localhost", fetchImpl: fetchMock });
+    const client = createReadModelClient({ httpBaseUrl: "http://localhost", fetchImpl: fetchMock });
 
     await expect(client.loadReadModels()).rejects.toThrow("503");
   });
@@ -58,7 +58,7 @@ describe("readModelClient", () => {
   it("validates payload structure", async () => {
     const invalidPayload = { ...deterministicReadModelSnapshot, simulation: null };
     const fetchMock = vi.fn().mockResolvedValue(createFetchResponse(invalidPayload));
-    const client = createReadModelClient({ baseUrl: "http://localhost", fetchImpl: fetchMock });
+    const client = createReadModelClient({ httpBaseUrl: "http://localhost", fetchImpl: fetchMock });
 
     await expect(client.loadReadModels()).rejects.toThrow("simulation");
   });

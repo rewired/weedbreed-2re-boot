@@ -10,7 +10,7 @@
 The frontend store must fetch live read models from the façade, handling loading/error states and falling back to fixtures only when transport is absent.
 
 ## Scope
-- In: update Zustand read-model store to fetch `/api/read-models` on init, manage loading/error states, and respect VITE_TRANSPORT_BASE_URL.
+- In: update Zustand read-model store to fetch `/api/read-models` on init, manage loading/error states, and respect `VITE_FACADE_HTTP_BASE_URL` / `VITE_FACADE_TRANSPORT_BASE_URL` when configured.
 - In: add retry/backoff hooks with deterministic timing for tests.
 - Out: component consumption changes (handled by other tasks).
 - Out: telemetry subscriptions (separate tasks).

@@ -27,6 +27,21 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- 2025-03-?? — Transport Bootstrap Env Split:
+  - Separated the façade environment contract so read-model HTTP requests bind to
+    `VITE_FACADE_HTTP_BASE_URL` while Socket.IO transport/intent traffic binds to
+    `VITE_FACADE_TRANSPORT_BASE_URL`, keeping `window.location.origin` as a
+    co-hosted fallback only when neither value is configured
+    (`packages/ui/src/App.tsx`).
+  - Threaded the HTTP option through the read-model client/store helpers and
+    refreshed coverage to prove the dual-base wiring
+    (`packages/ui/src/transport/readModelClient.ts`,
+    `packages/ui/src/transport/__tests__/readModelClient.test.ts`,
+    `packages/ui/src/state/__tests__/readModelsStore.test.ts`).
+  - Updated README/task docs so downstream teams adopt the new env bindings and
+    avoid relying on the legacy `VITE_TRANSPORT_BASE_URL` fallback (`README.md`,
+    `docs/tasks/ui/4100-read-model-store-live-fetch.md`).
+
 - 2025-03-?? — Task 1125 CompanyTree Enrichment:
   - Expanded the façade `companyTree` schema with structure tariffs, room
     climate telemetry, zone cultivation/lighting/irrigation context, device
@@ -49,7 +64,7 @@
 
 - 2025-02-20 — Task 4100 Read-model Store Live Fetch:
   - Upgraded the UI read-model store to expose `status` (`loading|ready|error`) and `lastError` metadata, orchestrate deterministic retry scheduling, and honour fixture fallbacks when no transport is configured (`packages/ui/src/state/readModels.ts`).
-  - Replaced the manual bootstrap call in `App.tsx` with store-driven initialisation so the first fetch automatically respects `VITE_TRANSPORT_BASE_URL`.
+  - Replaced the manual bootstrap call in `App.tsx` with store-driven initialisation so the first fetch automatically respects the façade base URL (legacy `VITE_TRANSPORT_BASE_URL`, superseded by `VITE_FACADE_HTTP_BASE_URL` / `VITE_FACADE_TRANSPORT_BASE_URL`).
   - Added fetch-backed unit coverage for success, failure, and transport-less scenarios plus updated hook expectations for the new status contract (`packages/ui/src/state/__tests__/readModelsStore.test.ts`, `packages/ui/src/lib/__tests__/readModelHooks.test.tsx`).
 
 - 2025-02-21 — Task 4110 Navigation Live IDs:
