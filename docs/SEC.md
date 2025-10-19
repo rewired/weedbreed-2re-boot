@@ -80,16 +80,18 @@ implementation. Owners are accountable for closing the loop via the linked
 execution tasks; DD and TDD cross-references inherit their status from this
 table.
 
-1. **Gap 0110-RM — Read-model live data handshake**  
+1. **Gap 0110-RM — Read-model live data handshake** *(Closed 2025‑03‑??)*
    **Contract area:** §2 World Model (company → structure → room → zone read-model
-   surfaces).  
-   **Owner:** Façade & UI integration working group.  
-   **Execution tasks:** 1110 (structure read-model coverage), 1120 (room/zone
-   snapshots), 4100 (read-model store live fetch).  
-   **Summary:** The façade must expose deterministic `companyTree` and
-   `readModelSnapshot` payloads with cultivation context, telemetry, and task
-   metadata so UI surfaces replace fixtures. Until these tasks land, SEC §2 and
-   DD/TDD read-model assertions defer to this entry.
+   surfaces).
+   **Owner:** Façade & UI integration working group.
+   **Execution tasks:** 1110 (structure coverage), 1120 (room/zone hydration),
+   1130 (workforce), 4100 (read-model store).
+   **Resolution:** `companyTree` now surfaces location, capacity, tariff, and
+   workforce task metadata at the structure level, room climate aggregates with
+   ACH diagnostics, and zone payloads with cultivation/lighting/irrigation
+   blueprints, device coverage warnings, telemetry samples, and outstanding
+   tasks (see §2.5). Facade contract/integration/unit tests assert the enriched
+   schema and UI selectors consume the live payloads.
 
 ---
 
@@ -200,6 +202,32 @@ The world is a tree with typed nodes and bounded geometry.
 - Deterministic IDs: Ownership and lease records carry immutable structure IDs; changes produce a new record with a new audit entry and preserve prior records for reporting.
 
 - Scope: Real-estate pricing inputs are used by economy modules only; device placement and growth logic remain tenure-agnostic.
+
+### 2.5 CompanyTree Read-Model (Resolved Gap 0110-RM)
+
+The façade `companyTree` read model is the canonical live-data export for
+structure, room, and zone dashboards. Payloads are frozen before transport and
+are deterministic per tick.
+
+- **Structure nodes** expose `{ id, name, location, area_m2, volume_m3 }`,
+  canonical capacity usage, coverage ratios (lighting, HVAC, ACH), resolved
+  `tariffs { price_electricity, price_water }`, KPI rollups (energy, water,
+  labour, maintenance), device summaries, outstanding task counts, and warning
+  envelopes (`scope`, `targetId`, `severity`).
+- **Room nodes** carry `{ id, structureId, purpose, area_m2, volume_m3 }`, ACH
+  coverage (current vs target) with warnings, a climate snapshot plus
+  telemetry samples, device summaries, nested zones, and outstanding task
+  totals inherited from child zones.
+- **Zone nodes** include `{ id, name, area_m2, volume_m3 }` plus cultivation
+  context (method slug/name, container, substrate, strain), lighting schedule
+  and duty cycle, irrigation method with water/labour projections, KPI
+  snapshots, pest status, device coverage diagnostics, climate snapshots with
+  telemetry history, task queues, and warnings (coverage + climate).
+- **Device summaries** reuse the `DeviceSummary` contract across all levels.
+
+Contract tests (`packages/facade/tests/contract/**`) and integration/unit
+coverage assert the schema; UI selectors consume the payload directly so
+fixtures are no longer required for structure/room/zone surfaces.
 
 ### 2.3 Entity Lifecycle — Clone / Rename / Delete / Move (Normative)
 

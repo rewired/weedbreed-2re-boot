@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
-  COMPANY_TREE_SCHEMA_VERSION,
   WORKFORCE_VIEW_SCHEMA_VERSION,
   type CompanyTreeReadModel,
   type WorkforceViewReadModel
@@ -11,40 +10,11 @@ import {
   fetchStructureTariffs,
   fetchWorkforceView
 } from '../../../src/readModels/client.ts';
+import { cloneCompanyTreeFixture } from '../../fixtures/companyTree.ts';
 
 const BASE_URL = 'https://facade.example.test';
 
-const COMPANY_ID = '00000000-0000-0000-0000-000000000200';
-const STRUCTURE_ID = '00000000-0000-0000-0000-000000000201';
-const ROOM_ID = '00000000-0000-0000-0000-000000000202';
-const ZONE_ID = '00000000-0000-0000-0000-000000000203';
-
-const COMPANY_TREE_PAYLOAD: CompanyTreeReadModel = {
-  schemaVersion: COMPANY_TREE_SCHEMA_VERSION,
-  simTime: 4,
-  companyId: COMPANY_ID,
-  name: 'Weed Breed GmbH',
-  structures: [
-    {
-      id: STRUCTURE_ID,
-      name: 'HQ Campus',
-      rooms: [
-        {
-          id: ROOM_ID,
-          name: 'Flower Room',
-          zones: [
-            {
-              id: ZONE_ID,
-              name: 'Zone A',
-              area_m2: 24,
-              volume_m3: 72
-            }
-          ]
-        }
-      ]
-    }
-  ]
-};
+const COMPANY_TREE_PAYLOAD: CompanyTreeReadModel = cloneCompanyTreeFixture();
 
 const WORKFORCE_VIEW_PAYLOAD: WorkforceViewReadModel = {
   schemaVersion: WORKFORCE_VIEW_SCHEMA_VERSION,

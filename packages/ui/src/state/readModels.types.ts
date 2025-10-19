@@ -348,3 +348,218 @@ export interface ReadModelStoreStatus {
   readonly lastUpdatedSimTimeHours: number | null;
   readonly isRefreshing: boolean;
 }
+
+export type CompanyTreeWarningSeverity = "info" | "warning" | "critical";
+
+export interface CompanyTreeWarningEnvelope {
+  readonly id: string;
+  readonly scope: "structure" | "room" | "zone";
+  readonly targetId: string | null;
+  readonly message: string;
+  readonly severity: CompanyTreeWarningSeverity;
+}
+
+export interface CompanyTreeZoneCultivationMethod {
+  readonly id: string;
+  readonly slug: string;
+  readonly name: string;
+}
+
+export interface CompanyTreeZoneContainerContext {
+  readonly id: string;
+  readonly slug: string;
+  readonly name: string;
+  readonly volume_L: number;
+  readonly serviceLife_cycles: number;
+  readonly unitCost: number;
+}
+
+export interface CompanyTreeZoneSubstrateContext {
+  readonly id: string;
+  readonly slug: string;
+  readonly name: string;
+  readonly unitPrice_per_L: number;
+  readonly densityFactor_L_per_kg: number;
+}
+
+export interface CompanyTreeZoneStrainContext {
+  readonly id: string;
+  readonly name: string;
+}
+
+export interface CompanyTreeZoneCultivationContext {
+  readonly method: CompanyTreeZoneCultivationMethod;
+  readonly container: CompanyTreeZoneContainerContext | undefined;
+  readonly substrate: CompanyTreeZoneSubstrateContext | undefined;
+  readonly strain: CompanyTreeZoneStrainContext | undefined;
+  readonly maxPlants: number;
+  readonly currentPlantCount: number;
+}
+
+export interface CompanyTreeZoneLightingSchedule {
+  readonly onHours: number;
+  readonly offHours: number;
+  readonly startHour: number;
+}
+
+export interface CompanyTreeZoneLightingContext {
+  readonly schedule: CompanyTreeZoneLightingSchedule | null;
+  readonly coveragePercent: number;
+  readonly deviceCount: number;
+  readonly dutyCycle01: number;
+}
+
+export interface CompanyTreeIrrigationMethodContext {
+  readonly id: string;
+  readonly slug: string;
+  readonly name: string;
+  readonly deliveryType?: string;
+}
+
+export interface CompanyTreeZoneIrrigationContext {
+  readonly method: CompanyTreeIrrigationMethodContext;
+  readonly estimatedWaterDemand_m3_per_day: number;
+  readonly labourHoursPerDay: number;
+  readonly runoffFraction01?: number;
+}
+
+export interface CompanyTreeZoneClimateSnapshot {
+  readonly temperature_C: number;
+  readonly relativeHumidity_percent: number;
+  readonly co2_ppm: number;
+  readonly vpd_kPa: number;
+  readonly ach_measured: number;
+  readonly ach_target: number;
+  readonly status: "ok" | "warn" | "critical";
+}
+
+export interface CompanyTreeZoneClimateTelemetrySample {
+  readonly simTimeHours: number;
+  readonly temperature_C: number;
+  readonly relativeHumidity_percent: number;
+  readonly co2_ppm: number;
+  readonly vpd_kPa: number;
+  readonly ach: number;
+}
+
+export interface CompanyTreeZoneClimate {
+  readonly snapshot: CompanyTreeZoneClimateSnapshot;
+  readonly telemetry: readonly CompanyTreeZoneClimateTelemetrySample[];
+}
+
+export interface CompanyTreeZoneKpis {
+  readonly healthPercent: number;
+  readonly qualityPercent: number;
+  readonly stressPercent: number;
+  readonly biomass_kg: number;
+  readonly growthRatePercent: number;
+}
+
+export interface CompanyTreeZonePestStatus {
+  readonly activeIssues: number;
+  readonly dueInspections: number;
+  readonly upcomingTreatments: number;
+  readonly nextInspectionTick: number;
+  readonly lastInspectionTick: number;
+}
+
+export interface CompanyTreeZoneCoverage {
+  readonly lightingCoverage01: number;
+  readonly hvacCapacity01: number;
+  readonly ach: number;
+  readonly achTarget: number;
+  readonly warnings: readonly DeviceWarning[];
+}
+
+export interface CompanyTreeZoneTask {
+  readonly id: string;
+  readonly type: "inspection" | "treatment" | "harvest" | "maintenance" | "training";
+  readonly status: "queued" | "in-progress" | "done";
+  readonly assigneeId: string | null;
+  readonly scheduledTick: number;
+  readonly targetZoneId: string;
+}
+
+export interface CompanyTreeZoneNode {
+  readonly id: string;
+  readonly name: string;
+  readonly area_m2: number;
+  readonly volume_m3: number;
+  readonly cultivation: CompanyTreeZoneCultivationContext;
+  readonly lighting: CompanyTreeZoneLightingContext;
+  readonly irrigation: CompanyTreeZoneIrrigationContext;
+  readonly kpis: CompanyTreeZoneKpis;
+  readonly pestStatus: CompanyTreeZonePestStatus;
+  readonly climate: CompanyTreeZoneClimate;
+  readonly deviceCoverage: CompanyTreeZoneCoverage;
+  readonly devices: readonly DeviceSummary[];
+  readonly tasks: readonly CompanyTreeZoneTask[];
+  readonly outstandingTaskCount: number;
+  readonly warnings: readonly DeviceWarning[];
+}
+
+export interface CompanyTreeRoomClimateTelemetrySample {
+  readonly simTimeHours: number;
+  readonly temperature_C: number;
+  readonly relativeHumidity_percent: number;
+  readonly co2_ppm: number;
+  readonly ach: number;
+}
+
+export interface CompanyTreeRoomClimateSnapshot {
+  readonly temperature_C: number;
+  readonly relativeHumidity_percent: number;
+  readonly co2_ppm: number;
+  readonly ach: number;
+  readonly notes: string;
+}
+
+export interface CompanyTreeRoomClimate {
+  readonly snapshot: CompanyTreeRoomClimateSnapshot;
+  readonly telemetry: readonly CompanyTreeRoomClimateTelemetrySample[];
+}
+
+export interface CompanyTreeRoomNode {
+  readonly id: string;
+  readonly structureId: string;
+  readonly name: string;
+  readonly purpose: string;
+  readonly area_m2: number;
+  readonly volume_m3: number;
+  readonly capacity: RoomCapacitySummary;
+  readonly coverage: RoomCoverageSummary;
+  readonly climate: CompanyTreeRoomClimate;
+  readonly devices: readonly DeviceSummary[];
+  readonly zones: readonly CompanyTreeZoneNode[];
+  readonly outstandingTaskCount: number;
+  readonly warnings: readonly DeviceWarning[];
+}
+
+export interface CompanyTreeStructureTariffs {
+  readonly price_electricity: number;
+  readonly price_water: number;
+}
+
+export interface CompanyTreeStructureNode {
+  readonly id: string;
+  readonly name: string;
+  readonly location: string;
+  readonly area_m2: number;
+  readonly volume_m3: number;
+  readonly capacity: StructureCapacitySummary;
+  readonly coverage: StructureCoverageSummary;
+  readonly kpis: StructureKpiSummary;
+  readonly tariffs: CompanyTreeStructureTariffs;
+  readonly devices: readonly DeviceSummary[];
+  readonly rooms: readonly CompanyTreeRoomNode[];
+  readonly outstandingTaskCount: number;
+  readonly warnings: readonly CompanyTreeWarningEnvelope[];
+}
+
+export interface CompanyTreeReadModel {
+  readonly schemaVersion: string;
+  readonly simTime: number;
+  readonly companyId: string;
+  readonly name: string;
+  readonly structures: readonly CompanyTreeStructureNode[];
+}

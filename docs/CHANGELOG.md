@@ -27,6 +27,19 @@
 
 ### Unreleased — Hotfix Batch 03
 
+- 2025-03-?? — Task 1125 CompanyTree Enrichment:
+  - Expanded the façade `companyTree` schema with structure tariffs, room
+    climate telemetry, zone cultivation/lighting/irrigation context, device
+    coverage diagnostics, and outstanding task/warning envelopes
+    (`packages/facade/src/readModels/api/schemas.ts`).
+  - Refactored `mapCompanyTree` to reuse structure/room/zone helpers, resolve
+    blueprint metadata, and hydrate tariff joins while adapting UI read-model
+    types for the richer payload (`packages/facade/src/server/readModelProviders.ts`,
+    `packages/ui/src/state/readModels.types.ts`).
+  - Added contract, integration, and unit coverage plus shared fixtures to lock
+    the new contract and updated SEC/DD/TDD docs to close gap 0110-RM
+    (`packages/facade/tests/**`, `docs/SEC.md`, `docs/DD.md`, `docs/TDD.md`).
+
 - 2025-02-14 — Task 0120 Tracker and ADR Alignment:
   - Documented Phase 0 ownership in the live-data plan index so SEC Preface and DD §0 documentation precedence can reference a
     single tracker for fixture-to-live execution (docs/tasks/ui/_plan/0000-plan-index.md).

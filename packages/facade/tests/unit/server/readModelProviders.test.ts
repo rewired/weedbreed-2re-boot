@@ -106,9 +106,14 @@ describe('createReadModelProviders', () => {
 
     const companyTree = await providers.companyTree();
     expect(companyTree.structures).toHaveLength(world.company.structures.length);
-    const zone = companyTree.structures[0]?.rooms[0]?.zones[0];
+    const structureNode = companyTree.structures[0];
+    const zone = structureNode?.rooms[0]?.zones[0];
     const sourceZone = world.company.structures[0]?.rooms[0]?.zones[0];
     expect(zone?.area_m2).toBe(sourceZone?.floorArea_m2);
+    expect(zone?.cultivation.method.id).toBe(sourceZone?.cultivationMethodId);
+    expect(zone?.irrigation.method.id).toBe(sourceZone?.irrigationMethodId);
+    expect(zone?.climate.telemetry.length).toBeGreaterThan(0);
+    expect(structureNode?.tariffs.price_electricity).toBe(engineConfig.tariffs.price_electricity);
 
     const tariffs = await providers.structureTariffs();
     expect(tariffs.electricity_kwh_price).toBe(engineConfig.tariffs.price_electricity);

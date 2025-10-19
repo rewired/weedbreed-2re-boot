@@ -10,38 +10,14 @@ import {
   type StructureTariffsReadModel,
   type WorkforceViewReadModel
 } from '../../../src/readModels/api/schemas.ts';
+import { cloneCompanyTreeFixture } from '../../fixtures/companyTree.ts';
 
 const COMPANY_ID = '00000000-0000-0000-0000-000000000100';
 const STRUCTURE_ID = '00000000-0000-0000-0000-000000000101';
 const ROOM_ID = '00000000-0000-0000-0000-000000000102';
 const ZONE_ID = '00000000-0000-0000-0000-000000000103';
 
-const BASE_COMPANY_TREE: CompanyTreeReadModel = {
-  schemaVersion: COMPANY_TREE_SCHEMA_VERSION,
-  simTime: 12,
-  companyId: COMPANY_ID,
-  name: 'Weed Breed GmbH',
-  structures: [
-    {
-      id: STRUCTURE_ID,
-      name: 'HQ Campus',
-      rooms: [
-        {
-          id: ROOM_ID,
-          name: 'Flower Room',
-          zones: [
-            {
-              id: ZONE_ID,
-              name: 'Zone A',
-              area_m2: 42,
-              volume_m3: 126
-            }
-          ]
-        }
-      ]
-    }
-  ]
-};
+const BASE_COMPANY_TREE: CompanyTreeReadModel = cloneCompanyTreeFixture();
 
 const BASE_STRUCTURE_TARIFFS: StructureTariffsReadModel = {
   schemaVersion: STRUCTURE_TARIFFS_SCHEMA_VERSION,
