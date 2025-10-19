@@ -53,6 +53,12 @@ export interface TransportAck {
   readonly correlationId?: string | null;
   /** Deterministic status describing the acknowledgement lifecycle. */
   readonly status?: TransportAckStatus;
+  /** Tick when the intent entered the queue. */
+  readonly queuedTick?: number | null;
+  /** Tick when the intent effects were applied. */
+  readonly appliedTick?: number | null;
+  /** Deterministic state snapshot surfaced after intent processing. */
+  readonly stateAfter?: unknown;
 }
 
 function isAckStatus(value: unknown): value is TransportAckStatus {
@@ -61,6 +67,14 @@ function isAckStatus(value: unknown): value is TransportAckStatus {
 
 function isOptionalString(value: unknown): value is string | null | undefined {
   return value === undefined || value === null || typeof value === 'string';
+}
+
+function isOptionalNumber(value: unknown): value is number | null | undefined {
+  if (value === undefined || value === null) {
+    return true;
+  }
+
+  return typeof value === 'number' && Number.isFinite(value);
 }
 
 function isTransportAckError(value: unknown): value is TransportAckError {
@@ -99,6 +113,8 @@ export function assertTransportAck(payload: unknown): asserts payload is Transpo
   const intentId = record.intentId;
   const correlationId = record.correlationId;
   const status = record.status;
+  const queuedTick = record.queuedTick;
+  const appliedTick = record.appliedTick;
 
   if (!isOptionalString(intentId)) {
     throw new TypeError('Transport acknowledgement intentId must be a string or null when provided.');
@@ -110,6 +126,14 @@ export function assertTransportAck(payload: unknown): asserts payload is Transpo
 
   if (status !== undefined && !isAckStatus(status)) {
     throw new TypeError('Transport acknowledgement status must be queued, applied, or rejected when provided.');
+  }
+
+  if (!isOptionalNumber(queuedTick)) {
+    throw new TypeError('Transport acknowledgement queuedTick must be a finite number or null when provided.');
+  }
+
+  if (!isOptionalNumber(appliedTick)) {
+    throw new TypeError('Transport acknowledgement appliedTick must be a finite number or null when provided.');
   }
 
   if (ok) {
