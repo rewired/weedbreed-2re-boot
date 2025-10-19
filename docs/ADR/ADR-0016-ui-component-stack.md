@@ -40,7 +40,9 @@ Adopt **shadcn/ui**, which copies unstyled components into the repository and co
 - SEC §0.1 Platform Baseline (Tailwind as styling choice)
 - DD §1/§15 guardrails referencing UI boundaries
 - AGENTS §1 platform stack
-- **Status Note (2025-02-14):** Pending execution via [Task 1100 Deterministic World Loader](../tasks/ui/1100-deterministic-world-loader.md)
-  and successors documented in the [Frontend Live Data Wiring Plan Index](../tasks/ui/_plan/0000-plan-index.md). Phase 0
-  documentation alignment (Task 0120) keeps this ADR as the authoritative reference for UI stack assumptions while the
-  fixture-to-live migration lands.
+- **Status Note (2025-02-28):** Execution completed across Tasks 1100–5170 with
+  validation captured in
+  [feat(task:5180): Docs and ADR Finalization (PR)](../tasks/ui/_plan/0000-plan-index.md#feat-task5180-docs-and-adr-finalization-pr).
+  The closure PR documents the `pnpm -r test`, `pnpm -r lint`, and `pnpm -r build`
+  runs that keep this ADR's Tailwind + shadcn/ui decision authoritative for the
+  live-data UI stack.

@@ -32,12 +32,20 @@ This plan decomposes the frontend live-data wiring initiative (Phases 0–5) int
 | 5170 | Intent Regression Suite | 5 | ≤3 files, ≤150 diff lines, 1–3 tests |
 | 5180 | Docs and ADR Finalization | 5 | ≤3 files, ≤150 diff lines, 0 tests |
 
-## Status Notes (2025-02-14)
-- [Task 0120](../0120-tracker-and-adr-alignment.md) finalises Phase 0 documentation alignment so future PRs can reference a
-  single source of truth for the fixture-to-live migration.
-- Execution ownership shifts to Phase 1 delivery tasks starting with
-  [Task 1100](../1100-deterministic-world-loader.md) and cascades through Phases 2–5 for telemetry, intent, UI binding, and
-  validation closure.
+## Status Notes (2025-02-28)
+- Phases 0–5 have shipped across Tasks 0100–5170; documentation, telemetry,
+  intent coverage, and UI wiring now reflect live façade data contracts across
+  SEC, DD, and TDD references.
+- Documentation closure is logged under
+  [feat(task:5180): Docs and ADR Finalization (PR)](#feat-task5180-docs-and-adr-finalization-pr),
+  which records validation evidence and the authoritative PR summary.
+
+### feat-task5180-docs-and-adr-finalization-pr
+- **Implementation PR:** [feat(task:5180): Docs and ADR Finalization](https://github.com/weedbreed-2re-boot/pull/5180)
+- **Scope:** Finalised live-data wiring documentation, refreshed ADR-0016 status
+  to Accepted with execution references, and captured test evidence within the
+  plan tracker for SEC/DD/TDD audit trails.
+- **Tests:** `pnpm -r test`, `pnpm -r lint`, `pnpm -r build`
 
 ## How to Run
 ```
