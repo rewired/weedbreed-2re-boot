@@ -14,6 +14,7 @@ import { useIntentClient } from "@ui/transport";
 import { submitIntentOrThrow } from "@ui/lib/intentSubmission";
 import { ZoneMoveDialog } from "@ui/components/flows/ZoneMoveDialog";
 import { useStructureReadModel } from "@ui/lib/readModelHooks";
+import { SetTemperatureForm } from "@ui/components/intents/SetTemperatureForm";
 
 export interface ZoneDetailPageProps {
   readonly structureId: string;
@@ -103,6 +104,15 @@ export function ZoneDetailPage({ structureId, roomId, zoneId }: ZoneDetailPagePr
         deviceSectionEmptyLabel={snapshot.controls.climate.deviceSectionEmptyLabel}
         onGhostAction={handleGhostAction}
       />
+
+      {intentClient && (
+        <SetTemperatureForm
+          className="mt-2"
+          structureId={structureId}
+          zoneId={zoneId}
+          initialTemperatureC={snapshot.controls.climate.temperature.target.numericValue ?? 24}
+        />
+      )}
 
       <ZoneClimateSnapshot climate={snapshot.climate} />
 

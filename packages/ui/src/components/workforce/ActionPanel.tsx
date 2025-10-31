@@ -13,6 +13,8 @@ export interface WorkforceActionPanelProps {
   readonly maintenanceTargets: readonly WorkforceActionTargetOption[];
   readonly intentsEnabled: boolean;
   readonly onAssign: (employeeId: string, targetId: string) => void;
+  readonly onScanHiringMarket?: (structureId: string) => void;
+  readonly onHireCandidate?: (structureId: string, candidateId: string) => void;
   readonly onInspectionStart: (zoneId: string) => void;
   readonly onInspectionComplete: (zoneId: string) => void;
   readonly onTreatmentStart: (zoneId: string) => void;
@@ -36,6 +38,8 @@ export function WorkforceActionPanel({
   maintenanceTargets,
   intentsEnabled,
   onAssign,
+  onScanHiringMarket,
+  onHireCandidate,
   onInspectionStart,
   onInspectionComplete,
   onTreatmentStart,
@@ -47,10 +51,14 @@ export function WorkforceActionPanel({
   const [selectedAssignmentTarget, setSelectedAssignmentTarget] = useState<string>("");
   const [selectedZone, setSelectedZone] = useState<string>("");
   const [selectedMaintenanceTarget, setSelectedMaintenanceTarget] = useState<string>("");
+  const [selectedHireStructureId, setSelectedHireStructureId] = useState<string>("");
+  const [candidateId, setCandidateId] = useState<string>("");
 
   const assignDisabled = isActionDisabled(intentsEnabled, selectedEmployeeId, selectedAssignmentTarget);
   const inspectionDisabled = isActionDisabled(intentsEnabled, selectedZone);
   const maintenanceDisabled = isActionDisabled(intentsEnabled, selectedMaintenanceTarget);
+  const scanDisabled = isActionDisabled(intentsEnabled, selectedHireStructureId);
+  const hireDisabled = isActionDisabled(intentsEnabled, selectedHireStructureId, candidateId);
 
   return (
     <section aria-labelledby="hr-action-panel-heading" className="space-y-4">
@@ -233,6 +241,63 @@ export function WorkforceActionPanel({
             >
               Complete maintenance
             </button>
+          </div>
+        </div>
+
+        <div className="space-y-3 rounded-xl border border-border-base bg-canvas-base/70 p-5">
+          <h3 className="text-lg font-semibold text-text-primary">Hiring</h3>
+          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.2em] text-accent-muted">
+            Structure
+            <select
+              aria-label="Select structure for hiring"
+              className="rounded-lg border border-border-base bg-canvas-base px-3 py-2 text-sm text-text-primary"
+              value={selectedHireStructureId}
+              onChange={(e) => setSelectedHireStructureId(e.currentTarget.value)}
+            >
+              <option value="">Select structure</option>
+              {assignmentTargets
+                .filter((t) => !t.label.includes("›"))
+                .map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.label}
+                  </option>
+                ))}
+            </select>
+          </label>
+          <div className="grid gap-2">
+            <button
+              type="button"
+              className="rounded-lg border border-border-base/70 bg-canvas-base px-3 py-2 text-sm text-text-primary transition hover:border-accent-primary hover:text-accent-primary"
+              onClick={() => onScanHiringMarket?.(selectedHireStructureId)}
+              disabled={scanDisabled}
+              aria-disabled={scanDisabled}
+            >
+              Scan hiring market
+            </button>
+            <div className="flex items-end gap-2">
+              <div className="flex flex-1 flex-col gap-1">
+                <label className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-muted" htmlFor="candidate-id-input">
+                  Candidate ID
+                </label>
+                <input
+                  id="candidate-id-input"
+                  className="rounded-lg border border-border-base bg-canvas-base px-3 py-2 text-sm text-text-primary"
+                  type="text"
+                  value={candidateId}
+                  onChange={(e) => setCandidateId(e.currentTarget.value)}
+                  placeholder="candidate-uuid"
+                />
+              </div>
+              <button
+                type="button"
+                className="rounded-lg border border-border-base/70 bg-canvas-base px-3 py-2 text-sm text-text-primary transition hover:border-accent-primary hover:text-accent-primary"
+                onClick={() => onHireCandidate?.(selectedHireStructureId, candidateId)}
+                disabled={hireDisabled}
+                aria-disabled={hireDisabled}
+              >
+                Hire
+              </button>
+            </div>
           </div>
         </div>
       </div>

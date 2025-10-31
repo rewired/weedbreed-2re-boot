@@ -975,6 +975,24 @@ export function WorkforcePage({ intentClient = null }: WorkforcePageProps = {}):
             .submit({ type: MAINTENANCE_COMPLETE_INTENT, deviceId: targetId }, acknowledgementHandlers)
             .catch(() => undefined);
         }}
+        onScanHiringMarket={(structureId) => {
+          if (!intentClient) {
+            return;
+          }
+
+          void intentClient
+            .submit({ type: "hiring.market.scan", structureId }, acknowledgementHandlers)
+            .catch(() => undefined);
+        }}
+        onHireCandidate={(structureId, candidateId) => {
+          if (!intentClient) {
+            return;
+          }
+
+          void intentClient
+            .submit({ type: "hiring.market.hire", candidate: { structureId, candidateId } }, acknowledgementHandlers)
+            .catch(() => undefined);
+        }}
       />
     </section>
   );

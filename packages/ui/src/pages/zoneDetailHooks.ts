@@ -12,6 +12,8 @@ import type {
 } from "@ui/components/controls/ClimateControlCard";
 import type { LightingDeviceTileProps } from "@ui/components/controls/LightingControlCard";
 import { normalizeLightSchedule, type LightScheduleInput } from "@ui/lib/lightScheduleValidation";
+import { useIntentClient } from "@ui/transport";
+import { submitIntentOrThrow } from "@ui/lib/intentSubmission";
 import { createRng } from "@ui/lib/createRng";
 import {
   useRoomReadModel,
@@ -349,6 +351,7 @@ export function useZoneDetailView(
   roomId: string | null,
   zoneId: string
 ): ZoneDetailSnapshot {
+  const intentClient = useIntentClient();
   const structure = useStructureReadModel(structureId);
   const room = useRoomReadModel(structureId, roomId);
   const zone = useZoneReadModel(structureId, roomId, zoneId);
@@ -376,7 +379,8 @@ export function useZoneDetailView(
       room,
       zone,
       lightSchedule,
-      zoneTelemetry
+      zoneTelemetry,
+      intentClient
     );
 
     return {
@@ -398,7 +402,8 @@ export function useZoneDetailView(
     roomId,
     lightSchedule,
     zoneTelemetry,
-    structure
+    structure,
+    intentClient
   ]);
 }
 
@@ -684,7 +689,8 @@ function buildZoneControlCards(
   room: RoomReadModel | null,
   zone: ZoneReadModel,
   schedule: LightScheduleInput,
-  telemetry: TelemetryZoneSnapshotPayload | null
+  telemetry: TelemetryZoneSnapshotPayload | null,
+  intentClient: ReturnType<typeof useIntentClient>
 ): ZoneControlCardsSnapshot {
   const normalizedSchedule = normalizeLightSchedule(schedule);
 
@@ -694,7 +700,8 @@ function buildZoneControlCards(
     room,
     zone,
     normalizedSchedule,
-    telemetry
+    telemetry,
+    intentClient
   );
   const climate = buildZoneClimateControl(structure, room, zone, telemetry);
 
@@ -707,7 +714,8 @@ function buildZoneLightingControl(
   room: RoomReadModel | null,
   zone: ZoneReadModel,
   schedule: LightScheduleInput,
-  telemetry: TelemetryZoneSnapshotPayload | null
+  telemetry: TelemetryZoneSnapshotPayload | null,
+  intentClient: ReturnType<typeof useIntentClient>
 ): ZoneLightingControlSnapshot {
   const targetPpfd = selectStageLightingTarget(zone, room);
   const measuredPpfd = telemetry?.ppfd ?? targetPpfd;
@@ -737,13 +745,16 @@ function buildZoneLightingControl(
       });
     },
     onScheduleSubmit: (nextSchedule: LightScheduleInput) => {
-      recordZoneLightSchedule(zone.id, nextSchedule);
-      console.info("[stub] set zone lighting schedule", {
-        structureId,
-        roomId,
-        zoneId: zone.id,
-        schedule: nextSchedule
-      });
+      const normalized = normalizeLightSchedule(nextSchedule);
+      recordZoneLightSchedule(zone.id, normalized);
+      if (intentClient) {
+        void submitIntentOrThrow(intentClient, {
+          type: "intent.zone.lighting.adjust.v1",
+          structureId,
+          zoneId: zone.id,
+          lightSchedule: normalized
+        });
+      }
     },
     isScheduleSubmitting: false,
     deviceTiles,
