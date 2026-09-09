@@ -1,217 +1,249 @@
-# Weed Breed — Reanimation (Monorepo)
+# Weed Breed
 
-> **Status:** Active • **Runtime:** Node.js 22 LTS • **Package manager:** pnpm ≥ 10.17 • **Language:** TypeScript (ESM) • **Test:** Vitest • **Repo style:** pnpm workspaces
+Weed Breed is a deterministic management game about indoor cultivation and
+breeding through real grow cycles.
 
-> **Quality gate:** `pnpm verify` runs type checking, real package builds, strict linting, tests, and the 500/700 LOC guard on Node.js 22.
+The player builds a small facility, controls its environment, grows two proven
+parent strains and creates a custom F1. Genetics are not a detached menu or a
+collectible bonus: a new strain only proves itself when it is grown, harvested
+and compared under the same operating conditions as its parents.
 
-Weed Breed is a deterministic, tick‑based simulation about controlled‑environment cultivation, resources, and economics. The project emphasizes **reproducibility**, **testability** (Golden Master / Conformance), and **contract‑driven development** via living documents (**SEC**, **TDD**, **DD**, **VISION_SCOPE**).
+This repository contains the active reanimation of the project. Earlier
+prototypes were consolidated into one product direction and archived. The
+current codebase is a technically complete local web-demo candidate. Its only
+remaining release gate is a moderated playtest with five independent players.
 
-The current recovery target is one playable web journey: start a seeded grow,
-cultivate and sell two parent strains, breed a small F1 population, grow the
-selected F1, and restore it from a save. See the
-[Product Bible](docs/reanimation/PRODUCT_BIBLE.md),
-[Recovery Backlog](docs/reanimation/RECOVERY_BACKLOG.md), and
-[end-to-end journey contract](docs/reanimation/END_TO_END_JOURNEY_TEST.md).
+## The playable journey
 
----
+The current vertical slice supports one complete run:
 
-## Key Features
+1. Start a new game with a reproducible seed.
+2. Prepare two grow zones and make at least one real purchase/install decision.
+3. Sow Northern Lights and Sour Diesel.
+4. Detect and correct a deterministic environmental incident.
+5. Grow and manually harvest both parents.
+6. Sell part of the harvest through the authoritative economy.
+7. Cross the qualified parents and compare three to five F1 candidates.
+8. Select and name one candidate, sow it and grow it to a real harvest.
+9. Compare parent and F1 outcomes, then save and restore the complete run.
 
-* 🔁 **Deterministic engine** with seeded RNG (reproducible runs).
-* 🧪 **Golden Master & Conformance**: long‑run fixtures (e.g., 30d / 200d) and acceptance checks.
-* 🧱 **Contracts first**: Engine behavior and tests governed by `/docs/SEC.md`, `/docs/TDD.md`, `/docs/DD.md`, `/docs/VISION_SCOPE.md`.
-* 🧩 **Data‑driven blueprints**: strains, devices, structures, rooms, irrigation, substrates, pests/diseases, and more under `/data/blueprints`.
-* 💸 **Per‑hour economy**: runtime costs accrue hourly; *_per_tick is **not** used for money.
-* 📦 **Monorepo** (pnpm workspaces): clear separation of engine, transport, and tooling.
+Every visible primary action in this journey reaches the engine through a
+validated intent. The UI does not fabricate outcomes, mutate simulation state
+or replace missing backend behavior with local stubs.
 
----
+## What is implemented
 
-## Monorepo Structure
+### Cultivation
 
+- Rooms, grow zones, cultivation methods and placement-aware devices
+- Seed purchases, sowing capacity and manual harvest decisions
+- Hourly light, temperature, humidity, airflow, irrigation and nutrient effects
+- Phase-aware plant physiology, stress, health, maturity and yield
+- A deterministic temperature incident with automatic pause and visible remedy
+- Immutable harvest lots with strain, plant, zone and time provenance
+
+### Breeding
+
+- Qualified seed and pollen parents based on completed harvest evidence
+- Deterministic F1 populations of three, four or five candidates
+- Bounded inheritance and variation for yield, cycle length, robustness,
+  cannabinoid values and preferred temperature range
+- One selected and named custom strain per breeding run
+- Custom strains stored in world/save state and resolved before static
+  blueprints
+- Real F1 sowing, cultivation, harvest and parent comparison
+
+### Economy and reporting
+
+- Company Credits with an immutable transaction ledger
+- Device, seed, electricity, water and operating costs
+- Partial lot sales based on dry mass and quality
+- A run summary separating attributable parent/F1 margin from shared operating
+  costs instead of inventing an allocation model
+
+### Save, replay and telemetry
+
+- Versioned Save v2 envelopes with deterministic v0/v1 migrations
+- Atomic load: invalid imports do not partially mutate the running session
+- Named local save slots plus JSON export and import
+- Canonical SHA-256 world hashes with stable key ordering and numeric
+  normalization
+- Read-only telemetry on a channel separate from player intents
+- Deterministic `simTick` and collision-free `eventId` on every telemetry event
+
+## Architecture
+
+The runtime has a strict direction of travel:
+
+```text
+Player action
+    -> React UI intent
+    -> Facade validation and command queue
+    -> deterministic engine tick
+    -> committed world state
+    -> read models and read-only telemetry
+    -> React UI
 ```
-root/
-├─ packages/
-│  ├─ engine/          # Core simulation engine, pipelines, invariants, tests
-│  ├─ facade/          # Thin orchestration / convenience APIs over the engine
-│  ├─ transport-sio/   # Transport adapters (e.g., Socket.IO gateway)
-│  ├─ tools/           # Dev tooling, linters, scripts, shared configs
-│  └─ tools-monitor/   # Minimal monitoring utilities for local runs
-├─ data/
-│  ├─ blueprints/      # JSON blueprints (strain, device, structure, ...)
-│  └─ savegames/       # Canonical savegame location (JSON, schema‑versioned)
-├─ docs/
-│  ├─ SEC.md           # Simulation Engine Contract (normative behavior)
-│  ├─ TDD.md           # Test strategy, conformance, perf & reporting
-│  ├─ DD.md            # Design & data flows; SEC wins on conflicts
-│  ├─ VISION_SCOPE.md  # Vision, scope, success criteria
-│  ├─ CHANGELOG.md     # Keep‑a‑Changelog
-│  └─ tasks/           # Implementation tasks for automation agents ("Codex")
-└─ pnpm‑workspace.yaml / package.json / .editorconfig / .eslintrc.* / ...
-```
 
----
+The packages have deliberately narrow responsibilities:
 
-## Getting Started
+| Package | Responsibility |
+| --- | --- |
+| `packages/engine` | Headless world state, nine-phase tick pipeline, deterministic rules, saves and domain tests |
+| `packages/facade` | The single command ingress, intent validation, session lifecycle and read-model projection |
+| `packages/transport-sio` | Separate Socket.IO namespaces for intents and read-only telemetry |
+| `packages/ui` | React/Vite interface: read models in, player intents out |
+| `packages/tools-monitor` | Read-only terminal telemetry monitor |
+| `packages/tools` | Repository checks and development utilities |
 
-### Prerequisites
+Static gameplay content lives under `data/blueprints`; prices are kept under
+`data/prices`. Runtime code never writes back into blueprint JSON.
 
-* **Node.js 22 LTS** (use nvm / volta to pin)
-* **pnpm ≥ 10.17** (`corepack enable && corepack prepare pnpm@latest --activate`)
+## Simulation contract
 
-### Install & Build
+One tick always represents one in-game hour. Playback speed changes wall-clock
+time only.
+
+The canonical tick pipeline is:
+
+1. Device effects
+2. Sensor sampling
+3. Environment update
+4. Irrigation and nutrients
+5. Workforce scheduling
+6. Plant physiology
+7. Harvest and inventory
+8. Economy and cost accrual
+9. Commit and telemetry
+
+Core invariants:
+
+- All simulation randomness comes from `createRng(seed, streamId)`.
+- Simulation logic does not use `Math.random`, `Date.now` or random UUIDs.
+- Equal starting state plus equal ordered intents produces equal state hashes.
+- Engine values use SI units and canonical `[0, 1]` quality/condition scales.
+- Monetary rates are expressed per hour; `*_per_tick` money fields are
+  forbidden.
+- Zones only exist in growrooms and always reference one cultivation method.
+- Telemetry cannot carry commands.
+
+The normative source is [Simulation Engine Contract](docs/SEC.md). If another
+document disagrees with it, the SEC wins.
+
+## Run locally
+
+Requirements:
+
+- Node.js 22 LTS, pinned in `.nvmrc` and `.node-version`
+- pnpm 10.18.1 through Corepack
+
+Install dependencies:
 
 ```sh
+corepack enable
 pnpm install
-pnpm -r build
 ```
 
-### Run Tests
+Start the complete local stack:
 
 ```sh
-# All packages
-pnpm -r test
-
-# Focus engine unit/integration tests
-pnpm --filter @wb/engine test
+pnpm dev:stack
 ```
 
-### Verify the complete workspace
+This starts:
+
+- the Facade read-model server at `http://localhost:3333`
+- the intent/telemetry transport at `http://localhost:7101`
+- the Vite UI at `http://localhost:5173`
+
+Open the UI, create a new game and follow the journey indicator. Environment
+overrides for the UI can be placed in `packages/ui/.env.local`; the documented
+defaults work without a local environment file.
+
+## Verify the repository
+
+The release gate is one command:
 
 ```sh
 pnpm verify
 ```
 
-### Lint & Format
+It runs workspace type checking, production builds, strict linting, all unit,
+integration, conformance and journey tests, followed by the source-file size
+guard.
+
+The verified reanimation baseline from 9 September 2026 contains:
+
+- 905 passing tests across the workspace
+- 30-day and 200-day engine Golden Masters
+- a double full-journey replay over 5,280 simulation hours per run
+- 220 pairwise-identical daily world hashes
+- 35,747 telemetry emissions per replay
+- all nine journey milestones in identical order
+- a maximum production source file size of 673 lines, below the 700-line limit
+
+The recorded final replay hash and exact methodology are documented in
+[Release Readiness](docs/reanimation/RELEASE_READINESS.md).
+
+Useful focused commands:
 
 ```sh
-# Local eslint run keeps warnings visible without failing the run
-pnpm -r lint
-
-# CI/strict linting fails on any warning
+pnpm --filter @wb/engine test
+pnpm --filter @wb/facade test
+pnpm --filter @wb/ui test
 pnpm lint:ci
-
-pnpm -r format
+pnpm loc:guard
 ```
 
-### Run the Mini Frontend Stack
+## Product scope
 
-```sh
-# Boots façade read-model HTTP server, façade Socket.IO transport, and the Vite UI dev server
-pnpm run dev:stack
-```
+The first release is intentionally narrow. It proves the loop of growing,
+understanding and breeding before the project expands sideways.
 
-The façade dev server now boots the deterministic engine harness via
-`initializeFacade`, composes read-model providers directly from the
-simulation world, and exposes live company tree, tariff, workforce, and
-aggregated snapshots through the Fastify HTTP endpoints. Restart the stack
-after modifying engine bootstrap data to refresh the published payloads.
+Current non-goals include F2/backcross/IBL programs, drying and curing,
+contracts and brands, a differentiated market, workforce micromanagement,
+editors, plugins, public hosting and desktop packaging. These are not missing
+checkboxes for the demo; they are explicit exclusions protecting the core
+journey.
 
-The script injects façade defaults into the Vite dev server when no overrides
-are present: `http://localhost:3333` for the Fastify read-model endpoint and
-`http://localhost:7101` for the Socket.IO transport. Persist custom values by
-copying `packages/ui/.env.example` to `.env.local` (or exporting them in your
-shell) before starting the stack.
+The automated implementation gate is complete. The external release gate is
+still open: at least four of five moderated players must finish the journey in
+30 minutes, all five must understand the incident and justify their F1 choice,
+and no P0/P1 issue or visible stub may occur.
 
-### Quick Local Simulation (example)
+## Sources of truth
 
-```sh
-# Example script names may vary by package; see each package.json
-pnpm --filter @wb/engine sim:run
-```
+Read these in order according to the kind of change being made:
 
----
+1. [Simulation Engine Contract](docs/SEC.md) for engine semantics and invariants
+2. [Product Bible](docs/reanimation/PRODUCT_BIBLE.md) for the player promise and
+   scope
+3. [End-to-end journey](docs/reanimation/END_TO_END_JOURNEY_TEST.md) for the
+   canonical player path
+4. [Recovery Backlog](docs/reanimation/RECOVERY_BACKLOG.md) for implementation
+   order and deferred debt
+5. [Release Readiness](docs/reanimation/RELEASE_READINESS.md) for current proof
+6. [Consolidation Audit](docs/audits/2026-09-08-weed-breed-consolidation-audit.md)
+   for lessons from the abandoned prototypes
+7. [Legacy Archive Manifest](docs/reanimation/LEGACY_ARCHIVE_MANIFEST.md) for
+   provenance and restoration information
 
-## Determinism & RNG
+`docs/TDD.md`, `docs/DD.md` and `docs/VISION_SCOPE.md` provide deeper testing,
+design and historical context. They do not override the SEC or Product Bible.
 
-* The engine uses a **seeded RNG** (hash‑seeded stream per subsystem) for **replayable** outcomes.
-* **Forbidden:** `Math.random` in production code (lint rule in `packages/tools`).
-* Provide a seed via env or run‑options; identical seeds ⇒ identical runs.
+## Working on Weed Breed
 
----
+- Work on the highest unfinished player-journey item before adding another
+  subsystem.
+- Keep engine state authoritative and the UI deliberately dumb.
+- Add or update tests with every behavioral change.
+- Update `docs/CHANGELOG.md` under `Unreleased`.
+- Record changes to contracts or guardrails in an ADR.
+- Treat a red `pnpm verify` as stop-the-line.
+- Refactor production files before they reach 700 lines.
 
-## Economy Model
-
-* Monetary flows accrue **per hour** (not per tick). This is enforced by tests and docs.
-* Physical processes (e.g., ppm/tick, energy/tick) are allowed; **do not** mix monetary units into tick‑based rates.
-
----
-
-## Data Blueprints
-
-* All gameplay content is JSON under `/data/blueprints`. Typical categories:
-
-  * `strain/`, `device/`, `structure/`, `room/`, `irrigation/`, `substrate/`, `personnel/`, `pest/`, `disease/`, `cultivation-method/`, `container/`.
-* Loaders validate and cache blueprints at engine start; tests ensure required fields and stable shapes.
-
----
-
-## Save / Load & Migrations
-
-* Canonical savegame location: **`/data/savegames`**.
-* Save schema is **versioned**; migrations keep older saves compatible.
-* Tests cover IO, corrupted headers, forward‑compat no‑ops, and minimal back‑compat fixtures.
-
----
-
-## Golden Master & Reporting
-
-* Long‑run fixtures (e.g., **30d**, **200d**) validate deterministic behavior.
-* Daily JSONL logs and summary JSONs support audits and CI gates.
-* The Test/Perf harness produces **ms/tick** metrics for regression catching in CI.
-
----
-
-## Telemetry (Overview)
-
-* The engine emits structured telemetry events for UI/monitoring tools (e.g., simulation clock, environment samples, harvest/inventory, warnings).
-* Consumers (e.g., `packages/tools-monitor`, `transport-sio`) subscribe and forward to UIs.
-
----
-
-## Scripts (common)
-
-> Check each package's `package.json` for specifics.
-
-* `build` — typecheck & compile
-* `test` — unit/integration tests (Vitest)
-* `lint` — ESLint rules with warnings surfaced but non-blocking for local workflows
-* `lint:ci` — Strict ESLint run (`--max-warnings 0`) for pre-push/CI guardrails
-* `perf:ci` — run performance checks for ms/tick regressions
-
-Run in all workspaces: `pnpm -r <script>`.
-
----
-
-## Contributing
-
-1. Read `/docs/SEC.md`, `/docs/TDD.md`, `/docs/DD.md`, `/docs/VISION_SCOPE.md`.
-2. Keep PRs contract‑aligned; if a contract changes, add an **ADR** and update the docs.
-3. Add/extend tests with every functional change; do not regress determinism.
-4. Update `/docs/CHANGELOG.md` under **Unreleased**.
-
-### Coding Standards
-
-* ESM only, strict TypeScript.
-* No side‑effects in import time for simulation state.
-* Deterministic RNG only; **no `Date.now()`** in simulation paths (clock is simulated).
-* SI units, explicit naming; prefer per‑hour for money, document units for physics.
-
----
-
-## Roadmap (excerpt)
-
-* Tighten perf budgets & CI gates.
-* Expand blueprint validation coverage.
-* Telemetry shape reference & consumer guide.
-* Editor/UI client (React + Vite + Tailwind components) wiring.
-
----
+Contribution details are in [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ## License
 
-TBD.
-
-## Contact / Support
-
-* Issues & discussions via repository tracker.
-* For automation agents ("Codex"), use `/docs/tasks/*` and keep outputs contract‑aligned.
+No license has been selected yet.
