@@ -22,7 +22,7 @@ export const companyLocationSchema: z.ZodType<CompanyLocation> = z.object({
   countryName: nonEmptyString,
 });
 
-export const companySchema: z.ZodType<Company> = domainEntitySchema
+export const companySchema: z.ZodType<Company, z.ZodTypeDef, unknown> = domainEntitySchema
   .merge(sluggedEntitySchema)
   .extend({
     location: companyLocationSchema,

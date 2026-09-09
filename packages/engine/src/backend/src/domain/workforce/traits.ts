@@ -76,6 +76,10 @@ export interface TraitEffectContribution {
   readonly salaryExpectationDelta_per_h?: number;
 }
 
+type MutableTraitEffectContribution = {
+  -readonly [Key in keyof TraitEffectContribution]: TraitEffectContribution[Key];
+};
+
 export interface TraitEffectBreakdownEntry extends TraitEffectContribution {
   readonly traitId: WorkforceTraitId;
   readonly strength01: number;
@@ -374,7 +378,10 @@ export function applyTraitEffects(
   base: TraitEffectBaseValues,
   context: TraitEffectContext = {},
 ): TraitEffectResult {
-  const breakdownMap = new Map<WorkforceTraitId, TraitEffectContribution & { strength01: number }>();
+  const breakdownMap = new Map<
+    WorkforceTraitId,
+    MutableTraitEffectContribution & { strength01: number }
+  >();
   let durationMultiplier = 1;
   let errorDelta = 0;
   let fatigueAdd = 0;

@@ -8,6 +8,7 @@ import {
 } from "@ui/transport";
 import { workspaceRoutes } from "@ui/routes/workspaceRoutes";
 import { configureReadModelClient } from "@ui/state/readModels";
+import { SessionGate } from "@ui/features/session/SessionGate";
 
 function normaliseEnvUrl(value: string | undefined): string | null {
   if (!value) {
@@ -81,7 +82,9 @@ const router = createBrowserRouter(workspaceRoutes);
 function App(): ReactElement {
   return (
     <IntentClientProvider client={intentClient}>
-      <RouterProvider router={router} />
+      <SessionGate>
+        <RouterProvider router={router} />
+      </SessionGate>
     </IntentClientProvider>
   );
 }

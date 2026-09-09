@@ -194,6 +194,17 @@ export const COMPANY_TREE_FIXTURE: CompanyTreeReadModel = {
                 achTarget: 6,
                 warnings: []
               },
+              readiness: {
+                status: 'missing-prerequisites',
+                missingPrerequisites: ['lighting-coverage', 'climate-control', 'airflow']
+              },
+              plants: [],
+              sowEligibility: {
+                eligible: false,
+                reasons: ['missing-prerequisites'],
+                capacityRemaining: 72
+              },
+              strainChoices: [],
               devices: [],
               tasks: [],
               outstandingTaskCount: 0,
@@ -213,4 +224,3 @@ export const COMPANY_TREE_FIXTURE: CompanyTreeReadModel = {
 export function cloneCompanyTreeFixture(): CompanyTreeReadModel {
   return structuredClone(COMPANY_TREE_FIXTURE);
 }
-

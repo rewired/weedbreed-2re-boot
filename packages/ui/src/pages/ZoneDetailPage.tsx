@@ -1,7 +1,6 @@
-import { useCallback, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useMemo, type ReactElement } from "react";
 import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { LightingControlCard, ClimateControlCard } from "@ui/components/controls";
-import type { ControlCardGhostActionPayload } from "@ui/components/controls/ControlCard";
 import { ZoneActionsPanel } from "@ui/components/zones/ZoneActionsPanel";
 import { ZoneClimateSnapshot } from "@ui/components/zones/ZoneClimateSnapshot";
 import { ZoneDevicesPanel } from "@ui/components/zones/ZoneDevicesPanel";
@@ -12,9 +11,13 @@ import { useZoneDetailView } from "@ui/pages/zoneDetailHooks";
 import { buildStructureCapacityAdvisorPath } from "@ui/lib/navigation";
 import { useIntentClient } from "@ui/transport";
 import { submitIntentOrThrow } from "@ui/lib/intentSubmission";
-import { ZoneMoveDialog } from "@ui/components/flows/ZoneMoveDialog";
-import { useStructureReadModel } from "@ui/lib/readModelHooks";
 import { SetTemperatureForm } from "@ui/components/intents/SetTemperatureForm";
+import { ZoneSetupWizard } from "@ui/features/facility/ZoneSetupWizard";
+import { useReadModelStore } from "@ui/state/readModels";
+import { ZoneSowingPanel } from "@ui/features/grow/ZoneSowingPanel";
+import { ZoneIncidentPanel } from "@ui/features/grow/ZoneIncidentPanel";
+import { ZoneHarvestPanel } from "@ui/features/grow/ZoneHarvestPanel";
+import { InventoryPanel } from "@ui/features/inventory/InventoryPanel";
 
 export interface ZoneDetailPageProps {
   readonly structureId: string;
@@ -26,27 +29,22 @@ export function ZoneDetailPage({ structureId, roomId, zoneId }: ZoneDetailPagePr
   const snapshot = useZoneDetailView(structureId, roomId, zoneId);
   const navigate: NavigateFunction = useNavigate();
   const intentClient = useIntentClient();
+  const { structures, priceBook, compatibility, simulation, inventory } = useReadModelStore((state) => state.snapshot);
+  const setupContext = useMemo(() => {
+    const structure = structures.find((entry) => entry.id === structureId);
+    const room = structure?.rooms.find(
+      (entry) => entry.id === roomId || entry.zones.some((zone) => zone.id === zoneId)
+    );
+    const zone = room?.zones.find((entry) => entry.id === zoneId);
+    return room && zone ? { room, zone } : null;
+  }, [structures, structureId, roomId, zoneId]);
+  const incident = useMemo(() => {
+    const zoneIncidents = simulation.pendingIncidents.filter((entry) => entry.zoneId === zoneId);
+    return zoneIncidents.find((entry) => entry.status === "active") ?? zoneIncidents.at(-1) ?? null;
+  }, [simulation.pendingIncidents, zoneId]);
   const renameDisabledReason = intentClient ? undefined : "Intent transport unavailable.";
-  const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
-  const structure = useStructureReadModel(structureId);
-  const rooms = structure?.rooms ?? [];
-  const containingRoom = useMemo(() => {
-    if (roomId) {
-      return rooms.find((room) => room.id === roomId) ?? null;
-    }
-    return rooms.find((room) => room.zones.some((zone) => zone.id === zoneId)) ?? null;
-  }, [rooms, roomId, zoneId]);
-  const zoneModel = useMemo(() => {
-    return containingRoom?.zones.find((zone) => zone.id === zoneId) ?? null;
-  }, [containingRoom, zoneId]);
-  const currentRoomId = roomId ?? containingRoom?.id ?? null;
-  const zoneArea = zoneModel?.area_m2 ?? 0;
   const handleGhostAction = useCallback(
-    (payload: ControlCardGhostActionPayload) => {
-      console.info("[stub] open capacity advisor", {
-        structureId,
-        origin: payload
-      });
+    () => {
       navigate(buildStructureCapacityAdvisorPath(structureId));
     },
     [navigate, structureId]
@@ -72,6 +70,43 @@ export function ZoneDetailPage({ structureId, roomId, zoneId }: ZoneDetailPagePr
       />
 
       <ZoneKpiPanel kpis={snapshot.kpis} />
+
+      {incident ? (
+        <ZoneIncidentPanel incident={incident} simulationPaused={simulation.paused} />
+      ) : null}
+
+      {setupContext ? (
+        <ZoneSetupWizard
+          structureId={structureId}
+          roomId={setupContext.room.id}
+          zone={setupContext.zone}
+          priceBook={priceBook}
+          compatibility={compatibility}
+          intentClient={intentClient}
+        />
+      ) : null}
+
+      {setupContext ? (
+        <ZoneSowingPanel
+          structureId={structureId}
+          roomId={setupContext.room.id}
+          zone={setupContext.zone}
+          intentClient={intentClient}
+        />
+      ) : null}
+
+      {setupContext ? (
+        <ZoneHarvestPanel
+          structureId={structureId}
+          roomId={setupContext.room.id}
+          zone={setupContext.zone}
+          intentClient={intentClient}
+        />
+      ) : null}
+
+      {(inventory?.lots.some((lot) => lot.source.zoneId === zoneId) ?? false) ? (
+        <InventoryPanel inventory={inventory} sourceZoneId={zoneId} />
+      ) : null}
 
       <ZonePestPanel pest={snapshot.pest} />
 
@@ -119,35 +154,9 @@ export function ZoneDetailPage({ structureId, roomId, zoneId }: ZoneDetailPagePr
       <ZoneDevicesPanel groups={snapshot.deviceGroups} />
 
       <ZoneActionsPanel
-        actions={[
-          {
-            id: "zone-action-move",
-            label: "Move zone",
-            disabled: !intentClient,
-            disabledReason: intentClient ? "" : "Intent transport unavailable.",
-            onSelect: () => {
-              setIsMoveDialogOpen(true);
-            }
-          },
-          ...snapshot.actions
-        ]}
+        actions={snapshot.actions}
         deviceControls={snapshot.deviceControls}
-      />
-
-      <ZoneMoveDialog
-        isOpen={isMoveDialogOpen}
-        structureId={structureId}
-        zoneId={zoneId}
-        zoneName={snapshot.header.zoneName}
-        zoneArea={zoneArea}
-        currentRoomId={currentRoomId}
-        rooms={rooms}
-        intentClient={intentClient}
-        onClose={() => {
-          setIsMoveDialogOpen(false);
-        }}
       />
     </section>
   );
 }
-

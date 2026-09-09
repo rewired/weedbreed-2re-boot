@@ -2,17 +2,17 @@
 import { createRng, parseCompanyWorld, type Employee, type EmployeeRole, type ParsedCompanyWorld, type SimulationWorld, type Uuid, type WorkforceState, type WorkforceTaskDefinition } from '@wb/engine';
 import { HOURS_PER_DAY } from '@engine/constants/time.js';
 import { AMBIENT_CO2_PPM, ROOM_DEFAULT_HEIGHT_M } from '@engine/constants/simConstants.js';
-import { parseContainerBlueprint } from '@/backend/src/domain/blueprints/containerBlueprint.ts';
-import { parseCultivationMethodBlueprint } from '@/backend/src/domain/blueprints/cultivationMethodBlueprint.ts';
-import { parseDeviceBlueprint, toDeviceInstanceCapacity } from '@/backend/src/domain/blueprints/device/parse.ts';
-import { parseIrrigationBlueprint } from '@/backend/src/domain/blueprints/irrigationBlueprint.ts';
-import { parsePersonnelRoleBlueprint } from '@/backend/src/domain/blueprints/personnelBlueprint.ts';
-import { parseStructureBlueprint } from '@/backend/src/domain/blueprints/structureBlueprint.ts';
-import { parseSubstrateBlueprint } from '@/backend/src/domain/blueprints/substrateBlueprint.ts';
-import { parseCultivationMethodPriceMap } from '@/backend/src/domain/pricing/cultivationMethodPriceMap.ts';
-import { parseDevicePriceMap } from '@/backend/src/domain/pricing/devicePriceMap.ts';
-import { createDeviceInstance as seedDeviceAttributes } from '@/backend/src/device/createDeviceInstance.ts';
-import { deterministicUuid, deterministicUuidV7 } from '@/backend/src/util/uuid.ts';
+import { parseContainerBlueprint } from '@/backend/src/domain/blueprints/containerBlueprint.js';
+import { parseCultivationMethodBlueprint } from '@/backend/src/domain/blueprints/cultivationMethodBlueprint.js';
+import { parseDeviceBlueprint, toDeviceInstanceCapacity } from '@/backend/src/domain/blueprints/device/parse.js';
+import { parseIrrigationBlueprint } from '@/backend/src/domain/blueprints/irrigationBlueprint.js';
+import { parsePersonnelRoleBlueprint } from '@/backend/src/domain/blueprints/personnelBlueprint.js';
+import { parseStructureBlueprint } from '@/backend/src/domain/blueprints/structureBlueprint.js';
+import { parseSubstrateBlueprint } from '@/backend/src/domain/blueprints/substrateBlueprint.js';
+import { parseCultivationMethodPriceMap } from '@/backend/src/domain/pricing/cultivationMethodPriceMap.js';
+import { parseDevicePriceMap } from '@/backend/src/domain/pricing/devicePriceMap.js';
+import { createDeviceInstance as seedDeviceAttributes } from '@/backend/src/device/createDeviceInstance.js';
+import { deterministicUuid, deterministicUuidV7 } from '@/backend/src/util/uuid.js';
 import smallWarehouseJson from '../../../../data/blueprints/structure/small-warehouse.json' with { type: 'json' };
 import mediumWarehouseJson from '../../../../data/blueprints/structure/medium-warehouse.json' with { type: 'json' };
 import seaOfGreenJson from '../../../../data/blueprints/cultivation-method/sea-of-green.json' with { type: 'json' };
@@ -103,7 +103,7 @@ function createDevice(seed: string, zoneSeed: string, blueprint: ReturnType<type
   const { quality01, effects, effectConfigs } = seedDeviceAttributes({ sampleQuality01: (rng) => 0.6 + rng() * 0.3 }, seed, deviceId, blueprint);
   const capacity = toDeviceInstanceCapacity(blueprint);
   const priceEntry = DEVICE_PRICE_MAP[blueprint.id];
-  return { id: deviceId, slug: blueprint.slug, name: blueprint.name, blueprintId: blueprint.id as Uuid, placementScope: blueprint.placementScope, quality01, condition01: 1, powerDraw_W: capacity.powerDraw_W, dutyCycle01: 1, efficiency01: capacity.efficiency01, coverage_m2: capacity.coverage_m2, airflow_m3_per_h: capacity.airflow_m3_per_h, sensibleHeatRemovalCapacity_W: Math.max(blueprint.thermal?.max_cool_W ?? 0, blueprint.thermal?.max_heat_W ?? 0), effects, effectConfigs, maintenance: priceEntry ? { runtimeHours: 0, hoursSinceService: 0, totalMaintenanceCostCc: 0, completedServiceCount: 0, recommendedReplacement: false, policy: { lifetimeHours: blueprint.lifetime_h ?? HOURS_PER_DAY * 365, maintenanceIntervalHours: (blueprint.maintenance?.intervalDays ?? 0) * HOURS_PER_DAY, serviceHours: blueprint.maintenance?.hoursPerService ?? 0, restoreAmount01: MAINTENANCE_RESTORE01, baseCostPerHourCc: priceEntry.baseMaintenanceCostPerHour, costIncreasePer1000HoursCc: priceEntry.costIncreasePer1000Hours, serviceVisitCostCc: priceEntry.maintenanceServiceCost, replacementCostCc: priceEntry.capitalExpenditure, maintenanceConditionThreshold01: MAINTENANCE_THRESHOLD01 } } : undefined };
+  return { id: deviceId, slug: blueprint.slug, name: blueprint.name, blueprintId: blueprint.id as Uuid, placementScope: blueprint.placementScope, quality01, condition01: 1, powerDraw_W: capacity.powerDraw_W, dutyCycle01: 1, efficiency01: capacity.efficiency01, coverage_m2: capacity.coverage_m2, airflow_m3_per_h: capacity.airflow_m3_per_h, sensibleHeatRemovalCapacity_W: Math.max(blueprint.thermal?.max_cool_W ?? 0, blueprint.thermal?.max_heat_W ?? 0), effects, effectConfigs, maintenance: priceEntry ? { runtimeHours: 0, hoursSinceService: 0, totalMaintenanceCostCc: 0, completedServiceCount: 0, recommendedReplacement: false, policy: { lifetimeHours: blueprint.lifetime_h ?? HOURS_PER_DAY * 365, maintenanceIntervalHours: ((blueprint.maintenance as { intervalDays?: number } | undefined)?.intervalDays ?? 0) * HOURS_PER_DAY, serviceHours: (blueprint.maintenance as { hoursPerService?: number } | undefined)?.hoursPerService ?? 0, restoreAmount01: MAINTENANCE_RESTORE01, baseCostPerHourCc: priceEntry.baseMaintenanceCostPerHour, costIncreasePer1000HoursCc: priceEntry.costIncreasePer1000Hours, serviceVisitCostCc: priceEntry.maintenanceServiceCost, replacementCostCc: priceEntry.capitalExpenditure, maintenanceConditionThreshold01: MAINTENANCE_THRESHOLD01 } } : undefined };
 }
 function buildWorkforce(seed: string, companyWorld: ParsedCompanyWorld): WorkforceState {
   const employees = EMPLOYEE_DATA.map((entry, index) => createEmployee(seed, entry[0] as RoleSlug, companyWorld.structures[entry[1]]?.id ?? companyWorld.structures[0].id, index));

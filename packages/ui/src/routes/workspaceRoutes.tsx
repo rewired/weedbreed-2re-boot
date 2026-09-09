@@ -10,6 +10,9 @@ import { StrainsRoute } from "@ui/routes/StrainsRoute";
 import { StructuresRoute } from "@ui/routes/StructuresRoute";
 import { StructureRoute } from "@ui/routes/StructureRoute";
 import { RoomDetailRoute } from "@ui/routes/RoomDetailRoute";
+import { InventoryRoute } from "@ui/routes/InventoryRoute";
+import { BreedingRoute } from "@ui/routes/BreedingRoute";
+import { RunSummaryRoute } from "@ui/routes/RunSummaryRoute";
 
 export const workspaceRoutes = createRoutesFromElements(
   <Route
@@ -35,6 +38,9 @@ export const workspaceRoutes = createRoutesFromElements(
     <Route path="structures/:structureId/zones/:zoneId" element={<ZoneDetailRoute />} />
     <Route path={workspaceTopLevelRoutes.hr.path} element={<WorkforceRoute />} />
     <Route path={workspaceTopLevelRoutes.strains.path} element={<StrainsRoute />} />
+    <Route path={workspaceTopLevelRoutes.inventory.path} element={<InventoryRoute />} />
+    <Route path={workspaceTopLevelRoutes.breeding.path} element={<BreedingRoute />} />
+    <Route path={workspaceTopLevelRoutes.runSummary.path} element={<RunSummaryRoute />} />
     <Route path="*" element={<Navigate to={workspaceTopLevelRoutes.company.path} replace />} />
   </Route>
 );

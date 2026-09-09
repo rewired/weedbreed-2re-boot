@@ -1,8 +1,8 @@
 import type {
   Employee,
   WorkforceRaiseIntent,
-  WorkforceRaiseTelemetryEvent,
 } from '../../domain/world.ts';
+import type { WorkforceRaiseTelemetryEvent } from '../../telemetry/workforce.ts';
 import { applyRaiseIntent } from '../../services/workforce/raises.ts';
 
 export interface RaiseProcessingResult {
@@ -50,4 +50,3 @@ export function processRaiseIntents({
 
   return { employees: directory, telemetry };
 }
-

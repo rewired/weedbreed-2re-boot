@@ -120,6 +120,8 @@ const defaultDependencies: TelemetryBinderDependencies = {
 type TopicHandler = (payload: unknown) => void;
 
 interface NormalisedEvent {
+  readonly eventId?: string;
+  readonly simTick?: number;
   readonly topic: string;
   readonly payload: unknown;
 }
@@ -128,7 +130,7 @@ function trimTrailingSlash(value: string): string {
   return value.replace(/\/+$/, "");
 }
 
-function createEmitter<EventMap extends Record<string, unknown>>() {
+function createEmitter<EventMap extends object>() {
   const listeners = new Map<keyof EventMap, Set<(payload: EventMap[keyof EventMap]) => void>>();
 
   return {
@@ -177,6 +179,10 @@ function normaliseEvent(candidate: unknown): NormalisedEvent | null {
   }
 
   return {
+    ...(typeof record.eventId === "string" ? { eventId: record.eventId } : {}),
+    ...(typeof record.simTick === "number" && Number.isInteger(record.simTick)
+      ? { simTick: record.simTick }
+      : {}),
     topic,
     payload: record.payload
   } satisfies NormalisedEvent;
@@ -188,6 +194,69 @@ function ensureRecord(value: unknown): Record<string, unknown> | null {
   }
 
   return value as Record<string, unknown>;
+}
+
+function hasStringFields(record: Record<string, unknown>, fields: readonly string[]): boolean {
+  return fields.every((field) => typeof record[field] === "string");
+}
+
+function hasFiniteNumberFields(record: Record<string, unknown>, fields: readonly string[]): boolean {
+  return fields.every(
+    (field) => typeof record[field] === "number" && Number.isFinite(record[field])
+  );
+}
+
+function isTickCompletedPayload(
+  record: Record<string, unknown>
+): record is Record<string, unknown> & TelemetryTickCompletedPayload {
+  const optionalNumbers = [
+    "targetTicksPerHour",
+    "actualTicksPerHour",
+    "operatingCostPerHour",
+    "labourCostPerHour",
+    "utilitiesCostPerHour",
+    "energyKwhPerDay",
+    "energyCostPerHour",
+    "waterCubicMetersPerDay",
+    "waterCostPerHour"
+  ];
+
+  return hasFiniteNumberFields(record, ["simTimeHours"]) && optionalNumbers.every((field) =>
+    record[field] === undefined || (typeof record[field] === "number" && Number.isFinite(record[field]))
+  );
+}
+
+function isZoneSnapshotPayload(
+  record: Record<string, unknown>
+): record is Record<string, unknown> & TelemetryZoneSnapshotPayload {
+  if (!hasStringFields(record, ["zoneId"]) || !hasFiniteNumberFields(record, [
+    "simTime", "ppfd", "dli_incremental", "temp_c", "relativeHumidity01", "co2_ppm", "ach"
+  ]) || !Array.isArray(record.warnings)) {
+    return false;
+  }
+
+  return record.warnings.every((warning) => {
+    const item = ensureRecord(warning);
+    return item !== null && hasStringFields(item, ["code", "message"]) &&
+      (item.severity === "info" || item.severity === "warning" || item.severity === "critical");
+  });
+}
+
+function isWorkforceKpiPayload(
+  record: Record<string, unknown>
+): record is Record<string, unknown> & WorkforceKpiTelemetrySnapshot {
+  return hasFiniteNumberFields(record, [
+    "simTimeHours", "tasksCompleted", "queueDepth", "laborHoursCommitted",
+    "overtimeHoursCommitted", "overtimeMinutes", "utilization01", "p95WaitTimeHours",
+    "maintenanceBacklog", "averageMorale01", "averageFatigue01"
+  ]);
+}
+
+function isHarvestCreatedPayload(
+  record: Record<string, unknown>
+): record is Record<string, unknown> & TelemetryHarvestCreatedPayload {
+  return hasStringFields(record, ["structureId", "roomId", "plantId", "zoneId", "lotId"]) &&
+    hasFiniteNumberFields(record, ["createdAt_tick", "freshWeight_kg", "moisture01", "quality01"]);
 }
 
 function normaliseErrorMessage(error: unknown): string {
@@ -252,7 +321,7 @@ export function createTelemetryBinder(
   const emitter = createEmitter<TelemetryBinderEventMap>();
 
   const socket = createSocket(namespaceUrl, {
-    transports: options.transports ?? ["websocket"],
+    transports: [...(options.transports ?? ["websocket"])],
     autoConnect: false,
     reconnection: false
   });
@@ -265,55 +334,51 @@ export function createTelemetryBinder(
     [TOPIC_TICK_COMPLETED]: (payload) => {
       const record = ensureRecord(payload);
 
-      if (!record) {
+      if (!record || !isTickCompletedPayload(record)) {
         logger.warn("Discarded malformed tick telemetry payload", {
           topic: TOPIC_TICK_COMPLETED
         });
         return;
       }
 
-      const typed = record as TelemetryTickCompletedPayload;
-      recordTickCompleted(typed);
-
-      if (typeof typed.simTimeHours === "number" && Number.isFinite(typed.simTimeHours)) {
-        emitter.emit("heartbeat", { simTimeHours: typed.simTimeHours });
-      }
+      recordTickCompleted(record);
+      emitter.emit("heartbeat", { simTimeHours: record.simTimeHours });
     },
     [TOPIC_ZONE_SNAPSHOT]: (payload) => {
       const record = ensureRecord(payload);
 
-      if (!record) {
+      if (!record || !isZoneSnapshotPayload(record)) {
         logger.warn("Discarded malformed zone snapshot telemetry payload", {
           topic: TOPIC_ZONE_SNAPSHOT
         });
         return;
       }
 
-      recordZoneSnapshot(record as TelemetryZoneSnapshotPayload);
+      recordZoneSnapshot(record);
     },
     [TOPIC_WORKFORCE_KPI]: (payload) => {
       const record = ensureRecord(payload);
 
-      if (!record) {
+      if (!record || !isWorkforceKpiPayload(record)) {
         logger.warn("Discarded malformed workforce KPI telemetry payload", {
           topic: TOPIC_WORKFORCE_KPI
         });
         return;
       }
 
-      recordWorkforceKpi(record as WorkforceKpiTelemetrySnapshot);
+      recordWorkforceKpi(record);
     },
     [TOPIC_HARVEST_CREATED]: (payload) => {
       const record = ensureRecord(payload);
 
-      if (!record) {
+      if (!record || !isHarvestCreatedPayload(record)) {
         logger.warn("Discarded malformed harvest telemetry payload", {
           topic: TOPIC_HARVEST_CREATED
         });
         return;
       }
 
-      appendHarvestCreated(record as TelemetryHarvestCreatedPayload);
+      appendHarvestCreated(record);
     }
   } satisfies Record<string, TopicHandler>;
 

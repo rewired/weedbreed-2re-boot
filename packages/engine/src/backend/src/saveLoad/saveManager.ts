@@ -1,15 +1,19 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-
 import safeStringify from 'safe-stable-stringify';
 
 import { CURRENT_SAVE_SCHEMA_VERSION } from './constants.ts';
 import { saveGameEnvelopeSchema, saveGameSchema, type SaveGame } from './schemas.ts';
-import { type SaveGameMigrationRegistry } from './migrations/index.ts';
+import { createDefaultSaveGameMigrationRegistry, type SaveGameMigrationRegistry } from './migrations/index.ts';
 import { validateCompanyWorld } from '../domain/validation.ts';
 import type { Company } from '../domain/entities.ts';
 import { fmtNum } from '../util/format.ts';
 import { normaliseUnknownError } from '../util/error.ts';
+import { economyStateSchema } from '../economy/state.ts';
+import { breedingStateSchema } from '../breeding/schema.ts';
+import { parseSimulationWorld } from '../domain/schemas/simulationWorld.ts';
+import type { SimulationWorld } from '../domain/entities.ts';
+import { hashCanonicalState } from '../util/canonicalStateHash.ts';
 
 /**
  * Optional configuration for {@link loadSaveGame}.
@@ -26,14 +30,47 @@ export interface WriteSaveGameOptions {
   readonly ensureDir?: boolean;
 }
 
-function serialiseSaveGame(payload: SaveGame): string {
-  const candidate = safeStringify(payload, undefined, 2) as unknown;
+/** Stable JSON serialization used by disk export and browser downloads. */
+export function serialiseSaveGame(payload: SaveGame): string {
+  const validated = saveGameSchema.parse(payload);
+  assertWorldIntegrity(validated);
+  const candidate = safeStringify(validated, undefined, 2) as unknown;
 
   if (typeof candidate !== 'string') {
     throw new Error('Unable to serialise save payload');
   }
 
   return `${candidate}\n`;
+}
+
+/** Stable error raised when a save targets an unsupported future schema. */
+export class UnsupportedSaveGameVersionError extends Error {
+  public readonly code = 'unsupported_save_version' as const;
+}
+
+/** Builds a validated current-version save document from an authoritative engine world. */
+export function createSaveGame(
+  world: SimulationWorld,
+  metadata?: SaveGame['metadata'],
+): SaveGame {
+  const parsedWorld = parseSimulationWorld(world);
+  const save = saveGameSchema.parse({
+    schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+    seed: parsedWorld.seed,
+    simTime: {
+      tick: Math.trunc(parsedWorld.simTimeHours),
+      hoursElapsed: parsedWorld.simTimeHours,
+    },
+    world: parsedWorld,
+    ...(metadata ? { metadata } : {}),
+  });
+  assertWorldIntegrity(save);
+  return save;
+}
+
+/** Computes a canonical SHA-256 identity for a fully validated world snapshot. */
+export function hashSaveGameWorld(world: SimulationWorld): string {
+  return hashCanonicalState(parseSimulationWorld(world));
 }
 
 async function readSaveFile(filePath: string): Promise<unknown> {
@@ -68,6 +105,42 @@ function assertWorldIntegrity(save: SaveGame): void {
 
     throw new Error(`Save file world violates SEC guardrails: ${description}`);
   }
+
+  const economy = (world as { economy?: unknown }).economy;
+  if (economy !== undefined) {
+    const economyValidation = economyStateSchema.safeParse(economy);
+    if (!economyValidation.success) {
+      throw new Error('Save file world contains invalid economy state.');
+    }
+  }
+  const breeding = (world as { breeding?: unknown }).breeding;
+  if (breeding !== undefined && !breedingStateSchema.safeParse(breeding).success) {
+    throw new Error('Save file world contains invalid breeding state.');
+  }
+}
+
+/** Parses an in-memory save payload and applies the registered legacy migrations. */
+export async function parseSaveGamePayload(
+  payload: unknown,
+  options: LoadSaveGameOptions = {},
+): Promise<SaveGame> {
+  const envelopeResult = saveGameEnvelopeSchema.safeParse(payload);
+  if (!envelopeResult.success) {
+    throw new Error('Save game payload is missing a valid numeric schemaVersion.');
+  }
+  const envelope = envelopeResult.data;
+  const targetVersion = options.targetVersion ?? CURRENT_SAVE_SCHEMA_VERSION;
+  if (envelope.schemaVersion > targetVersion) {
+    throw new UnsupportedSaveGameVersionError(
+      `Save file schemaVersion ${fmtNum(envelope.schemaVersion)} exceeds supported version ${fmtNum(targetVersion)}`,
+    );
+  }
+  const candidate = envelope.schemaVersion === targetVersion
+    ? payload
+    : await (options.migrations ?? createDefaultSaveGameMigrationRegistry()).migrate(payload, targetVersion);
+  const parsed = saveGameSchema.parse(candidate);
+  assertWorldIntegrity(parsed);
+  return parsed;
 }
 
 /**
@@ -80,30 +153,7 @@ function assertWorldIntegrity(save: SaveGame): void {
  */
 export async function loadSaveGame(filePath: string, options: LoadSaveGameOptions = {}): Promise<SaveGame> {
   const payload = await readSaveFile(filePath);
-  const envelope = saveGameEnvelopeSchema.parse(payload);
-  const targetVersion = options.targetVersion ?? CURRENT_SAVE_SCHEMA_VERSION;
-
-  if (envelope.schemaVersion > targetVersion) {
-    throw new Error(
-      `Save file schemaVersion ${fmtNum(envelope.schemaVersion)} exceeds supported version ${fmtNum(targetVersion)}`,
-    );
-  }
-
-  if (envelope.schemaVersion === targetVersion) {
-    const parsed = saveGameSchema.parse(payload);
-    assertWorldIntegrity(parsed);
-    return parsed;
-  }
-
-  if (!options.migrations) {
-    throw new Error('No migration registry provided for legacy save file');
-  }
-
-  const migrated = await options.migrations.migrate(payload, targetVersion);
-
-  const parsedMigrated = saveGameSchema.parse(migrated);
-  assertWorldIntegrity(parsedMigrated);
-  return parsedMigrated;
+  return parseSaveGamePayload(payload, options);
 }
 
 /**
@@ -119,7 +169,7 @@ export async function writeSaveGame(
   payload: SaveGame,
   options: WriteSaveGameOptions = {},
 ): Promise<void> {
-  const serialised = serialiseSaveGame(saveGameSchema.parse(payload));
+  const serialised = serialiseSaveGame(payload);
   const directory = path.dirname(filePath);
 
   if (options.ensureDir) {

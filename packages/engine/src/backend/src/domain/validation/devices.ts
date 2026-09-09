@@ -1,4 +1,4 @@
-import { FLOAT_TOLERANCE } from '@/backend/src/constants/simConstants';
+import { FLOAT_TOLERANCE } from '../../constants/simConstants.ts';
 
 import {
   type DeviceInstance,

@@ -9,6 +9,7 @@ export {
   type SocketTransportAdapter,
   type SocketTransportAdapterOptions,
   type TelemetryEvent,
+  type TelemetryEventInput,
   type TransportAck,
   type TransportAckError,
   type TransportAckErrorCode,

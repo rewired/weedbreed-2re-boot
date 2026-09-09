@@ -12,6 +12,7 @@ import { resolveEffectiveTariffs } from '../../economy/tariffs.ts';
 import { resolveTickHours } from '../resolveTickHours.ts';
 import cultivationMethodPriceMapJson from '../../../../../../../data/prices/cultivationMethodPrices.json' with { type: 'json' };
 import { parseCultivationMethodPriceMap } from '../../domain/pricing/cultivationMethodPriceMap.ts';
+import { postEconomyDebit } from '../../economy/state.ts';
 
 const cultivationMethodPriceMap = parseCultivationMethodPriceMap(cultivationMethodPriceMapJson);
 
@@ -170,6 +171,27 @@ export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContex
   const carrier = ctx as EconomyAccrualCarrier;
   const economyAccruals = carrier.economyAccruals ?? {};
   carrier.economyAccruals = economyAccruals;
+  const previousPayroll = economyAccruals.workforce?.current;
+  const previousMaintenance = economyAccruals.deviceMaintenance?.current;
+  const payrollCostIncrementCc = payrollSnapshot
+    ? Math.max(0, payrollSnapshot.current.totals.totalLaborCost
+      - (previousPayroll?.dayIndex === payrollSnapshot.current.dayIndex
+        ? previousPayroll.totals.totalLaborCost
+        : 0))
+    : 0;
+  const maintenanceCostIncrementCc = maintenanceSnapshot
+    ? Math.max(0, maintenanceSnapshot.current.costCc
+      - (previousMaintenance?.dayIndex === maintenanceSnapshot.current.dayIndex
+        ? previousMaintenance.costCc
+        : 0))
+    : 0;
+  const utilityCostIncrementCc = usageSnapshot && tickHours > 0
+    ? usageSnapshot.energyConsumption_kWh * resolveEffectiveTariffs(ctx).price_electricity
+      + usageSnapshot.waterVolume_m3 * resolveEffectiveTariffs(ctx).price_water
+    : 0;
+  const cultivationCostIncrementCc = hasCultivationCost
+    ? cultivationCostPerHour * tickHours
+    : 0;
 
   if (payrollSnapshot) {
     const existingWorkforce = economyAccruals.workforce ?? { finalizedDays: [] };
@@ -296,6 +318,18 @@ export function applyEconomyAccrual(world: SimulationWorld, ctx: EngineRunContex
   }
 
   carrier.economyAccruals = economyAccruals;
-
-  return world;
+  const operatingCostCc = payrollCostIncrementCc
+    + maintenanceCostIncrementCc
+    + utilityCostIncrementCc
+    + cultivationCostIncrementCc;
+  if (operatingCostCc <= 0 || !world.economy) return world;
+  const posting = postEconomyDebit(world, {
+    category: 'operating_expense',
+    amountCc: operatingCostCc,
+    referenceId: `tick:${String(world.simTimeHours)}`,
+    identity: `opex:${String(world.simTimeHours)}:${String(tickHours)}`,
+    description: `payroll=${String(payrollCostIncrementCc)};maintenance=${String(maintenanceCostIncrementCc)};utilities=${String(utilityCostIncrementCc)};cultivation=${String(cultivationCostIncrementCc)}`,
+    allowNegativeBalance: true,
+  });
+  return posting.ok ? { ...world, economy: posting.economy } : world;
 }

@@ -159,6 +159,85 @@ export function createEngineBootstrapConfig(
 export * from './backend/src/constants/simConstants.ts';
 export * from './backend/src/domain/world.ts';
 export * from './backend/src/util/rng.ts';
+export { deterministicUuid, deterministicUuidV7 } from './backend/src/util/uuid.ts';
+export {
+  applyDemoEnvironmentalIncident,
+  createDemoScenario,
+  DEMO_ENVIRONMENT_INCIDENT_TEMPERATURE_C,
+  DEMO_ENVIRONMENT_INCIDENT_TRIGGER_HOUR,
+} from './backend/src/scenarios/index.ts';
+export type { CreateDemoScenarioInput } from './backend/src/scenarios/index.ts';
+export { runTick } from './backend/src/engine/Engine.ts';
+export type { EngineRunContext, RunTickOptions, RunTickResult } from './backend/src/engine/Engine.ts';
+export { TELEMETRY_DEMO_ENVIRONMENT_INCIDENT_V1 } from './backend/src/telemetry/topics.ts';
+export type { TelemetryDemoEnvironmentIncidentPayload } from './backend/src/telemetry/topics.ts';
+export {
+  executeDevicePurchaseInstall,
+  executeRoomCreate,
+  executeZoneCreate,
+} from './backend/src/commands/facility/index.ts';
+export type {
+  DeferredPurchaseCost,
+  DeviceCoverageResult,
+  DevicePurchaseInstallCommand,
+  DevicePurchaseInstallResult,
+  FacilityCommandErrorCode,
+  FacilityCommandRejection,
+  FacilityCommandSuccess,
+  FacilityMutationResult,
+  RoomCreateCommand,
+  ZoneCreateCommand,
+} from './backend/src/commands/facility/index.ts';
+export {
+  executePlantsHarvest,
+  executePlantsSow,
+  assessZoneSowReadiness,
+} from './backend/src/commands/plants/index.ts';
+export type {
+  DeferredSeedCost,
+  PlantsHarvestCommand,
+  PlantsHarvestErrorCode,
+  PlantsHarvestRejection,
+  PlantsHarvestResult,
+  PlantsHarvestSuccess,
+  PlantsSowCommand,
+  PlantsSowErrorCode,
+  PlantsSowRejection,
+  PlantsSowResult,
+  PlantsSowSuccess,
+  ZoneSowReadiness,
+} from './backend/src/commands/plants/index.ts';
 export { resolveTariffs } from './backend/src/util/tariffs.ts';
 export type { ResolvedTariffs } from './backend/src/util/tariffs.ts';
+export {
+  createEconomyState,
+  DEMO_STARTING_BALANCE_CC,
+  ECONOMY_LEDGER_CATEGORIES,
+  economyStateSchema,
+  postEconomyCredit,
+  postEconomyDebit,
+} from './backend/src/economy/state.ts';
+export type {
+  EconomyLedgerCategory,
+  EconomyLedgerEntry,
+  EconomyPostingInput,
+  EconomyPostingResult,
+  EconomyState,
+} from './backend/src/economy/state.ts';
+export {
+  computeSaleQualityFactor,
+  quoteHarvestLotSale,
+  quoteHarvestSale,
+} from './backend/src/economy/sale.ts';
+export type { HarvestSaleQuote } from './backend/src/economy/sale.ts';
+export { executeInventorySell } from './backend/src/economy/inventorySell.ts';
+export type {
+  InventorySellCommand,
+  InventorySellErrorCode,
+  InventorySellRejection,
+  InventorySellResult,
+  InventorySellSuccess,
+} from './backend/src/economy/inventorySell.ts';
+export * from './backend/src/breeding/index.ts';
+export * from './backend/src/saveLoad/index.ts';
 export type { WorkforceConfig, WorkforceMarketScanConfig } from './backend/src/config/workforce.ts';

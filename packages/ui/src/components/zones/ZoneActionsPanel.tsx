@@ -17,8 +17,7 @@ export function ZoneActionsPanel({ actions, deviceControls }: ZoneActionsPanelPr
         </h3>
       </div>
       <p className="text-sm text-text-muted">
-        Intent buttons stay disabled until backend command flows wire up harvest, cull, and sow actions.
-        Tooltips surface upcoming task references so operators know what is planned.
+        Available zone operations are backed by active intent flows.
       </p>
       <div className="flex flex-wrap gap-3">
         {actions.map((action) => (
@@ -64,4 +63,3 @@ export function ZoneActionsPanel({ actions, deviceControls }: ZoneActionsPanelPr
     </section>
   );
 }
-

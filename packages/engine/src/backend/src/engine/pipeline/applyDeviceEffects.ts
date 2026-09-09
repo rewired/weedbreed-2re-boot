@@ -167,6 +167,23 @@ export function applyDeviceEffects(world: SimulationWorld, ctx: EngineRunContext
           applyAirflowAndFiltrationEffect(device, aggregation, tickHours);
         }
 
+        const controlledSetpoint = deviceOutcomes
+          .map(({ device }) => device.effectConfigs?.thermal)
+          .find((thermal) =>
+            typeof thermal?.setpoint_C === 'number'
+            && (typeof thermal.max_cool_W === 'number' || typeof thermal.max_heat_W === 'number')
+          )?.setpoint_C;
+        if (typeof controlledSetpoint === 'number') {
+          const aggregateDelta = runtime.zoneTemperatureDeltaC.get(zone.id) ?? 0;
+          const targetDelta = controlledSetpoint - zone.environment.airTemperatureC;
+          const crossesTarget = targetDelta < 0
+            ? aggregateDelta <= targetDelta
+            : aggregateDelta >= targetDelta;
+          if (crossesTarget) {
+            runtime.zoneTemperatureDeltaC.set(zone.id, targetDelta);
+          }
+        }
+
         finalizeZoneAggregation(aggregation);
 
         const nextDevices = deviceOutcomes.map((outcome) => outcome.device);

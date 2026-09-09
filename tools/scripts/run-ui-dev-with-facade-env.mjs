@@ -19,11 +19,10 @@ if (!env.VITE_FACADE_TRANSPORT_BASE_URL) {
   );
 }
 
-const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
-
-const child = spawn(pnpmCommand, ['--filter', '@wb/ui', 'dev'], {
+const child = spawn('pnpm', ['--filter', '@wb/ui', 'dev'], {
   env,
   stdio: 'inherit',
+  shell: true,
 });
 
 child.on('exit', (code, signal) => {

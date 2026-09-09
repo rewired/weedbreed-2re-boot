@@ -9,7 +9,7 @@ import { cloneTelemetryPayload } from './payload.ts';
 function emitEvent(
   bus: TelemetryBus | undefined,
   topic: string,
-  payload: Record<string, unknown>,
+  payload: object,
 ): void {
   if (!bus) {
     return;
@@ -23,7 +23,7 @@ function emitEvent(
     return;
   }
 
-  const sanitizedPayload = cloneTelemetryPayload(payload);
+  const sanitizedPayload = cloneTelemetryPayload({ ...payload });
 
   bus.emit(topic, sanitizedPayload);
 }

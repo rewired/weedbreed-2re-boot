@@ -62,6 +62,7 @@ export async function createContractServerHarness(
       host: LOOPBACK_HOST,
       port: 0,
       cors: options.cors,
+      telemetryIdentity: { getSeed: () => 'contract-test', getSimTick: () => 0 },
       onIntent: options.onIntent ?? (() => undefined),
     });
   } catch (error) {

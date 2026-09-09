@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node ../../node_modules/typescript/bin/tsc -p tsconfig.build.json --noEmit && vite build",
+    "typecheck": "node ../../node_modules/typescript/bin/tsc -p tsconfig.build.json --noEmit",
     "preview": "vite preview --host",
     "test": "vitest run",
     "test:watch": "vitest",

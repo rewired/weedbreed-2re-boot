@@ -116,7 +116,7 @@ export function runSeedToHarvest(config: SeedToHarvestConfig = {}): SeedToHarves
 
   const strain = loadRequiredStrain(strainId);
   const stopConditions = config.stopConditions ?? {};
-  const targetStage = stopConditions.targetStage ?? 'harvested';
+  const targetStage = stopConditions.targetStage ?? 'harvest-ready';
 
   let world = worldFactory();
   const zoneId = config.targetZoneId ?? resolveFirstZoneId(world);

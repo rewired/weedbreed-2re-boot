@@ -32,25 +32,18 @@ function deriveThermalInputs(device: ZoneDeviceInstance): ThermalActuatorInputs 
 
   if (effects.includes('thermal') && device.effectConfigs?.thermal) {
     const config = device.effectConfigs.thermal;
-    const inputs: ThermalActuatorInputs = {
+    return {
       power_W: effectivePower_W,
       efficiency01,
-      mode: config.mode
-    };
-
-    if (typeof config.max_heat_W === 'number') {
-      inputs.max_heat_W = config.max_heat_W * duty01;
-    }
-
-    if (typeof config.max_cool_W === 'number') {
-      inputs.max_cool_W = config.max_cool_W * duty01;
-    }
-
-    if (typeof config.setpoint_C === 'number') {
-      inputs.setpoint_C = config.setpoint_C;
-    }
-
-    return inputs;
+      mode: typeof config.setpoint_C === 'number' ? 'auto' : config.mode,
+      ...(typeof config.max_heat_W === 'number'
+        ? { max_heat_W: config.max_heat_W * duty01 }
+        : {}),
+      ...(typeof config.max_cool_W === 'number'
+        ? { max_cool_W: config.max_cool_W * duty01 }
+        : {}),
+      ...(typeof config.setpoint_C === 'number' ? { setpoint_C: config.setpoint_C } : {}),
+    } satisfies ThermalActuatorInputs;
   }
 
   const maxCool_W = Number.isFinite(device.sensibleHeatRemovalCapacity_W)
@@ -58,11 +51,15 @@ function deriveThermalInputs(device: ZoneDeviceInstance): ThermalActuatorInputs 
     : 0;
 
   if (maxCool_W > 0) {
+    const legacyCooling_W = Math.min(
+      effectivePower_W * efficiency01,
+      maxCool_W * duty01,
+    );
     return {
       power_W: effectivePower_W,
       efficiency01,
       mode: 'cool',
-      max_cool_W: maxCool_W * duty01
+      max_cool_W: efficiency01 > 0 ? legacyCooling_W / efficiency01 : 0,
     } satisfies ThermalActuatorInputs;
   }
 
@@ -90,14 +87,26 @@ export function applyThermalEffect(
 
   if (thermalInputs) {
     const thermalStub = createThermalActuatorStub();
+    const accumulatedDelta = runtime.zoneTemperatureDeltaC.get(zone.id) ?? 0;
+    const projectedEnvironment = {
+      ...zone.environment,
+      airTemperatureC: zone.environment.airTemperatureC + accumulatedDelta,
+    };
     const { deltaT_K } = thermalStub.computeEffect(
       thermalInputs,
-      zone.environment,
+      projectedEnvironment,
       zone.airMass_kg,
       tickHours
     );
     thermalDeltaK = deltaT_K;
-    accumulateTemperatureDelta(runtime, zone.id, deltaT_K * effectiveness01);
+    if (typeof thermalInputs.setpoint_C === 'number') {
+      const projectedTemperature = zone.environment.airTemperatureC + accumulatedDelta;
+      const remainingDelta = thermalInputs.setpoint_C - projectedTemperature;
+      thermalDeltaK = remainingDelta > 0
+        ? Math.max(0, Math.min(deltaT_K, remainingDelta))
+        : Math.min(0, Math.max(deltaT_K, remainingDelta));
+    }
+    accumulateTemperatureDelta(runtime, zone.id, thermalDeltaK * effectiveness01);
   }
 
   return { thermalInputs, thermalDeltaK };

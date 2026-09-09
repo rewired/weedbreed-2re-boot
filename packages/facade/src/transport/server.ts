@@ -9,7 +9,7 @@ import {
   createSocketTransportAdapter,
   type SocketTransportAdapter,
   type SocketTransportAdapterOptions,
-  type TelemetryEvent,
+  type TelemetryEventInput,
   type TransportAck,
   type TransportIntentEnvelope,
 } from './adapter.js';
@@ -17,6 +17,15 @@ import { createTelemetryPublisher } from './telemetryPublisher.js';
 
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 7101;
+
+/**
+ * Maximum encoded Socket.IO packet size accepted by the facade.
+ *
+ * Eight MiB accommodates validated long-running session envelopes while keeping
+ * every inbound intent subject to a finite denial-of-service safety boundary.
+ * Socket.IO closes the connection before dispatch when this limit is exceeded.
+ */
+export const MAX_SESSION_ENVELOPE_BYTES = 8 * 1024 * 1024;
 
 /**
  * CORS configuration compatible with the underlying Socket.IO transport adapter.
@@ -44,6 +53,11 @@ export interface TransportServerOptions {
   readonly onIntent: (
     intent: TransportIntentEnvelope
   ) => void | TransportAck | Promise<void | TransportAck>;
+  /** Authoritative simulation identity used to enrich every telemetry envelope. */
+  readonly telemetryIdentity: {
+    readonly getSeed: () => string;
+    readonly getSimTick: () => number;
+  };
 }
 
 /**
@@ -59,7 +73,9 @@ export interface TransportServer {
   /** Bound Socket.IO namespaces. */
   readonly namespaces: SocketTransportAdapter['namespaces'];
   /** Broadcasts telemetry envelopes to subscribed clients. */
-  publishTelemetry(event: TelemetryEvent): void;
+  publishTelemetry(event: TelemetryEventInput): void;
+  /** Clears tick-local event ordinals after an authoritative world replacement. */
+  resetTelemetrySequence(): void;
   /** Closes the Socket.IO adapter and HTTP listener. */
   close(): Promise<void>;
 }
@@ -250,9 +266,10 @@ export async function createTransportServer(options: TransportServerOptions): Pr
   const httpServer = createHttpServer(
     createHealthHandler('{"status":"ok"}', options.cors)
   );
-  const serverOptions: SocketTransportAdapterOptions['serverOptions'] | undefined = options.cors
-    ? { cors: options.cors }
-    : undefined;
+  const serverOptions: SocketTransportAdapterOptions['serverOptions'] = {
+    maxHttpBufferSize: MAX_SESSION_ENVELOPE_BYTES,
+    ...(options.cors ? { cors: options.cors } : {}),
+  };
   const adapter = createSocketTransportAdapter({
     httpServer,
     onIntent: options.onIntent,
@@ -262,6 +279,7 @@ export async function createTransportServer(options: TransportServerOptions): Pr
     sink: (event) => {
       adapter.publishTelemetry(event);
     },
+    identity: options.telemetryIdentity,
   });
 
   try {
@@ -303,15 +321,15 @@ export async function createTransportServer(options: TransportServerOptions): Pr
     publishTelemetry(event) {
       publisher.publish(event);
     },
+    resetTelemetrySequence() {
+      publisher.reset();
+    },
     async close() {
       await adapter.close();
       await closeHttpServer(httpServer);
     },
   } satisfies TransportServer;
 }
-
-
-
 
 
 

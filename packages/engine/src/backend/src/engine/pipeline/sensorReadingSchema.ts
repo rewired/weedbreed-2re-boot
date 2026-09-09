@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-import { SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
+import { SAFETY_MAX_CO2_PPM } from '../../constants/simConstants.ts';
 import {
   HUMIDITY_SENSOR_MAX01,
   HUMIDITY_SENSOR_MIN01,
   TEMPERATURE_SENSOR_MAX_C,
   TEMPERATURE_SENSOR_MIN_C
-} from '@/backend/src/constants/climate';
+} from '../../constants/climate.ts';
 import { createFiniteNumber } from '../../domain/schemas/primitives.ts';
 import { SENSOR_MEASUREMENT_TYPES } from '../../domain/entities.ts';
 import type { SensorReading } from '../../domain/interfaces/ISensor.ts';

@@ -301,9 +301,11 @@ describe('validateCompanyWorld (unit)', () => {
                 id: uuid('00000000-0000-0000-0000-000000000120'),
                 structureId: uuid('00000000-0000-0000-0000-000000000100'),
                 roomId: room.id,
+                strainId: uuid('00000000-0000-0000-0000-000000000130'),
                 source: {
                   plantId: uuid('00000000-0000-0000-0000-000000000010'),
-                  zoneId: uuid('00000000-0000-0000-0000-000000000060')
+                  zoneId: uuid('00000000-0000-0000-0000-000000000060'),
+                  harvestIntentId: uuid('00000000-0000-0000-0000-000000000140')
                 },
                 freshWeight_kg: 0.75,
                 moisture01: 0.72,

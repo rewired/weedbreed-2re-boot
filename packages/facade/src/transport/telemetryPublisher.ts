@@ -1,11 +1,13 @@
 import { z } from 'zod';
+import { deterministicUuid, hashCanonicalState } from '@wb/engine';
+import type { TelemetryEvent, TelemetryEventInput } from '@wb/transport-sio';
 
 import {
   TELEMETRY_HARVEST_CREATED_V1,
   TELEMETRY_TICK_COMPLETED_V1,
   TELEMETRY_WORKFORCE_KPI_V1,
   TELEMETRY_ZONE_SNAPSHOT_V1,
-} from '@/backend/src/telemetry/topics.ts';
+} from '@/backend/src/telemetry/topics.js';
 
 const finite = () => z.number().finite();
 
@@ -60,33 +62,72 @@ const topicRegistry = new Map<string, TopicEntry>([
   [TELEMETRY_HARVEST_CREATED_V1, { schema: harvestSchema }],
 ]);
 
-interface TelemetryEnvelope {
-  readonly topic: string;
-  readonly payload: unknown;
+export interface TelemetryIdentitySource {
+  readonly getSeed: () => string;
+  readonly getSimTick: () => number;
 }
 
 export interface TelemetryPublisherOptions {
-  readonly sink: (event: TelemetryEnvelope) => void;
+  readonly sink: (event: TelemetryEvent) => void;
+  readonly identity: TelemetryIdentitySource;
 }
 
 export interface TelemetryPublisher {
-  publish(event: TelemetryEnvelope): void;
+  publish(event: TelemetryEventInput): void;
+  reset(): void;
 }
 
-export function createTelemetryPublisher({ sink }: TelemetryPublisherOptions): TelemetryPublisher {
+function finiteTick(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0
+    ? Math.trunc(value)
+    : null;
+}
+
+function resolveEventSimTick(payload: unknown, fallback: number): number {
+  if (payload && typeof payload === 'object') {
+    const record = payload as Record<string, unknown>;
+    const direct = finiteTick(record.simTick)
+      ?? finiteTick(record.createdAt_tick)
+      ?? finiteTick(record.simTimeHours)
+      ?? finiteTick(record.simTime);
+    if (direct !== null) return direct;
+    if (record.snapshot && typeof record.snapshot === 'object') {
+      const nested = finiteTick((record.snapshot as Record<string, unknown>).simTimeHours);
+      if (nested !== null) return nested;
+    }
+  }
+  const tick = finiteTick(fallback);
+  if (tick === null) throw new TypeError('Telemetry identity source returned an invalid sim tick.');
+  return tick;
+}
+
+export function createTelemetryPublisher({ sink, identity }: TelemetryPublisherOptions): TelemetryPublisher {
+  const ordinalsByTick = new Map<string, number>();
   return {
-    publish(event: TelemetryEnvelope) {
+    publish(event: TelemetryEventInput) {
       if (typeof event.topic !== 'string') {
         throw new TypeError('Telemetry event topic must be a string');
       }
       const entry = topicRegistry.get(event.topic);
-      if (!entry) {
-        sink(event);
-        return;
+      const parsed = entry ? entry.schema.parse(event.payload) : event.payload;
+      const payload = entry?.map ? entry.map(parsed) : parsed;
+      const seed = identity.getSeed();
+      if (typeof seed !== 'string' || seed.length === 0) {
+        throw new TypeError('Telemetry identity source returned an invalid seed.');
       }
-      const parsed = entry.schema.parse(event.payload);
-      const payload = entry.map ? entry.map(parsed) : parsed;
-      sink({ topic: event.topic, payload });
+      const simTick = resolveEventSimTick(payload, identity.getSimTick());
+      const bucket = `${seed}:${String(simTick)}`;
+      const ordinal = ordinalsByTick.get(bucket) ?? 0;
+      ordinalsByTick.set(bucket, ordinal + 1);
+      const payloadHash = hashCanonicalState(payload);
+      const eventId = deterministicUuid(
+        seed,
+        `telemetry:${String(simTick)}:${String(ordinal)}:${event.topic}:${payloadHash}`,
+      );
+      sink({ topic: event.topic, payload, simTick, eventId });
+    },
+    reset() {
+      ordinalsByTick.clear();
     },
   } satisfies TelemetryPublisher;
 }

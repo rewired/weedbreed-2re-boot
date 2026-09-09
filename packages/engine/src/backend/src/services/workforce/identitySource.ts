@@ -193,10 +193,16 @@ function selectLastName(rng: RandomNumberGenerator): string {
 
 function selectTraits(rng: RandomNumberGenerator): readonly WorkforceIdentityTrait[] {
   const selected = sampleTraitSet({ rng });
-  return selected.map((trait) => ({
-    id: trait.id,
-    name: trait.name,
-    description: trait.description,
-    type: trait.type,
-  } satisfies WorkforceIdentityTrait));
+  return selected.map((trait) => {
+    if (trait.type !== 'positive' && trait.type !== 'negative') {
+      throw new Error(`Unsupported workforce trait type: ${trait.type}`);
+    }
+
+    return {
+      id: trait.id,
+      name: trait.name,
+      description: trait.description,
+      type: trait.type,
+    } satisfies WorkforceIdentityTrait;
+  });
 }

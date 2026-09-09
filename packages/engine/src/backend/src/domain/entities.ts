@@ -2,6 +2,8 @@ import type { HealthState } from './health/pestDisease.ts';
 import type { Inventory } from './types/Inventory.ts';
 import type { WorkforceState } from './workforce/WorkforceState.ts';
 import type { Uuid as SchemaUuid } from './schemas/primitives.ts';
+import type { EconomyState } from '../economy/state.ts';
+import type { BreedingState } from '../breeding/types.ts';
 
 /**
  * Branded string type representing a UUID v4 identifier.
@@ -421,6 +423,19 @@ export interface Company extends DomainEntity, SluggedEntity {
   readonly structures: readonly Structure[];
 }
 
+/** Persistent state for the deterministic `game.new.v1` temperature incident. */
+export interface DemoEnvironmentalIncidentState {
+  readonly code: 'demo.environment.temperature_high';
+  readonly zoneId: Uuid;
+  readonly status: 'active' | 'resolved';
+  readonly triggeredAtSimTimeHours: number;
+  readonly resolvedAtSimTimeHours?: number;
+  readonly measuredTemperatureC: number;
+  readonly targetBandC: readonly [minC: number, maxC: number];
+  readonly consequence: 'plant_heat_stress';
+  readonly recommendedIntent: 'intent.zone.climate.adjust.v1';
+}
+
 /**
  * Canonical representation of the entire simulation world snapshot.
  */
@@ -433,10 +448,18 @@ export interface SimulationWorld {
   readonly seed: string;
   /** Current simulation time expressed in in-game hours. */
   readonly simTimeHours: number;
+  /** Scenario discriminator; absent for ordinary non-demo worlds. */
+  readonly scenarioId?: 'game.new.v1';
   /** Company-centric world tree. */
   readonly company: Company;
   /** Workforce directory, task queue, and KPI snapshots. */
   readonly workforce: WorkforceState;
   /** Aggregated health state including pest and disease risk signals. */
   readonly health?: HealthState;
+  /** Explicit, replay-safe demo incident state; the engine never pauses on it. */
+  readonly demoIncident?: DemoEnvironmentalIncidentState;
+  /** Persistent company balance and immutable transaction ledger. */
+  readonly economy?: EconomyState;
+  /** Persistent breeding runs, qualified parents, and player-created strains. */
+  readonly breeding?: BreedingState;
 }

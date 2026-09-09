@@ -212,7 +212,7 @@ describe('createEngineCommandPipeline', () => {
       },
     });
 
-    const nextSchedule = { onHours: 20, offHours: 4, startHour: 2 } as const;
+    const nextSchedule = { onHours: 12, offHours: 12, startHour: 2 } as const;
     const lightingAck = await pipeline.handle({
       type: 'intent.zone.lighting.adjust.v1',
       structureId: structure.id,
@@ -254,7 +254,11 @@ describe('createEngineCommandPipeline', () => {
       ?.zones.find((candidate) => candidate.id === zone.id);
 
     expect(updatedZone?.lightSchedule).toEqual(nextSchedule);
-    const thermalDevice = updatedZone?.devices.find((device) => device.effectConfigs?.thermal);
+    expect(updatedZone?.photoperiodPhase).toBe('flowering');
+    const thermalDevice = updatedZone?.devices.find((device) => {
+      const thermal = device.effectConfigs?.thermal;
+      return thermal && (typeof thermal.max_cool_W === 'number' || typeof thermal.max_heat_W === 'number');
+    });
     expect(thermalDevice?.effectConfigs?.thermal?.setpoint_C).toBeCloseTo(baselineTemperature + 2, 5);
   });
 
@@ -308,7 +312,10 @@ describe('createEngineCommandPipeline', () => {
       .find((room) => room.id === growRoom.id)
       ?.zones.find((candidate) => candidate.id === zoneWithThermal.id);
 
-    const thermalDevice = updatedZone?.devices.find((device) => device.effectConfigs?.thermal);
+    const thermalDevice = updatedZone?.devices.find((device) => {
+      const thermal = device.effectConfigs?.thermal;
+      return thermal && (typeof thermal.max_cool_W === 'number' || typeof thermal.max_heat_W === 'number');
+    });
     expect(thermalDevice?.effectConfigs?.thermal?.setpoint_C).toBeCloseTo(targetTemperature, 5);
   });
 
@@ -460,4 +467,3 @@ describe('createEngineCommandPipeline', () => {
     ).rejects.toThrow(/lacks cooling capacity/i);
   });
 });
-

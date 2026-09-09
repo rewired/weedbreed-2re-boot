@@ -14,5 +14,6 @@ export {
   TELEMETRY_ERROR_EVENT,
   TELEMETRY_EVENT,
   type TelemetryEvent,
+  type TelemetryEventInput,
   type TransportIntentEnvelope
 } from './contracts/events.js';

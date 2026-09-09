@@ -16,14 +16,27 @@ interface IntentClientDependencies {
     uri: string,
     options: Partial<ManagerOptions & SocketOptions>
   ) => ClientSocket;
+  readonly createIntentId?: () => string;
 }
 
 const defaultDependencies: IntentClientDependencies = {
-  createSocket: io
+  createSocket: io,
+  createIntentId: () => globalThis.crypto.randomUUID()
 };
 
 function trimTrailingSlash(value: string): string {
   return value.replace(/\/+$/, "");
+}
+
+function ensureIntentId(
+  intent: TransportIntentEnvelope,
+  createIntentId: () => string
+): TransportIntentEnvelope {
+  if (typeof intent.intentId === "string" && intent.intentId.trim().length > 0) {
+    return intent;
+  }
+
+  return { ...intent, intentId: createIntentId() };
 }
 
 export type SuccessfulIntentAck = TransportAck & { ok: true; error?: undefined };
@@ -90,6 +103,7 @@ export function createIntentClient(
   const socket = dependencies.createSocket(endpoint, {
     transports: options.transports as ("websocket" | "polling")[] | undefined
   });
+  const createIntentId = dependencies.createIntentId ?? defaultDependencies.createIntentId!;
 
   return {
     disconnect(): Promise<void> {
@@ -141,7 +155,7 @@ export function createIntentClient(
         };
 
         try {
-          socket.emit(INTENT_EVENT, intent, handleAcknowledgement);
+          socket.emit(INTENT_EVENT, ensureIntentId(intent, createIntentId), handleAcknowledgement);
         } catch (error) {
           reject(normaliseError(error, "Intent submission failed before acknowledgement."));
         }

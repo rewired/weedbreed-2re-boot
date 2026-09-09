@@ -126,20 +126,11 @@ describe("ZoneDetailPage", () => {
       throw new Error("Actions section missing");
     }
     const actionsWithin = within(actionsSection);
-    const harvestButton = actionsWithin.getByRole("button", { name: /Harvest zone/i });
-    expect(harvestButton).not.toBeDisabled();
-    const cullButton = actionsWithin.getByRole("button", { name: /Cull plants/i });
-    expect(cullButton).not.toBeDisabled();
-    const sowButton = actionsWithin.getByRole("button", { name: /Sow seedlings/i });
-    expect(sowButton).toBeDisabled();
-    expect(sowButton).toHaveAttribute("title", expect.stringMatching(/requires an empty zone/i));
-
-    const deviceControlButtons = actionsWithin.getAllByRole("button", { name: /Adjust|Tune/i });
-    expect(deviceControlButtons.length).toBeGreaterThan(0);
-    deviceControlButtons.forEach((button) => {
-      expect(button).toBeDisabled();
-      expect(button).toHaveAttribute("title", expect.stringMatching(/Task/i));
-    });
+    expect(actionsWithin.queryByRole("button", { name: /Harvest zone/i })).not.toBeInTheDocument();
+    expect(actionsWithin.queryByRole("button", { name: /Cull plants/i })).not.toBeInTheDocument();
+    expect(actionsWithin.queryByRole("button", { name: /Sow seedlings/i })).not.toBeInTheDocument();
+    expect(actionsWithin.queryByRole("button", { name: /Adjust|Tune/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Move zone|Duplicate|Replace/i })).not.toBeInTheDocument();
   });
 
   it("navigates to the capacity advisor when a climate ghost placeholder is activated", () => {
@@ -161,5 +152,34 @@ describe("ZoneDetailPage", () => {
 
     expect(navigateMock).toHaveBeenCalledWith(buildStructureCapacityAdvisorPath(STRUCTURE_ID));
   });
-});
 
+  it("surfaces an authoritative incident for the current zone", () => {
+    const mutatedSnapshot = structuredClone(deterministicReadModelSnapshot) as DeepMutable<ReadModelSnapshot>;
+    mutatedSnapshot.simulation.paused = true;
+    mutatedSnapshot.simulation.pendingIncidents.push({
+      id: "zone-incident",
+      code: "demo.environment.temperature_high",
+      message: "Zone temperature is above the target band.",
+      severity: "critical",
+      raisedAtTick: 3,
+      status: "active",
+      zoneId: ZONE_ID,
+      measured: { metric: "temperature_C", value: 32 },
+      targetBand: { min: 18, max: 24 },
+      consequence: { code: "plant_heat_stress", affectedPlantCount: 6, averagePlantHealth01: 0.92 },
+      recommendedIntent: {
+        type: "intent.zone.climate.adjust.v1",
+        payload: { structureId: STRUCTURE_ID, zoneId: ZONE_ID, target: { temperature_C: 21 } }
+      },
+      resolvedAtTick: null
+    });
+    applyReadModelSnapshot(mutatedSnapshot as ReadModelSnapshot);
+
+    render(<ZoneDetailPage structureId={STRUCTURE_ID} roomId={ROOM_ID} zoneId={ZONE_ID} />);
+
+    expect(screen.getByText("Klima-Incident aktiv")).toBeVisible();
+    expect(screen.getByText("Zeitraffer pausiert (Serverstatus)")).toBeVisible();
+    expect(screen.getByText("32.0 °C")).toBeVisible();
+    expect(screen.getByText("18.0–24.0 °C")).toBeVisible();
+  });
+});

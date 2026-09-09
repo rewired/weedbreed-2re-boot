@@ -28,6 +28,7 @@ normalisation mandated by the SEC.
 | `FLOAT_TOLERANCE` | `1e-6` | — | Canonical tolerance for floating-point comparisons. |
 | `EPS_REL` | `1e-6` | — | Relative tolerance used for golden master hash and metric comparisons. |
 | `EPS_ABS` | `1e-9` | — | Absolute tolerance paired with `EPS_REL` for floating-point comparisons. |
+| `STATE_HASH_DECIMAL_PLACES` | `9` | decimal places | Persistent-world and conformance hashes quantise finite numeric leaves to `EPS_ABS`; `-0` becomes `0`. Array order remains authoritative and object keys are stable-sorted. |
 | `BYTES_PER_MEBIBYTE` | `1 048 576` | B | Bytes per MiB (2^20) for performance and memory diagnostics. |
 | `HASH_KEY_BYTES` | `16` | hex chars | Default SHA-256 digest truncation length for daily golden hashes. |
 | `HASH_TRUNC_BYTES` | `24` | hex chars | Default SHA-256 digest truncation length for summary golden hashes. |

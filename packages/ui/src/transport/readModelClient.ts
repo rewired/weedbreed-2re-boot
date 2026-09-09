@@ -67,6 +67,18 @@ function assertValidPayload(payload: unknown): asserts payload is ReadModelSnaps
   if (!isObject(payload.compatibility)) {
     throw new TypeError("Read-model payload missing compatibility maps.");
   }
+
+  if (!isObject(payload.inventory) || !Array.isArray(payload.inventory.lots)) {
+    throw new TypeError("Read-model payload missing inventory snapshot.");
+  }
+
+  if (!isObject(payload.breeding) || !Array.isArray(payload.breeding.qualifiedParents) || !Array.isArray(payload.breeding.runs)) {
+    throw new TypeError("Read-model payload missing breeding snapshot.");
+  }
+
+  if (!isObject(payload.runSummary) || !Array.isArray(payload.runSummary.entries)) {
+    throw new TypeError("Read-model payload missing run-summary snapshot.");
+  }
 }
 
 function compareByString<T>(getKey: (item: T) => string): (a: T, b: T) => number {
@@ -148,7 +160,9 @@ function normalisePriceBook(priceBook: PriceBookCatalog): PriceBookCatalog {
   } satisfies PriceBookCatalog;
 }
 
-function sortStatusRecord(record: Readonly<Record<string, string>>): Record<string, string> {
+function sortStatusRecord<Status extends string>(
+  record: Readonly<Record<string, Status>>
+): Record<string, Status> {
   return Object.fromEntries(Array.from(Object.entries(record)).sort(([left], [right]) => left.localeCompare(right)));
 }
 
@@ -208,7 +222,28 @@ function normaliseReadModelSnapshot(snapshot: ReadModelSnapshot): ReadModelSnaps
     structures: sortedStructures,
     hr: normaliseHrReadModel(snapshot.hr),
     priceBook: normalisePriceBook(snapshot.priceBook),
-    compatibility: normaliseCompatibilityMaps(snapshot.compatibility)
+    compatibility: normaliseCompatibilityMaps(snapshot.compatibility),
+    inventory: {
+      ...snapshot.inventory,
+      lots: Array.from(snapshot.inventory.lots).sort(compareByString((lot) => lot.lotId))
+    },
+    breeding: {
+      ...snapshot.breeding,
+      qualifiedParents: Array.from(snapshot.breeding.qualifiedParents).sort(
+        (left, right) => left.name.localeCompare(right.name) || left.strainId.localeCompare(right.strainId)
+      ),
+      runs: Array.from(snapshot.breeding.runs, (run) => ({
+        ...run,
+        parents: [...run.parents] as typeof run.parents,
+        candidates: Array.from(run.candidates).sort(
+          (left, right) => left.ordinal - right.ordinal || left.candidateId.localeCompare(right.candidateId)
+        )
+      }))
+    },
+    runSummary: {
+      ...snapshot.runSummary,
+      entries: Array.from(snapshot.runSummary.entries)
+    }
   });
 }
 

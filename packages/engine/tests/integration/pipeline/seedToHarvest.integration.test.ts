@@ -22,7 +22,7 @@ function findZone(world: SimulationWorld, zoneId: Zone['id']): Zone | null {
 }
 
 describe('seed-to-harvest orchestrator integration', () => {
-  it('advances White Widow plants from seed to harvest-ready and stores deterministic lots', () => {
+  it('advances White Widow plants to harvest-ready without harvesting automatically', () => {
     const result = runSeedToHarvest({
       strainId: WHITE_WIDOW_STRAIN_ID
     });
@@ -79,20 +79,10 @@ describe('seed-to-harvest orchestrator integration', () => {
     const finalPlants = zone.plants;
     expect(finalPlants).toHaveLength(transitionsByPlant.size);
     expect(finalPlants.every((plant) => plant.lifecycleStage === 'harvest-ready')).toBe(true);
-    expect(finalPlants.every((plant) => plant.status === 'harvested')).toBe(true);
-
-    const plantIds = new Set([...transitionsByPlant.keys()]);
-    const lotPlantIds = new Set(result.harvestedLots.map((lot) => lot.source.plantId));
-    expect(lotPlantIds).toEqual(plantIds);
-
-    expect(result.harvestedLots).toHaveLength(finalPlants.length);
+    expect(finalPlants.every((plant) => plant.status === 'active')).toBe(true);
+    expect(finalPlants.every((plant) => plant.readyForHarvest === true)).toBe(true);
+    expect(result.harvestedLots).toHaveLength(0);
+    expect(result.harvestTelemetry).toHaveLength(0);
     expect(result.totalBiomass_g).toBeCloseTo(6, 5);
-
-    for (const lot of result.harvestedLots) {
-      expect(lot.freshWeight_kg).toBeCloseTo(0.001, 6);
-      expect(lot.moisture01).toBe(0.5);
-      expect(lot.quality01).toBe(0);
-      expect(lot.createdAt_tick).toBe(2255);
-    }
   });
 });

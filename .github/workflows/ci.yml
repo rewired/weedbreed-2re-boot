@@ -40,17 +40,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vite-
 
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Lint
-        run: pnpm lint:ci
-
-      - name: Test
-        run: pnpm test
-
-      - name: Contract tests
-        run: pnpm --filter @wb/facade test:contract
+      - name: Verify workspace
+        run: pnpm verify
 
   perf-budget:
     runs-on: ubuntu-latest

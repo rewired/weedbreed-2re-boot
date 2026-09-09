@@ -77,6 +77,7 @@ function createTransportServerStub() {
       intents: intentsNamespace as unknown as TransportServer['namespaces']['intents'],
     },
     publishTelemetry,
+    resetTelemetrySequence: vi.fn(),
     async close() {
       // No-op for tests.
     },
@@ -156,5 +157,47 @@ describe('startFacadeDevServer telemetry buffer', () => {
       await devServer.stop();
     }
   });
-});
 
+  it('pauses playback on the authoritative active incident while still publishing telemetry', async () => {
+    const stub = createTransportServerStub();
+    transportServerStub = stub.server;
+    const upstreamEmit = vi.fn();
+    const devServer = await startFacadeDevServer({
+      context: { telemetry: { emit: upstreamEmit } },
+    });
+
+    try {
+      stub.telemetryNamespace.sockets.set('socket-incident', {});
+      const payload = {
+        incidentCode: 'demo.environment.temperature_high',
+        status: 'active',
+        zoneId: '00000000-0000-4000-8000-000000000004',
+        simTimeHours: 3,
+        measuredTemperatureC: 32,
+        targetBandC: { minC: 22, maxC: 26 },
+        consequence: 'plant_heat_stress',
+        recommendedIntent: 'intent.zone.climate.adjust.v1',
+      };
+
+      devServer.context.telemetry.emit('telemetry.demo.environment.incident.v1', payload);
+
+      expect(playbackControllers[0]?.pause).toHaveBeenCalledTimes(1);
+      expect(stub.published).toEqual([{
+        topic: 'telemetry.demo.environment.incident.v1',
+        payload,
+      }]);
+      expect(upstreamEmit).toHaveBeenCalledWith(
+        'telemetry.demo.environment.incident.v1',
+        payload,
+      );
+
+      devServer.context.telemetry.emit('telemetry.demo.environment.incident.v1', {
+        ...payload,
+        status: 'resolved',
+      });
+      expect(playbackControllers[0]?.pause).toHaveBeenCalledTimes(1);
+    } finally {
+      await devServer.stop();
+    }
+  });
+});

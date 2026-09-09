@@ -8,9 +8,11 @@ const BASE_LOT: HarvestLot = {
   id: '00000000-0000-0000-0000-000000000a00' as HarvestLot['id'],
   structureId: '00000000-0000-0000-0000-000000000b00' as HarvestLot['structureId'],
   roomId: '00000000-0000-0000-0000-000000000c00' as HarvestLot['roomId'],
+  strainId: '00000000-0000-0000-0000-000000000f01' as HarvestLot['strainId'],
   source: {
     plantId: '00000000-0000-0000-0000-000000000d00' as HarvestLot['source']['plantId'],
-    zoneId: '00000000-0000-0000-0000-000000000e00' as HarvestLot['source']['zoneId']
+    zoneId: '00000000-0000-0000-0000-000000000e00' as HarvestLot['source']['zoneId'],
+    harvestIntentId: '00000000-0000-0000-0000-000000000f02' as HarvestLot['source']['harvestIntentId']
   },
   freshWeight_kg: 1.25,
   moisture01: 0.65,

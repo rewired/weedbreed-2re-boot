@@ -85,12 +85,15 @@ describe("intent client", () => {
     const socket = createSocketStub();
     const onResult = vi.fn();
     const handlers: IntentSubmissionHandlers = { onResult };
-    const client = createIntentClient({ baseUrl: BASE_URL }, { createSocket: () => socket });
+    const client = createIntentClient(
+      { baseUrl: BASE_URL },
+      { createSocket: () => socket, createIntentId: () => "generated-intent-id" }
+    );
 
     const submission = client.submit({ type: "workforce.assign-task" }, handlers);
     expect(socket.emit).toHaveBeenCalledWith(
       INTENT_EVENT,
-      { type: "workforce.assign-task" },
+      { type: "workforce.assign-task", intentId: "generated-intent-id" },
       expect.any(Function)
     );
 
@@ -100,6 +103,22 @@ describe("intent client", () => {
     const result = await submission;
     expect(result).toEqual({ ok: true, ack });
     expect(onResult).toHaveBeenCalledWith({ ok: true, ack });
+  });
+
+  it("preserves a caller-provided intent id", async () => {
+    const socket = createSocketStub();
+    const client = createIntentClient(
+      { baseUrl: BASE_URL },
+      { createSocket: () => socket, createIntentId: () => "unused-generated-id" }
+    );
+
+    const submission = client.submit(
+      { type: "game.new.v1", intentId: "new-game-1" },
+      { onResult: vi.fn() }
+    );
+    expect(socket.lastPayload).toEqual({ type: "game.new.v1", intentId: "new-game-1" });
+    socket.triggerAck({ ok: true } satisfies TransportAck);
+    await submission;
   });
 
   it("maps handler errors to dictionary entries", async () => {

@@ -3,7 +3,7 @@ import {
   FLOAT_TOLERANCE,
   HOURS_PER_DAY,
   LIGHT_SCHEDULE_GRID_HOURS
-} from '@/backend/src/constants/simConstants';
+} from '../../constants/simConstants.ts';
 
 import {
   type LightSchedule,

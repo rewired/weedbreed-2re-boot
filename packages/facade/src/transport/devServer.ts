@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 
 import { z } from 'zod';
 
-import { type EngineRunContext } from '@/backend/src/engine/Engine.ts';
+import { type EngineRunContext } from '@/backend/src/engine/Engine.js';
 import { createDeterministicWorld } from '../backend/deterministicWorldLoader.js';
 
 import {
@@ -22,6 +22,13 @@ import {
   type TransportServer,
 } from './server.js';
 import type { TransportAck, TransportIntentEnvelope } from './adapter.js';
+import { shouldAutoPauseForIncident } from './incidentTelemetry.js';
+import {
+  createJourneyProgress,
+  createSessionIntentHandler,
+  reconcileJourneyProgress,
+  type JourneyProgress,
+} from '../intents/session/index.js';
 
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 7101;
@@ -113,7 +120,10 @@ export async function startFacadeDevServer(
   const debugTelemetryBuffer = process.env.WB_FACADE_DEBUG_TELEMETRY === 'true';
   const pendingTelemetry: TelemetryEnvelope[] = [];
   let publisher: TransportServer['publishTelemetry'] | null = null;
+  let resetTelemetrySequence: (() => void) | null = null;
   let telemetryNamespace: TransportServer['namespaces']['telemetry'] | null = null;
+  const playbackHolder: { current?: PlaybackController } = {};
+  let journeyProgress: JourneyProgress = createJourneyProgress();
 
   const logTelemetryBuffer = (message: string): void => {
     if (!debugTelemetryBuffer) {
@@ -151,6 +161,10 @@ export async function startFacadeDevServer(
 
   const telemetryBridge: EngineRunContext['telemetry'] = {
     emit(topic, payload) {
+      if (shouldAutoPauseForIncident(topic, payload)) {
+        playbackHolder.current?.pause();
+      }
+
       const envelope: TelemetryEnvelope = { topic, payload };
 
       if (publisher && hasTelemetrySubscribers()) {
@@ -177,12 +191,22 @@ export async function startFacadeDevServer(
       },
     },
     context,
+    beforeWorldReplace() {
+      playbackHolder.current?.pause();
+      pendingTelemetry.length = 0;
+      resetTelemetrySequence?.();
+      journeyProgress = createJourneyProgress();
+    },
   });
 
   const playback = createPlaybackController({
     pipeline,
-    onTick: flushPendingTelemetry,
+    onTick() {
+      journeyProgress = reconcileJourneyProgress(journeyProgress, pipeline.getWorld());
+      flushPendingTelemetry();
+    },
   });
+  playbackHolder.current = playback;
 
   const speedIntentSchema = z.object({
     multiplier: z.number().finite().positive(),
@@ -195,6 +219,23 @@ export async function startFacadeDevServer(
       return multiplier;
     },
   });
+  const sessionIntents = createSessionIntentHandler({
+    getWorld: pipeline.getWorld,
+    getPlayback() {
+      const state = playback.getState();
+      return { status: state.isPlaying ? 'running' : 'paused', speedMultiplier: state.speedMultiplier };
+    },
+    getJourneyProgress: () => journeyProgress,
+    replace(state) {
+      playback.pause();
+      pendingTelemetry.length = 0;
+      resetTelemetrySequence?.();
+      pipeline.replaceWorld(state.world);
+      journeyProgress = state.journeyProgress;
+      playback.setSpeed(state.playback.speedMultiplier);
+      if (state.playback.status === 'running') playback.play();
+    },
+  });
 
   const cors: TransportCorsOptions | undefined = options.cors ?? {
     origin: options.corsOrigin ?? DEFAULT_CORS_ORIGIN,
@@ -204,18 +245,31 @@ export async function startFacadeDevServer(
     host: options.host ?? DEFAULT_HOST,
     port: options.port ?? DEFAULT_PORT,
     cors,
-    onIntent(intent) {
+    telemetryIdentity: {
+      getSeed: () => pipeline.getWorld().seed,
+      getSimTick: () => Math.trunc(pipeline.getWorld().simTimeHours),
+    },
+    async onIntent(intent) {
+      if (intent.type === 'session.save.v1' || intent.type === 'session.load.v1') {
+        if (intent.type === 'session.save.v1') {
+          journeyProgress = reconcileJourneyProgress(journeyProgress, pipeline.getWorld());
+        }
+        return sessionIntents(intent);
+      }
       const acknowledgement = handleSimulationControlIntent(intent);
 
       if (acknowledgement) {
         return acknowledgement;
       }
 
-      return pipeline.handle(intent);
+      const response = await pipeline.handle(intent);
+      journeyProgress = reconcileJourneyProgress(journeyProgress, pipeline.getWorld());
+      return response;
     },
   });
 
   publisher = server.publishTelemetry;
+  resetTelemetrySequence = server.resetTelemetrySequence;
   telemetryNamespace = server.namespaces.telemetry;
 
   const handleTelemetryConnection = () => {
@@ -287,5 +341,3 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
     process.exit(1);
   });
 }
-
-

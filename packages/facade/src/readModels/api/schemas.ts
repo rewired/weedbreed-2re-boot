@@ -278,6 +278,65 @@ const zoneDeviceCoverageSchema = z
   })
   .strict();
 
+const zoneReadinessSchema = z
+  .object({
+    status: z.enum(['ready', 'missing-prerequisites']),
+    missingPrerequisites: z
+      .array(
+        z.enum([
+          'cultivation-method',
+          'container',
+          'substrate',
+          'irrigation',
+          'cultivation-compatibility',
+          'lighting-coverage',
+          'climate-control',
+          'airflow',
+        ]),
+      )
+      .readonly(),
+  })
+  .strict();
+
+const plantReadModelSchema = z.object({
+  id: uuidSchema,
+  strainId: uuidSchema,
+  strainName: nonEmptyString('Plant strainName'),
+  phase: nonEmptyString('Plant phase'),
+  status: z.enum(['active', 'harvested']).optional(),
+  harvestReady: z.boolean().optional(),
+  ageHours: nonNegativeNumber('Plant ageHours'),
+  health01: nonNegativeNumber('Plant health01').max(1),
+  biomassKg: nonNegativeNumber('Plant biomassKg'),
+  estimatedMaturityAtSimHour: nonNegativeNumber('Plant estimatedMaturityAtSimHour'),
+  estimatedRemainingHours: nonNegativeNumber('Plant estimatedRemainingHours'),
+}).strict();
+
+const harvestEligibilitySchema = z.object({
+  eligible: z.boolean(),
+  plantIds: z.array(uuidSchema).readonly(),
+  reasons: z.array(z.literal('no-harvest-ready-plants')).readonly(),
+}).strict();
+
+const sowEligibilitySchema = z.object({
+  eligible: z.boolean(),
+  reasons: z.array(z.enum([
+    'zone-not-empty',
+    'capacity-exhausted',
+    'missing-prerequisites',
+  ])).readonly(),
+  capacityRemaining: nonNegativeInteger('Sow eligibility capacityRemaining'),
+}).strict();
+
+const strainChoiceSchema = z.object({
+  strainId: uuidSchema,
+  slug: nonEmptyString('Strain choice slug'),
+  name: nonEmptyString('Strain choice name'),
+  seedPriceCc: nonNegativeNumber('Strain choice seedPriceCc'),
+  eligible: z.boolean(),
+  ineligibilityReason: z.literal('incompatible-cultivation-method').nullable(),
+}).strict();
+
 const zoneSchema = z
   .object({
     id: uuidSchema,
@@ -291,6 +350,11 @@ const zoneSchema = z
     pestStatus: zonePestStatusSchema,
     climate: zoneClimateSchema,
     deviceCoverage: zoneDeviceCoverageSchema,
+    readiness: zoneReadinessSchema,
+    plants: z.array(plantReadModelSchema).readonly(),
+    harvestEligibility: harvestEligibilitySchema.optional(),
+    sowEligibility: sowEligibilitySchema,
+    strainChoices: z.array(strainChoiceSchema).readonly(),
     devices: z.array(deviceSummarySchema).readonly(),
     tasks: z.array(zoneTaskSchema).readonly(),
     outstandingTaskCount: nonNegativeInteger('Zone outstandingTaskCount'),

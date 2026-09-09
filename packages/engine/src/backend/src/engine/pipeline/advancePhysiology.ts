@@ -10,7 +10,7 @@ import type {
 import type { Uuid } from '../../domain/schemas/primitives.ts';
 import type { EngineRunContext } from '../Engine.ts';
 import type { StrainBlueprint } from '../../domain/blueprints/strainBlueprint.ts';
-import { loadStrainBlueprint } from '../../domain/blueprints/strainBlueprintLoader.ts';
+import { resolveStrain } from '../../domain/blueprints/strainResolver.ts';
 import { createRng } from '../../util/rng.ts';
 import {
   calculateBiomassIncrement,
@@ -31,6 +31,7 @@ interface PhysiologyRuntime {
 }
 
 function getOrLoadStrainBlueprint(
+  world: SimulationWorld,
   strainId: Uuid,
   runtime: PhysiologyRuntime
 ): StrainBlueprint | null {
@@ -40,7 +41,7 @@ function getOrLoadStrainBlueprint(
     return cached;
   }
 
-  const blueprint = loadStrainBlueprint(strainId);
+  const blueprint = resolveStrain(world, strainId)?.blueprint ?? null;
 
   if (blueprint) {
     runtime.strainBlueprints.set(strainId, blueprint);
@@ -162,7 +163,7 @@ export function advancePhysiology(world: SimulationWorld, ctx: EngineRunContext)
         const nextPlants: Plant[] = [];
 
         for (const plant of zone.plants) {
-          const strain = getOrLoadStrainBlueprint(plant.strainId, runtime);
+          const strain = getOrLoadStrainBlueprint(world, plant.strainId, runtime);
 
           if (!strain) {
             const agedPlant = (() => {

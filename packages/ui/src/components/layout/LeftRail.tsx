@@ -8,7 +8,8 @@ import {
   Dna,
   Factory,
   Leaf,
-  Users2
+  PackageOpen,
+  Trophy
 } from "lucide-react";
 import { workspaceCopy } from "@ui/design/tokens";
 import { cn } from "@ui/lib/cn";
@@ -38,11 +39,25 @@ const topLevelNavigation = [
     icon: Factory
   },
   {
-    key: "hr",
-    label: workspaceCopy.leftRail.sections.hr.label,
-    description: workspaceCopy.leftRail.sections.hr.description,
-    path: workspaceTopLevelRoutes.hr.path,
-    icon: Users2
+    key: "inventory",
+    label: workspaceCopy.leftRail.sections.inventory.label,
+    description: workspaceCopy.leftRail.sections.inventory.description,
+    path: workspaceTopLevelRoutes.inventory.path,
+    icon: PackageOpen
+  },
+  {
+    key: "breeding",
+    label: workspaceCopy.leftRail.sections.breeding.label,
+    description: workspaceCopy.leftRail.sections.breeding.description,
+    path: workspaceTopLevelRoutes.breeding.path,
+    icon: Dna
+  },
+  {
+    key: "run-summary",
+    label: workspaceCopy.leftRail.sections.runSummary.label,
+    description: workspaceCopy.leftRail.sections.runSummary.description,
+    path: workspaceTopLevelRoutes.runSummary.path,
+    icon: Trophy
   },
   {
     key: "strains",
@@ -191,7 +206,7 @@ export function LeftRail(): ReactElement {
       <nav
         aria-label="Condensed navigation"
         className={cn(
-          "grid-cols-3 gap-3 lg:hidden",
+          "grid-cols-6 gap-3 lg:hidden",
           isCollapsed ? "grid" : "hidden"
         )}
       >

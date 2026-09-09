@@ -116,6 +116,12 @@ describe("telemetry integration", () => {
         payload: {
           zoneId: SAMPLE_ZONE_ID,
           simTime: SAMPLE_ZONE_SIM_TIME,
+          ppfd: 450,
+          dli_incremental: 1.5,
+          temp_c: 24,
+          relativeHumidity01: 0.6,
+          co2_ppm: 800,
+          ach: 6,
           warnings: []
         }
       });
@@ -130,7 +136,16 @@ describe("telemetry integration", () => {
         topic: "telemetry.workforce.kpi.v1",
         payload: {
           simTimeHours: SAMPLE_SIM_TIME_HOURS,
-          tasksCompleted: SAMPLE_TASKS_COMPLETED
+          tasksCompleted: SAMPLE_TASKS_COMPLETED,
+          queueDepth: 2,
+          laborHoursCommitted: 6,
+          overtimeHoursCommitted: 0,
+          overtimeMinutes: 0,
+          utilization01: 0.75,
+          p95WaitTimeHours: 1,
+          maintenanceBacklog: 0,
+          averageMorale01: 0.8,
+          averageFatigue01: 0.2
         }
       });
     });

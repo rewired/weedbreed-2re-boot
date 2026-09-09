@@ -1,4 +1,5 @@
 import type { IntentClient, IntentSubmissionHandlers } from "@ui/transport";
+import type { TransportIntentEnvelope } from "@wb/transport-sio";
 
 const handlers: IntentSubmissionHandlers = {
   onResult() {
@@ -8,7 +9,7 @@ const handlers: IntentSubmissionHandlers = {
 
 export async function submitIntentOrThrow(
   intentClient: IntentClient,
-  payload: Record<string, unknown>
+  payload: TransportIntentEnvelope
 ): Promise<void> {
   const result = await intentClient.submit(payload, handlers);
   if (!result.ok) {

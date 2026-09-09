@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { breedingStateSchema } from '../breeding/schema.ts';
+import { simulationWorldSchema } from '../domain/schemas/simulationWorld.ts';
 import { CURRENT_SAVE_SCHEMA_VERSION } from './constants.ts';
 
 /**
@@ -8,6 +10,12 @@ import { CURRENT_SAVE_SCHEMA_VERSION } from './constants.ts';
 export const saveGameEnvelopeSchema = z.object({
   schemaVersion: z.number().int().nonnegative(),
 });
+
+const saveWorldSchema = z
+  .object({
+    breeding: breedingStateSchema.optional(),
+  })
+  .passthrough();
 
 /**
  * Schema describing legacy save files (schemaVersion 0).
@@ -18,8 +26,25 @@ export const legacySaveGameSchemaV0 = z
     seed: z.string().min(1, 'seed must be a non-empty string'),
     ticksElapsed: z.number().int().nonnegative(),
     hoursElapsed: z.number().nonnegative(),
-    world: z.unknown(),
+    world: saveWorldSchema,
     createdAt: z.string().datetime().optional(),
+  })
+  .strict();
+
+/** Prototype v1 saves used a deliberately loose world branch. */
+export const legacySaveGameSchemaV1 = z
+  .object({
+    schemaVersion: z.literal(1),
+    seed: z.string().min(1, 'seed must be a non-empty string'),
+    simTime: z.object({
+      tick: z.number().int().nonnegative(),
+      hoursElapsed: z.number().nonnegative(),
+    }).strict(),
+    world: saveWorldSchema,
+    metadata: z.object({
+      createdAtIso: z.string().datetime(),
+      description: z.string().min(1).optional(),
+    }).strict().optional(),
   })
   .strict();
 
@@ -45,10 +70,19 @@ export const saveGameSchema = z
     schemaVersion: z.literal(CURRENT_SAVE_SCHEMA_VERSION),
     seed: z.string().min(1, 'seed must be a non-empty string'),
     simTime: simTimeSchema,
-    world: z.unknown(),
+    world: simulationWorldSchema,
     metadata: saveGameMetadataSchema.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((save, ctx) => {
+    if (save.seed !== save.world.seed) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['seed'], message: 'Save seed must equal world seed.' });
+    }
+    if (save.simTime.hoursElapsed !== save.world.simTimeHours) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['simTime', 'hoursElapsed'], message: 'Save time must equal world simulation time.' });
+    }
+  });
 
 export type LegacySaveGameV0 = z.infer<typeof legacySaveGameSchemaV0>;
+export type LegacySaveGameV1 = z.infer<typeof legacySaveGameSchemaV1>;
 export type SaveGame = z.infer<typeof saveGameSchema>;

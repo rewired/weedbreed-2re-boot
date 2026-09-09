@@ -4,18 +4,14 @@ import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { writeSaveGame } from '@/backend/src/saveLoad/saveManager';
+import { createSaveGame, writeSaveGame } from '@/backend/src/saveLoad/saveManager';
 import type { SaveGame } from '@/backend/src/saveLoad/saveManager';
+import { createDemoScenario } from '@/backend/src/scenarios/demoScenario';
 
-const BASE_PAYLOAD: SaveGame = {
-  schemaVersion: 1,
-  seed: 'unit-test',
-  simTime: {
-    tick: 1,
-    hoursElapsed: 1,
-  },
-  world: { demo: true },
-};
+const BASE_PAYLOAD: SaveGame = createSaveGame({
+  ...createDemoScenario({ companyName: 'Writer', seed: 'unit-test' }),
+  simTimeHours: 1,
+});
 
 describe('writeSaveGame', () => {
   let tmpDir: string;

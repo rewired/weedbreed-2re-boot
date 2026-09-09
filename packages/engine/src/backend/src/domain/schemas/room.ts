@@ -6,7 +6,7 @@ import { domainEntitySchema, sluggedEntitySchema, spatialEntitySchema } from './
 import { nonEmptyString } from './primitives.ts';
 import { roomDeviceSchema, zoneSchema } from './zone.ts';
 
-export const roomSchema: z.ZodType<Room> = domainEntitySchema
+export const roomSchema: z.ZodType<Room, z.ZodTypeDef, unknown> = domainEntitySchema
   .merge(sluggedEntitySchema)
   .merge(spatialEntitySchema)
   .extend({
@@ -26,13 +26,6 @@ export const roomSchema: z.ZodType<Room> = domainEntitySchema
       });
     }
 
-    if (room.purpose === 'growroom' && room.zones.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Growrooms must define at least one zone.',
-        path: ['zones'],
-      });
-    }
   })
   .transform((room) => {
     const tags = room.tags ?? [];

@@ -1,4 +1,4 @@
-import { legacySaveGameSchemaV0, saveGameSchema, type SaveGame } from '../schemas.ts';
+import { legacySaveGameSchemaV0, legacySaveGameSchemaV1, type LegacySaveGameV1 } from '../schemas.ts';
 
 import type { SaveGameMigrationStep } from './registry.ts';
 
@@ -8,7 +8,7 @@ export const migrateV0ToV1: SaveGameMigrationStep = {
   migrate(input) {
     const parsed = legacySaveGameSchemaV0.parse(input);
 
-    const migrated: SaveGame = {
+    const migrated: LegacySaveGameV1 = {
       schemaVersion: 1,
       seed: parsed.seed,
       simTime: {
@@ -23,6 +23,6 @@ export const migrateV0ToV1: SaveGameMigrationStep = {
         : undefined,
     };
 
-    return Promise.resolve(saveGameSchema.parse(migrated));
+    return Promise.resolve(legacySaveGameSchemaV1.parse(migrated));
   },
 };

@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useState, type ChangeEvent, type FormEvent, type ReactElement } from "react";
 import {
   ControlCard,
+  type ControlCardDeviationThresholds,
   type ControlCardGhostActionPayload,
   type ControlCardGhostPlaceholderDefinition
 } from "@ui/components/controls/ControlCard";
@@ -51,7 +52,7 @@ export interface LightingDeviceTileProps {
   readonly name: string;
   readonly contributionFraction01: number;
   readonly isEnabled: boolean;
-  readonly onToggle: (nextEnabled: boolean) => void;
+  readonly onToggle?: (nextEnabled: boolean) => void;
   readonly description?: string;
 }
 
@@ -60,6 +61,7 @@ export interface LightingControlCardProps {
   readonly description?: string;
   readonly measuredPpfd: number;
   readonly targetPpfd: number;
+  readonly deviation?: ControlCardDeviationThresholds;
   readonly schedule: LightScheduleInput;
   readonly onTargetPpfdChange?: (nextValue: number) => void;
   readonly onScheduleSubmit?: (schedule: LightScheduleInput) => void;
@@ -107,6 +109,7 @@ export function LightingControlCard({
   description,
   measuredPpfd,
   targetPpfd,
+  deviation,
   schedule,
   onTargetPpfdChange,
   onScheduleSubmit,
@@ -241,6 +244,7 @@ export function LightingControlCard({
       description={description}
       measured={{ label: "Measured PPFD", displayValue: `${targetFormatter.format(measuredPpfd)} µmol`, numericValue: measuredPpfd }}
       target={{ label: copy.targetLabel, displayValue: `${targetFormatter.format(targetValue)} µmol`, numericValue: targetValue }}
+      deviation={deviation}
       deviceSection={{
         children: deviceTiles.map((tile) => <LightingDeviceTile key={tile.id} {...tile} />),
         ghostPlaceholders,
@@ -254,6 +258,7 @@ export function LightingControlCard({
             <span className="text-sm font-medium text-text-primary">{copy.targetLabel}</span>
             <input
               id={targetInputId}
+              disabled={!onTargetPpfdChange}
               className="w-32 rounded-lg border border-border-base bg-canvas-subtle px-3 py-2 text-sm text-text-primary"
               inputMode="decimal"
               min={0}
@@ -360,7 +365,7 @@ export function LightingControlCard({
           <div className="flex items-center justify-end gap-3">
             <button
               className="inline-flex items-center gap-2 rounded-lg bg-accent-primary px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={isScheduleSubmitting || !validationResult.isValid}
+              disabled={!onScheduleSubmit || isScheduleSubmitting || !validationResult.isValid}
               type="submit"
             >
               {isScheduleSubmitting ? (
@@ -405,22 +410,23 @@ function LightingDeviceTile({
           {percentLabel} of output
         </span>
       </div>
-      <button
-        type="button"
-        className={cn(
-          "inline-flex items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium transition",
-          isEnabled
-            ? "border-border-strong bg-surface-critical/10 text-text-critical hover:bg-surface-critical/20"
-            : "border-accent-primary/60 bg-accent-primary/10 text-accent-primary hover:bg-accent-primary/20"
-        )}
-        onClick={() => {
-          onToggle(!isEnabled);
-        }}
-        aria-pressed={isEnabled}
-      >
-        {isEnabled ? copy.toggleDisable : copy.toggleEnable}
-      </button>
+      {onToggle ? (
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium transition",
+            isEnabled
+              ? "border-border-strong bg-surface-critical/10 text-text-critical hover:bg-surface-critical/20"
+              : "border-accent-primary/60 bg-accent-primary/10 text-accent-primary hover:bg-accent-primary/20"
+          )}
+          onClick={() => {
+            onToggle(!isEnabled);
+          }}
+          aria-pressed={isEnabled}
+        >
+          {isEnabled ? copy.toggleDisable : copy.toggleEnable}
+        </button>
+      ) : null}
     </div>
   );
 }
-

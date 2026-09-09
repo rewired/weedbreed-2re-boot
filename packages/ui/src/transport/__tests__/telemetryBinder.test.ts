@@ -167,22 +167,44 @@ describe("telemetry binder", () => {
     const zonePayload = {
       zoneId: "zone-1",
       simTime: SAMPLE_ZONE_SIM_TIME,
+      ppfd: 450,
+      dli_incremental: 1.5,
+      temp_c: 24,
+      relativeHumidity01: 0.6,
+      co2_ppm: 800,
+      ach: 6,
       warnings: []
-    } satisfies Partial<Parameters<typeof recordZoneSnapshot>[0]>;
+    } satisfies Parameters<typeof recordZoneSnapshot>[0];
     telemetryHandler({ topic: "telemetry.zone.snapshot.v1", payload: zonePayload });
     expect(recordZoneSnapshot).toHaveBeenCalledWith(expect.objectContaining(zonePayload));
 
     const workforcePayload = {
       simTimeHours: SAMPLE_SIM_TIME_HOURS,
-      tasksCompleted: SAMPLE_TASKS_COMPLETED
-    } satisfies Partial<Parameters<typeof recordWorkforceKpi>[0]>;
+      tasksCompleted: SAMPLE_TASKS_COMPLETED,
+      queueDepth: 2,
+      laborHoursCommitted: 6,
+      overtimeHoursCommitted: 0,
+      overtimeMinutes: 0,
+      utilization01: 0.75,
+      p95WaitTimeHours: 1,
+      maintenanceBacklog: 0,
+      averageMorale01: 0.8,
+      averageFatigue01: 0.2
+    } satisfies Parameters<typeof recordWorkforceKpi>[0];
     telemetryHandler({ topic: "telemetry.workforce.kpi.v1", payload: workforcePayload });
     expect(recordWorkforceKpi).toHaveBeenCalledWith(expect.objectContaining(workforcePayload));
 
     const harvestPayload = {
+      structureId: "structure-1",
+      roomId: "room-1",
+      plantId: "plant-1",
       zoneId: "zone-1",
-      lotId: "lot-1"
-    } satisfies Partial<Parameters<typeof appendHarvestCreated>[0]>;
+      lotId: "lot-1",
+      createdAt_tick: SAMPLE_SIM_TIME_HOURS,
+      freshWeight_kg: 0.5,
+      moisture01: 0.7,
+      quality01: 0.85
+    } satisfies Parameters<typeof appendHarvestCreated>[0];
     telemetryHandler({ topic: "telemetry.harvest.created.v1", payload: harvestPayload });
     expect(appendHarvestCreated).toHaveBeenCalledWith(expect.objectContaining(harvestPayload));
 

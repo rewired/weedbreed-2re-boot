@@ -21,6 +21,7 @@ export {
   TELEMETRY_ERROR_EVENT,
   TELEMETRY_EVENT,
   type TelemetryEvent,
+  type TelemetryEventInput,
   type TransportIntentEnvelope
 } from './contracts/events.js';
 
@@ -184,6 +185,12 @@ function createIntentHandlerError(message: string, metadata: AckMetadata): Trans
 function assertTelemetryEvent(event: TelemetryEvent): void {
   if (typeof event.topic !== 'string' || event.topic.length === 0) {
     throw new Error('Telemetry event requires a non-empty topic.');
+  }
+  if (typeof event.eventId !== 'string' || event.eventId.length === 0) {
+    throw new Error('Telemetry event requires a deterministic eventId.');
+  }
+  if (!Number.isInteger(event.simTick) || event.simTick < 0) {
+    throw new Error('Telemetry event requires a non-negative integer simTick.');
   }
 }
 

@@ -4,7 +4,17 @@
  * Export order is topologically sorted: leaves first, followed by higher-level
  * schemas. Leaf modules must never import from this barrel to prevent cycles.
  */
-export * from './schemas/primitives.ts';
+export {
+  createNonEmptyString,
+  nonEmptyString,
+  createFiniteNumber,
+  finiteNumber,
+  nonNegativeNumber,
+  unitIntervalNumber,
+  integerNumber,
+  uuidSchema,
+} from './schemas/primitives.ts';
+export type { NonEmptyStringOptions, FiniteNumberOptions } from './schemas/primitives.ts';
 export * from './schemas/HarvestLotSchema.ts';
 export * from './schemas/InventorySchema.ts';
 export {
@@ -34,3 +44,4 @@ export {
   parseCompanyWorld,
 } from './schemas/company.ts';
 export type { ParsedCompanyWorld } from './schemas/company.ts';
+export { parseSimulationWorld, simulationWorldSchema } from './schemas/simulationWorld.ts';

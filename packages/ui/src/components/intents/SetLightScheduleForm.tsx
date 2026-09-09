@@ -197,13 +197,13 @@ export function SetLightScheduleForm({ zoneId, intentClient, className }: SetLig
       setAckError(
         deriveErrorEntry(
           null,
-          SOCKET_ERROR_CODES.TRANSPORT_DISCONNECTED as TransportAckErrorCode,
+          SOCKET_ERROR_CODES.INTENT_HANDLER_ERROR,
           error instanceof Error ? error.message : "transport error"
         )
       );
       setToast({
         title: copy.status.toastErrorTitle,
-        description: copy.status.toastErrorDescription
+        description: error instanceof Error ? error.message : "Transport error"
       });
     } finally {
       setIsSubmitting(false);

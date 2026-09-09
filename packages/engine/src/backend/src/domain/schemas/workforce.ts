@@ -25,7 +25,6 @@ import type {
   Employee,
   EmployeeExperience,
   EmployeeRaiseState,
-  EmployeeRngSeedUuid,
   EmployeeSchedule,
   EmployeeSkillLevel,
   EmployeeSkillTriad,
@@ -49,17 +48,17 @@ import type {
 } from '../workforce/tasks.ts';
 
 const uuidV7Pattern = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const uuidV7Schema: z.ZodBranded<string, EmployeeRngSeedUuid> = z
+const uuidV7Schema = z
   .string()
   .regex(uuidV7Pattern, 'Expected a UUID v7 identifier.')
-  .brand<EmployeeRngSeedUuid>();
+  .brand<'EmployeeRngSeedUuid'>();
 
 export const employeeSkillRequirementSchema: z.ZodType<EmployeeSkillRequirement> = z.object({
   skillKey: nonEmptyString,
   minSkill01: zeroToOneNumber,
 });
 
-export const employeeRoleSchema: z.ZodType<EmployeeRole> = domainEntitySchema
+export const employeeRoleSchema: z.ZodType<EmployeeRole, z.ZodTypeDef, unknown> = domainEntitySchema
   .merge(sluggedEntitySchema)
   .extend({
     description: nonEmptyString.optional(),
@@ -123,7 +122,7 @@ const employeeRaiseStateSchema: z.ZodType<EmployeeRaiseState> = z
   })
   .strict();
 
-export const employeeSchema: z.ZodType<Employee> = domainEntitySchema.extend({
+export const employeeSchema: z.ZodType<Employee, z.ZodTypeDef, unknown> = domainEntitySchema.extend({
   roleId: uuidSchema,
   rngSeedUuid: uuidV7Schema,
   assignedStructureId: uuidSchema,
@@ -166,7 +165,7 @@ export const workforceTaskCostModelSchema: z.ZodType<WorkforceTaskCostModel> = z
   laborMinutes: finiteNumber.min(0, 'laborMinutes cannot be negative.'),
 });
 
-export const workforceTaskDefinitionSchema: z.ZodType<WorkforceTaskDefinition> = z.object({
+export const workforceTaskDefinitionSchema: z.ZodType<WorkforceTaskDefinition, z.ZodTypeDef, unknown> = z.object({
   taskCode: nonEmptyString,
   description: nonEmptyString,
   requiredRoleSlug: nonEmptyString,
@@ -175,7 +174,7 @@ export const workforceTaskDefinitionSchema: z.ZodType<WorkforceTaskDefinition> =
   costModel: workforceTaskCostModelSchema,
 });
 
-export const workforceTaskInstanceSchema: z.ZodType<WorkforceTaskInstance> = z.object({
+export const workforceTaskInstanceSchema: z.ZodType<WorkforceTaskInstance, z.ZodTypeDef, unknown> = z.object({
   id: uuidSchema,
   taskCode: nonEmptyString,
   status: z.enum(['queued', 'in-progress', 'completed', 'cancelled']),
@@ -214,7 +213,7 @@ export const workforceKpiSnapshotSchema: z.ZodType<WorkforceKpiSnapshot> = z.obj
 
 const workforceWarningSeveritySchema = z.enum(['info', 'warning', 'critical']);
 
-export const workforceWarningSchema: z.ZodType<WorkforceWarning> = z
+export const workforceWarningSchema: z.ZodType<WorkforceWarning, z.ZodTypeDef, unknown> = z
   .object({
     simTimeHours: finiteNumber
       .min(0, 'simTimeHours cannot be negative.')
@@ -308,7 +307,7 @@ const workforceMarketCandidateSchema = z
     ),
     scanCounter: integerNumber.min(0, 'scanCounter cannot be negative.'),
   })
-  .strict() satisfies z.ZodType<WorkforceMarketCandidate>;
+  .strict() satisfies z.ZodType<WorkforceMarketCandidate, z.ZodTypeDef, unknown>;
 
 const workforceMarketStructureStateSchema = z
   .object({
@@ -317,15 +316,15 @@ const workforceMarketStructureStateSchema = z
     scanCounter: integerNumber.min(0, 'scanCounter cannot be negative.'),
     pool: z.array(workforceMarketCandidateSchema).readonly(),
   })
-  .strict() satisfies z.ZodType<WorkforceMarketStructureState>;
+  .strict() satisfies z.ZodType<WorkforceMarketStructureState, z.ZodTypeDef, unknown>;
 
 const workforceMarketStateSchema = z
   .object({
     structures: z.array(workforceMarketStructureStateSchema).readonly(),
   })
-  .strict() satisfies z.ZodType<WorkforceMarketState>;
+  .strict() satisfies z.ZodType<WorkforceMarketState, z.ZodTypeDef, unknown>;
 
-export const workforceStateSchema: z.ZodType<WorkforceState> = z.object({
+export const workforceStateSchema: z.ZodType<WorkforceState, z.ZodTypeDef, unknown> = z.object({
   roles: employeeRoleCollectionSchema,
   employees: employeeCollectionSchema,
   taskDefinitions: z.array(workforceTaskDefinitionSchema).readonly(),

@@ -74,7 +74,7 @@ function createLocalAck(state: SimulationControlAckState | undefined): Simulatio
   }
 
   if (overlay.isPaused !== undefined || overlay.speedMultiplier !== undefined) {
-    ack.stateAfter = overlay;
+    return { ...ack, stateAfter: overlay };
   }
 
   return ack;

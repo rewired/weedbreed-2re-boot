@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  COMPANY_TREE_SCHEMA_VERSION,
   STRUCTURE_TARIFFS_SCHEMA_VERSION,
   WORKFORCE_VIEW_SCHEMA_VERSION,
   companyTreeSchema,

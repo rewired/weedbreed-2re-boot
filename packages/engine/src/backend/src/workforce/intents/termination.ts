@@ -1,8 +1,8 @@
 import type {
   Employee,
   WorkforceTerminationIntent,
-  WorkforceTerminationTelemetryEvent,
 } from '../../domain/world.ts';
+import type { WorkforceTerminationTelemetryEvent } from '../../telemetry/workforce.ts';
 import { clamp01 } from '../../util/math.ts';
 
 /* eslint-disable @typescript-eslint/no-magic-numbers -- Termination ripple uses canonical morale delta */

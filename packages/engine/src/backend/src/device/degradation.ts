@@ -1,4 +1,4 @@
-import { FLOAT_TOLERANCE } from '@/backend/src/constants/simConstants';
+import { FLOAT_TOLERANCE } from '../constants/simConstants.ts';
 import { clamp01 } from '../util/math.ts';
 import { fmtNum } from '../util/format.ts';
 import { deterministicUuid } from '../util/uuid.ts';

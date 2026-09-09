@@ -56,6 +56,7 @@ describe('transport server bootstrap', () => {
       host: TEST_HOST,
       port: 0,
       cors: { origin: 'http://localhost:5173' },
+      telemetryIdentity: { getSeed: () => 'server-test', getSimTick: () => 0 },
       onIntent(intent) {
         void intent;
       },
@@ -94,6 +95,7 @@ describe('transport server bootstrap', () => {
     server = (await createTransportServer({
       host: TEST_HOST,
       port: 0,
+      telemetryIdentity: { getSeed: () => 'server-test', getSimTick: () => 0 },
       onIntent(intent) {
         void intent;
       },
@@ -126,7 +128,6 @@ describe('transport server bootstrap', () => {
     expect(emittedAck.error?.code).toBe(SOCKET_ERROR_CODES.TELEMETRY_WRITE_REJECTED);
   });
 });
-
 
 
 

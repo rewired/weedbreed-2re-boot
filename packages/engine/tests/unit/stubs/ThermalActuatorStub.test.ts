@@ -82,9 +82,9 @@ describe('ThermalActuatorStub', () => {
       const inputs = createInputs({ power_W: 3_000, efficiency01: 0.9, mode: 'cool', max_cool_W: 1_200 });
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, HOURS_PER_TICK);
 
-      expect(result.used_W).toBe(1_200);
+      expect(result.used_W).toBe(1_080);
       const expectedDelta =
-        -(1_200 * HOURS_PER_TICK * SECONDS_PER_HOUR) / (AIR_MASS_KG * CP_AIR_J_PER_KG_K);
+        -(1_080 * HOURS_PER_TICK * SECONDS_PER_HOUR) / (AIR_MASS_KG * CP_AIR_J_PER_KG_K);
       expect(result.deltaT_K).toBeCloseTo(expectedDelta, 5);
     });
 
@@ -110,6 +110,13 @@ describe('ThermalActuatorStub', () => {
       const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, HOURS_PER_TICK);
 
       expect(result.deltaT_K).toBeLessThan(0);
+    });
+
+    it('does not overshoot the requested setpoint', () => {
+      const inputs = createInputs({ mode: 'auto', setpoint_C: 20, efficiency01: 1, power_W: 3_000 });
+      const result = stub.computeEffect(inputs, BASE_ENV_STATE, AIR_MASS_KG, HOURS_PER_TICK);
+
+      expect(BASE_ENV_STATE.airTemperatureC + result.deltaT_K).toBe(20);
     });
 
     it('returns neutral effect when the setpoint equals the current temperature', () => {

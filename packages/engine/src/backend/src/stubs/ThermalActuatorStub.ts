@@ -78,27 +78,31 @@ export function createThermalActuatorStub(): IThermalActuator {
           }
 
           if (setpoint > envState.airTemperatureC) {
-            return ensureFiniteOutputs(
-              computeHeatingEffect(
+            const output = computeHeatingEffect(
                 powerDraw_W,
                 efficiency,
                 inputs.max_heat_W,
                 resolvedDt_h,
                 resolvedAirMass,
-              ),
-            );
+              );
+            return ensureFiniteOutputs({
+              ...output,
+              deltaT_K: Math.min(output.deltaT_K, setpoint - envState.airTemperatureC),
+            });
           }
 
           if (setpoint < envState.airTemperatureC) {
-            return ensureFiniteOutputs(
-              computeCoolingEffect(
+            const output = computeCoolingEffect(
                 powerDraw_W,
                 efficiency,
                 inputs.max_cool_W,
                 resolvedDt_h,
                 resolvedAirMass,
-              ),
-            );
+              );
+            return ensureFiniteOutputs({
+              ...output,
+              deltaT_K: Math.max(output.deltaT_K, setpoint - envState.airTemperatureC),
+            });
           }
 
           return { deltaT_K: 0, energy_Wh: 0, used_W: 0 };
@@ -171,11 +175,9 @@ function computeCoolingEffect(
   dt_h: number,
   airMass_kg: number,
 ): ThermalActuatorOutputs {
-  const effectiveMax =
-    typeof max_cool_W === 'number' && Number.isFinite(max_cool_W)
-      ? Math.max(0, max_cool_W)
-      : Infinity;
-  const cooling_W = clamp(powerDraw_W * clamp01(efficiency01), 0, effectiveMax);
+  const cooling_W = typeof max_cool_W === 'number' && Number.isFinite(max_cool_W)
+    ? Math.max(0, max_cool_W) * clamp01(efficiency01)
+    : powerDraw_W * clamp01(efficiency01);
 
   if (cooling_W === 0) {
     return { deltaT_K: 0, energy_Wh: powerDraw_W * dt_h, used_W: 0 };

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import { TELEMETRY_EVENT, TELEMETRY_ERROR_EVENT } from '@wb/transport-sio';
 import { io, type Socket } from 'socket.io-client';
-import type { TelemetryClient, TelemetryClientEventMap, TelemetryMessage } from './runtime.ts';
+import type { TelemetryClient, TelemetryMessage } from './runtime.ts';
 
 export interface SocketTelemetryClientOptions {
   readonly transports?: ('websocket' | 'polling')[];
@@ -11,7 +11,7 @@ export function createSocketTelemetryClient(
   url: string,
   options: SocketTelemetryClientOptions = {}
 ): TelemetryClient {
-  const emitter = new EventEmitter<TelemetryClientEventMap>();
+  const emitter = new EventEmitter();
   const socket: Socket = io(url, {
     transports: options.transports ?? ['websocket'],
     autoConnect: false,
@@ -29,13 +29,19 @@ export function createSocketTelemetryClient(
 
     const record = event as Record<string, unknown>;
     const topic = record.topic;
+    const eventId = record.eventId;
+    const simTick = record.simTick;
 
     if (typeof topic !== 'string' || topic.length === 0) {
       emitter.emit('error', normaliseError('Telemetry event missing topic.'));
       return;
     }
+    if (typeof eventId !== 'string' || eventId.length === 0 || !Number.isInteger(simTick) || (simTick as number) < 0) {
+      emitter.emit('error', normaliseError('Telemetry event missing deterministic eventId or simTick.'));
+      return;
+    }
 
-    const message: TelemetryMessage = { topic, payload: record.payload };
+    const message: TelemetryMessage = { eventId, simTick: simTick as number, topic, payload: record.payload };
     emitter.emit('event', message);
   };
 

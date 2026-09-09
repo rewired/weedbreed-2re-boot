@@ -82,7 +82,10 @@ export const workspaceTopLevelRoutes = {
   company: { label: "Company overview", path: "/dashboard" },
   structures: { label: "Structures overview", path: "/structures" },
   hr: { label: "HR & workforce", path: "/workforce" },
-  strains: { label: "Strain library", path: "/strains" }
+  strains: { label: "Strain library", path: "/strains" },
+  inventory: { label: "Inventory", path: "/inventory" },
+  breeding: { label: "Breeding Lab", path: "/breeding" },
+  runSummary: { label: "Run Summary", path: "/run-summary" }
 } as const;
 
 function mapStructure(structure: StructureReadModel): WorkspaceStructureNavItem {

@@ -1,34 +1,27 @@
 import { useMemo } from "react";
 import {
   type ControlCardDeviationThresholds,
-  type ControlCardGhostPlaceholderDefinition,
-  type ControlCardMetricValue
+  type ControlCardGhostPlaceholderDefinition
 } from "@ui/components/controls/ControlCard";
 import type {
   ClimateControlDeviceClassSection,
-  ClimateControlDeviceTileProps,
   ClimateControlMetricDefinition
 } from "@ui/components/controls/ClimateControlCard";
 import type { LightingDeviceTileProps } from "@ui/components/controls/LightingControlCard";
 import { buildZonePath } from "@ui/lib/navigation";
-import { normalizeLightSchedule, type LightScheduleInput } from "@ui/lib/lightScheduleValidation";
+import type { LightScheduleInput } from "@ui/lib/lightScheduleValidation";
 import { useRoomReadModel, useStructureReadModel } from "@ui/lib/readModelHooks";
-import { recordZoneLightSchedule, useZoneLightSchedule } from "@ui/state/intents";
-import { useTelemetryStore, type TelemetryZoneSnapshotPayload } from "@ui/state/telemetry";
-import {
-  CAPACITY_ADVISOR_ACTION_LABEL,
-  selectStageLightingTarget,
-  selectRoomLightingFallbackTarget,
-  RELEVANT_CLIMATE_CLASSES,
-  REQUIRED_CLIMATE_CLASSES
-} from "@ui/pages/zoneDetailHooks";
+import { useIntentClient } from "@ui/transport";
+import { useZoneLightSchedule } from "@ui/state/intents";
+import { useTelemetryStore } from "@ui/state/telemetry";
 import type {
   DeviceSummary,
   RoomReadModel,
-  StructureReadModel,
   TimelineEntry,
   ZoneReadModel
 } from "@ui/state/readModels.types";
+import { buildRoomControlCards } from "./roomDetailControls";
+import { formatDeviceClass } from "./zoneDetailHelpers";
 
 export interface RoomDetailHeader {
   readonly structureName: string;
@@ -112,8 +105,8 @@ export interface RoomLightingControlSnapshot {
   readonly targetPpfd: number;
   readonly deviation: ControlCardDeviationThresholds;
   readonly schedule: LightScheduleInput;
-  readonly onTargetChange: (nextValue: number) => void;
-  readonly onScheduleSubmit: (schedule: LightScheduleInput) => void;
+  readonly onTargetChange?: (nextValue: number) => void;
+  readonly onScheduleSubmit?: (schedule: LightScheduleInput) => void;
   readonly isScheduleSubmitting: boolean;
   readonly deviceTiles: readonly LightingDeviceTileProps[];
   readonly ghostPlaceholders: readonly ControlCardGhostPlaceholderDefinition[];
@@ -165,11 +158,6 @@ const ROOM_CLIMATE_DEVIATION: ControlCardDeviationThresholds = Object.freeze({
   warningDelta: 1,
   criticalDelta: 2
 });
-const ROOM_HUMIDITY_WARNING_DELTA_PERCENT = 5;
-const ROOM_HUMIDITY_CRITICAL_DELTA_PERCENT = 10;
-const ROOM_CO2_WARNING_DELTA_PPM = 120;
-const ROOM_CO2_CRITICAL_DELTA_PPM = 240;
-const REQUIRED_ROOM_LIGHTING_CLASSES = Object.freeze(["lighting"] as const);
 
 export function useRoomDetailView(structureId: string, roomId: string): RoomDetailSnapshot {
   const structure = useStructureReadModel(structureId);
@@ -177,6 +165,7 @@ export function useRoomDetailView(structureId: string, roomId: string): RoomDeta
   const zoneSnapshots = useTelemetryStore((state) => state.zoneSnapshots);
   const primaryZoneId = room?.zones[0]?.id ?? null;
   const zoneLightSchedule = useZoneLightSchedule(primaryZoneId);
+  const intentClient = useIntentClient();
 
   return useMemo(() => {
     if (!room) {
@@ -188,13 +177,14 @@ export function useRoomDetailView(structureId: string, roomId: string): RoomDeta
     const climate = toClimateOverview(room);
     const deviceGroups = groupDevicesByClass(room);
     const timeline = room.timeline.map(toTimelineItem);
-    const actions = createRoomActions(structureId, room.id);
+    const actions: readonly RoomAction[] = [];
     const controls = buildRoomControlCards(
       structure,
       room,
       zoneSnapshots,
       zoneLightSchedule,
-      primaryZoneId
+      primaryZoneId,
+      intentClient
     );
 
     return {
@@ -398,7 +388,7 @@ function groupDevicesByClass(room: RoomReadModel): RoomDeviceGroup[] {
 function toDeviceListItem(room: RoomReadModel, device: DeviceSummary): RoomDeviceListItem {
   const eligibilityLabel = `Eligible for ${room.purpose}`;
   const warnings = device.warnings.map((warning) => warning.message);
-  const actions = createDeviceActions(room.structureId, room.id, device.id);
+  const actions: readonly RoomDeviceAction[] = [];
 
   return {
     id: device.id,
@@ -442,410 +432,6 @@ function toTimelineItem(entry: TimelineEntry): RoomTimelineItem {
     statusLabel: TIMELINE_STATUS_LABEL[entry.status],
     timestampLabel: `Tick ${formatterWhole.format(entry.timestamp)}`
   } satisfies RoomTimelineItem;
-}
-
-function createRoomActions(structureId: string, roomId: string): RoomAction[] {
-  return [
-    {
-      id: "room-action-create-zone",
-      label: "Create zone",
-      onSelect: () => {
-        console.info("[stub] create zone", { structureId, roomId });
-      },
-      disabledReason: "Zone creation wiring lands with Task 7000."
-    },
-    {
-      id: "room-action-duplicate-zone",
-      label: "Duplicate zone",
-      onSelect: () => {
-        console.info("[stub] duplicate zone", { structureId, roomId });
-      },
-      disabledReason: "Zone duplication orchestration lands with Task 7000."
-    },
-    {
-      id: "room-action-set-baselines",
-      label: "Set climate baselines",
-      onSelect: () => {
-        console.info("[stub] set climate baseline", { structureId, roomId });
-      },
-      disabledReason: "Baseline editor arrives with Task 7100."
-    },
-    {
-      id: "room-action-move-zone",
-      label: "Move zone",
-      onSelect: () => {
-        console.info("[stub] move zone", { structureId, roomId });
-      },
-      disabledReason: "Zone move orchestration lands with Task 8000."
-    },
-    {
-      id: "room-action-move-device",
-      label: "Move devices",
-      onSelect: () => {
-        console.info("[stub] move devices", { structureId, roomId });
-      },
-      disabledReason: "Device move flow ships with Task 8000."
-    }
-  ];
-}
-
-function buildRoomControlCards(
-  structure: StructureReadModel | null,
-  room: RoomReadModel,
-  zoneSnapshots: Map<string, TelemetryZoneSnapshotPayload>,
-  schedule: LightScheduleInput,
-  primaryZoneId: string | null
-): RoomControlCardsSnapshot {
-  const normalizedSchedule = normalizeLightSchedule(schedule);
-  const lighting = buildRoomLightingControl(room, zoneSnapshots, normalizedSchedule, primaryZoneId);
-  const climate = buildRoomClimateControl(structure, room);
-  return { lighting, climate } satisfies RoomControlCardsSnapshot;
-}
-
-function buildRoomLightingControl(
-  room: RoomReadModel,
-  zoneSnapshots: Map<string, TelemetryZoneSnapshotPayload>,
-  schedule: LightScheduleInput,
-  primaryZoneId: string | null
-): RoomLightingControlSnapshot {
-  const targetPpfd = computeRoomTargetPpfd(room);
-  const measuredPpfd = computeRoomMeasuredPpfd(room, zoneSnapshots, targetPpfd);
-  const deviceTiles = createRoomLightingTiles(room);
-  const ghostPlaceholders = deviceTiles.length > 0
-    ? ([] as ControlCardGhostPlaceholderDefinition[])
-    : REQUIRED_ROOM_LIGHTING_CLASSES.map((classId) => ({
-        deviceClassId: classId,
-        label: "Lighting coverage",
-        description: "Install lighting fixtures across zones to maintain PPFD baselines.",
-        actionLabel: CAPACITY_ADVISOR_ACTION_LABEL
-      } satisfies ControlCardGhostPlaceholderDefinition));
-
-  return {
-    title: "Lighting controls",
-    description:
-      room.zones.length > 0
-        ? `Average PPFD target derived from ${String(room.zones.length)} zone stage baselines.`
-        : "Room PPFD target derived from cultivation stage heuristics.",
-    measuredPpfd,
-    targetPpfd,
-    deviation: ROOM_LIGHTING_DEVIATION,
-    schedule,
-    onTargetChange: (nextValue: number) => {
-      console.info("[stub] set room lighting target", { roomId: room.id, targetPPFD: nextValue });
-    },
-    onScheduleSubmit: (nextSchedule: LightScheduleInput) => {
-      if (primaryZoneId) {
-        recordZoneLightSchedule(primaryZoneId, nextSchedule);
-      }
-      console.info("[stub] set room lighting schedule", { roomId: room.id, zoneId: primaryZoneId });
-    },
-    isScheduleSubmitting: false,
-    deviceTiles,
-    ghostPlaceholders,
-    deviceSectionEmptyLabel: "No lighting devices configured for this room.",
-    scheduleSubmitLabel: "Save schedule"
-  } satisfies RoomLightingControlSnapshot;
-}
-
-function buildRoomClimateControl(
-  structure: StructureReadModel | null,
-  room: RoomReadModel
-): RoomClimateControlSnapshot {
-  const baseline = ROOM_CLIMATE_BASELINES[room.purpose] ?? FALLBACK_BASELINE;
-  const temperature = createRoomClimateMetric(
-    "temperature",
-    "Temperature",
-    room.climateSnapshot.temperature_C,
-    baseline.temperature_C,
-    ROOM_CLIMATE_DEVIATION,
-    "±1.0 °C tolerance"
-  );
-  const humidity = createRoomClimateMetric(
-    "humidity",
-    "Relative humidity",
-    room.climateSnapshot.relativeHumidity_percent,
-    baseline.relativeHumidity_percent,
-    {
-      warningDelta: ROOM_HUMIDITY_WARNING_DELTA_PERCENT,
-      criticalDelta: ROOM_HUMIDITY_CRITICAL_DELTA_PERCENT
-    },
-    "±5% tolerance"
-  );
-  const co2 = createRoomClimateMetric(
-    "co2",
-    "CO₂",
-    room.climateSnapshot.co2_ppm,
-    baseline.co2_ppm,
-    { warningDelta: ROOM_CO2_WARNING_DELTA_PPM, criticalDelta: ROOM_CO2_CRITICAL_DELTA_PPM },
-    "±120 ppm tolerance"
-  );
-  const ach = createRoomClimateMetric(
-    "ach",
-    "Air changes per hour",
-    room.climateSnapshot.ach,
-    room.coverage.achTarget,
-    ROOM_CLIMATE_DEVIATION,
-    "±0.4 ACH tolerance"
-  );
-
-  const deviceClasses = createRoomClimateDeviceSections(structure, room);
-  const presentClassIds = new Set(deviceClasses.map((section) => section.classId));
-  const ghostPlaceholders = REQUIRED_CLIMATE_CLASSES.filter((classId) => !presentClassIds.has(classId)).map(
-    (classId) => ({
-      deviceClassId: classId,
-      label: formatDeviceClass(classId),
-      description: `Add ${formatDeviceClass(classId).toLowerCase()} devices to maintain room baselines.`,
-      actionLabel: CAPACITY_ADVISOR_ACTION_LABEL
-    })
-  );
-
-  return {
-    title: "Climate controls",
-    description: "Room-level telemetry compared against SEC-aligned baselines.",
-    temperature,
-    humidity,
-    co2,
-    ach,
-    deviceClasses,
-    ghostPlaceholders,
-    deviceSectionEmptyLabel: "No climate devices configured for this room."
-  } satisfies RoomClimateControlSnapshot;
-}
-
-function createRoomClimateMetric(
-  metricId: string,
-  label: string,
-  measured: number,
-  target: number,
-  thresholds: ControlCardDeviationThresholds,
-  toleranceLabel: string
-): ClimateControlMetricDefinition {
-  return {
-    label,
-    measured: createRoomMetricValue(metricId, "Measured", measured),
-    target: createRoomMetricValue(metricId, "Target", target),
-    deviation: thresholds,
-    toleranceLabel
-  } satisfies ClimateControlMetricDefinition;
-}
-
-function createRoomMetricValue(metricId: string, label: string, value: number): ControlCardMetricValue {
-  return {
-    label,
-    displayValue: formatRoomClimateValue(metricId, value),
-    numericValue: value
-  } satisfies ControlCardMetricValue;
-}
-
-function formatRoomClimateValue(metricId: string, value: number): string {
-  if (!Number.isFinite(value)) {
-    return "—";
-  }
-
-  switch (metricId) {
-    case "temperature":
-      return `${formatterOneDecimal.format(value)} °C`;
-    case "humidity":
-      return `${formatterWhole.format(Math.round(value))}%`;
-    case "co2":
-      return `${formatterWhole.format(Math.round(value))} ppm`;
-    case "ach":
-      return `${formatterOneDecimal.format(value)} ACH`;
-    default:
-      return formatterOneDecimal.format(value);
-  }
-}
-
-function createRoomClimateDeviceSections(
-  structure: StructureReadModel | null,
-  room: RoomReadModel
-): ClimateControlDeviceClassSection[] {
-  const relevantClasses = new Set<string>(RELEVANT_CLIMATE_CLASSES);
-  const grouped = new Map<string, ClimateControlDeviceTileProps[]>();
-  const candidates: DeviceSummary[] = [
-    ...room.devices,
-    ...(structure?.devices ?? [])
-  ];
-
-  for (const device of candidates) {
-    if (!relevantClasses.has(device.class)) {
-      continue;
-    }
-
-    const existing = grouped.get(device.class) ?? [];
-    const tile = createRoomClimateDeviceTile(room, device);
-    if (!existing.some((candidate) => candidate.id === tile.id)) {
-      existing.push(tile);
-    }
-    grouped.set(device.class, existing);
-  }
-
-  return Array.from(grouped.entries())
-    .map(([classId, devices]) => ({
-      classId,
-      label: formatDeviceClass(classId),
-      devices: devices.sort((left, right) => left.name.localeCompare(right.name))
-    }))
-    .sort((left, right) => left.label.localeCompare(right.label));
-}
-
-function createRoomClimateDeviceTile(room: RoomReadModel, device: DeviceSummary): ClimateControlDeviceTileProps {
-  const throughputFraction01 = device.airflow_m3_per_hour > 0
-    ? clampRoom01(device.airflow_m3_per_hour / Math.max(room.volume_m3, 1))
-    : 0;
-  const capacityFraction01 = device.coverageArea_m2 > 0
-    ? clampRoom01(device.coverageArea_m2 / Math.max(room.area_m2, 1))
-    : throughputFraction01;
-
-  return {
-    id: device.id,
-    name: device.name,
-    throughputFraction01,
-    capacityFraction01,
-    isEnabled: true,
-    onToggleEnabled: (nextEnabled: boolean) => {
-      console.info("[stub] toggle room climate device", {
-        roomId: room.id,
-        deviceId: device.id,
-        nextEnabled
-      });
-    },
-    onMove: () => {
-      console.info("[stub] move room climate device", { roomId: room.id, deviceId: device.id });
-    },
-    onRemove: () => {
-      console.info("[stub] remove room climate device", { roomId: room.id, deviceId: device.id });
-    },
-    description: buildRoomClimateDeviceDescription(device)
-  } satisfies ClimateControlDeviceTileProps;
-}
-
-function buildRoomClimateDeviceDescription(device: DeviceSummary): string | undefined {
-  if (device.airflow_m3_per_hour > 0) {
-    return `${formatterWhole.format(Math.round(device.airflow_m3_per_hour))} m³/h airflow`;
-  }
-  if (device.coverageArea_m2 > 0) {
-    return `${formatterWhole.format(Math.round(device.coverageArea_m2))} m² coverage`;
-  }
-  if (device.powerDraw_kWh_per_hour > 0) {
-    return `${formatterOneDecimal.format(device.powerDraw_kWh_per_hour)} kWh/hour draw`;
-  }
-  return undefined;
-}
-
-function clampRoom01(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-  if (value <= 0) {
-    return 0;
-  }
-  if (value >= 1) {
-    return 1;
-  }
-  return value;
-}
-
-function computeRoomTargetPpfd(room: RoomReadModel): number {
-  if (room.zones.length === 0) {
-    return selectRoomLightingFallbackTarget(room);
-  }
-
-  const total = room.zones.reduce((sum, zone) => sum + selectStageLightingTarget(zone, room), 0);
-  return total / room.zones.length;
-}
-
-function computeRoomMeasuredPpfd(
-  room: RoomReadModel,
-  zoneSnapshots: Map<string, TelemetryZoneSnapshotPayload>,
-  fallback: number
-): number {
-  let total = 0;
-  let count = 0;
-  for (const zone of room.zones) {
-    const snapshot = zoneSnapshots.get(zone.id);
-    if (snapshot && Number.isFinite(snapshot.ppfd)) {
-      total += snapshot.ppfd;
-      count += 1;
-    }
-  }
-  if (count === 0) {
-    return fallback;
-  }
-  return total / count;
-}
-
-function createRoomLightingTiles(room: RoomReadModel): LightingDeviceTileProps[] {
-  const lightingDevices = room.devices.filter((device) => device.class === "lighting");
-  const totalCoverage = lightingDevices.reduce((sum, device) => sum + Math.max(0, device.coverageArea_m2), 0);
-  const totalPower = lightingDevices.reduce((sum, device) => sum + Math.max(0, device.powerDraw_kWh_per_hour), 0);
-
-  return lightingDevices.map((device) => {
-    const coverageFraction = totalCoverage > 0 ? clampRoom01(device.coverageArea_m2 / totalCoverage) : 0;
-    const powerFraction = totalPower > 0 ? clampRoom01(device.powerDraw_kWh_per_hour / totalPower) : 0;
-    const contributionFraction01 = coverageFraction > 0 ? coverageFraction : powerFraction;
-
-    return {
-      id: device.id,
-      name: device.name,
-      contributionFraction01,
-      isEnabled: true,
-      onToggle: (nextEnabled: boolean) => {
-        console.info("[stub] toggle room lighting device", {
-          roomId: room.id,
-          deviceId: device.id,
-          nextEnabled
-        });
-      },
-      description: buildRoomLightingDescription(device)
-    } satisfies LightingDeviceTileProps;
-  });
-}
-
-function buildRoomLightingDescription(device: DeviceSummary): string | undefined {
-  if (device.coverageArea_m2 > 0) {
-    return `${formatterWhole.format(Math.round(device.coverageArea_m2))} m² coverage`;
-  }
-  if (device.powerDraw_kWh_per_hour > 0) {
-    return `${formatterOneDecimal.format(device.powerDraw_kWh_per_hour)} kWh/hour draw`;
-  }
-  return undefined;
-}
-
-function createDeviceActions(structureId: string, roomId: string, deviceId: string): RoomDeviceAction[] {
-  return [
-    {
-      id: "device-action-move",
-      label: "Move device",
-      onSelect: () => {
-        console.info("[stub] move device", { structureId, roomId, deviceId });
-      },
-      disabledReason: "Device move orchestration lands with Task 8000."
-    },
-    {
-      id: "device-action-remove",
-      label: "Remove device",
-      onSelect: () => {
-        console.info("[stub] remove device", { structureId, roomId, deviceId });
-      },
-      disabledReason: "Device removal UI ships with Task 8001."
-    },
-    {
-      id: "device-action-replace",
-      label: "Replace device",
-      onSelect: () => {
-        console.info("[stub] replace device", { structureId, roomId, deviceId });
-      },
-      disabledReason: "Device replacement planner lands with Task 8002."
-    }
-  ];
-}
-
-function formatDeviceClass(deviceClass: string): string {
-  return deviceClass
-    .split(/[.-]/)
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join(" ");
 }
 
 const DEFAULT_SNAPSHOT: RoomDetailSnapshot = Object.freeze({
@@ -921,4 +507,3 @@ const DEFAULT_SNAPSHOT: RoomDetailSnapshot = Object.freeze({
     })
   })
 });
-

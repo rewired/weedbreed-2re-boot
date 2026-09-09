@@ -87,10 +87,16 @@ export function createEmployeeFromCandidate(
       skillKey: candidate.skills3.main.slug,
       level01: candidate.skills3.main.value01,
     },
-    secondary: candidate.skills3.secondary.map((entry) => ({
-      skillKey: entry.slug,
-      level01: entry.value01,
-    })),
+    secondary: [
+      {
+        skillKey: candidate.skills3.secondary[0].slug,
+        level01: candidate.skills3.secondary[0].value01,
+      },
+      {
+        skillKey: candidate.skills3.secondary[1].slug,
+        level01: candidate.skills3.secondary[1].value01,
+      },
+    ],
   } as const;
 
   const traits = candidate.traits.map((trait) => ({

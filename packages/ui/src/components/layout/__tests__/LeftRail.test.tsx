@@ -55,17 +55,32 @@ describe("LeftRail navigation", () => {
     const structuresLink = mainNav.getByRole("link", {
       name: new RegExp(`^${workspaceCopy.leftRail.sections.structures.label}`, "i")
     });
-    const hrLink = mainNav.getByRole("link", {
-      name: new RegExp(`^${workspaceCopy.leftRail.sections.hr.label}`, "i")
-    });
     const strainsLink = mainNav.getByRole("link", {
       name: new RegExp(`^${workspaceCopy.leftRail.sections.strains.label}`, "i")
     });
 
     expect(companyLink).toHaveAttribute("aria-current", "page");
     expect(structuresLink).not.toHaveAttribute("aria-current", "page");
-    expect(hrLink).not.toHaveAttribute("aria-current", "page");
+    expect(
+      mainNav.queryByRole("link", {
+        name: new RegExp(`^${workspaceCopy.leftRail.sections.hr.label}`, "i")
+      })
+    ).not.toBeInTheDocument();
     expect(strainsLink).not.toHaveAttribute("aria-current", "page");
+  });
+
+  it("keeps the playable journey destinations in Grow, Inventory, Breeding, Summary order", () => {
+    renderWithRouter(workspaceTopLevelRoutes.inventory.path);
+    const navigation = screen.getByLabelText("Global navigation");
+    const journeyLinks = [
+      workspaceCopy.leftRail.sections.inventory.label,
+      workspaceCopy.leftRail.sections.breeding.label,
+      workspaceCopy.leftRail.sections.runSummary.label
+    ].map((label) => within(navigation).getByRole("link", { name: new RegExp(`^${label}`, "i") }));
+
+    expect(journeyLinks[0]?.compareDocumentPosition(journeyLinks[1]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(journeyLinks[1]?.compareDocumentPosition(journeyLinks[2]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText(/Grow führen, Ernte im Inventar prüfen/)).toBeVisible();
   });
 
   it("highlights the structures overview when visiting the structures landing route", () => {

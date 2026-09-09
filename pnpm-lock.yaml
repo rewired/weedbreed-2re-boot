@@ -66,6 +66,9 @@ importers:
 
   packages/facade:
     dependencies:
+      '@wb/engine':
+        specifier: workspace:*
+        version: link:../engine
       '@wb/transport-sio':
         specifier: workspace:*
         version: link:../transport-sio

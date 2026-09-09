@@ -107,32 +107,7 @@ function toRoomSummary(structureId: string, room: StructureReadModel["rooms"][nu
     volumeFreeLabel: formatVolume(room.capacity.volumeFree_m3),
     zoneCount: room.zones.length,
     warnings: room.coverage.climateWarnings,
-    actions: [
-      {
-        id: "duplicate-room",
-        label: "Duplicate room",
-        onSelect: () => {
-          console.info("[stub] duplicate room", { structureId, roomId: room.id });
-        },
-        disabledReason: "Task 7000 will wire duplication flow."
-      },
-      {
-        id: "move-device",
-        label: "Move device",
-        onSelect: () => {
-          console.info("[stub] move device", { structureId, roomId: room.id });
-        },
-        disabledReason: "Task 8000 will wire device move orchestration."
-      },
-      {
-        id: "open-capacity-advisor",
-        label: "Capacity advisor",
-        onSelect: () => {
-          console.info("[stub] capacity advisor", { structureId, roomId: room.id });
-        },
-        disabledReason: "Advisor UI lands alongside Task 8000."
-      }
-    ]
+    actions: []
   } satisfies StructureRoomSummary;
 }
 
@@ -240,7 +215,7 @@ const FALLBACK_HEADER: StructureHeaderSummary = Object.freeze({
   tariffs: STRUCTURE_TARIFFS
 });
 
-const FALLBACK_OVERVIEW: StructureOverview = Object.freeze({
+const FALLBACK_OVERVIEW = Object.freeze<StructureOverview>({
   header: FALLBACK_HEADER,
   coverageWarnings: [],
   capacityTiles: [
@@ -293,4 +268,3 @@ export function useStructureOverview(structureId: string | null | undefined): St
     } satisfies StructureOverview;
   }, [structure]);
 }
-

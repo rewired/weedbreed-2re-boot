@@ -316,22 +316,12 @@ describe('companySchema', () => {
     ]);
   });
 
-  it('rejects growrooms that omit zones', () => {
-    const invalidWorld = cloneWorld();
-    const targetRoom = invalidWorld.structures[0].rooms[0];
+  it('accepts empty growrooms so room creation can precede zone creation', () => {
+    const world = cloneWorld();
+    const targetRoom = world.structures[0].rooms[0];
     targetRoom.zones = [];
 
-    const result = companySchema.safeParse(invalidWorld);
-
-    const error = expectSchemaFailure(result, 'Growrooms must declare at least one zone');
-    const issuePaths = error.issues.map((issue) => issue.path);
-    expect(issuePaths).toContainEqual([
-      'structures',
-      0,
-      'rooms',
-      0,
-      'zones'
-    ]);
+    expect(companySchema.safeParse(world).success).toBe(true);
   });
 
   it('rejects non-growroom purposes that still contain zones', () => {

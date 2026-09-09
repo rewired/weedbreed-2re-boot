@@ -30,6 +30,21 @@ export interface TelemetryZoneSnapshotPayload {
   readonly warnings: readonly TelemetryZoneSnapshotWarning[];
 }
 
+export const TELEMETRY_DEMO_ENVIRONMENT_INCIDENT_V1 =
+  'telemetry.demo.environment.incident.v1' as const;
+
+/** Post-commit notification for activation or resolution of the demo incident. */
+export interface TelemetryDemoEnvironmentIncidentPayload {
+  readonly incidentCode: 'demo.environment.temperature_high';
+  readonly status: 'active' | 'resolved';
+  readonly zoneId: string;
+  readonly simTimeHours: number;
+  readonly measuredTemperatureC: number;
+  readonly targetBandC: { readonly minC: number; readonly maxC: number };
+  readonly consequence: 'plant_heat_stress';
+  readonly recommendedIntent: 'intent.zone.climate.adjust.v1';
+}
+
 export const TELEMETRY_ZONE_SNAPSHOT_V1 = 'telemetry.zone.snapshot.v1' as const;
 export const TELEMETRY_HARVEST_CREATED_V1 = 'telemetry.harvest.created.v1' as const;
 export const TELEMETRY_STORAGE_MISSING_OR_AMBIGUOUS_V1 =

@@ -5,7 +5,7 @@ import {
   LATITUDE_MIN_DEG,
   LONGITUDE_MAX_DEG,
   LONGITUDE_MIN_DEG
-} from '@/backend/src/constants/simConstants';
+} from '../../constants/simConstants.ts';
 
 import { type Company } from '../entities.ts';
 import { validateDevice, type WorldValidationIssue } from './devices.ts';

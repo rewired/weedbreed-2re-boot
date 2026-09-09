@@ -12,10 +12,7 @@ import {
 } from '../../../src/readModels/api/schemas.ts';
 import { cloneCompanyTreeFixture } from '../../fixtures/companyTree.ts';
 
-const COMPANY_ID = '00000000-0000-0000-0000-000000000100';
 const STRUCTURE_ID = '00000000-0000-0000-0000-000000000101';
-const ROOM_ID = '00000000-0000-0000-0000-000000000102';
-const ZONE_ID = '00000000-0000-0000-0000-000000000103';
 
 const BASE_COMPANY_TREE: CompanyTreeReadModel = cloneCompanyTreeFixture();
 

@@ -1,10 +1,17 @@
-# Weed Breed — Re‑Reboot (Monorepo)
+# Weed Breed — Reanimation (Monorepo)
 
 > **Status:** Active • **Runtime:** Node.js 22 LTS • **Package manager:** pnpm ≥ 10.17 • **Language:** TypeScript (ESM) • **Test:** Vitest • **Repo style:** pnpm workspaces
 
-> **CI coverage:** `pnpm install` → `pnpm lint:ci` → `pnpm test` → `pnpm --filter @wb/facade test:contract` on every push/PR (Node.js 22).
+> **Quality gate:** `pnpm verify` runs type checking, real package builds, strict linting, tests, and the 500/700 LOC guard on Node.js 22.
 
-Weed Breed (Re‑Reboot) is a deterministic, tick‑based simulation about controlled‑environment cultivation, resources, and economics. The project emphasizes **reproducibility**, **testability** (Golden Master / Conformance), and **contract‑driven development** via living documents (**SEC**, **TDD**, **DD**, **VISION_SCOPE**).
+Weed Breed is a deterministic, tick‑based simulation about controlled‑environment cultivation, resources, and economics. The project emphasizes **reproducibility**, **testability** (Golden Master / Conformance), and **contract‑driven development** via living documents (**SEC**, **TDD**, **DD**, **VISION_SCOPE**).
+
+The current recovery target is one playable web journey: start a seeded grow,
+cultivate and sell two parent strains, breed a small F1 population, grow the
+selected F1, and restore it from a save. See the
+[Product Bible](docs/reanimation/PRODUCT_BIBLE.md),
+[Recovery Backlog](docs/reanimation/RECOVERY_BACKLOG.md), and
+[end-to-end journey contract](docs/reanimation/END_TO_END_JOURNEY_TEST.md).
 
 ---
 
@@ -66,6 +73,12 @@ pnpm -r test
 
 # Focus engine unit/integration tests
 pnpm --filter @wb/engine test
+```
+
+### Verify the complete workspace
+
+```sh
+pnpm verify
 ```
 
 ### Lint & Format

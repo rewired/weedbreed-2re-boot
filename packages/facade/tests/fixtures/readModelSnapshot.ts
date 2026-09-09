@@ -7,13 +7,32 @@ export const TEST_READ_MODEL_SNAPSHOT: ReadModelSnapshot = {
     hour: 12,
     tick: 12,
     speedMultiplier: 1,
+    paused: true,
     pendingIncidents: [
       {
         id: 'incident-0001',
         code: 'hvac.filter.inspect',
         message: 'Schedule an HVAC filter check.',
         severity: 'warning',
-        raisedAtTick: 8
+        raisedAtTick: 8,
+        status: 'active',
+        zoneId: 'zone-0001',
+        measured: { metric: 'temperature_C', value: 31 },
+        targetBand: { min: 22, max: 26 },
+        consequence: {
+          code: 'plant_heat_stress',
+          affectedPlantCount: 8,
+          averagePlantHealth01: 0.82
+        },
+        recommendedIntent: {
+          type: 'intent.zone.climate.adjust.v1',
+          payload: {
+            structureId: 'structure-0001',
+            zoneId: 'zone-0001',
+            target: { temperature_C: 24 }
+          }
+        },
+        resolvedAtTick: null
       }
     ]
   },
@@ -261,5 +280,27 @@ export const TEST_READ_MODEL_SNAPSHOT: ReadModelSnapshot = {
         }
       }
     }
+  },
+  inventory: {
+    lots: [],
+    totalFreshWeightKg: 0
+  },
+  breeding: {
+    laboratory: null,
+    qualifiedParents: [],
+    crossEligibility: {
+      eligible: false,
+      reasons: ['laboratory-required', 'two-qualified-parents-required']
+    },
+    runs: []
+  },
+  runSummary: {
+    status: 'locked',
+    completed: false,
+    completedAtSimTimeHours: null,
+    breedingRunId: null,
+    unallocatedOperatingExpenseCc: 0,
+    overallCycleContributionMarginCc: 0,
+    entries: []
   }
 };

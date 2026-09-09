@@ -109,6 +109,8 @@ describe('createMonitorRuntime', () => {
     await waitFor(() => ui.lastView?.connection === 'connected');
 
     client.emitTelemetry({
+      eventId: '00000000-0000-4000-8000-000000000001',
+      simTick: 12,
       topic: 'telemetry.workforce.kpi.v1',
       payload: {
         snapshot: {
@@ -155,6 +157,8 @@ describe('createMonitorRuntime', () => {
     await waitFor(() => ui.lastView?.connection === 'connected');
 
     client.emitTelemetry({
+      eventId: '00000000-0000-4000-8000-000000000002',
+      simTick: 12,
       topic: 'telemetry.workforce.kpi.v1',
       payload: {},
     });

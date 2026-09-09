@@ -2,6 +2,10 @@
  * Event payload emitted to telemetry subscribers.
  */
 export interface TelemetryEvent {
+  /** Deterministic UUID derived from simulation identity, tick, payload and tick-local order. */
+  readonly eventId: string;
+  /** Authoritative integer simulation tick associated with the event. */
+  readonly simTick: number;
   /**
    * Topic identifier following the `telemetry.<domain>.<event>.v1` convention.
    */
@@ -11,6 +15,9 @@ export interface TelemetryEvent {
    */
   readonly payload: unknown;
 }
+
+/** Backwards-compatible event supplied to the facade before SEC envelope enrichment. */
+export type TelemetryEventInput = Pick<TelemetryEvent, 'topic' | 'payload'>;
 
 export const TELEMETRY_TICK_COMPLETED_TOPIC = 'telemetry.tick.completed.v1' as const;
 export const TELEMETRY_ZONE_SNAPSHOT_TOPIC = 'telemetry.zone.snapshot.v1' as const;

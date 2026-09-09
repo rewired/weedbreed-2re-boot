@@ -1,4 +1,4 @@
-import { BYTES_PER_MEBIBYTE } from '@/backend/src/constants/simConstants';
+import { BYTES_PER_MEBIBYTE } from '../../constants/simConstants.ts';
 import {
   PERF_BUDGET_BASELINE_MAX_AVG_DURATION_MS,
   PERF_BUDGET_CI_TICK_COUNT,
@@ -8,7 +8,7 @@ import {
   PERF_BUDGET_SECONDS_PER_MINUTE,
   PERF_BUDGET_TARGET_MAX_AVG_DURATION_MS,
   PERF_BUDGET_WARNING_GUARD_BAND_01
-} from '@/backend/src/constants/perfBudget';
+} from '../../constants/perfBudget.ts';
 
 import { type PerfHarnessResult } from '../testHarness.ts';
 

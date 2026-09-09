@@ -185,7 +185,9 @@ describe('Tick pipeline — multi-effect devices', () => {
     const { world: nextWorld } = runTick(world, ctx);
     const nextZone = nextWorld.company.structures[0].rooms[0].zones[0];
 
-    const cooling_W = multiEffectDevice.powerDraw_W * multiEffectDevice.efficiency01;
+    const cooling_W = (multiEffectDevice.effectConfigs?.thermal?.max_cool_W ?? 0)
+      * multiEffectDevice.efficiency01
+      * multiEffectDevice.dutyCycle01;
     const tickHours = ctx.tickDurationHours ?? HOURS_PER_TICK;
     const tickSeconds = tickHours * SECONDS_PER_HOUR;
     const coverageEffectiveness01 = Math.min(
@@ -408,10 +410,9 @@ describe('Tick pipeline — multi-effect devices', () => {
       1,
       splitAC.coverage_m2 / Math.max(1, zone.floorArea_m2)
     );
-    const cooling_W = Math.min(
-      splitAC.powerDraw_W * splitAC.dutyCycle01 * splitAC.efficiency01,
-      splitAC.effectConfigs?.thermal?.max_cool_W ?? Number.POSITIVE_INFINITY
-    );
+    const cooling_W = (splitAC.effectConfigs?.thermal?.max_cool_W ?? 0)
+      * splitAC.dutyCycle01
+      * splitAC.efficiency01;
     const tickHours = ctx.tickDurationHours ?? HOURS_PER_TICK;
     const tickSeconds = tickHours * SECONDS_PER_HOUR;
     const sensibleDeltaC =

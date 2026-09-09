@@ -106,16 +106,8 @@ describe("RoomDetailPage", () => {
     }
     const deviceWithin = within(deviceSection);
     expect(deviceWithin.getByText(/LumenMax 320/i)).toBeInTheDocument();
-    const moveDeviceButtons = deviceWithin.getAllByRole("button", { name: /^Move device$/i });
-    expect(moveDeviceButtons.length).toBeGreaterThan(0);
-    moveDeviceButtons.forEach((button) => {
-      expect(button).toHaveAttribute("title", expect.stringMatching(/Task 8000/i));
-    });
-    const removeDeviceButtons = deviceWithin.getAllByRole("button", { name: /^Remove device$/i });
-    expect(removeDeviceButtons.length).toBeGreaterThan(0);
-    removeDeviceButtons.forEach((button) => {
-      expect(button).toHaveAttribute("title", expect.stringMatching(/Task 8001/i));
-    });
+    expect(deviceWithin.queryByRole("button", { name: /^Move device$/i })).not.toBeInTheDocument();
+    expect(deviceWithin.queryByRole("button", { name: /^Remove device$/i })).not.toBeInTheDocument();
 
     const timelineSection = screen
       .getByRole("heading", { level: SECTION_HEADING_LEVEL, name: /Room activity & actions/i })
@@ -125,8 +117,7 @@ describe("RoomDetailPage", () => {
     }
     const timelineWithin = within(timelineSection);
     expect(timelineWithin.getByText(/Drain-to-waste flush/i)).toBeInTheDocument();
-    const createZoneButton = timelineWithin.getByRole("button", { name: /Create zone/i });
-    expect(createZoneButton).toHaveAttribute("title", expect.stringMatching(/Task 7000/i));
+    expect(timelineWithin.queryByRole("button", { name: /Create zone/i })).not.toBeInTheDocument();
   });
 
   it("renders breadcrumb and zone links when router context is available", () => {
@@ -172,4 +163,3 @@ describe("RoomDetailPage", () => {
     expect(navigateMock).toHaveBeenCalledWith(buildStructureCapacityAdvisorPath(STRUCTURE_ID));
   });
 });
-

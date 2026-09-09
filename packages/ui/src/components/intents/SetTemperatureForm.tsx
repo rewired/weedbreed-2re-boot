@@ -1,6 +1,5 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useIntentClient } from "@ui/transport";
-import { submitIntentOrThrow } from "@ui/lib/intentSubmission";
 import { publishToast } from "@ui/state/toast";
 import { resolveIntentError } from "@ui/intl/intentErrors";
 
@@ -9,17 +8,20 @@ export interface SetTemperatureFormProps {
   readonly zoneId: string;
   readonly initialTemperatureC: number;
   readonly className?: string;
+  readonly onApplied?: () => Promise<void>;
 }
 
 export function SetTemperatureForm({
   structureId,
   zoneId,
   initialTemperatureC,
-  className
+  className,
+  onApplied
 }: SetTemperatureFormProps): ReactElement {
   const intentClient = useIntentClient();
   const [value, setValue] = useState<string>(() => String(initialTemperatureC));
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -31,6 +33,7 @@ export function SetTemperatureForm({
       return;
     }
     setIsSubmitting(true);
+    setError(null);
     try {
       const result = await intentClient.submit(
         {
@@ -59,8 +62,12 @@ export function SetTemperatureForm({
         }
       );
       if (!result.ok) {
-        // handled by onResult toast above
+        setError(result.dictionary.description);
+        return;
       }
+      await onApplied?.();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Temperature could not be updated.");
     } finally {
       setIsSubmitting(false);
     }
@@ -94,6 +101,7 @@ export function SetTemperatureForm({
       >
         {isSubmitting ? "Applying…" : "Apply"}
       </button>
+      {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
     </form>
   );
 }

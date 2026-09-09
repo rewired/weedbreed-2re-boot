@@ -45,7 +45,7 @@ export const workspaceCopy = {
   appName: "Weed Breed",
   leftRail: {
     header: "Operations",
-    placeholder: "Navigate across company overview, structures, HR, and strains.",
+    placeholder: "Grow führen, Ernte im Inventar prüfen, F1 im Breeding Lab wählen und im Run Summary beweisen.",
     collapseToggle: {
       collapse: "Collapse navigation",
       expand: "Expand navigation"
@@ -66,6 +66,18 @@ export const workspaceCopy = {
       strains: {
         label: "Strains",
         description: "Genetics library and cultivation notes"
+      },
+      inventory: {
+        label: "Inventar",
+        description: "Erntelots, Qualität und Lagerung"
+      },
+      breeding: {
+        label: "Breeding",
+        description: "Eltern kreuzen und F1 selektieren"
+      },
+      runSummary: {
+        label: "Run Summary",
+        description: "Reale Ergebnisse von Eltern und F1"
       }
     }
   },

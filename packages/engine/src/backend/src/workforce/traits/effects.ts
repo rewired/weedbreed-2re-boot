@@ -1,4 +1,4 @@
-import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
+import { HOURS_PER_DAY } from '../../constants/simConstants.ts';
 import type {
   Employee,
   WorkforceTaskDefinition,

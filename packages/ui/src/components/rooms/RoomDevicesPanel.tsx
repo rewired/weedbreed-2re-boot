@@ -16,8 +16,7 @@ export function RoomDevicesPanel({ groups }: RoomDevicesPanelProps): ReactElemen
         </h3>
       </div>
       <p className="text-sm text-text-muted">
-        Devices are grouped by class with condition, contribution, and eligibility labels. Move, remove, and replace flows are
-        stubbed pending Task 8000-series orchestration.
+        Devices are grouped by class with condition, contribution, and eligibility labels.
       </p>
       {groups.length === 0 ? (
         <p className="rounded-xl border border-border-base bg-canvas-subtle/60 p-4 text-sm text-text-muted">
@@ -47,7 +46,7 @@ export function RoomDevicesPanel({ groups }: RoomDevicesPanelProps): ReactElemen
                         </div>
                       ) : null}
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    {device.actions.length > 0 ? <div className="mt-3 flex flex-wrap gap-2">
                       {device.actions.map((action) => (
                         <button
                           key={action.id}
@@ -59,7 +58,7 @@ export function RoomDevicesPanel({ groups }: RoomDevicesPanelProps): ReactElemen
                           {action.label}
                         </button>
                       ))}
-                    </div>
+                    </div> : null}
                   </li>
                 ))}
               </ul>
@@ -70,4 +69,3 @@ export function RoomDevicesPanel({ groups }: RoomDevicesPanelProps): ReactElemen
     </section>
   );
 }
-

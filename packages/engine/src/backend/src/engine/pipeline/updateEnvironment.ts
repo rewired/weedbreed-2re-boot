@@ -8,6 +8,7 @@ import {
   type TelemetryZoneSnapshotPayload,
   type TelemetryZoneSnapshotWarning,
 } from '../../telemetry/topics.ts';
+import { applyDemoEnvironmentalIncident } from '../../scenarios/demoEnvironmentalIncident.ts';
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -201,7 +202,7 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
   const runtime = getDeviceEffectsRuntime(ctx);
 
   if (!runtime) {
-    return world;
+    return applyDemoEnvironmentalIncident(world);
   }
 
   const zoneHeatMap = runtime.zoneTemperatureDeltaC;
@@ -236,10 +237,6 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
 
         const finalZone = nextZone !== zone ? nextZone : zone;
 
-        const ach = runtime.zoneAirChangesPerHour.get(zone.id) ?? 0;
-        const coverageEffectiveness = runtime.zoneCoverageEffectiveness01.get(zone.id);
-        zoneSnapshots.push(createZoneSnapshot(finalZone, world.simTimeHours, ach, coverageEffectiveness));
-
         return finalZone;
       });
 
@@ -267,6 +264,27 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
     return structure;
   });
 
+  const structuresChanged = nextStructures.some(
+    (candidate, index) => candidate !== world.company.structures[index]
+  );
+  const environmentWorld = structuresChanged
+    ? {
+        ...world,
+        company: { ...world.company, structures: nextStructures },
+      } satisfies SimulationWorld
+    : world;
+  const incidentWorld = applyDemoEnvironmentalIncident(environmentWorld);
+
+  for (const structure of incidentWorld.company.structures) {
+    for (const room of structure.rooms) {
+      for (const zone of room.zones) {
+        const ach = runtime.zoneAirChangesPerHour.get(zone.id) ?? 0;
+        const coverageEffectiveness = runtime.zoneCoverageEffectiveness01.get(zone.id);
+        zoneSnapshots.push(createZoneSnapshot(zone, world.simTimeHours, ach, coverageEffectiveness));
+      }
+    }
+  }
+
   clearDeviceEffectsRuntime(ctx);
 
   if (zoneSnapshots.length > 0) {
@@ -275,19 +293,5 @@ export function updateEnvironment(world: SimulationWorld, ctx: EngineRunContext)
     }
   }
 
-  const structuresChanged = nextStructures.some(
-    (candidate, index) => candidate !== world.company.structures[index]
-  );
-
-  if (!structuresChanged) {
-    return world;
-  }
-
-  return {
-    ...world,
-    company: {
-      ...world.company,
-      structures: nextStructures
-    }
-  } satisfies SimulationWorld;
+  return incidentWorld;
 }

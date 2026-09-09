@@ -167,19 +167,19 @@ const baseDeviceSchema = domainEntitySchema
     maintenance: deviceMaintenanceStateSchema.optional(),
   });
 
-export const structureDeviceSchema: z.ZodType<StructureDeviceInstance> = baseDeviceSchema.extend({
+export const structureDeviceSchema: z.ZodType<StructureDeviceInstance, z.ZodTypeDef, unknown> = baseDeviceSchema.extend({
   placementScope: z.literal(STRUCTURE_SCOPE),
 });
 
-export const roomDeviceSchema: z.ZodType<RoomDeviceInstance> = baseDeviceSchema.extend({
+export const roomDeviceSchema: z.ZodType<RoomDeviceInstance, z.ZodTypeDef, unknown> = baseDeviceSchema.extend({
   placementScope: z.literal(ROOM_SCOPE),
 });
 
-export const zoneDeviceSchema: z.ZodType<ZoneDeviceInstance> = baseDeviceSchema.extend({
+export const zoneDeviceSchema: z.ZodType<ZoneDeviceInstance, z.ZodTypeDef, unknown> = baseDeviceSchema.extend({
   placementScope: z.literal(ZONE_SCOPE),
 });
 
-const zoneEnvironmentSchema: z.ZodType<ZoneEnvironment> = z.object({
+const zoneEnvironmentSchema: z.ZodType<ZoneEnvironment, z.ZodTypeDef, unknown> = z.object({
   airTemperatureC: finiteNumber,
   relativeHumidity01: zeroToOneNumber.default(DEFAULT_RELATIVE_HUMIDITY01),
   co2_ppm: finiteNumber
@@ -216,7 +216,7 @@ const zoneBaseSchema = domainEntitySchema
     moisture01: zeroToOneNumber.default(DEFAULT_ZONE_MOISTURE01),
   });
 
-export const zoneSchema: z.ZodType<Zone> = zoneBaseSchema.transform((zone) => ({
+export const zoneSchema: z.ZodType<Zone, z.ZodTypeDef, unknown> = zoneBaseSchema.transform((zone) => ({
   ...zone,
   airMass_kg: deriveZoneAirMassKg(zone),
 }) satisfies Zone);

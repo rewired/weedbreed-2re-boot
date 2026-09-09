@@ -1,6 +1,8 @@
 export type TelemetryConnectionState = 'connecting' | 'connected' | 'disconnected';
 
 export interface TelemetryMessage {
+  readonly eventId: string;
+  readonly simTick: number;
   readonly topic: string;
   readonly payload: unknown;
 }

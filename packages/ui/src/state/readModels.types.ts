@@ -1,11 +1,17 @@
 export type CompatibilityStatus = "ok" | "warn" | "block";
 
+import type { EconomyReadModel } from "@ui/state/economyReadModels.types";
+import type { BreedingReadModel } from "@ui/state/breedingReadModels.types";
+import type { RunSummaryReadModel } from "@ui/state/runSummaryReadModels.types";
+export type { EconomyLedgerEntryReadModel, EconomyReadModel } from "@ui/state/economyReadModels.types";
+
 export interface SimulationReadModel {
   readonly simTimeHours: number;
   readonly day: number;
   readonly hour: number;
   readonly tick: number;
   readonly speedMultiplier: number;
+  readonly paused: boolean;
   readonly pendingIncidents: readonly SimulationIncidentSummary[];
 }
 
@@ -15,6 +21,30 @@ export interface SimulationIncidentSummary {
   readonly message: string;
   readonly severity: "info" | "warning" | "critical";
   readonly raisedAtTick: number;
+  readonly status: "active" | "resolved";
+  readonly zoneId: string;
+  readonly measured: {
+    readonly metric: "temperature_C";
+    readonly value: number;
+  };
+  readonly targetBand: {
+    readonly min: number;
+    readonly max: number;
+  };
+  readonly consequence: {
+    readonly code: "plant_heat_stress";
+    readonly affectedPlantCount: number;
+    readonly averagePlantHealth01: number | null;
+  };
+  readonly recommendedIntent: {
+    readonly type: "intent.zone.climate.adjust.v1";
+    readonly payload: {
+      readonly structureId: string;
+      readonly zoneId: string;
+      readonly target: { readonly temperature_C: number };
+    };
+  };
+  readonly resolvedAtTick: number | null;
 }
 
 export interface EconomyTariffReference {
@@ -27,21 +57,6 @@ export interface EconomyTariffsSnapshot {
   readonly price_electricity: number;
   readonly price_water: number;
   readonly structures: readonly EconomyTariffReference[];
-}
-
-export interface EconomyReadModel {
-  readonly balance_per_h: number;
-  readonly delta_per_h: number;
-  readonly dailyDelta_per_h: number;
-  readonly operatingCost_per_h: number;
-  readonly labourCost_per_h: number;
-  readonly maintenanceCost_per_h: number;
-  readonly utilitiesCost_per_h: number;
-  readonly energy_kwh_per_h: number;
-  readonly water_m3_per_h: number;
-  readonly energyCost_per_h: number;
-  readonly waterCost_per_h: number;
-  readonly tariffs: EconomyTariffsSnapshot;
 }
 
 export interface DeviceSummary {
@@ -139,6 +154,11 @@ export interface ZoneReadModel {
   readonly strainId: string;
   readonly maxPlants: number;
   readonly currentPlantCount: number;
+  readonly readiness?: ZoneReadiness;
+  readonly plants?: readonly ZonePlantProgress[];
+  readonly harvestEligibility: ZoneHarvestEligibility;
+  readonly sowEligibility?: ZoneSowEligibility;
+  readonly strainChoices?: readonly ZoneStrainChoice[];
   readonly kpis: ZoneKpiSnapshot;
   readonly pestStatus: ZonePestStatus;
   readonly devices: readonly DeviceSummary[];
@@ -146,6 +166,79 @@ export interface ZoneReadModel {
   readonly climateSnapshot: ZoneClimateSnapshot;
   readonly timeline: readonly TimelineEntry[];
   readonly tasks: readonly ZoneTaskEntry[];
+}
+
+export interface ZonePlantProgress {
+  readonly id: string;
+  readonly strainId: string;
+  readonly strainName: string;
+  readonly phase: string;
+  readonly ageHours: number;
+  readonly health01: number;
+  readonly biomassKg: number;
+  readonly estimatedMaturityAtSimHour: number;
+  readonly estimatedRemainingHours: number;
+  readonly status: "active" | "harvested";
+  readonly harvestReady: boolean;
+}
+
+export interface ZoneHarvestEligibility {
+  readonly eligible: boolean;
+  readonly plantIds: readonly string[];
+  readonly reasons: readonly "no-harvest-ready-plants"[];
+}
+
+export interface InventoryLotReadModel {
+  readonly lotId: string;
+  readonly strainId: string;
+  readonly strainName: string;
+  readonly quality01: number;
+  readonly freshWeightKg: number;
+  readonly remainingFreshWeightKg: number;
+  readonly remainingDryWeightKg: number;
+  readonly moisture01: number;
+  readonly structureId: string;
+  readonly storageRoomId: string;
+  readonly source: {
+    readonly plantId: string;
+    readonly zoneId: string;
+    readonly harvestIntentId: string;
+  };
+  readonly createdAtTick: number;
+  readonly salePreview: InventorySalePreviewReadModel | null;
+}
+
+/** Authoritative 50% sale quote projected by the facade. */
+export interface InventorySalePreviewReadModel {
+  readonly fraction01: number;
+  readonly soldFreshWeightKg: number;
+  readonly soldDryWeightKg: number;
+  readonly priceCcPerDryGram: number;
+  readonly qualityFactor: number;
+  readonly proceedsCc: number;
+  readonly balanceBeforeCc: number;
+  readonly balanceAfterCc: number;
+  readonly cycleContributionMarginAfterCc: number;
+}
+
+export interface InventoryReadModel {
+  readonly lots: readonly InventoryLotReadModel[];
+  readonly totalFreshWeightKg: number;
+}
+
+export interface ZoneSowEligibility {
+  readonly eligible: boolean;
+  readonly reasons: readonly ("zone-not-empty" | "capacity-exhausted" | "missing-prerequisites")[];
+  readonly capacityRemaining: number;
+}
+
+export interface ZoneStrainChoice {
+  readonly strainId: string;
+  readonly slug: string;
+  readonly name: string;
+  readonly seedPriceCc: number;
+  readonly eligible: boolean;
+  readonly ineligibilityReason: "incompatible-cultivation-method" | null;
 }
 
 export interface ZoneClimateSnapshot {
@@ -304,10 +397,16 @@ export interface IrrigationLinePriceEntry {
 
 export interface DevicePriceEntry {
   readonly id: string;
+  readonly deviceBlueprintId?: string;
   readonly deviceSlug: string;
   readonly coverageArea_m2: number;
   readonly throughput_m3_per_hour: number;
   readonly capitalExpenditure: number;
+}
+
+export interface ZoneReadiness {
+  readonly status: "ready" | "missing-prerequisites";
+  readonly missingPrerequisites: readonly string[];
 }
 
 export interface PriceBookCatalog {
@@ -341,6 +440,9 @@ export interface ReadModelSnapshot {
   readonly hr: HrReadModel;
   readonly priceBook: PriceBookCatalog;
   readonly compatibility: CompatibilityMaps;
+  readonly inventory: InventoryReadModel;
+  readonly breeding: BreedingReadModel;
+  readonly runSummary: RunSummaryReadModel;
 }
 
 export type FrozenReadModelSnapshot = ReadModelSnapshot;

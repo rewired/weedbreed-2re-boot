@@ -5,7 +5,7 @@ import { domainEntitySchema, sluggedEntitySchema, spatialEntitySchema } from './
 import { structureDeviceSchema } from './zone.ts';
 import { roomSchema } from './room.ts';
 
-export const structureSchema: z.ZodType<Structure> = domainEntitySchema
+export const structureSchema: z.ZodType<Structure, z.ZodTypeDef, unknown> = domainEntitySchema
   .merge(sluggedEntitySchema)
   .merge(spatialEntitySchema)
   .extend({

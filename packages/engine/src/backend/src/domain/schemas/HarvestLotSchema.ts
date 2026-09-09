@@ -8,15 +8,17 @@ const createdAtTickSchema = finiteNumber
   .min(0, 'createdAt_tick must be greater than or equal to zero.')
   .transform((value) => Math.trunc(value));
 
-export const HarvestLotSchema: z.ZodType<HarvestLot> = z
+export const HarvestLotSchema: z.ZodType<HarvestLot, z.ZodTypeDef, unknown> = z
   .object({
     id: uuidSchema,
     structureId: uuidSchema,
     roomId: uuidSchema,
+    strainId: uuidSchema,
     source: z
       .object({
         plantId: uuidSchema,
-        zoneId: uuidSchema
+        zoneId: uuidSchema,
+        harvestIntentId: uuidSchema,
       })
       .strict(),
     freshWeight_kg: nonNegativeNumber,

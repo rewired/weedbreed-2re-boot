@@ -70,6 +70,10 @@ describe('intent regression coverage', () => {
       const schedule = { onHours: 18, offHours: 6, startHour: 2 } as Zone['lightSchedule'];
       expect(await ack(client, { type: 'intent.zone.lighting.adjust.v1', structureId: structure.id, zoneId: zone.id, lightSchedule: schedule, intentId: 'intent-light-1', correlationId: 'corr-light-1' })).toMatchObject({ ok: true, status: 'queued', intentId: 'intent-light-1', correlationId: 'corr-light-1', result: { command: 'zone.adjustLighting', structureId: structure.id, zoneId: zone.id, lightSchedule: schedule } });
       expect(world.company.structures[0]?.rooms.find((room) => room.id === growRoom.id)?.zones.find((candidate) => candidate.id === zone.id)?.lightSchedule).toEqual(schedule);
+      expect(world.company.structures[0]?.rooms.find((room) => room.id === growRoom.id)?.zones.find((candidate) => candidate.id === zone.id)?.photoperiodPhase).toBe('vegetative');
+      const floweringSchedule = { onHours: 12, offHours: 12, startHour: 2 } as Zone['lightSchedule'];
+      expect(await ack(client, { type: 'intent.zone.lighting.adjust.v1', structureId: structure.id, zoneId: zone.id, lightSchedule: floweringSchedule, intentId: 'intent-flower-1', correlationId: 'corr-flower-1' })).toMatchObject({ ok: true, result: { command: 'zone.adjustLighting', lightSchedule: floweringSchedule } });
+      expect(world.company.structures[0]?.rooms.find((room) => room.id === growRoom.id)?.zones.find((candidate) => candidate.id === zone.id)?.photoperiodPhase).toBe('flowering');
       const invalidLighting = await ack(client, { type: 'intent.zone.lighting.adjust.v1', structureId: structure.id, zoneId: zone.id, lightSchedule: { onHours: 20, offHours: 5, startHour: 0 }, intentId: 'intent-light-fail', correlationId: 'corr-light-fail' });
       expect(invalidLighting.ok).toBe(false);
       expect(invalidLighting.error?.code).toBe(SOCKET_ERROR_CODES.INTENT_HANDLER_ERROR);

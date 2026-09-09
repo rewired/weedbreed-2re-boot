@@ -4,8 +4,8 @@ import { glob } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 
-const WARN_THRESHOLD = 700;
-const FAIL_THRESHOLD = 1200;
+const WARN_THRESHOLD = 500;
+const FAIL_THRESHOLD = 700;
 
 const INCLUDE_GLOBS = [
   'packages/**/src/**/*.{ts,tsx,js,jsx,mjs,mts,cjs,cts}'
@@ -20,6 +20,13 @@ const IGNORE_GLOBS = [
 ];
 
 const toRelative = (filePath) => path.relative(process.cwd(), filePath);
+
+const isGeneratedOrVendoredPath = (filePath) => {
+  const segments = toRelative(filePath).replaceAll('\\', '/').split('/');
+  return segments.some((segment) =>
+    ['node_modules', 'dist', 'build', '.turbo', '.cache'].includes(segment)
+  );
+};
 
 const countLoc = (source) => {
   if (source.length === 0) {
@@ -38,7 +45,9 @@ const collectFiles = async () => {
       ignore: IGNORE_GLOBS,
       nodir: true
     })) {
-      fileSet.add(match);
+      if (!isGeneratedOrVendoredPath(match)) {
+        fileSet.add(match);
+      }
     }
   }
 

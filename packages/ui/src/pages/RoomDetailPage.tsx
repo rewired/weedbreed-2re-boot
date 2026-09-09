@@ -1,7 +1,6 @@
 import { useCallback, type ReactElement } from "react";
 import { Link, useInRouterContext, useNavigate, type NavigateFunction } from "react-router-dom";
 import { LightingControlCard, ClimateControlCard } from "@ui/components/controls";
-import type { ControlCardGhostActionPayload } from "@ui/components/controls/ControlCard";
 import { RoomClimateSnapshot } from "@ui/components/rooms/RoomClimateSnapshot";
 import { RoomDevicesPanel } from "@ui/components/rooms/RoomDevicesPanel";
 import { RoomHeader } from "@ui/components/rooms/RoomHeader";
@@ -30,11 +29,7 @@ export function RoomDetailPage({ structureId, roomId }: RoomDetailPageProps): Re
   const intentClient = useIntentClient();
   const renameDisabledReason = intentClient ? undefined : "Intent transport unavailable.";
   const handleGhostAction = useCallback(
-    (payload: ControlCardGhostActionPayload) => {
-      console.info("[stub] open capacity advisor", {
-        structureId,
-        origin: payload
-      });
+    () => {
       navigate(buildStructureCapacityAdvisorPath(structureId));
     },
     [navigate, structureId]
@@ -119,4 +114,3 @@ export function RoomDetailPage({ structureId, roomId }: RoomDetailPageProps): Re
     </section>
   );
 }
-

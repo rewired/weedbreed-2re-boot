@@ -34,7 +34,7 @@ export interface ClimateControlDeviceTileProps {
   readonly throughputFraction01: number;
   readonly capacityFraction01: number;
   readonly isEnabled: boolean;
-  readonly onToggleEnabled: (nextEnabled: boolean) => void;
+  readonly onToggleEnabled?: (nextEnabled: boolean) => void;
   readonly onMove?: () => void;
   readonly onRemove?: () => void;
   readonly description?: string;
@@ -277,7 +277,8 @@ function ClimateDeviceTile({
           </div>
         </dl>
       </div>
-      <div className="flex flex-wrap gap-2">
+      {onToggleEnabled || onMove || onRemove ? <div className="flex flex-wrap gap-2">
+        {onToggleEnabled ? (
         <button
           type="button"
           className={cn(
@@ -293,23 +294,24 @@ function ClimateDeviceTile({
         >
           {toggleLabel}
         </button>
-        <button
+        ) : null}
+        {onMove ? <button
           type="button"
           className="inline-flex items-center justify-center rounded-lg border border-border-base/60 bg-canvas-subtle px-3 py-2 text-sm font-medium text-text-primary transition hover:bg-canvas-subtle/80 disabled:cursor-not-allowed disabled:opacity-60"
           onClick={onMove}
           disabled={!onMove}
         >
           Move
-        </button>
-        <button
+        </button> : null}
+        {onRemove ? <button
           type="button"
           className="inline-flex items-center justify-center rounded-lg border border-border-strong bg-surface-critical/10 px-3 py-2 text-sm font-medium text-text-critical transition hover:bg-surface-critical/20 disabled:cursor-not-allowed disabled:opacity-60"
           onClick={onRemove}
           disabled={!onRemove}
         >
           Remove
-        </button>
-      </div>
+        </button> : null}
+      </div> : null}
     </div>
   );
 }

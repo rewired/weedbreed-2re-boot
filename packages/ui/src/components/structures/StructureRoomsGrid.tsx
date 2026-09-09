@@ -71,8 +71,7 @@ export function StructureRoomsGrid({ rooms }: StructureRoomsGridProps): ReactEle
         </h3>
       </div>
       <p className="text-sm text-text-muted">
-        Room cards surface purpose, capacity, and zoning snapshot data. Duplicate, move, and capacity advisor buttons are
-        stubbed pending Task 7000/8000 flows but retain deterministic identifiers for wiring.
+        Room cards surface purpose, capacity, and zoning snapshot data.
       </p>
       <div className="structure-rooms-grid">
           {rooms.map((room) => (
@@ -101,7 +100,7 @@ export function StructureRoomsGrid({ rooms }: StructureRoomsGridProps): ReactEle
                 </div>
               ) : null}
             </div>
-            <div className="structure-room-card__actions">
+            {room.actions.length > 0 ? <div className="structure-room-card__actions">
               {room.actions.map((action) => (
                 <button
                   key={action.id}
@@ -114,11 +113,10 @@ export function StructureRoomsGrid({ rooms }: StructureRoomsGridProps): ReactEle
                   <span>{action.label}</span>
                 </button>
               ))}
-            </div>
+            </div> : null}
           </article>
         ))}
       </div>
     </section>
   );
 }
-

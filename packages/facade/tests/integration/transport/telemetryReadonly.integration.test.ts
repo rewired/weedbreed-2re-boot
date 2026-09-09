@@ -26,11 +26,15 @@ describe('transport adapter — telemetry namespace', () => {
       harness.adapter.publishTelemetry({
         topic: 'telemetry.test.event.v1',
         payload: { ok: true },
+        eventId: '91000000-0000-4000-8000-000000000001',
+        simTick: 1,
       });
 
       await expect(received).resolves.toEqual({
         topic: 'telemetry.test.event.v1',
         payload: { ok: true },
+        eventId: '91000000-0000-4000-8000-000000000001',
+        simTick: 1,
       });
     } finally {
       if (client) {

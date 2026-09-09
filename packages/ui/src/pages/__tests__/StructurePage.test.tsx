@@ -58,7 +58,7 @@ describe("StructurePage", () => {
     expect(warningBadge.length).toBeGreaterThan(0);
   });
 
-  it("lists rooms with duplicate and move entry points and workforce snapshot", () => {
+  it("lists rooms without unavailable actions and retains the workforce snapshot", () => {
     render(<StructurePage structureId="structure-green-harbor" />);
 
     const roomsSection = screen
@@ -69,9 +69,9 @@ describe("StructurePage", () => {
     }
 
     const roomsWithin = within(roomsSection);
-    expect(roomsWithin.getAllByRole("button", { name: /duplicate room/i })).not.toHaveLength(0);
-    expect(roomsWithin.getAllByRole("button", { name: /move device/i })).not.toHaveLength(0);
-    expect(roomsWithin.getAllByRole("button", { name: /capacity advisor/i })).not.toHaveLength(0);
+    expect(roomsWithin.queryByRole("button", { name: /duplicate room/i })).not.toBeInTheDocument();
+    expect(roomsWithin.queryByRole("button", { name: /move device/i })).not.toBeInTheDocument();
+    expect(roomsWithin.queryByRole("button", { name: /capacity advisor/i })).not.toBeInTheDocument();
 
     const workforceHeading = screen.getByRole("heading", {
       level: SECTION_HEADING_LEVEL,
@@ -87,4 +87,3 @@ describe("StructurePage", () => {
     expect(workforceWithin.getByText(/Leonie Krause/)).toBeInTheDocument();
   });
 });
-

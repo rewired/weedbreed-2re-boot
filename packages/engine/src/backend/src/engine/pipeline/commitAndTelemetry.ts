@@ -1,6 +1,11 @@
 import { HOURS_PER_DAY, HOURS_PER_TICK } from '../../constants/simConstants.ts';
 import type { SimulationWorld, WorkforcePayrollState } from '../../domain/world.ts';
-import { TELEMETRY_TICK_COMPLETED_V1, type TelemetryTickCompletedPayload } from '../../telemetry/topics.ts';
+import {
+  TELEMETRY_DEMO_ENVIRONMENT_INCIDENT_V1,
+  TELEMETRY_TICK_COMPLETED_V1,
+  type TelemetryDemoEnvironmentIncidentPayload,
+  type TelemetryTickCompletedPayload,
+} from '../../telemetry/topics.ts';
 import { hasWorldBeenMutated, type EngineRunContext } from '../Engine.ts';
 import { resolveTickHours } from '../resolveTickHours.ts';
 
@@ -150,41 +155,32 @@ function buildTickTelemetryPayload(nextWorld: SimulationWorld, ctx: EngineRunCon
       ? operatingCostPerHourCandidates.reduce((sum, value) => sum + value, 0)
       : undefined;
 
-  const payload: TelemetryTickCompletedPayload = {
+  return {
     simTimeHours: nextWorld.simTimeHours,
     targetTicksPerHour,
     actualTicksPerHour,
-  };
-
-  if (isFiniteNumber(operatingCostPerHour) && operatingCostPerHour > 0) {
-    payload.operatingCostPerHour = operatingCostPerHour;
-  }
-
-  if (isFiniteNumber(labourCostPerHour) && labourCostPerHour > 0) {
-    payload.labourCostPerHour = labourCostPerHour;
-  }
-
-  if (isFiniteNumber(utilityTelemetry.utilitiesCostPerHour) && utilityTelemetry.utilitiesCostPerHour > 0) {
-    payload.utilitiesCostPerHour = utilityTelemetry.utilitiesCostPerHour;
-  }
-
-  if (isFiniteNumber(utilityTelemetry.energyKwhPerDay) && utilityTelemetry.energyKwhPerDay > 0) {
-    payload.energyKwhPerDay = utilityTelemetry.energyKwhPerDay;
-  }
-
-  if (isFiniteNumber(utilityTelemetry.energyCostPerHour) && utilityTelemetry.energyCostPerHour > 0) {
-    payload.energyCostPerHour = utilityTelemetry.energyCostPerHour;
-  }
-
-  if (isFiniteNumber(utilityTelemetry.waterCubicMetersPerDay) && utilityTelemetry.waterCubicMetersPerDay > 0) {
-    payload.waterCubicMetersPerDay = utilityTelemetry.waterCubicMetersPerDay;
-  }
-
-  if (isFiniteNumber(utilityTelemetry.waterCostPerHour) && utilityTelemetry.waterCostPerHour > 0) {
-    payload.waterCostPerHour = utilityTelemetry.waterCostPerHour;
-  }
-
-  return payload;
+    ...(isFiniteNumber(operatingCostPerHour) && operatingCostPerHour > 0
+      ? { operatingCostPerHour }
+      : {}),
+    ...(isFiniteNumber(labourCostPerHour) && labourCostPerHour > 0
+      ? { labourCostPerHour }
+      : {}),
+    ...(isFiniteNumber(utilityTelemetry.utilitiesCostPerHour) && utilityTelemetry.utilitiesCostPerHour > 0
+      ? { utilitiesCostPerHour: utilityTelemetry.utilitiesCostPerHour }
+      : {}),
+    ...(isFiniteNumber(utilityTelemetry.energyKwhPerDay) && utilityTelemetry.energyKwhPerDay > 0
+      ? { energyKwhPerDay: utilityTelemetry.energyKwhPerDay }
+      : {}),
+    ...(isFiniteNumber(utilityTelemetry.energyCostPerHour) && utilityTelemetry.energyCostPerHour > 0
+      ? { energyCostPerHour: utilityTelemetry.energyCostPerHour }
+      : {}),
+    ...(isFiniteNumber(utilityTelemetry.waterCubicMetersPerDay) && utilityTelemetry.waterCubicMetersPerDay > 0
+      ? { waterCubicMetersPerDay: utilityTelemetry.waterCubicMetersPerDay }
+      : {}),
+    ...(isFiniteNumber(utilityTelemetry.waterCostPerHour) && utilityTelemetry.waterCostPerHour > 0
+      ? { waterCostPerHour: utilityTelemetry.waterCostPerHour }
+      : {}),
+  } satisfies TelemetryTickCompletedPayload;
 }
 
 export function commitAndTelemetry(world: SimulationWorld, ctx: EngineRunContext): SimulationWorld {
@@ -199,6 +195,25 @@ export function commitAndTelemetry(world: SimulationWorld, ctx: EngineRunContext
 
   const payload = buildTickTelemetryPayload(nextWorld, ctx);
   ctx.telemetry?.emit(TELEMETRY_TICK_COMPLETED_V1, { ...payload });
+
+  const incident = nextWorld.demoIncident;
+  const transitionedNow = incident?.status === 'active'
+    ? incident.triggeredAtSimTimeHours === nextWorld.simTimeHours
+    : incident?.resolvedAtSimTimeHours === nextWorld.simTimeHours;
+
+  if (incident && transitionedNow) {
+    const incidentPayload = {
+      incidentCode: incident.code,
+      status: incident.status,
+      zoneId: incident.zoneId,
+      simTimeHours: nextWorld.simTimeHours,
+      measuredTemperatureC: incident.measuredTemperatureC,
+      targetBandC: { minC: incident.targetBandC[0], maxC: incident.targetBandC[1] },
+      consequence: incident.consequence,
+      recommendedIntent: incident.recommendedIntent,
+    } satisfies TelemetryDemoEnvironmentIncidentPayload;
+    ctx.telemetry?.emit(TELEMETRY_DEMO_ENVIRONMENT_INCIDENT_V1, { ...incidentPayload });
+  }
 
   return nextWorld;
 }

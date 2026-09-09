@@ -4,7 +4,7 @@ import { PLANT_LIFECYCLE_STAGES, type Plant } from '../entities.ts';
 import { finiteNumber, uuidSchema } from './primitives.ts';
 import { domainEntitySchema, sluggedEntitySchema, zeroToOneNumber } from './base.ts';
 
-export const plantSchema: z.ZodType<Plant> = domainEntitySchema
+export const plantSchema: z.ZodType<Plant, z.ZodTypeDef, unknown> = domainEntitySchema
   .merge(sluggedEntitySchema)
   .extend({
     strainId: uuidSchema,

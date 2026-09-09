@@ -38,11 +38,8 @@ export function RoomTimelinePanel({ timeline, actions }: RoomTimelinePanelProps)
             </ol>
           )}
         </div>
-        <div className="space-y-3">
+        {actions.length > 0 ? <div className="space-y-3">
           <h4 className="text-sm font-semibold uppercase tracking-[0.2em] text-text-primary">Actions</h4>
-          <p className="text-xs text-text-muted">
-            Buttons trigger console stubs until Task 7000/8000 wire the orchestration flows.
-          </p>
           <div className="flex flex-wrap gap-2">
             {actions.map((action) => (
               <button
@@ -56,9 +53,8 @@ export function RoomTimelinePanel({ timeline, actions }: RoomTimelinePanelProps)
               </button>
             ))}
           </div>
-        </div>
+        </div> : null}
       </div>
     </section>
   );
 }
-

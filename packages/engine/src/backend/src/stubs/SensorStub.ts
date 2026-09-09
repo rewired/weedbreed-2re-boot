@@ -1,10 +1,10 @@
-import { SAFETY_MAX_CO2_PPM } from '@/backend/src/constants/simConstants';
+import { SAFETY_MAX_CO2_PPM } from '../constants/simConstants.ts';
 import {
   HUMIDITY_SENSOR_MAX01,
   HUMIDITY_SENSOR_MIN01,
   TEMPERATURE_SENSOR_MAX_C,
   TEMPERATURE_SENSOR_MIN_C
-} from '@/backend/src/constants/climate';
+} from '../constants/climate.ts';
 import type { ISensor, SensorInputs, SensorOutputs } from '../domain/interfaces/ISensor.ts';
 import type { SensorMeasurementType } from '../domain/entities.ts';
 import type { RandomNumberGenerator } from '../util/rng.ts';

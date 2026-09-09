@@ -156,19 +156,32 @@ describe('facade transport dev server telemetry bridge', () => {
       const ackPromise = new Promise<TransportAck>((resolve) => {
         intentsClient?.emit(
           INTENT_EVENT,
-          { type: 'hiring.market.scan', structureId: structure.id },
+          {
+            type: 'plants.harvest.v1',
+            intentId: '00000000-0000-4000-8000-000000000011',
+            structureId: structure.id,
+            roomId: growRoom.id,
+            zoneId: zone.id,
+            plantIds: [plantId],
+          },
           (response: TransportAck) => {
             resolve(response);
+            intentsClient?.emit(
+              INTENT_EVENT,
+              { type: 'simulation.control.step' },
+              () => undefined,
+            );
           },
         );
       });
 
       const [{ harvestEvent, tickEvent }, ack] = await Promise.all([telemetryEventPromise, ackPromise]);
 
-      expect(ack).toMatchObject({ ok: true, status: 'queued' });
-      expect(ack.intentId ?? null).toBeNull();
+      expect(ack).toMatchObject({ ok: true, status: 'applied' });
       expect(ack.correlationId ?? null).toBeNull();
       expect(harvestEvent.topic).toBe(TELEMETRY_HARVEST_CREATED_V1);
+      expect(harvestEvent.simTick).toBe(0);
+      expect(harvestEvent.eventId).toMatch(/^[0-9a-f-]{36}$/u);
 
       const payload = harvestEvent.payload as Record<string, unknown>;
 
@@ -186,6 +199,7 @@ describe('facade transport dev server telemetry bridge', () => {
       expect(typeof payload.lotId).toBe('string');
 
       const tickPayload = tickEvent.payload as Record<string, unknown>;
+      expect(tickEvent.simTick).toBe(1);
       expect(tickPayload.simTimeHours).toBeCloseTo(1, 6);
       expect(tickPayload.targetTicksPerHour).toBeCloseTo(1, 6);
       expect(tickPayload.actualTicksPerHour).toBeCloseTo(1, 6);
@@ -193,9 +207,11 @@ describe('facade transport dev server telemetry bridge', () => {
       const zoneSnapshot = receivedEvents.find((event) => event.topic === TELEMETRY_ZONE_SNAPSHOT_V1);
       expect(zoneSnapshot).toBeDefined();
       const zonePayload = (zoneSnapshot?.payload ?? {}) as Record<string, unknown>;
+      expect(zoneSnapshot?.simTick).toBe(0);
       expect(zonePayload.zoneId).toBe(zone.id);
       expect(zonePayload.simTime).toBeCloseTo(world.simTimeHours, 6);
       expect(Array.isArray(zonePayload.warnings)).toBe(true);
+      expect(new Set(receivedEvents.map((event) => event.eventId)).size).toBe(receivedEvents.length);
     } finally {
       if (intentsClient) {
         await disconnectClient(intentsClient);
@@ -209,4 +225,3 @@ describe('facade transport dev server telemetry bridge', () => {
     }
   });
 });
-

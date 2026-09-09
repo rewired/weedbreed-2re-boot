@@ -129,6 +129,8 @@ describe('terminal monitor integration', () => {
     await waitFor(() => ui.lastView?.connection === 'connected', 2000);
 
     const event: TelemetryEvent = {
+      eventId: '00000000-0000-4000-8000-000000000001',
+      simTick: 24,
       topic: 'telemetry.workforce.kpi.v1',
       payload: {
         snapshot: {

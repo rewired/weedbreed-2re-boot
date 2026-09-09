@@ -1,5 +1,108 @@
 # Changelog
 
+### Unreleased — Reanimation
+
+- 2026-09-09 — R-900 deterministic state evidence hardening:
+  - Centralised persistent-world and conformance hashing on stable-key JSON
+    with finite numeric leaves quantised to nine decimal places (`EPS_ABS`),
+    including canonical `-0` handling and JSON round-trip coverage.
+  - Removed the remaining random UUID generation from the legacy harvest-lot
+    helper; identical authoritative lot inputs now derive the same UUID.
+  - Added mandatory deterministic `eventId` and authoritative `simTick` fields
+    to every published telemetry envelope. The Socket transport rejects
+    incomplete envelopes, while monitor and UI consumers retain the additive
+    `{ topic, payload }` compatibility contract.
+
+- 2026-09-08 — R-800 atomic browser-session export and import:
+  - Added JSON-ready `session.save.v1` and `session.load.v1` envelopes around
+    the fully validated engine save, canonical world hash, explicit playback
+    state, and chronological journey milestone evidence; read-model snapshots
+    are never persisted.
+  - Session load now validates versions, world hash, and milestone evidence
+    before replacing state, then restores playback and invalidates staged
+    commands plus domain acknowledgement caches. Integration coverage proves
+    replay/conflict behavior and deterministic continuation after reload.
+  - The Socket.IO ingress now uses an explicit 8 MiB packet ceiling instead of
+    its 1 MiB default, allowing the measured 2,111,926-byte 6000-hour fixture to load
+    while retaining a finite denial-of-service boundary. Oversized packets are
+    rejected by disconnect before they can reach or mutate the facade world.
+
+- 2026-09-08 — R-700 authoritative First-F1 run summary:
+  - Added a deterministic selected-run projection that remains locked until
+    selection, stays in progress during the real F1 grow, and completes only
+    from terminal F1 harvest evidence.
+  - Parent and F1 rows now separate observed harvest yield, quality, cycle
+    duration, and strain-attributable realized direct margin from blueprint
+    potential. Shared operating expenses remain explicitly unallocated while
+    the authoritative whole-world ledger margin is shown alongside them.
+
+- 2026-09-08 — Recovery contract and honest verification baseline:
+  - Consolidated the previous Weed Breed attempts into a single product audit,
+    a binding product bible, a journey-ordered recovery backlog, and the
+    canonical New Game-to-F1 end-to-end test under `docs/audits/**` and
+    `docs/reanimation/**`.
+  - Added the root `pnpm verify` gate and restored real TypeScript builds for
+    packages that previously reported successful placeholder builds.
+  - Aligned the LOC guard with the 500-line warning and 700-line failure limits
+    while excluding generated and vendored output consistently on Windows.
+  - Removed Workforce from the demo's primary navigation, hid unfinished
+    room/zone/structure actions, connected capacity prompts to real navigation,
+    and added a regression guard that rejects visible `[stub]` actions.
+  - Added the deterministic demo-scenario builder and authoritative
+    `game.new.v1` flow, including idempotent world replacement, a stable default
+    seed, paused playback, immediate read-model visibility, and the New Game UI
+    with acknowledgement-gated transition and First-F1 journey target.
+  - Added authoritative room, zone, and device purchase/install commands with
+    deterministic replay, placement/capacity/compatibility validation, live
+    zone-readiness projections, and the demo Zone Setup Wizard for real LED and
+    climate-device installation.
+  - Added deterministic, idempotent sowing for Northern Lights and Sour Diesel,
+    including authoritative readiness/capacity checks, seed quotes,
+    grow read models, the Zone sowing UI, and a real two-zone Socket-to-Engine
+    journey test with projected plant progress.
+  - Added the deterministic demo temperature incident, post-commit incident
+    telemetry, façade-owned auto-pause, persisted active/resolved read models,
+    and an acknowledgement-gated correction action in the Zone UI. The real
+    New Game journey now proves trigger-at-hour-3, correction, and resolution
+    one tick later, including a treated-versus-untreated physiology check.
+  - Corrected thermal control composition uncovered by that journey: passive
+    LED heat is no longer treated as a controllable actuator, split-system
+    cooling uses its heat-moving capacity, and automatic control accounts for
+    effects already accumulated in the current tick without overshooting its
+    setpoint.
+  - Replaced automatic harvesting with an explicit, atomic
+    `plants.harvest.v1` command. Harvest-ready plants now remain in place until
+    the player acts; successful commands create deterministic, strain-aware
+    lots in the uniquely resolved storage room, while replay and invalid
+    storage/readiness cases cannot duplicate or partially mutate the harvest.
+  - Added harvest eligibility and inventory projections plus acknowledgement-
+    gated Zone harvesting and a read-only Inventory view, keeping readiness,
+    quality, moisture, weight, and plant/strain origin visible to the player.
+  - Added a persistent 20,000 CC demo economy with immutable, deterministic
+    CapEx, OpEx, seed, and sale ledger postings. Device purchases and sowing now
+    book atomically, with insufficient-funds and replay protection.
+  - Added dry-weight-normalised partial lot sales using the documented quality
+    factor `0.5 + 0.5 × quality01`; partial sales retain lot origin and exact
+    remainder while returning authoritative proceeds and balances.
+  - Added the persistent R-600 breeding domain: harvest-backed seed/pollen
+    parents, deterministic schema-valid F1 populations of three to five,
+    immutable candidate history, exactly-one selection, and an in-save custom
+    strain registry. Qualified-parent evidence survives lot sales; selected F1
+    strains resolve through the ordinary sowing and physiology paths without
+    writing generated content into `/data`. Terminal harvested plants remain as
+    provenance history but no longer occupy sowing capacity, allowing the next
+    selected F1 generation to enter the same zone. Its zero-cost retained-stock
+    seed posting also remains valid when ongoing operating costs have pushed the
+    company balance below zero.
+  - Added structured `strainId`, `quantity`, and `unitPriceCc` metadata to new
+    seed ledger entries for honest per-strain reporting, while retaining
+    description-based replay compatibility for older saves.
+  - Replaced the prototype save payload with the complete v2 engine snapshot
+    contract and in-memory create/parse APIs. Economy, ledger, breeding runs,
+    custom strains, and qualified parents now round-trip under strict world
+    validation; deterministic v0/v1 migrations, canonical world hashes, and
+    post-load simulation continuation are covered by integration tests.
+
 ### #1000 Read-model aggregation layer
 
 - Added a Zustand-backed read-model store that exposes simulation, economy,

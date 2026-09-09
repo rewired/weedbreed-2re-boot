@@ -2,6 +2,15 @@
 
 The simulation emits read-only telemetry in alignment with SEC §15. The table below maps every engine topic to its payload contract, producer, and known consumers.
 
+Every Socket.IO publication uses the additive envelope
+`{ eventId, simTick, topic, payload }`. The façade derives `simTick` from the
+event's simulation-time field (falling back to the authoritative world tick)
+and derives the UUID `eventId` from the world seed, tick, tick-local ordinal,
+topic, and canonical payload hash. Tick-local ordinals reset explicitly when
+New Game or session load replaces the world, so replay has no process-global
+or wall-clock dependency. Existing consumers may continue reading only
+`{ topic, payload }`.
+
 | Topic | Payload shape | Producer(s) | Consumer(s) |
 | --- | --- | --- | --- |
 | `telemetry.harvest.created.v1` | `{ structureId, roomId, plantId, zoneId, lotId, createdAt_tick, freshWeight_kg, moisture01, quality01 }` | `applyHarvestAndInventory` pipeline stage | Seed-to-harvest report generator; monitoring pipelines |

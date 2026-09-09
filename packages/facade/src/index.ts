@@ -51,8 +51,13 @@ export {
   composeReadModelSnapshot,
   validateReadModelSnapshot,
   type CompatibilityMaps,
+  type EconomyLedgerEntryReadModel,
   type EconomyReadModel,
+  type HarvestEligibilityReadModel,
   type HrReadModel,
+  type InventoryLotReadModel,
+  type InventoryReadModel,
+  type InventorySalePreviewReadModel,
   type PriceBookCatalog,
   type ReadModelSnapshot,
   type SimulationReadModel,
@@ -65,7 +70,67 @@ export {
   createHiringMarketScanIntent,
 } from './intents/hiring.js';
 export {
+  createGameNewIntent,
+  DEFAULT_DEMO_SEED,
+  gameNewIntentSchema,
+  type GameNewIntent,
+} from './intents/game.js';
+export {
+  devicePurchaseInstallIntentSchema,
+  roomCreateIntentSchema,
+  zoneCreateIntentSchema,
+  type DevicePurchaseInstallIntent,
+  type RoomCreateIntent,
+  type ZoneCreateIntent,
+} from './intents/facility/index.js';
+export {
+  plantsHarvestIntentSchema,
+  plantsSowIntentSchema,
+  type PlantsHarvestIntent,
+  type PlantsSowIntent,
+} from './intents/plants/index.js';
+export {
+  inventorySellIntentSchema,
+  type InventorySellIntent,
+} from './intents/inventory/index.js';
+export {
+  JOURNEY_MILESTONE_CODES,
+  SESSION_SCHEMA_VERSION,
+  journeyProgressSchema,
+  sessionEnvelopeSchema,
+  sessionLoadIntentSchema,
+  sessionPlaybackSchema,
+  sessionSaveIntentSchema,
+  type JourneyMilestoneCode,
+  type JourneyProgress,
+  type SessionEnvelope,
+  type SessionLoadIntent,
+  type SessionPlayback,
+  type SessionSaveIntent,
+} from './intents/session/index.js';
+export {
+  breedingCrossF1IntentSchema,
+  breedingSelectCandidateIntentSchema,
+  type BreedingCrossF1Intent,
+  type BreedingSelectCandidateIntent,
+} from './intents/breeding/index.js';
+export type {
+  BreedingReadModel,
+  BreedingRunReadModel,
+  BreedingTraitDeltaReadModel,
+  BreedingTraitsReadModel,
+} from './readModels/breeding/index.js';
+export type {
+  RunSummaryActualMetrics,
+  RunSummaryBlueprintPotential,
+  RunSummaryEntry,
+  RunSummaryReadModel,
+  RunSummaryRole,
+  RunSummaryStatus,
+} from './readModels/runSummary/index.js';
+export {
   createTransportServer,
+  MAX_SESSION_ENVELOPE_BYTES,
   type TransportCorsOptions,
   type TransportServer,
   type TransportServerOptions,

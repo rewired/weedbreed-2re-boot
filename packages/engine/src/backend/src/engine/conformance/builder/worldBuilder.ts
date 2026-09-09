@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import { HOURS_PER_DAY } from '@/backend/src/constants/simConstants';
+import { HOURS_PER_DAY } from '../../../constants/simConstants.ts';
 
 import { fmtNum } from '../../../util/format.ts';
 import { createRng } from '../../../util/rng.ts';

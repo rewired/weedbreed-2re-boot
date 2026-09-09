@@ -22,10 +22,12 @@ export type {
   ThermalConfig
 } from './blueprints/deviceBlueprint.ts';
 export * from './blueprints/strainBlueprint.ts';
+export * from './blueprints/strainResolver.ts';
 export * from './blueprints/substrateBlueprint.ts';
 export * from './blueprints/irrigationBlueprint.ts';
 export * from './pricing/devicePriceMap.ts';
 export * from './pricing/cultivationMethodPriceMap.ts';
+export * from './pricing/strainPriceMap.ts';
 export * from '../device/createDeviceInstance.ts';
 export * from '../device/condition.ts';
 export * from './cultivation/substrateUsage.ts';

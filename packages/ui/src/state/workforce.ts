@@ -245,7 +245,7 @@ function deriveWarnings(hr: HrReadModel): WorkforceWarning[] {
       continue;
     }
 
-    const severity = entry.coverageStatus === "critical" ? "critical" : "warning";
+    const severity = entry.coverageStatus === "block" ? "critical" : "warning";
     const message = `${entry.role} coverage marked ${severity.toUpperCase()}.`;
     const suggestedAction =
       severity === "critical"

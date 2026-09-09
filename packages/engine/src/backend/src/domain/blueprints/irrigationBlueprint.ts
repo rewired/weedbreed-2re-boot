@@ -75,7 +75,7 @@ export type IrrigationBlueprint = z.infer<typeof irrigationBlueprintBaseSchema>;
 
 export function createIrrigationBlueprintSchema(
   knownSubstrateSlugs: ReadonlySet<string>
-): z.ZodType<IrrigationBlueprint> {
+): z.ZodType<IrrigationBlueprint, z.ZodTypeDef, unknown> {
   return irrigationBlueprintBaseSchema.superRefine((blueprint, ctx) => {
     const { substrates } = blueprint.compatibility;
 

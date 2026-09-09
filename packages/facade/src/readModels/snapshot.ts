@@ -5,29 +5,43 @@ import type {
   DeviceSummary,
   EconomyReadModel,
   HrReadModel,
+  InventoryReadModel,
   PriceBookCatalog,
-  ReadModelSnapshot,
   RoomReadModel,
   SimulationIncidentSummary,
   SimulationReadModel,
   StructureReadModel,
   TimelineEntry,
   ZoneReadModel,
-} from '../../../ui/src/state/readModels.types.js';
+} from './types.js';
 
 export type {
   CompatibilityMaps,
   DeviceSummary,
+  EconomyLedgerEntryReadModel,
   EconomyReadModel,
   HrReadModel,
+  HarvestEligibilityReadModel,
+  InventoryLotReadModel,
+  InventoryReadModel,
+  InventorySalePreviewReadModel,
   PriceBookCatalog,
-  ReadModelSnapshot,
+  PlantReadModel,
   RoomReadModel,
   SimulationReadModel,
+  SowEligibilityReadModel,
+  StrainChoiceReadModel,
+  StructureWarning,
   StructureReadModel,
   TimelineEntry,
+  ZoneReadiness,
+  ZoneMissingPrerequisite,
   ZoneReadModel,
-} from '../../../ui/src/state/readModels.types.js';
+} from './types.js';
+import type { BreedingReadModel } from './breeding/types.js';
+export type { BreedingReadModel } from './breeding/types.js';
+import type { ReadModelSnapshot } from './readModelSnapshotTypes.js';
+export type { FrozenReadModelSnapshot, ReadModelSnapshot } from './readModelSnapshotTypes.js';
 
 function compareByString<T>(select: (item: T) => string): (left: T, right: T) => number {
   return (left, right) => select(left).localeCompare(select(right));
@@ -113,12 +127,14 @@ function normalisePriceBook(priceBook: PriceBookCatalog): PriceBookCatalog {
   } satisfies PriceBookCatalog;
 }
 
-function sortStatusRecord(record: Readonly<Record<string, string>>): Record<string, string> {
+function sortStatusRecord<TStatus extends string>(
+  record: Readonly<Record<string, TStatus>>,
+): Record<string, TStatus> {
   const sortedEntries = Array.from(Object.entries(record)).sort(([left], [right]) =>
     left.localeCompare(right),
   );
 
-  return Object.fromEntries(sortedEntries);
+  return Object.fromEntries(sortedEntries) as Record<string, TStatus>;
 }
 
 function normaliseCompatibilityMaps(maps: CompatibilityMaps): CompatibilityMaps {
@@ -156,6 +172,9 @@ export interface FacadeReadModelSnapshotInput {
   readonly hr: HrReadModel;
   readonly priceBook: PriceBookCatalog;
   readonly compatibility: CompatibilityMaps;
+  readonly inventory: InventoryReadModel;
+  readonly breeding: BreedingReadModel;
+  readonly runSummary: import('./runSummary/types.js').RunSummaryReadModel;
 }
 
 export function composeReadModelSnapshot(input: FacadeReadModelSnapshotInput): ReadModelSnapshot {
@@ -171,6 +190,19 @@ export function composeReadModelSnapshot(input: FacadeReadModelSnapshotInput): R
     hr: normaliseHrReadModel(input.hr),
     priceBook: normalisePriceBook(input.priceBook),
     compatibility: normaliseCompatibilityMaps(input.compatibility),
+    inventory: {
+      ...input.inventory,
+      lots: Array.from(input.inventory.lots).sort(compareByString((lot) => lot.lotId)),
+    },
+    breeding: {
+      ...input.breeding,
+      qualifiedParents: Array.from(input.breeding.qualifiedParents),
+      runs: Array.from(input.breeding.runs),
+    },
+    runSummary: {
+      ...input.runSummary,
+      entries: Array.from(input.runSummary.entries),
+    },
   } satisfies ReadModelSnapshot;
 }
 
@@ -183,7 +215,7 @@ export function validateReadModelSnapshot(payload: unknown): ReadModelSnapshot {
     throw new TypeError('Read-model snapshot must be an object.');
   }
 
-  const { simulation, economy, structures, hr, priceBook, compatibility } = payload;
+  const { simulation, economy, structures, hr, priceBook, compatibility, inventory, breeding, runSummary } = payload;
 
   if (!isRecord(simulation) || typeof simulation.simTimeHours !== 'number') {
     throw new TypeError('Read-model snapshot is missing a simulation branch.');
@@ -209,5 +241,17 @@ export function validateReadModelSnapshot(payload: unknown): ReadModelSnapshot {
     throw new TypeError('Read-model snapshot is missing compatibility maps.');
   }
 
-  return payload as ReadModelSnapshot;
+  if (!isRecord(inventory) || !Array.isArray(inventory.lots)) {
+    throw new TypeError('Read-model snapshot is missing inventory projections.');
+  }
+
+  if (!isRecord(breeding) || !Array.isArray(breeding.qualifiedParents) || !Array.isArray(breeding.runs)) {
+    throw new TypeError('Read-model snapshot is missing breeding projections.');
+  }
+
+  if (!isRecord(runSummary) || !Array.isArray(runSummary.entries)) {
+    throw new TypeError('Read-model snapshot is missing run-summary projections.');
+  }
+
+  return payload as unknown as ReadModelSnapshot;
 }

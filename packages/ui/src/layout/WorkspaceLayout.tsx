@@ -1,6 +1,8 @@
 import type { ReactElement, ReactNode } from "react";
 import { ToastViewport } from "@ui/components/layout/ToastViewport";
 import { cn } from "@ui/lib/cn";
+import { useReadModelStore } from "@ui/state/readModels";
+import { LoadingScreen } from "@ui/components/layout/LoadingScreen";
 
 export interface WorkspaceLayoutProps {
   leftRail: ReactNode;
@@ -10,6 +12,12 @@ export interface WorkspaceLayoutProps {
 }
 
 export function WorkspaceLayout({ leftRail, main, simControlBar, footer }: WorkspaceLayoutProps): ReactElement {
+  const isReady = useReadModelStore((state) => state.status === "ready" && !!state.snapshot);
+
+  if (!isReady) {
+    return <LoadingScreen />;
+  }
+
   return (
     <>
       <div className="min-h-screen bg-canvas-base text-text-primary">
